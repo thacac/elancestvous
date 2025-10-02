@@ -19,7 +19,7 @@ jobs:
     permissions:
       contents: read
       packages: write
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -61,7 +61,7 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    
+
     steps:
       - name: Deploy to Cloud Server
         uses: appleboy/ssh-action@v1.0.0
@@ -73,20 +73,20 @@ jobs:
           script: |
             # Log in to GitHub Container Registry
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
-            
+
             # Pull the latest image
             docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-            
+
             # Stop and remove old container if exists
             docker stop elancestvous || true
             docker rm elancestvous || true
-            
+
             # Run new container
             docker run -d \
               --name elancestvous \
               --restart unless-stopped \
               -p 3000:3000 \
               ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-            
+
             # Clean up old images
             docker image prune -af
