@@ -2,13 +2,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Rocket, Gauge, Users } from "lucide-react";
 import CTA from "@/components/CTA";
+import Hero from "@/components/home/Hero";
 
 export default function Home() {
   return (
     <>
       {/* HERO */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-brand.light/60 to-white pointer-events-none" />
+      <Hero />
+      {/* <section className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-linear-to-b from-brand.light/60 to-white pointer-events-none" />
         <div className="container-p py-20 lg:py-28 flex flex-col-reverse lg:flex-row items-center gap-12">
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand.primary/10 text-brand-dark text-sm mb-5">
@@ -37,15 +39,15 @@ export default function Home() {
             <Image src="/logo-elancestvous.jpg" width={360} height={360} alt="Logo ÉlanC’estVous" className="drop-shadow-xl" />
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* VALEUR */}
       <section className="container-p py-14 lg:py-20">
         <h2 className="text-2xl lg:text-3xl font-bold mb-8">Ce que nous débloquons ensemble</h2>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Card icon={<Rocket />} title="Clarté & cap" text="Objectifs clarifiés et plan d’action concret pour avancer." />
-          <Card icon={<Gauge />} title="Performance durable" text="Habitudes efficaces, équilibre et progression mesurable." />
-          <Card icon={<Users />} title="Leadership & posture" text="Communication, feedback et coopération renforcés." />
+          <Card icon={<Rocket className="text-accent" />} title="Clarté & cap" text="Objectifs clarifiés et plan d’action concret pour avancer." />
+          <Card icon={<Gauge className="text-accent"/>} title="Performance durable" text="Habitudes efficaces, équilibre et progression mesurable." />
+          <Card icon={<Users className="text-accent"/>} title="Leadership & posture" text="Communication, feedback et coopération renforcés." />
         </div>
       </section>
 
@@ -93,7 +95,7 @@ export default function Home() {
 
 function Card({ icon, title, text }: { icon: React.ReactNode; title: string; text: string }) {
   return (
-    <div className="p-6 rounded-2xl bg-white shadow-soft border border-gray-100">
+    <div className="p-6 rounded-2xl bg-[#d1faf9] shadow-soft border border-primary">
       <div className="w-11 h-11 rounded-xl grid place-items-center bg-brand.primary/15 mb-4">
         {icon}
       </div>

@@ -16,7 +16,7 @@ export default function About() {
           <ul className="list-disc ml-6">
             <li>Coaching individuel et d’équipe</li>
             <li>Ateliers et formations sur-mesure</li>
-            <li>Accompagnement au changement</li>
+            <li>Accompagnements au changement</li>
           </ul>
         </div>
         <aside className="p-6 rounded-2xl bg-brand.light border border-gray-100">

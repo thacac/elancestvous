@@ -25,24 +25,6 @@ const config: Config = {
       },
     },
   },
-  plugins: [require("@tailwindcss/typography"), require("@tailwindcss/forms"), require("daisyui")],
-  daisyui: {
-    themes: [
-      {
-        elancestvous: {
-          primary: "#16BFBF",
-          secondary: "#0F172A",
-          accent: "#FF5A3D",
-          neutral: "#1F2937",
-          "base-100": "#FFFFFF",
-          info: "#38BDF8",
-          success: "#22C55E",
-          warning: "#F59E0B",
-          error: "#EF4444",
-        },
-      },
-      "light",
-    ],
-  },
+  plugins: [require("@tailwindcss/typography"), require("@tailwindcss/forms")],
 };
 export default config;

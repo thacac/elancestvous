@@ -45,6 +45,11 @@ The Docker image is built using a multi-stage build:
 
 ### Local Development
 
+Use docker compose with .env.Development
+```bash
+docker compose --env-file ./.env.development up -d
+```
+
 To build and run locally:
 
 ```bash

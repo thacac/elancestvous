@@ -1,10 +1,45 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@plugin "daisyui";
+@plugin "daisyui/theme" {
+  name: "elancestvous";
+  default: true;
+  prefersdark: false;
+  color-scheme: light;
+  --color-primary: #112e40;
+  --color-secondary: #0F172A;
+  --color-accent: #FF5A3D;
+  --color-neutral: #1F2937;
+  --color-base-100: #FFFFFF;
+  --color-info: #38BDF8;
+  --color-success: #22C55E;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
+  --color-brand-dark: #112e40;
+  --color-brand-light: #f1f5f9;
+  --color-brand-pastel: "#d1faf9";
+  --font-sans: Inter, system-ui, Segoe UI, Roboto, Arial, sans-serif;
+}
+/* Tailwind CSS v4: border color compatibility for v3 */
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
 
 :root {
-  --header: theme(colors.brand.pastel);
+  --header: var(--color-brand-pastel);
   --radius: 16px;
+}
+
+.hero {
+  position: relative;
+  background-color: var(--color-brand-pastel);
+  top: -80px;
+  height: 100vh;
 }
 
 .container-p {
@@ -12,9 +47,9 @@
 }
 
 .btn-brand {
-  @apply btn btn-primary rounded-2xl shadow-soft transition hover:scale-[1.02];
+  @apply btn btn-accent text-amber-50 px-10 py-6 rounded-2xl transition hover:scale-[1.02];
 }
 
 .badge-accent {
-  @apply badge bg-[color:var(--accent,theme(colors.brand.accent))] text-white border-none;
+  @apply badge bg-(--accent,var(--color-brand-accent)) text-white border-none;
 }
