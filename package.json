@@ -1,6 +1,6 @@
 {
   "name": "elancestvous",
-  "version": "1.0.0",
+  "version": "3.0.0",
   "private": true,
   "scripts": {
     "dev": "TURBOPACK=0 next dev",
@@ -12,10 +12,10 @@
     "@headlessui/react": "^2.2.9",
     "@heroicons/react": "^2.2.0",
     "@hookform/resolvers": "^5.2.2",
-    "@tailwindcss/forms": "^0.5.11",
     "@tailwindcss/postcss": "^4.1.18",
     "@tailwindcss/typography": "^0.5.19",
     "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "lucide-react": "^0.562.0",
     "next": "16.1.0",
     "nodemailer": "^7.0.11",
@@ -23,8 +23,11 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-hook-form": "^7.69.0",
+    "shadcn": "^3.6.2",
     "sonner": "^2.0.7",
+    "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.18",
+    "tailwindcss-animate": "^1.0.7",
     "zod": "^4.2.1"
   },
   "devDependencies": {
@@ -33,7 +36,6 @@
     "@types/react": "19",
     "@types/react-dom": "19",
     "autoprefixer": "^10.4.23",
-    "daisyui": "^5.5.14",
     "eslint": "^9.39.2",
     "eslint-config-next": "^16.1.0",
     "eslint-import-resolver-typescript": "^4.4.4",
