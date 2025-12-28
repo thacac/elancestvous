@@ -101,12 +101,12 @@ module.exports = {
 }
 ```
 
-# ÉlanC’estVous – Site vitrine (Next.js 14 + Tailwind + daisyUI)
+# ÉlanC’estVous – Site vitrine (Next.js 14 + Tailwind + shadcn/ui)
 
 ## Installation
 ```bash
-npm install
-npm run dev
+yarn install
+yarn dev
 ```
 
 ## Palette
@@ -121,3 +121,12 @@ Le logo est dans `public/logo-elancestvous.jpg`. Mettez le vôtre si besoin.
 ## Formulaire
 Le formulaire envoie vers Formspree (placeholder). Remplacez l’URL par votre service
 ou créez un endpoint `/app/api/contact/route.ts` et branchez un provider email.
+
+
+# dpeloy on hostinger
+`ssh ssh root@93.127.162.77
+docker pull ghcr.io/thacac/elancestvous:latest
+docker stop elancestvous || true
+docker rm elancestvous || true
+docker run -d --name elancestvous --restart unless-stopped -p 3000:3000 ghcr.io/thacac/elancestvous:latest
+`

@@ -46,8 +46,7 @@ ENV NODE_ENV=production
 ENV SMTP_HOST="" \
     SMTP_PORT="" \
     SMTP_USR="" \
-    SMTP_PWD="" \
-    CONTACT_MAIL=""
+    SMTP_PWD=""
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs

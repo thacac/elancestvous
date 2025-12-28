@@ -14,7 +14,7 @@ env:
   IMAGE_NAME: ${{ github.actor }}/elancestvous-nextjs-16
 
 jobs:
-  build-and-push:
+  build-and-deploy:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -39,64 +39,58 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=sha,prefix={{branch}}-
-            type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          build-args: |
-            SMTP_HOST=${{ secrets.SMTP_HOST }}
-            SMTP_PORT=${{ secrets.SMTP_PORT }}
-            SMTP_USR=${{ secrets.SMTP_USR }}
-            SMTP_PWD=${{ secrets.SMTP_PWD }}
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
 
-  # deploy:
-  #   needs: build-and-push
-  #   runs-on: ubuntu-latest
-  #   if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      # Generate your .env file here or ensure it's present in your repo
 
-  #   steps:
-  #     - name: Deploy to Cloud Server
-  #       uses: appleboy/ssh-action@v1.0.0
-  #       with:
-  #         host: ${{ secrets.DEPLOY_HOST }}
-  #         username: ${{ secrets.DEPLOY_USER }}
-  #         key: ${{ secrets.DEPLOY_SSH_KEY }}
-  #         port: ${{ secrets.DEPLOY_PORT || 22 }}
-  #         script: |
-  #           # Log in to GitHub Container Registry
-  #           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
+      - name: Prepare deployment folder on VPS
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USR }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          script: |
+            # Create the deployment directory if it doesn't exist
+            mkdir -p /home/${{ secrets.VPS_USR }}/elancestvous
 
-  #           # Pull the latest image
-  #           docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            # Set the owner of the directory to the deployment user
+            chown ${{ secrets.VPS_USR }}:${{ secrets.VPS_USR }} /home/${{ secrets.VPS_USR }}/elancestvous
 
-  #           # Stop and remove old container if exists
-  #           docker stop elancestvous || true
-  #           docker rm elancestvous || true
+            # Restrict permissions so only the user can access the directory
+            chmod 700 /home/${{ secrets.VPS_USR }}/elancestvous
 
-  #           # Run new container
-  #           docker run 
-  #             -e SMTP_HOST=${{ secrets.SMTP_HOST }} \
-  #             -e SMTP_PORT=${{ secrets.SMTP_PORT }} \
-  #             -e SMTP_USR=${{ secrets.SMTP_USR }} \
-  #             -e SMTP_PWD=${{ secrets.SMTP_PWD }} \
-  #             -d \
-  #             --name elancestvous \
-  #             --restart unless-stopped \
-  #             -p 3000:3000 \
-  #             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+      - name: Upload .env to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USR }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          source: .env
+          target: /home/${{ secrets.VPS_USR }}/elancestvous/.env
 
-  #           # Clean up old images
-  #           docker image prune -af
+      - name: Upload deploy.sh to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USR }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          source: infra/deploy.sh
+          target: /home/${{ secrets.VPS_USR }}/elancestvous/deploy.sh
+
+      - name: Run deployment script and reload Nginx
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USR }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          envs: GITHUB_ACTOR,GITHUB_TOKEN,VPS_USR
+          script: |
+            chmod +x /home/${{ secrets.VPS_USR }}/elancestvous/deploy.sh
+            GITHUB_ACTOR=${{ github.actor }} GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} VPS_USR=${{ secrets.VPS_USR }} /home/${{ secrets.VPS_USR }}/elancestvous/deploy.sh
+            nginx -t && systemctl reload nginx
