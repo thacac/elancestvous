@@ -6,7 +6,7 @@ services:
     ports:
       - "1025:1025"
       - "8025:8025"
-    environment:
-      MH_SMTP_BIND_ADDR: ${SMTP_HOST}:${SMTP_PORT}
-      MH_UI_BIND_ADDR: "0.0.0.0:8025"
+    # environment:
+    #   MH_SMTP_BIND_ADDR: ${SMTP_HOST}:${SMTP_PORT}
+    #   MH_UI_BIND_ADDR: "0.0.0.0:8025"
     restart: unless-stopped

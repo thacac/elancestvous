@@ -3,10 +3,10 @@ name: Build and Deploy
 on:
   push:
     branches:
-      - main
+      - master
   pull_request:
     branches:
-      - main
+      - master
   workflow_dispatch:
 
 env:
@@ -82,7 +82,13 @@ jobs:
             docker rm elancestvous || true
 
             # Run new container
-            docker run -d \
+            docker run 
+              -e SMTP_HOST=${{ secrets.SMTP_HOST }} \
+              -e SMTP_PORT=${{ secrets.SMTP_PORT }} \
+              -e SMTP_USR=${{ secrets.SMTP_USR }} \
+              -e SMTP_PWD=${{ secrets.SMTP_PWD }} \
+              -e CONTACT_MAIL=${{ secrets.CONTACT_MAIL }} \
+              -d \
               --name elancestvous \
               --restart unless-stopped \
               -p 3000:3000 \

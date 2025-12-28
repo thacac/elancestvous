@@ -43,6 +43,11 @@ WORKDIR /app
 ENV NODE_ENV=production
 # Uncomment the following line in case you want to disable telemetry during runtime.
 # ENV NEXT_TELEMETRY_DISABLED=1
+ENV SMTP_HOST="" \
+    SMTP_PORT="" \
+    SMTP_USR="" \
+    SMTP_PWD="" \
+    CONTACT_MAIL=""
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs

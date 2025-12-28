@@ -11,17 +11,14 @@ export async function submit_contact_form(
 ): Promise<SMTPTransport.SentMessageInfo | { error: string } | undefined> {
     const mailer = new Mailer();
 
-
-    console.log("ContactForm submit:", process.env.CONTACT_MAIL);
-
     try {
-        if (!process.env.CONTACT_MAIL) {
+        if (!process.env.SMTP_USR) {
             return { error: "Adresse e-mail destinataire manquante sur le serveur." };
         }
 
         return await mailer.sendMailToUs({
             from: `"${data.firstName} ${data.lastName}" <${data.email}>`,
-            to: process.env.CONTACT_MAIL || "",
+            to: process.env.SMTP_USR || "",
             text: data.message,
         });
     } catch (e) {
