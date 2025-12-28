@@ -67,7 +67,7 @@ export default function Home() {
               { n: 4, t: "Ancrage" },
             ].map((s) => (
               <li key={s.n} className="p-5 rounded-2xl bg-white shadow-soft border border-gray-100">
-                <span className="badge badge-accent mb-3">Étape {s.n}</span>
+                <span className="mb-3">Étape {s.n}</span>
                 <p className="font-semibold">{s.t}</p>
               </li>
             ))}

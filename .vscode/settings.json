@@ -3,5 +3,8 @@
         "GitHub.copilot": [ "ui" ],
         "GitHub.copilot-chat": ["ui"]
     },
-    "github.copilot.editor.enableAutoCompletions": true
+    "github.copilot.editor.enableAutoCompletions": true,
+    "console-ninja.allowedHosts": [
+        "var"
+    ]
 }

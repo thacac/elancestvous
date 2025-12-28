@@ -8,10 +8,10 @@ export default function CTA() {
           <h3 className="text-2xl lg:text-3xl font-extrabold">Prêt·e à donner de l’élan ?</h3>
           <p className="mt-3 opacity-95 max-w-3xl">Planifions un échange pour clarifier vos enjeux et tracer la prochaine étape.</p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <Link href="/contact" className="btn rounded-2xl bg-white text-brand-dark border-none">
+            <Link href="/contact" className="rounded-2xl bg-white text-brand-dark border-none">
               Discuter de votre besoin
             </Link>
-            <Link href="/a-propos" className="btn btn-ghost rounded-2xl">
+            <Link href="/a-propos" className="rounded-2xl">
               Ma démarche
             </Link>
           </div>
