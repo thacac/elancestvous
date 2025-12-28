@@ -29,7 +29,7 @@ class Mailer {
   }): Promise<SMTPTransport.SentMessageInfo> {
     return await this.transporter.sendMail({
       from,
-      to: process.env.CONTACT_MAIL,
+      to: process.env.SMTP_USR,
       text,
       html,
     });

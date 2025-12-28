@@ -12,13 +12,13 @@ export async function submit_contact_form(
     const mailer = new Mailer();
 
     try {
-        if (!process.env.CONTACT_MAIL) {
+        if (!process.env.SMTP_USR) {
             return { error: "Adresse e-mail destinataire manquante sur le serveur." };
         }
 
         return await mailer.sendMailToUs({
             from: `"${data.firstName} ${data.lastName}" <${data.email}>`,
-            to: process.env.CONTACT_MAIL || "",
+            to: process.env.SMTP_USR || "",
             text: data.message,
         });
     } catch (e) {
