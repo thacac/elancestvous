@@ -11,9 +11,6 @@ export async function submit_contact_form(
 ): Promise<SMTPTransport.SentMessageInfo | { error: string } | undefined> {
     const mailer = new Mailer();
 
-
-    console.log("ContactForm submit:", process.env.CONTACT_MAIL);
-
     try {
         if (!process.env.CONTACT_MAIL) {
             return { error: "Adresse e-mail destinataire manquante sur le serveur." };

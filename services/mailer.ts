@@ -8,11 +8,12 @@ class Mailer {
     this.transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: Number(process.env.SMTP_PORT),
+      secure: Number(process.env.SMTP_PORT) == 465, // set to true if using port 465
       auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    });
+        user: process.env.SMTP_USR,
+        pass: process.env.SMTP_PWD,
+      }
+    } as SMTPTransport.Options);
   }
 
   async sendMailToUs({
@@ -28,7 +29,7 @@ class Mailer {
   }): Promise<SMTPTransport.SentMessageInfo> {
     return await this.transporter.sendMail({
       from,
-      to : process.env.CONTACT_MAIL,
+      to: process.env.CONTACT_MAIL,
       text,
       html,
     });
