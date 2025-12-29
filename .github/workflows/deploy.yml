@@ -94,7 +94,10 @@ jobs:
           username: ${{ secrets.VPS_USR }}
           password: ${{ secrets.VPS_PASSWORD }}
           # On passe les variables nécessaires au script deploy.sh
-          envs: GITHUB_ACTOR,GITHUB_TOKEN,VPS_USR
+          env:
+            VPS_USR: ${{ secrets.VPS_USR }}
+            GITHUB_ACTOR: ${{ github.actor }}
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           script: |
             # 1. Donner les droits d'exécution
             chmod +x /home/${{ secrets.VPS_USR }}/elancestvous/infra/deploy.sh
