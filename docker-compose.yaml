@@ -26,6 +26,14 @@ services:
     networks:
       - web
 
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt
+      - /var/www/certbot:/var/www/certbot
+    # On vérifie toutes les 12h, mais ça ne renouvelle QUE si nécessaire
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot --quiet; docker exec nginx nginx -s reload; sleep 12h & wait $${!}; done;'"
+
 networks:
   web:
     driver: bridge
