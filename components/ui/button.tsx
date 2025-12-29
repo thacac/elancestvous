@@ -18,7 +18,7 @@ const buttonVariants = cva(
         secondary:
           "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
         accent:
-          "bg-accent text-white shadow-sm hover:bg-accent/90",
+          "bg-accent text-white shadow-sm hover:bg-brand-accent/90",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
       },
@@ -26,6 +26,8 @@ const buttonVariants = cva(
         default: "h-9 px-2 py-4 cursor-pointer",
         sm: "h-8 rounded-md px-3 text-xs",
         lg: "h-10 rounded-md px-8 py-6",
+        wide_sm: "w-9/10 h-9 px-2 py-7 cursor-pointer",
+        wide_md: "w-9/10 h-9 px-2 py-4 cursor-pointer",
         icon: "h-9 w-9",
       },
     },

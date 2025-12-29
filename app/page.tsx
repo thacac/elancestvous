@@ -9,98 +9,128 @@ export default function Home() {
     <>
       {/* HERO */}
       <Hero />
-      {/* <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-linear-to-b from-brand.light/60 to-white pointer-events-none" />
-        <div className="container-p py-20 lg:py-28 flex flex-col-reverse lg:flex-row items-center gap-12">
-          <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand.primary/10 text-brand-dark text-sm mb-5">
-              <span className="w-2 h-2 rounded-full bg-brand.accent animate-pulse" />
-              Accélérez votre impact
-            </div>
-            <h1 className="text-4xl lg:text-6xl font-extrabold leading-tight">
-              ÉlanC’estVous
-              <span className="text-brand.accent"> — Coaching & Formation</span>
-            </h1>
-            <p className="mt-6 text-lg opacity-90">
-              J’aide les professionnels et les équipes à passer de l’intention à l’action
-              grâce à un accompagnement sur-mesure, pragmatique et humain.
+      {/* AXES */}
+      <section id="axes-de-travail" className="py-20 bg-white relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <p className="text-3xl font-serif font-bold text-dark sm:text-4xl mb-4">
+              Mes 3 Axes d'Intervention
             </p>
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <Link href="/contact" className="btn-brand">
-                Me contacter <ArrowRight size={18} />
-              </Link>
-              <Link href="/a-propos" className="btn rounded-2xl btn-ghost">
-                En savoir plus
-              </Link>
+            <h2 className="text-stone-500 max-w-2xl mx-auto">
+              Une approche globale, avec des modaliés d'intervention adaptables
+              aux besoins des équipes.
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
+            <div className="group bg-stone-50 p-8 rounded-2xl border border-stone-100 hover:shadow-xl transition duration-300">
+              <div className="w-14 h-14 bg-teal-100 rounded-full flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-white transition">
+                <svg
+                  className="w-8 h-8"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                  ></path>
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-dark mb-3">Formations</h3>
+              <p className="text-stone-600 mb-4 text-sm leading-relaxed">
+                Analyse des facteurs de risques (Gollac) et mise en place de
+                plans de prévention. Sécurisez votre organisation.
+              </p>
+              <ul className="text-sm text-stone-500 space-y-2">
+                <li className="flex items-center">
+                  <span className="w-1.5 h-1.5 bg-primary rounded-full mr-2"></span>
+                  Audit de service
+                </li>
+                <li className="flex items-center">
+                  <span className="w-1.5 h-1.5 bg-primary rounded-full mr-2"></span>
+                  Document Unique
+                </li>
+              </ul>
+            </div>
+
+            <div className="group bg-stone-50 p-8 rounded-2xl border border-stone-100 hover:shadow-xl transition duration-300 relative overflow-hidden">
+              <div className="absolute top-0 right-0 bg-primary text-white text-xs px-2 py-1 rounded-bl-lg font-bold">
+                Populaire
+              </div>
+              <div className="w-14 h-14 bg-teal-100 rounded-full flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-white transition">
+                <svg
+                  className="w-8 h-8"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                  ></path>
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-dark mb-3">
+                Coaching d'équipe ou individuel
+              </h3>
+              <p className="text-stone-600 mb-4 text-sm leading-relaxed">
+                Des outils de coaching (type 2) et l'analyse des "Drivers" pour
+                sortir de l'épuisement et retrouver l'action.
+              </p>
+              <ul className="text-sm text-stone-500 space-y-2">
+                <li className="flex items-center">
+                  <span className="w-1.5 h-1.5 bg-primary rounded-full mr-2"></span>
+                  Ateliers 2h30
+                </li>
+                <li className="flex items-center">
+                  <span className="w-1.5 h-1.5 bg-primary rounded-full mr-2"></span>
+                  Gestion des émotions
+                </li>
+              </ul>
+            </div>
+
+            <div className="group bg-stone-50 p-8 rounded-2xl border border-stone-100 hover:shadow-xl transition duration-300">
+              <div className="w-14 h-14 bg-teal-100 rounded-full flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-white transition">
+                <svg
+                  className="w-8 h-8"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                  ></path>
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-dark mb-3">
+                GAPP (Groupe d'analyse des pratiques professionnelles)
+              </h3>
+              <p className="text-stone-600 mb-4 text-sm leading-relaxed">
+                Communication non-violente et assertive pour apaiser les
+                relations d'équipe et le dialogue avec les familles.
+              </p>
+              <ul className="text-sm text-stone-500 space-y-2">
+                <li className="flex items-center">
+                  <span className="w-1.5 h-1.5 bg-primary rounded-full mr-2"></span>
+                  Cohésion d'équipe
+                </li>
+                <li className="flex items-center">
+                  <span className="w-1.5 h-1.5 bg-primary rounded-full mr-2"></span>
+                  Gestion de conflit
+                </li>
+              </ul>
             </div>
           </div>
-          <div className="relative">
-            <div className="absolute -inset-6 -z-10 rounded-full blur-3xl opacity-30 bg-brand.primary" />
-            <Image src="/logo-elancestvous.jpg" width={360} height={360} alt="Logo ÉlanC’estVous" className="drop-shadow-xl" />
-          </div>
-        </div>
-      </section> */}
-
-      {/* VALEUR */}
-      <section className="container-p py-14 lg:py-20">
-        <h2 className="text-2xl lg:text-3xl font-bold mb-8">Ce que nous débloquons ensemble</h2>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Card icon={<Rocket className="text-accent" />} title="Clarté & cap" text="Objectifs clarifiés et plan d’action concret pour avancer." />
-          <Card icon={<Gauge className="text-accent"/>} title="Performance durable" text="Habitudes efficaces, équilibre et progression mesurable." />
-          <Card icon={<Users className="text-accent"/>} title="Leadership & posture" text="Communication, feedback et coopération renforcés." />
         </div>
       </section>
-
-      {/* MÉTHODE */}
-      <section className="bg-brand.light">
-        <div className="container-p py-14 lg:py-20">
-          <h2 className="text-2xl lg:text-3xl font-bold mb-4">Méthode Élan</h2>
-          <p className="max-w-3xl opacity-90">
-            Une approche itérative : écoute, cadrage, expérimentation, mise en action.
-            Sessions rythmées, outils simples, résultats visibles.
-          </p>
-          <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              { n: 1, t: "Diagnostic" },
-              { n: 2, t: "Objectifs" },
-              { n: 3, t: "Expérimentations" },
-              { n: 4, t: "Ancrage" },
-            ].map((s) => (
-              <li key={s.n} className="p-5 rounded-2xl bg-white shadow-soft border border-gray-100">
-                <span className="mb-3">Étape {s.n}</span>
-                <p className="font-semibold">{s.t}</p>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      {/* PREUVE SOCIALE */}
-      <section className="container-p py-14 lg:py-20">
-        <h2 className="text-2xl lg:text-3xl font-bold mb-8">Ils/elles témoignent</h2>
-        <div className="grid md:grid-cols-2 gap-6">
-          {[1, 2].map((i) => (
-            <article key={i} className="p-6 rounded-2xl bg-white shadow-soft border border-gray-100">
-              <p className="italic">“Un accompagnement percutant qui m’a permis d’oser et d’avancer.”</p>
-              <p className="mt-3 font-semibold">— Client·e {i}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
       <CTA />
     </>
-  );
-}
-
-function Card({ icon, title, text }: { icon: React.ReactNode; title: string; text: string }) {
-  return (
-    <div className="p-6 rounded-2xl bg-[#d1faf9] shadow-soft border border-primary">
-      <div className="w-11 h-11 rounded-xl grid place-items-center bg-brand.primary/15 mb-4">
-        {icon}
-      </div>
-      <h3 className="font-semibold text-lg">{title}</h3>
-      <p className="opacity-90 mt-2">{text}</p>
-    </div>
   );
 }

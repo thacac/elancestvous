@@ -9,8 +9,10 @@ import { useState } from "react";
 
 const links = [
   { href: "/", label: "Accueil" },
-  { href: "/a-propos", label: "À propos" },
-  { href: "/contact", label: "Contact" },
+  { href: "/formations-rps-qvct.html", label: "Fomations" },
+  { href: "/coaching.html", label: "Coaching" },
+  { href: "/a-propos.html", label: "À propos" },
+  { href: "/contact.html", label: "Contact" },
 ];
 
 export default function Navbar() {
@@ -72,11 +74,6 @@ export default function Navbar() {
               {item.label}
             </a>
           ))}
-        </div>
-        <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-          <a href="#" className="text-sm/6 font-semibold text-primary">
-            Log in <span aria-hidden="true">&rarr;</span>
-          </a>
         </div>
       </nav>
       <Dialog
