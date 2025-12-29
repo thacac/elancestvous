@@ -11,11 +11,26 @@ fi
 cd /home/$VPS_USR/elancestvous
 
 # Connexion sécurisée au registre
-echo "$GITHUB_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+# Tentative de connexion (3 essais)
+echo "Connexion au registre GHCR..."
+n=0
+until [ "$n" -ge 3 ]
+do
+   echo "$GH_TOKEN_ARG" | docker login ghcr.io -u "$GH_ACTOR_ARG" --password-stdin && break
+   n=$((n+1)) 
+   sleep 5
+done
 
-# On pull spécifiquement l'image de l'app
-docker compose pull app
-
+# Tentative de Pull (5 essais)
+echo "Début du pull de l'image..."
+n=0
+until [ "$n" -ge 5 ]
+do
+   docker compose pull app && break
+   n=$((n+1)) 
+   echo "Échec du pull, nouvelle tentative dans 10s ($n/5)..."
+   sleep 10
+done
 # On relance les containers. Nginx verra le nouveau nginx.conf grâce au volume.
 docker compose up -d --remove-orphans
 
