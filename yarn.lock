@@ -3806,11 +3806,6 @@ hermes-parser@^0.25.1:
   dependencies:
     hermes-estree "0.25.1"
 
-hono@^4.0.0:
-  version "4.11.3"
-  resolved "https://registry.yarnpkg.com/hono/-/hono-4.11.3.tgz#4ddd985d50944b527feea930c6d0a6e80fdebc66"
-  integrity sha512-PmQi306+M/ct/m5s66Hrg+adPnkD5jiO6IjA7WhWw0gSBSo1EcRegwuI1deZ+wd5pzCGynCcn2DprnE4/yEV4w==
-
 http-errors@^2.0.0, http-errors@^2.0.1, http-errors@~2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/http-errors/-/http-errors-2.0.1.tgz#36d2f65bc909c8790018dd36fb4d93da6caae06b"
