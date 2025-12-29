@@ -89,15 +89,15 @@ jobs:
 
       - name: Run deployment script
         uses: appleboy/ssh-action@v0.1.10
+        env:
+          VPS_USR: ${{ secrets.VPS_USR }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USR }}
           password: ${{ secrets.VPS_PASSWORD }}
           # On passe les variables nécessaires au script deploy.sh
-          env:
-            VPS_USR: ${{ secrets.VPS_USR }}
-            GITHUB_ACTOR: ${{ github.actor }}
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # On liste ces variables pour qu'elles soient envoyées au VPS
           envs: GITHUB_ACTOR,GITHUB_TOKEN,VPS_USR
           script: |
