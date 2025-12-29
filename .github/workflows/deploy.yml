@@ -98,6 +98,8 @@ jobs:
             VPS_USR: ${{ secrets.VPS_USR }}
             GITHUB_ACTOR: ${{ github.actor }}
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # On liste ces variables pour qu'elles soient envoyées au VPS
+          envs: GITHUB_ACTOR,GITHUB_TOKEN,VPS_USR
           script: |
             # 1. Donner les droits d'exécution
             chmod +x /home/${{ secrets.VPS_USR }}/elancestvous/infra/deploy.sh
