@@ -20,9 +20,9 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./infra/nginx.conf:/etc/nginx/nginx.conf:ro
-      - /etc/letsencrypt/live/elancestvous.fr/fullchain.pem:/etc/ssl/certs/fullchain.pem:ro # SSL Certificate directly from Let's Encrypt
-      - /etc/letsencrypt/live/elancestvous.fr/privkey.pem:/etc/ssl/private/privkey.pem:ro # SSL Certificate directly from Let's Encrypt
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      # Montage du dossier complet pour gérer les liens symboliques
+      - /etc/letsencrypt:/etc/letsencrypt:ro
     depends_on:
       - app
     networks:

@@ -14,7 +14,7 @@ env:
   IMAGE_NAME: ${{ github.actor }}/elancestvous-nextjs-16
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -46,6 +46,20 @@ jobs:
           context: .
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+  
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create .env file from GitHub Secrets
+        run: |
+          echo "SMTP_HOST=${{ secrets.SMTP_HOST }}" >> .env
+          echo "SMTP_PORT=${{ secrets.SMTP_PORT }}" >> .env
+          echo "SMTP_USR=${{ secrets.SMTP_USR }}" >> .env
+          echo "SMTP_PWD=${{ secrets.SMTP_PWD }}" >> .env
 
       - name: Prepare deployment folder on VPS
         uses: appleboy/ssh-action@v0.1.10
@@ -63,26 +77,27 @@ jobs:
             # Restrict permissions so only the user can access the directory
             chmod 700 /home/${{ secrets.VPS_USR }}/elancestvous
 
-      - name: Create .env file from GitHub Secrets
-        run: |
-          echo "SMTP_HOST=${{ secrets.SMTP_HOST }}" >> .env
-          echo "SMTP_PORT=${{ secrets.SMTP_PORT }}" >> .env
-          echo "SMTP_USR=${{ secrets.SMTP_USR }}" >> .env
-          echo "SMTP_PWD=${{ secrets.SMTP_PWD }}" >> .env
+      - name: Copy files to VPS (Docker Compose, Nginx, .env)
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USR }}
+          password: ${{ secrets.VPS_PASSWORD }} # Ou key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "docker-compose.yaml,infra/nginx.conf,infra/deploy.sh,.env"
+          target: "/home/${{ secrets.VPS_USR }}/elancestvous/"
+          strip_components: 0 # Garde la structure des dossiers si besoin (infra dossier etc.)
 
-      - name: Upload .env and deploy.sh to VPS using SCP
-        run: |
-          sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USR }}@${{ secrets.VPS_HOST }} "mkdir -p /home/${{ secrets.VPS_USR }}/elancestvous"
-          sshpass -p "${{ secrets.VPS_PASSWORD }}" scp -o StrictHostKeyChecking=no .env infra/deploy.sh ${{ secrets.VPS_USR }}@${{ secrets.VPS_HOST }}:/home/${{ secrets.VPS_USR }}/elancestvous/
-
-      - name: Run deployment script and reload Nginx
+      - name: Run deployment script
         uses: appleboy/ssh-action@v0.1.10
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USR }}
           password: ${{ secrets.VPS_PASSWORD }}
+          # On passe les variables nécessaires au script deploy.sh
           envs: GITHUB_ACTOR,GITHUB_TOKEN,VPS_USR
           script: |
-            chmod +x /home/${{ secrets.VPS_USR }}/elancestvous/deploy.sh
-            GITHUB_ACTOR=${{ github.actor }} GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} VPS_USR=${{ secrets.VPS_USR }} /home/${{ secrets.VPS_USR }}/elancestvous/deploy.sh
-            nginx -t && systemctl reload nginx
+            # 1. Donner les droits d'exécution
+            chmod +x /home/${{ secrets.VPS_USR }}/elancestvous/infra/deploy.sh
+            
+            # 2. Lancer le script (les variables sont déjà dans l'env grâce à 'envs' plus haut)
+            /home/${{ secrets.VPS_USR }}/elancestvous/infra/deploy.sh
