@@ -14,7 +14,7 @@ env:
   IMAGE_NAME: ${{ github.actor }}/elancestvous-nextjs-16
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -46,6 +46,20 @@ jobs:
           context: .
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+  
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create .env file from GitHub Secrets
+        run: |
+          echo "SMTP_HOST=${{ secrets.SMTP_HOST }}" >> .env
+          echo "SMTP_PORT=${{ secrets.SMTP_PORT }}" >> .env
+          echo "SMTP_USR=${{ secrets.SMTP_USR }}" >> .env
+          echo "SMTP_PWD=${{ secrets.SMTP_PWD }}" >> .env
 
       - name: Prepare deployment folder on VPS
         uses: appleboy/ssh-action@v0.1.10
@@ -62,13 +76,6 @@ jobs:
 
             # Restrict permissions so only the user can access the directory
             chmod 700 /home/${{ secrets.VPS_USR }}/elancestvous
-
-      - name: Create .env file from GitHub Secrets
-        run: |
-          echo "SMTP_HOST=${{ secrets.SMTP_HOST }}" >> .env
-          echo "SMTP_PORT=${{ secrets.SMTP_PORT }}" >> .env
-          echo "SMTP_USR=${{ secrets.SMTP_USR }}" >> .env
-          echo "SMTP_PWD=${{ secrets.SMTP_PWD }}" >> .env
 
       - name: Copy files to VPS (Docker Compose, Nginx, .env)
         uses: appleboy/scp-action@v0.1.7
