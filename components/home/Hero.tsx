@@ -21,13 +21,6 @@ export default function Hero() {
             professionnels de santé à prévenir l'épuisement, réguler la charge
             émotionnelle et soutenir des pratiques de travail durables.
           </p>
-          {/* <h2 className="text-primary te"> - Coaching & Formation -</h2> */}
-          {/* <p className="mt-8 text-lg font-medium text-pretty text-gray-400 px-8 md:px-0">
-      Prévention des Risques Psycho-Sociaux (RPS), gestion du stress et des émotions.
-      </p>
-      <p className="mt-3 text-lg font-medium text-pretty text-gray-400 px-8 md:px-0">
-      Accompagnement des professionnels de la santé.
-      </p> */}
           <div className="my-8 flex flex-col md:flex-row items-center justify-center gap-y-2 md:gap-x-6">
             <Link
               href="#"
@@ -60,7 +53,7 @@ export default function Hero() {
             src="/logo_elancestvous.png"
             width={400}
             height={400}
-            className="w-full max-w-md xl:max-w-2xl"
+            className="max-w-1/2 mt-20 mb-10 md:max-w-2/3 md:mt-0 xl:max-w-2xl"
             alt="Logo ÉlanC’estVous"
           />
         </div>

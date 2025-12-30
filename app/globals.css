@@ -34,13 +34,6 @@
   /* Personnal vars */
 }
 
-.hero {
-  position: relative;
-  background-color: var(--color-brand-pastel);
-  top: -80px;
-  height: 100vh;
-}
-
 .container-p {
   @apply px-4 sm:px-6 lg:px-8 mx-auto max-w-7xl;
 }

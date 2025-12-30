@@ -17,9 +17,11 @@ export async function submit_contact_form(
         }
 
         return await mailer.sendMailToUs({
-            from: `"${data.firstName} ${data.lastName}" <${data.email}>`,
-            to: process.env.SMTP_USR || "",
-            text: data.message,
+            firstName: data.firstName,
+            lastName: data.lastName,
+            fromEmail: data.email,
+            subject: "Prise de contact via le formulaire",
+            message: data.message,
         });
     } catch (e) {
         const message = e instanceof Error ? e.message : String(e);
