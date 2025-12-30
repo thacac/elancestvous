@@ -1,6 +1,6 @@
-import DOMPurify from "isomorphic-dompurify";
 import nodemailer from "nodemailer";
 import SMTPTransport from "nodemailer/lib/smtp-transport";
+import sanitizeHtml from "sanitize-html";
 
 class Mailer {
   private transporter;
@@ -20,10 +20,6 @@ class Mailer {
     } as SMTPTransport.Options);
   }
 
-  // Nettoyage XSS pour le contenu HTML
-  private sanitizeHTML(html: string): string {
-    return DOMPurify.sanitize(html);
-  }
 
   async sendMailToUs({
     firstName,
@@ -38,35 +34,48 @@ class Mailer {
     subject: string;
     message: string;
   }): Promise<any> {
-    // 1. Nettoyage des caractères de saut de ligne dans les headers (Header Injection)
-    const cleanFirstName = firstName.replace(/[\r\n]/g, "");
-    const cleanLastName = lastName.replace(/[\r\n]/g, "");
-    const cleanEmail = fromEmail.replace(/[\r\n]/g, "");
-    const cleanSubject = subject.replace(/[\r\n]/g, "");
+    // 1. Nettoyage des headers (Header Injection)
+    const cleanFirstName = firstName.replace(/[\r\n]/g, "").trim();
+    const cleanLastName = lastName.replace(/[\r\n]/g, "").trim();
+    const cleanEmail = fromEmail.replace(/[\r\n]/g, "").trim();
+    const cleanSubject = subject.replace(/[\r\n]/g, "").trim();
 
-    // 2. Construction sécurisée du corps (HTML échappé)
-    const safeMessage = message.trim();
+    // 2. Préparation du contenu sécurisé
+    // On retire tout HTML du nom et du sujet pour plus de sécurité
+    const safeFullName = sanitizeHtml(`${cleanFirstName} ${cleanLastName}`, { allowedTags: [], allowedAttributes: {} });
+    const safeSubject = sanitizeHtml(cleanSubject, { allowedTags: [], allowedAttributes: {} });
+
+    // On autorise un formatage minimal pour le message
+    const sanitizedMessage = sanitizeHtml(message.trim(), {
+      allowedTags: ['b', 'i', 'em', 'strong', 'p', 'br'],
+      allowedAttributes: {},
+    });
+
     const safeHtml = `
+    <div style="font-family: sans-serif; line-height: 1.6;">
       <h3>Nouveau message de contact</h3>
-      <p><b>Nom :</b> ${DOMPurify.sanitize(
-      cleanFirstName
-    )} ${DOMPurify.sanitize(cleanLastName)}</p>
-      <p><b>Email :</b> ${DOMPurify.sanitize(cleanEmail)}</p>
-      <p><b>Message :</b><br/>${DOMPurify.sanitize(safeMessage).replace(
-      /\n/g,
-      "<br>"
-    )}</p>
-    `;
+      <p><b>Nom :</b> ${safeFullName}</p>
+      <p><b>Email :</b> ${cleanEmail}</p>
+      <p><b>Sujet :</b> ${safeSubject}</p>
+      <hr />
+      <p><b>Message :</b><br/>
+      ${sanitizedMessage.replace(/\n/g, "<br>")}</p>
+    </div>
+  `;
 
     return await this.transporter.sendMail({
-      from: `"${cleanFirstName} ${cleanLastName}" <${cleanEmail}>`, // On utilise l'email SMTP comme expéditeur réel pour éviter le flag spam
-      replyTo: cleanEmail, // L'adresse de l'utilisateur va ici
+      // IMPORTANT : L'expéditeur 'from' doit être VOTRE adresse configurée sur o2switch
+      // Sinon, le mail sera bloqué par les politiques SPF/Anti-Spam.
+      from: `"${safeFullName}" <${process.env.SMTP_USR}>`,
+
+      // C'est ici qu'on met l'adresse du client pour pouvoir lui répondre
+      replyTo: cleanEmail,
+
       to: process.env.SMTP_USR,
-      subject: DOMPurify.sanitize(cleanSubject),
-      text: safeMessage,
+      subject: `[Contact Site] ${safeSubject}`,
+      text: message.trim(), // Version texte brut sans HTML
       html: safeHtml,
     });
   }
 }
-
 export default Mailer;
