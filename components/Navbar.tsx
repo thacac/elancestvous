@@ -9,10 +9,10 @@ import { useState } from "react";
 
 const links = [
   { href: "/", label: "Accueil" },
-  { href: "/formations-rps-qvct.html", label: "Fomations" },
-  { href: "/coaching.html", label: "Coaching" },
-  { href: "/a-propos.html", label: "À propos" },
-  { href: "/contact.html", label: "Contact" },
+  { href: "/formations-rps-qvct", label: "Fomations" },
+  { href: "/coaching", label: "Coaching" },
+  { href: "/a-propos", label: "À propos" },
+  { href: "/contact", label: "Contact" },
 ];
 
 export default function Navbar() {
