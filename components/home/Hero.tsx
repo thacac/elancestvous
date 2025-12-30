@@ -16,7 +16,7 @@ export default function Hero() {
             Préserver la santé de&nbsp;
             <span className="text-accent italic">ceux qui soignent</span>.
           </h1>
-          <p className="text-lg text-secondary leading-relaxed max-w-2xl">
+          <p className="text-md md:text-lg text-secondary leading-relaxed max-w-2xl">
             Ancienne soignante, j'accompagne les établissements et les
             professionnels de santé à prévenir l'épuisement, réguler la charge
             émotionnelle et soutenir des pratiques de travail durables.

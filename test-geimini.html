@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Formation & Coaching RPS - Personnel Soignant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#115e59", // Teal 800 - Confiance & Médical
+              secondary: "#ccfbf1", // Teal 100 - Douceur
+              accent: "#d6d3d1", // Stone 300 - Neutre chaud
+              dark: "#1c1917", // Stone 900 - Texte
+            },
+            fontFamily: {
+              sans: ["Inter", "sans-serif"],
+              serif: ["Playfair Display", "serif"],
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="bg-stone-50 text-stone-800 font-sans antialiased">
+    <nav
+      class="bg-white/90 backdrop-blur-md fixed w-full z-50 shadow-sm transition-all duration-300"
+    >
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-20 items-center">
+          <div class="flex-shrink-0 flex items-center">
+            <span class="font-serif text-2xl font-bold text-primary"
+              >Votre Nom.</span
+            >
+          </div>
+          <div class="hidden md:flex space-x-8 items-center">
+            <a
+              href="#accueil"
+              class="text-stone-600 hover:text-primary transition"
+              >Accueil</a
+            >
+            <a
+              href="#formations"
+              class="text-stone-600 hover:text-primary transition"
+              >Formations</a
+            >
+            <a
+              href="#coaching"
+              class="text-stone-600 hover:text-primary transition"
+              >Coaching & Audit</a
+            >
+            <a
+              href="#apropos"
+              class="text-stone-600 hover:text-primary transition"
+              >À propos</a
+            >
+            <a
+              href="#contact"
+              class="bg-primary text-white px-5 py-2 rounded-full hover:bg-teal-900 transition shadow-lg transform hover:-translate-y-0.5"
+              >Contact</a
+            >
+          </div>
+          <div class="md:hidden text-stone-600">
+            <svg
+              class="w-8 h-8"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h16M4 18h16"
+              ></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <header
+      id="accueil"
+      class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden"
+    >
+      <div
+        class="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-secondary rounded-full opacity-50 blur-3xl z-0"
+      ></div>
+      <div
+        class="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-stone-200 rounded-full opacity-50 blur-3xl z-0"
+      ></div>
+
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="lg:w-2/3">
+          <span
+            class="inline-block py-1 px-3 rounded-full bg-teal-100 text-primary text-sm font-semibold mb-6 tracking-wide uppercase"
+            >Santé au travail & Performance Humaine</span
+          >
+          <h1
+            class="text-4xl lg:text-6xl font-serif font-bold text-dark leading-tight mb-6"
+          >
+            Préserver la santé de
+            <span class="text-primary italic">ceux qui soignent</span>.
+          </h1>
+          <p class="text-lg text-stone-600 mb-8 leading-relaxed max-w-2xl">
+            Ancienne soignante, j'accompagne les établissements et les
+            professionnels de santé pour transformer la gestion du stress en un
+            levier de performance et de bien-être durable.
+          </p>
+
+          <div class="flex flex-col sm:flex-row gap-4">
+            <a
+              href="#formations"
+              class="flex items-center justify-center px-8 py-4 border border-transparent text-base font-medium rounded-lg text-white bg-primary hover:bg-teal-900 md:py-4 md:text-lg transition shadow-lg"
+            >
+              Solutions pour Établissements
+            </a>
+            <a
+              href="#particuliers"
+              class="flex items-center justify-center px-8 py-4 border border-stone-300 text-base font-medium rounded-lg text-stone-700 bg-white hover:bg-stone-50 md:py-4 md:text-lg transition"
+            >
+              Coaching Particuliers
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section id="formations" class="py-20 bg-white relative">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+          <h2 class="text-3xl font-serif font-bold text-dark sm:text-4xl mb-4">
+            Nos 3 Piliers d'Intervention
+          </h2>
+          <p class="text-stone-500 max-w-2xl mx-auto">
+            Une approche globale, du diagnostic organisationnel à l'équilibre
+            émotionnel individuel.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
+          <div
+            class="group bg-stone-50 p-8 rounded-2xl border border-stone-100 hover:shadow-xl transition duration-300"
+          >
+            <div
+              class="w-14 h-14 bg-teal-100 rounded-full flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-white transition"
+            >
+              <svg
+                class="w-8 h-8"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                ></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold text-dark mb-3">Diagnostic & RPS</h3>
+            <p class="text-stone-600 mb-4 text-sm leading-relaxed">
+              Analyse des facteurs de risques (Gollac) et mise en place de plans
+              de prévention. Sécurisez votre organisation.
+            </p>
+            <ul class="text-sm text-stone-500 space-y-2">
+              <li class="flex items-center">
+                <span class="w-1.5 h-1.5 bg-primary rounded-full mr-2"></span
+                >Audit de service
+              </li>
+              <li class="flex items-center">
+                <span class="w-1.5 h-1.5 bg-primary rounded-full mr-2"></span
+                >Document Unique
+              </li>
+            </ul>
+          </div>
+
+          <div
+            class="group bg-stone-50 p-8 rounded-2xl border border-stone-100 hover:shadow-xl transition duration-300 relative overflow-hidden"
+          >
+            <div
+              class="absolute top-0 right-0 bg-primary text-white text-xs px-2 py-1 rounded-bl-lg font-bold"
+            >
+              Populaire
+            </div>
+            <div
+              class="w-14 h-14 bg-teal-100 rounded-full flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-white transition"
+            >
+              <svg
+                class="w-8 h-8"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                ></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold text-dark mb-3">Stress & Mouvement</h3>
+            <p class="text-stone-600 mb-4 text-sm leading-relaxed">
+              Des outils de coaching (type 2) et l'analyse des "Drivers" pour
+              sortir de l'épuisement et retrouver l'action.
+            </p>
+            <ul class="text-sm text-stone-500 space-y-2">
+              <li class="flex items-center">
+                <span class="w-1.5 h-1.5 bg-primary rounded-full mr-2"></span
+                >Ateliers 2h30
+              </li>
+              <li class="flex items-center">
+                <span class="w-1.5 h-1.5 bg-primary rounded-full mr-2"></span
+                >Gestion des émotions
+              </li>
+            </ul>
+          </div>
+
+          <div
+            class="group bg-stone-50 p-8 rounded-2xl border border-stone-100 hover:shadow-xl transition duration-300"
+          >
+            <div
+              class="w-14 h-14 bg-teal-100 rounded-full flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-white transition"
+            >
+              <svg
+                class="w-8 h-8"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                ></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold text-dark mb-3">
+              Communication (CNV)
+            </h3>
+            <p class="text-stone-600 mb-4 text-sm leading-relaxed">
+              Communication non-violente et assertive pour apaiser les relations
+              d'équipe et le dialogue avec les familles.
+            </p>
+            <ul class="text-sm text-stone-500 space-y-2">
+              <li class="flex items-center">
+                <span class="w-1.5 h-1.5 bg-primary rounded-full mr-2"></span
+                >Cohésion d'équipe
+              </li>
+              <li class="flex items-center">
+                <span class="w-1.5 h-1.5 bg-primary rounded-full mr-2"></span
+                >Gestion de conflit
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div
+          class="mt-12 p-6 bg-teal-50 rounded-xl border border-teal-100 flex flex-col md:flex-row items-center justify-between"
+        >
+          <div class="mb-4 md:mb-0">
+            <h4 class="font-bold text-primary">Objectifs Opérationnels</h4>
+            <p class="text-sm text-stone-600">
+              Réduction de l'absentéisme • Optimisation du temps • Qualité de
+              Vie au Travail
+            </p>
+          </div>
+          <button class="text-primary font-semibold hover:underline">
+            Télécharger le programme détaillé →
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section id="apropos" class="py-20 bg-stone-50 overflow-hidden">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="lg:grid lg:grid-cols-2 lg:gap-16 items-center">
+          <div class="relative mb-12 lg:mb-0">
+            <div
+              class="absolute inset-0 bg-primary transform translate-x-3 translate-y-3 rounded-2xl"
+            ></div>
+            <div
+              class="relative bg-white rounded-2xl overflow-hidden shadow-lg h-96 lg:h-[500px]"
+            >
+              <img
+                src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80"
+                alt="Portrait Coach"
+                class="w-full h-full object-cover opacity-90 hover:opacity-100 transition duration-500 grayscale hover:grayscale-0"
+              />
+
+              <div
+                class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6"
+              >
+                <p class="text-white font-serif text-xl italic">
+                  "Du soin au lit du patient au soin des organisations."
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h2 class="text-3xl font-serif font-bold text-dark mb-6">
+              Mon parcours & Ma méthode
+            </h2>
+            <h3 class="text-lg font-semibold text-primary mb-4">
+              Ancienne soignante, j’accompagne aujourd’hui la santé de ceux qui
+              soignent.
+            </h3>
+
+            <div class="prose text-stone-600 mb-8 space-y-4">
+              <p>
+                Mon parcours a débuté au cœur du soin. Cette réalité du terrain,
+                je la connais : l'urgence, la charge mentale, les gardes. C'est
+                ce qui fait aujourd'hui ma force :
+                <strong
+                  >je ne parle pas de théorie, je parle de votre
+                  quotidien.</strong
+                >
+              </p>
+              <p>
+                Certifiée en coaching et experte en prévention RPS, j'ai
+                développé une méthode qui allie la bienveillance du soin à
+                l'efficacité du coaching de changement.
+              </p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mb-8">
+              <div
+                class="bg-white p-4 rounded-lg shadow-sm border border-stone-200 text-center"
+              >
+                <span class="block text-2xl font-bold text-primary mb-1"
+                  >15+</span
+                >
+                <span class="text-xs text-stone-500 uppercase tracking-wide"
+                  >Années d'expérience</span
+                >
+              </div>
+              <div
+                class="bg-white p-4 rounded-lg shadow-sm border border-stone-200 text-center"
+              >
+                <span class="block text-2xl font-bold text-primary mb-1"
+                  >Coach</span
+                >
+                <span class="text-xs text-stone-500 uppercase tracking-wide"
+                  >Certifiée d'État</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <footer class="bg-teal-900 text-stone-300 py-12">
+      <div
+        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-8 text-sm"
+      >
+        <div>
+          <span class="font-serif text-xl font-bold text-white block mb-4"
+            >Votre Nom.</span
+          >
+          <p>Expertise RPS et Gestion du stress pour les soignants.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-white mb-4">Navigation</h4>
+          <ul class="space-y-2">
+            <li>
+              <a href="#formations" class="hover:text-white"
+                >Formations Établissements</a
+              >
+            </li>
+            <li>
+              <a href="#particuliers" class="hover:text-white"
+                >Coaching Particuliers</a
+              >
+            </li>
+            <li><a href="#apropos" class="hover:text-white">À Propos</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-white mb-4">Légal</h4>
+          <ul class="space-y-2">
+            <li><a href="#" class="hover:text-white">Mentions Légales</a></li>
+            <li>
+              <a href="#" class="hover:text-white"
+                >Politique de confidentialité</a
+              >
+            </li>
+            <li>
+              <a href="#" class="hover:text-white">Code de déontologie</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

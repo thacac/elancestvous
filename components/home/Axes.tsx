@@ -8,13 +8,13 @@ const Axes: FC<AxesProps> = () => {
     <section id="axes-de-travail" className="py-10 bg-white relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <p className="text-3xl font-serif font-bold text-primary sm:text-4xl mb-4">
+          <h2>
             Mes 3 Axes d'Intervention
-          </p>
-          <h2 className="text-stone-500 max-w-2xl mx-auto">
+          </h2>
+          <h3>
             Une approche globale, avec des modaliés d'intervention adaptables
             aux besoins des équipes.
-          </h2>
+          </h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
           <div className="group bg-stone-50 p-8 rounded-2xl border border-stone-100 hover:shadow-xl transition duration-300">

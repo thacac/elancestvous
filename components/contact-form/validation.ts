@@ -15,6 +15,15 @@ export const contactFormSchema = z.object({
     .trim()
     .min(1, "Le message est requis")
     .max(2000, "Le message ne peut pas dépasser 2000 caractères"),
+  projectType: z.enum(
+      [
+        "institution",
+        "particulier",
+      ] as const
+    ).refine(
+      (val) => !!val,
+      { message: "Le type de projet est requis" }
+    )
 });
 
 export type ContactFormValues = z.infer<typeof contactFormSchema>;
