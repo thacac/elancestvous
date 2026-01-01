@@ -2,11 +2,10 @@ import ContactForm from "@/components/contact-form/ContactForm";
 
 export default function ContactPage() {
   return (
-    <section id="contact" className="py-20">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="contact" className="py-20 container">
         <div className="text-center mb-8">
           <h2>
-            Parlons de vos besoins
+            Parlons de <span className="text-accent"><strong>vos besoins</strong></span>
           </h2>
           <h3>
            Un premier échange pour comprendre votre situation et définir ensemble la réponse la plus adaptée.
@@ -38,7 +37,6 @@ export default function ContactPage() {
             Ou réservez directement un échange de 15 min
           </a>
         </div> */}
-      </div>
     </section>
   );
 }

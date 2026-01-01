@@ -34,8 +34,16 @@
   /* Personnal vars */
 }
 
-.container-p {
-  @apply px-4 sm:px-6 lg:px-8 mx-auto max-w-7xl;
+body {
+  @apply bg-white font-sans antialiased;
+}
+
+.container {
+  @apply max-w-5xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.wide {
+  @apply max-w-7xl;
 }
 
 h1 {
