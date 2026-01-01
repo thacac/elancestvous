@@ -5,11 +5,11 @@ export default function About() {
   return (
     <section id="apropos" className="pt-20">
       <div className="container text-center mb-20">
-        <h2>Mon parcours &  <span className="text-accent"><strong>ma méthode</strong></span></h2>
-        <h3>
+        <h1>Mon parcours &  <span className="text-accent"><strong>ma méthode</strong></span></h1>
+        <h2 className="h3-like">
           Ancienne soignante, j’accompagne aujourd’hui la santé de ceux qui
           soignent.
-        </h3>
+        </h2>
       </div>
 
       <div className="container flex flex-col md:flex-row gap-6 items-center">

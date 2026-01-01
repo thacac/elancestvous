@@ -2,16 +2,16 @@ export default function MentionsLegales() {
   return (
     <section id="mentions-legales" className="pt-20 mb-20">
       <div className="container text-center">
-        <h2>
+        <h1>
           Mentions{" "}
           <span className="text-accent">
             <strong>Légales</strong>
           </span>
-        </h2>
-        <h3>
+        </h1>
+        <h2 className="h3-like">
           Conformément à la législation française, retrouvez ici toutes les
           informations légales du site.
-        </h3>
+        </h2>
       </div>
 
       <div className="container pt-18">

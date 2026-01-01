@@ -54,17 +54,18 @@ h2 {
   @apply font-serif text-primary text-4xl font-extrabold tracking-tight lg:text-5xl mb-4;
 }
 
-h3 {
-  @apply text-stone-600 mx-auto max-w-2xl
+h3,
+.h3-like {
+  @apply font-sans text-base font-normal  text-stone-600 mx-auto max-w-2xl mt-5;
 }
 
 .form-label {
-  @apply block text-sm font-medium text-stone-700
+  @apply block text-sm font-medium text-stone-700;
 }
 
 @theme {
-  --font-sans: 'Inter', sans-serif;
-  --font-serif: 'Playfair Display', serif;
+  --font-sans: "Inter", sans-serif;
+  --font-serif: "Playfair Display", serif;
   --foreground: oklch(0.145 0 0);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
@@ -72,9 +73,9 @@ h3 {
   /* Personnal vars */
   --color-primary: #112e40;
   --color-primary-foreground: oklch(0.985 0 0);
-  --color-secondary: #0F172A;
+  --color-secondary: #898c91;
   --color-secondary-foreground: oklch(0.205 0 0);
-  --color-accent: #FF5A3D;
+  --color-accent: #ff5a3d;
   --color-accent-foreground: #f1f5f9;
   --color-muted: #93999b98;
   --color-muted-foreground: oklch(0.556 0 0);

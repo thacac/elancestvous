@@ -7,11 +7,13 @@ import Link from "next/link";
 import { useState } from "react";
 import Socials from "./Socials";
 import { useIsHome } from "@/hooks/useIsHome";
+import { buttonVariants } from "./ui";
 
 const links = [
   { href: "/", label: "Accueil" },
   { href: "/formations-rps-qvct", label: "Fomations" },
   { href: "/coaching", label: "Coaching" },
+  { href: "/groupe-analyse-pratiques", label: "GAPP" },
   { href: "/a-propos", label: "À propos" },
   { href: "/contact", label: "Contact" },
 ];
@@ -58,19 +60,25 @@ export default function Navbar() {
         </div>
         <div className="hidden lg:flex lg:gap-x-12">
           {links.map((item) => (
-            <a
+            <Link
               key={item.label}
               href={item.href}
               className="text-sm/6 font-semibold text-primary"
             >
               {item.label}
-            </a>
+            </Link>
           ))}
         </div>
-        <Socials
-          asLink={isHome}
-          className="hidden lg:flex lg:flex-1 lg:justify-end align-baseline"
-        />
+        <div className="hidden lg:flex lg:flex-1 lg:justify-end align-baseline">
+          <Link
+            href="/particuliers/coaching-individuel"
+            className={
+              buttonVariants({ variant: "outline", size: "sm" }) + " text-sm"
+            }
+          >
+            Particuliers
+          </Link>
+        </div>
       </nav>
       <Dialog
         open={mobileMenuOpen}

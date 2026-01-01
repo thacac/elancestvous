@@ -4,7 +4,7 @@ import { buttonVariants } from "../ui";
 export default function CTA() {
   return (
     <section id="cta" className="relative">
-      <div className="mt-12 p-6 bg-teal-50 border-t border-t-pastel flex flex-col md:flex-row items-center justify-between">
+      {/* <div className="mt-12 p-6 bg-teal-50 border-t border-t-pastel flex flex-col md:flex-row items-center justify-between">
         <div className="mb-4 md:mb-0">
           <h4 className="font-bold text-primary">
             Vous êtes un établissement de soins ?
@@ -23,7 +23,7 @@ export default function CTA() {
         >
           Echangeons sur vos besoins →
         </Link>
-      </div>
+      </div> */}
       <div className="p-6 bg-muted-200 border-b border-b-pastel flex flex-col md:flex-row items-center justify-between">
         <div className="mb-4 md:mb-0">
           <h4 className="font-bold text-primary">
