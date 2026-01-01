@@ -4,52 +4,43 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 import { Bars3BottomRightIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useState } from "react";
+import Socials from "./Socials";
+import { useIsHome } from "@/hooks/useIsHome";
 
 const links = [
   { href: "/", label: "Accueil" },
+  { href: "/formations-rps-qvct", label: "Fomations" },
+  { href: "/coaching", label: "Coaching" },
   { href: "/a-propos", label: "À propos" },
   { href: "/contact", label: "Contact" },
 ];
 
 export default function Navbar() {
-  const pathname = usePathname();
+  const isHome = useIsHome();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    // <header className="sticky top-0 z-50 bg-brand-pastel/90 bg-(--header,var(--color-brand-pastel))/90 backdrop-blur-sm border-b border-gray-100">
-    //   <div className="container-p h-16 flex items-center justify-between">
-    //     <Link href="/" className="font-extrabold text-xl">
-    //       <span className="text-brand.primary">Élan</span>C’est<span className="text-brand.accent">Vous</span>
-    //     </Link>
-    //     <nav className="hidden md:flex items-center gap-1">
-    //       {links.map((l) => (
-    //         <Link
-    //           key={l.href}
-    //           href={l.href}
-    //           className={`px-4 py-2 rounded-xl hover:bg-brand.light transition ${
-    //             pathname === l.href ? "text-brand.accent font-semibold" : "opacity-90"
-    //           }`}
-    //         >
-    //           {l.label}
-    //         </Link>
-    //       ))}
-    //     </nav>
-    //     <Link href="/contact" className="btn btn-sm btn-primary rounded-xl md:inline-flex hidden">
-    //       Prendre RDV
-    //     </Link>
-    //   </div>
-    // </header>
     <header className="sticky top-0 z-50 backdrop-blur-sm border-b">
       <nav
         aria-label="Global"
         className="flex items-center justify-between p-6 lg:px-8"
       >
         <div className="flex lg:flex-1">
-          <Link href="/" className="font-extrabold text-primary text-xl">
-            <span className="text-brand.primary">Élan</span>C’est
-            <span className="text-brand.accent">Vous</span>
+          <Link
+            href="/"
+            className="font-serif italic font-extrabold text-primary text-xl"
+          >
+            <span>
+              <Image
+                src="/logo_elancestvous_small.png"
+                alt="Élan C’est Vous logo"
+                width={32}
+                height={32}
+                className="inline-block mr-2 align-middle"
+              />
+              ÉlanC’estVous
+            </span>
           </Link>
         </div>
         <div className="flex lg:hidden">
@@ -59,7 +50,10 @@ export default function Navbar() {
             className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-200"
           >
             <span className="sr-only">Open main menu</span>
-            <Bars3BottomRightIcon aria-hidden="true" className="size-6 text-primary cursor-pointer" />
+            <Bars3BottomRightIcon
+              aria-hidden="true"
+              className="size-6 text-primary cursor-pointer"
+            />
           </button>
         </div>
         <div className="hidden lg:flex lg:gap-x-12">
@@ -73,11 +67,10 @@ export default function Navbar() {
             </a>
           ))}
         </div>
-        <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-          <a href="#" className="text-sm/6 font-semibold text-primary">
-            Log in <span aria-hidden="true">&rarr;</span>
-          </a>
-        </div>
+        <Socials
+          asLink={isHome}
+          className="hidden lg:flex lg:flex-1 lg:justify-end align-baseline"
+        />
       </nav>
       <Dialog
         open={mobileMenuOpen}
@@ -103,7 +96,10 @@ export default function Navbar() {
               className="-m-2.5 rounded-md p-2.5 text-primary"
             >
               <span className="sr-only">Close menu</span>
-              <XMarkIcon aria-hidden="true" className="text-primary size-6 cursor-pointer" />
+              <XMarkIcon
+                aria-hidden="true"
+                className="text-primary size-6 cursor-pointer"
+              />
             </button>
           </div>
           <div className="mt-6 flow-root">
@@ -119,14 +115,7 @@ export default function Navbar() {
                   </a>
                 ))}
               </div>
-              <div className="py-6">
-                <a
-                  href="#"
-                  className="-mx-3 block rounded-lg px-3 py-2.5 text-base/7 font-semibold text-white hover:bg-white/5"
-                >
-                  Log in
-                </a>
-              </div>
+              <Socials asLink={isHome} className="mt-6" />
             </div>
           </div>
         </DialogPanel>

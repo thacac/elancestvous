@@ -12,11 +12,11 @@ cd /home/$VPS_USR/elancestvous
 
 # Connexion sécurisée au registre
 # Tentative de connexion (3 essais)
-echo "Connexion au registre GHCR..."
+echo "Connexion au registre GhCR..."
 n=0
 until [ "$n" -ge 3 ]
 do
-   echo "$GH_TOKEN_ARG" | docker login ghcr.io -u "$GH_ACTOR_ARG" --password-stdin && break
+   echo "$GITHUB_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin && break
    n=$((n+1)) 
    sleep 5
 done

@@ -1,16 +1,29 @@
 import { z } from "zod";
 
 export const contactFormSchema = z.object({
-  firstName: z.string().min(1, "Le prénom est requis"),
-  lastName: z.string().min(1, "Le nom est requis"),
+  // .trim() retire les espaces inutiles au début et à la fin
+  firstName: z.string().trim().min(1, "Le prénom est requis").max(50),
+  lastName: z.string().trim().min(1, "Le nom est requis").max(50),
   email: z
     .string()
+    .trim()
+    .toLowerCase() // Important pour la cohérence
     .min(1, "L'email est requis")
     .email("L'email n'est pas valide"),
   message: z
     .string()
+    .trim()
     .min(1, "Le message est requis")
-    .max(1000, "Le message ne peut pas dépasser 1000 caractères"),
+    .max(2000, "Le message ne peut pas dépasser 2000 caractères"),
+  projectType: z.enum(
+      [
+        "institution",
+        "particulier",
+      ] as const
+    ).refine(
+      (val) => !!val,
+      { message: "Le type de projet est requis" }
+    )
 });
 
 export type ContactFormValues = z.infer<typeof contactFormSchema>;
