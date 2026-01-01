@@ -4,12 +4,12 @@ export default function ContactPage() {
   return (
     <section id="contact" className="py-20 container">
         <div className="text-center mb-8">
-          <h2>
+          <h1>
             Parlons de <span className="text-accent"><strong>vos besoins</strong></span>
-          </h2>
-          <h3>
+          </h1>
+          <h2 className="h3-like">
            Un premier échange pour comprendre votre situation et définir ensemble la réponse la plus adaptée.
-          </h3>
+          </h2>
         </div>
 
         <div className="bg-stone-50 rounded-2xl shadow-xl p-8 md:p-12 border border-stone-100">
