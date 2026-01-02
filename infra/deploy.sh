@@ -31,8 +31,15 @@ do
    echo "Échec du pull, nouvelle tentative dans 10s ($n/5)..."
    sleep 10
 done
-# On relance les containers. Nginx verra le nouveau nginx.conf grâce au volume.
-docker compose up -d --remove-orphans
 
+echo "Arrêt des anciens containers pour éviter les conflits..."
+# Le down assure que les réseaux et containers sont supprimés avant le up
+docker compose down --remove-orphans
+
+echo "Démarrage des nouveaux containers..."
+# On relance les containers. Nginx verra le nouveau nginx.conf grâce au volume.
+docker compose up -d
+
+echo "Nettoyage des images Docker obsolètes..."
 # Supprime les images inutilisées pour libérer de l'espace
 docker image prune -f
