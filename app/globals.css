@@ -33,6 +33,9 @@
   --ring: oklch(0.708 0 0); */
   /* Personnal vars */
 }
+html {
+  scroll-behavior: smooth;
+}
 
 body {
   @apply bg-white font-sans antialiased;
@@ -44,6 +47,10 @@ body {
 
 .wide {
   @apply max-w-7xl;
+}
+
+.link-custom {
+  @apply transition-transform duration-150 hover:scale-120 active:scale-120;
 }
 
 h1 {

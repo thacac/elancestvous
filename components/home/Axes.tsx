@@ -1,12 +1,16 @@
-import { Button } from "@headlessui/react";
+import { links } from "@/components/Navbar"
 import Link from "next/link";
 import { FC } from "react";
+import { buttonVariants } from "../ui";
 
 interface AxesProps {}
 
 const Axes: FC<AxesProps> = () => {
   return (
-    <section id="axes-de-travail" className="pt-0 pb-15 bg-white container wide">
+    <section
+      id="axes-de-travail"
+      className="pt-0 pb-15 bg-white container wide"
+    >
       <div className="text-center">
         <h2>Mes 3 Axes d'Intervention</h2>
         <h3>
@@ -40,6 +44,14 @@ const Axes: FC<AxesProps> = () => {
             mieux comprendre le stress et la charge émotionnelle, et renforcer
             les ressources individuelles et collectives.
           </p>
+          <Link
+            href="/professionnels-etablissements-de-soins/formations-rps-qvct"
+            className={`${buttonVariants({
+              variant: "ghost",
+            })} mt-4 bg-primary text-white px-6 py-2 rounded-full!`}
+          >
+           Décourvrir les formations
+          </Link>
         </div>
 
         <div className="group bg-stone-50 p-8 rounded-2xl border border-stone-100 hover:shadow-xl transition duration-300 relative overflow-hidden">
@@ -69,12 +81,14 @@ const Axes: FC<AxesProps> = () => {
             ajustement des fonctionnements, réorganisation ou période de
             transition.
           </p>
-          <Button
-            href="/contact"
-            className="mt-4 inline-block bg-primary text-white px-6 py-2 rounded-full text-sm font-semibold hover:bg-primary-dark transition"
+          <Link
+            href="/professionnels-etablissements-de-soins/coaching"
+            className={`${buttonVariants({
+              variant: "ghost",
+            })} mt-4 bg-primary text-white px-6 py-2 rounded-full!`}
           >
-            Me contacter
-          </Button>
+           Décourvrir le coaching
+          </Link>
         </div>
 
         <div className="group bg-stone-50 p-8 rounded-2xl border border-stone-100 hover:shadow-xl transition duration-300">
@@ -101,6 +115,14 @@ const Axes: FC<AxesProps> = () => {
             sur les situations vécues, réguler la charge émotionnelle et
             soutenir les pratiques dans la durée.
           </p>
+          <Link
+            href="/professionnels-etablissements-de-soins/gapp-groupe-analyse-pratiques-professionnelles"
+            className={`${buttonVariants({
+              variant: "ghost",
+            })} mt-4 bg-primary text-white px-6 py-2 rounded-full!`}
+          >
+           Décourvrir les GAPP
+          </Link>
         </div>
       </div>
     </section>
