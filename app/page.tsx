@@ -1,7 +1,6 @@
 import Axes from "@/components/home/Axes";
-import CTA from "@/components/home/CTA";
 import Hero from "@/components/home/Hero";
-import { Metadata } from "next";
+import { Metadata, Viewport } from "next";
 
 export const metadata: Metadata = {
   title: "ÉlanC’estVous | Coaching & Formation - Préserver la santé de ceux qui soignent | eLanceStVous",

@@ -23,7 +23,7 @@ export default function Hero() {
           </p>
           <div className="my-8">
             <Link
-              href="#"
+              href="#axes-de-travail"
               className={`${buttonVariants({
                 variant: "accent",
                 size: "lg",
