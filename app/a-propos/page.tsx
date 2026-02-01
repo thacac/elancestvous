@@ -1,3 +1,4 @@
+import CtaElan from "@/components/CtaElan";
 import CTA from "@/components/home/CTA";
 import Image from "next/image";
 
@@ -100,7 +101,7 @@ export default function About() {
           </div>
         </div>
       </section>
-      <CTA />
+      <CtaElan />
     </>
   );
 }
