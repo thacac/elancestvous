@@ -1,7 +1,7 @@
 "use server";
 import SMTPTransport from "nodemailer/lib/smtp-transport";
 
-import Mailer from "@/services/mailer";
+import Mailer from "@/services/mailer/mailer";
 
 import { ContactFormValues } from "./validation";
 

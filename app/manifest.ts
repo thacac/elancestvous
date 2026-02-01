@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next'
-
+// TODO: update manifest
 export default function manifest(): MetadataRoute.Manifest {
     return {
         name: "elancestvous.fr",
