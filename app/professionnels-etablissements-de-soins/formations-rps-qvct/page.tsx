@@ -1,5 +1,10 @@
+import ArticulationBloc from "@/components/ArticulationBloc";
+import BadgesBloc from "@/components/BadgesBloc";
+import CartesContrastBloc from "@/components/CartesContrastBloc";
 import Citation from "@/components/Citation";
 import CtaElan from "@/components/CtaElan";
+import PublicsCiblesBloc from "@/components/PublicsCiblesBloc";
+import { IconBuilding, IconHand, IconHeart, IconManager, IconStairs, IconStethoscope } from "@/components/ui/icons-publics";
 
 export const metadata = {
   title:
@@ -59,85 +64,61 @@ export default function ContactPage() {
         </section>
 
         {/* --- 2. ARGUMENTAIRE "PLANNING" : CARTES CONTRASTÉES --- */}
-        <section id="formations-planning" className="py-20 bg-primary">
-          <div className="container mx-auto px-6">
-            <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
-              <h2 className="text-3xl lg:text-5xl !text-white font-serif font-bold max-w-xl">
-                Une formation pensée pour la réalité du terrain
-              </h2>
-              <p className="text-pastel/60 max-w-xs italic text-sm">
-                Adapté aux contraintes et aux exigences du soin.
-              </p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-1">
-              {/* Blocs à fort contraste */}
-              <div className="group bg-white/5 p-12 hover:bg-accent transition-colors duration-500 cursor-default border border-white/10">
-                <span className="text-accent group-hover:text-primary text-5xl font-black mb-6 block">
-                  01
-                </span>
-                <h3 className="text-2xl font-bold mb-4">Continuité</h3>
-                <p className="text-pastel/70 group-hover:text-white">
-                  Ateliers courts en cycle pour ne pas désorganiser les équipes.
-                </p>
-              </div>
-              <div className="group bg-white/5 p-12 hover:bg-accent transition-colors duration-500 cursor-default border border-white/10">
-                <span className="text-accent group-hover:text-primary text-5xl font-black mb-6 block">
-                  02
-                </span>
-                <h3 className="text-2xl font-bold mb-4">Assimilation</h3>
-                <p className="text-pastel/70 group-hover:text-white">
-                  Appropriation progressive des contenus au fil des séances.
-                </p>
-              </div>
-              <div className="group bg-white/5 p-12 hover:bg-accent transition-colors duration-500 cursor-default border border-white/10">
-                <span className="text-accent group-hover:text-primary text-5xl font-black mb-6 block">
-                  03
-                </span>
-                <h3 className="text-2xl font-bold mb-4">Mouvement</h3>
-                <p className="text-pastel/70 group-hover:text-white">
-                  Mise en pratique réelle entre chaque temps de rencontre.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
+        <CartesContrastBloc
+          titre="Une formation pensée pour la réalité du terrain"
+          sousTitre="Adapté aux contraintes et aux exigences du soin."
+          cartes={[
+            {
+              numero: "01",
+              titre: "Continuité",
+              texte:
+                "Ateliers courts en cycle pour ne pas désorganiser les équipes.",
+            },
+            {
+              numero: "02",
+              titre: "Assimilation",
+              texte:
+                "Appropriation progressive des contenus au fil des séances.",
+            },
+            {
+              numero: "03",
+              titre: "Mouvement",
+              texte: "Mise en pratique réelle entre chaque temps de rencontre.",
+            },
+          ]}
+        />
         {/* --- 3. PÉDAGOGIE : SECTION "RÉELLE" --- */}
-        <section id="formations-pedagogie" className="py-20 bg-stone-50">
-          <div className="container mx-auto px-6 text-center">
-            <h2 className="text-primary font-serif font-bold text-3xl mb-14!">
-              Une pédagogie ancrée dans le réel
-            </h2>
-            <div className="flex flex-wrap justify-center gap-6">
-              {[
-                "Apports théoriques accessibles",
-                "Échanges collectifs",
-                "Mises en situation",
-                "Outils issus du coaching",
-              ].map((badge, i) => (
-                <div
-                  key={i}
-                  className="bg-white px-8 py-4 rounded-full border-2 border-primary text-primary font-bold shadow-sm hover:bg-primary hover:text-white transition cursor-default"
-                >
-                  {badge}
-                </div>
-              ))}
-            </div>
+        <BadgesBloc
+          titre="Une pédagogie ancrée dans le réel"
+          badges={[
+            "Apports théoriques accessibles",
+            "Échanges collectifs",
+            "Mises en situation",
+            "Outils issus du coaching",
+          ]}
+          citation={
             <Citation
               text="L'enjeu n'est pas de transmettre des recettes, mais de soutenir la compréhension, le recul et l'ajustement des pratiques."
               imageSrc="/coralie.png"
               imageAlt="Coach Coralie"
             />
-          </div>
-        </section>
+          }
+        />
 
         {/* --- 4. CONTENU DU CYCLE : LISTE ÉPURÉE & "KIT" --- */}
         <section id="formations-contenu" className="py-20 bg-muted/40 relative">
           <div className="container mx-auto px-6">
             <div className="flex flex-col lg:flex-row gap-20">
               <div className="w-full md:w-1/2 lg:w-2/3">
-                <h2 className="text-4xl font-serif font-extrabold text-primary mb-12">
-                  Un cycle structuré & cohérent
-                </h2>
+                <div className="relative w-full flex flex-col items-center mb-12">
+                  <h2 className="text-4xl font-serif font-extrabold text-primary mb-6 relative z-20">
+                    Un cycle structuré & cohérent
+                  </h2>
+                  {/* Icône escalier stylisé en arrière-plan */}
+                  <span className="absolute -left-10 -bottom-15 md:-left-10 md:-bottom-35 lg:-left-20 lg:-bottom-20 z-0 opacity-10 pointer-events-none select-none">
+                    <IconStairs className="w-56 h-56 md:w-[340px] md:h-[340px] text-primary -translate-x-8 md:-translate-x-20" />
+                  </span>
+                </div>
                 <div className="space-y-6">
                   {[
                     "Mécanismes du stress et de la charge émotionnelle",
@@ -178,122 +159,35 @@ export default function ContactPage() {
         </section>
 
         {/* --- 5 -Bloc public cible (design moderne & lisible) --- */}
-        <section className="container py-14">
-          <div className="max-w-4xl mx-auto bg-white/90 rounded-2xl shadow-lg border border-stone-200 p-8 md:p-12 flex flex-col items-center text-center">
-            <h2 className="text-primary text-3xl md:text-4xl font-extrabold mb-4 flex items-center gap-3">
-              <span className="inline-block w-2 h-8 bg-accent rounded-full"></span>
-              À qui s’adressent ces formations&nbsp;?
-            </h2>
-            <p className="mb-8 text-lg text-stone-600 max-w-2xl mx-auto">
-              Ces formations s’adressent notamment&nbsp;:
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
-              <div className="bg-white rounded-lg border border-accent/20 p-6 flex items-center gap-4 shadow-sm">
-                <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-accent/10">
-                  {/* Stéthoscope icon */}
-                  <svg
-                    className="w-6 h-6 text-accent"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M6 3v7a6 6 0 0 0 12 0V3" />
-                    <circle cx="6" cy="3" r="2" />
-                    <circle cx="18" cy="3" r="2" />
-                    <path d="M12 17v2a3 3 0 0 0 6 0v-2" />
-                  </svg>
-                </span>
-                <span className="font-semibold text-primary text-left">
-                  Aux professionnels de santé
-                </span>
-              </div>
-              <div className="bg-white rounded-lg border border-accent/20 p-6 flex items-center gap-4 shadow-sm">
-                <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-accent/10">
-                  {/* Dialogue icon */}
-                  <svg
-                    className="w-6 h-6 text-accent"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                  </svg>
-                </span>
-                <span className="font-semibold text-primary text-left">
-                  Aux équipes exposées à une forte charge émotionnelle
-                </span>
-              </div>
-              <div className="bg-white rounded-lg border border-accent/20 p-6 flex items-center gap-4 shadow-sm">
-                <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-accent/10">
-                  {/* Manager icon */}
-                  <svg
-                    className="w-6 h-6 text-accent"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle cx="12" cy="7" r="4" />
-                    <path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" />
-                  </svg>
-                </span>
-                <span className="font-semibold text-primary text-left">
-                  Aux cadres et managers de proximité
-                </span>
-              </div>
-              <div className="bg-white rounded-lg border border-accent/20 p-6 flex items-center gap-4 shadow-sm">
-                <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-accent/10">
-                  {/* Building icon */}
-                  <svg
-                    className="w-6 h-6 text-accent"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                  >
-                    <rect x="3" y="7" width="18" height="13" rx="2" />
-                    <path d="M16 3v4M8 3v4M3 10h18" />
-                  </svg>
-                </span>
-                <span className="font-semibold text-primary text-left">
-                  Aux établissements souhaitant agir en prévention
-                </span>
-              </div>
-              <div className="bg-white rounded-lg border border-accent/20 p-6 flex items-center gap-4 shadow-sm col-span-1 sm:col-span-2">
-                <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-accent/10">
-                  {/* Interim/healthcare icon */}
-                  <svg
-                    className="w-6 h-6 text-accent"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle cx="12" cy="7" r="4" />
-                    <path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" />
-                    <path d="M16 3v1M8 3v1" />
-                  </svg>
-                </span>
-                <span className="font-semibold text-primary text-left">
-                  Aux agences d’intérim accompagnant leurs professionnels
-                </span>
-              </div>
-            </div>
-          </div>
-        </section>
+        <PublicsCiblesBloc
+          titre="À qui s’adressent ces formations ?"
+          sousTitre="Ces formations s’adressent notamment :"
+          cartes={[
+            {
+              icon: <IconStethoscope className="w-6 h-6 text-accent" />,
+              titre: "Aux professionnels de santé",
+            },
+            {
+              icon: <IconHeart className="w-6 h-6 text-accent" />,
+              titre: "Aux équipes exposées à une forte charge émotionnelle",
+            },
+            {
+              icon: <IconManager className="w-6 h-6 text-accent" />,
+              titre: "Aux cadres et managers de proximité",
+            },
+            {
+              icon: <IconBuilding className="w-6 h-6 text-accent" />,
+              titre: "Aux établissements souhaitant agir en prévention",
+            },
+            {
+              icon: <IconHand className="w-6 h-6 text-accent" />,
+              titre: "Aux agences d’intérim accompagnant leurs professionnels",
+            },
+          ]}
+        />
 
         {/* --- 6- Bloc Lien avec les autres accompagnements --- */}
-        <section id="lien-autres-accompagnements" className="container mb-14">
-          <div className="max-w-3xl mx-auto text-justify">
-            <p className="text-muted text-sm md:text-md leading-relaxed">
-              <span className="text-primary font-bold mr-2">Lien avec les autres accompagnements :</span>
-              Selon les situations et les objectifs, la formation peut être proposée seule, ou s’inscrire dans une démarche plus globale incluant du coaching ou des groupes d’analyse de la pratique.<br />
-              <span className="text-stone-500 text-sm">Ces modalités sont envisagées uniquement lorsqu’elles sont pertinentes.</span>
-            </p>
-          </div>
-        </section>
+        <ArticulationBloc textePrincipal="Selon les situations et les objectifs, la formation peut être proposée seule, ou s’inscrire dans une démarche plus globale incluant du coaching ou des groupes d’analyse de la pratique." />
 
         {/* --- 5. CTA FINAL : IMPACT MAXIMAL --- */}
         <CtaElan />

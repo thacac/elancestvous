@@ -22,7 +22,7 @@ export default function CtaElan() {
         </p>
       </div>
       {/* Motif en arrière-plan */}
-      <div className="absolute inset-0 opacity-10 flex items-center justify-center text-[20vw] font-black text-white select-none">
+      <div className="absolute inset-0 opacity-30 flex items-center justify-center text-[20vw] font-black text-white select-none">
         ELAN
       </div>
     </section>

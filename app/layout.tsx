@@ -1,5 +1,6 @@
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
+import BackToTop from "@/components/ui/back-to-top";
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { Toaster } from "sonner";
@@ -29,6 +30,7 @@ export default function RootLayout({
         <Navbar />
         <main className="min-h-[70vh]">{children}</main>
         <Footer />
+        <BackToTop />
         <Toaster />
       </body>
     </html>
