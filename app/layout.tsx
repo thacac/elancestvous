@@ -1,9 +1,9 @@
-import "./globals.css";
+import Footer from "@/components/Footer";
+import Navbar from "@/components/Navbar";
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { Toaster } from "sonner";
+import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -11,6 +11,7 @@ export const metadata: Metadata = {
   title: "ÉlanC’estVous | Coaching & Formation",
   description:
     "Coaching professionnel, formation et accompagnement au changement.",
+  metadataBase: new URL("https://elancestvous.fr"),
 };
 
 export const viewport: Viewport = {
