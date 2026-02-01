@@ -4,7 +4,7 @@ import CartesContrastBloc from "@/components/CartesContrastBloc";
 import Citation from "@/components/Citation";
 import CtaElan from "@/components/CtaElan";
 import PublicsCiblesBloc from "@/components/PublicsCiblesBloc";
-import { IconBuilding, IconHand, IconHeart, IconManager, IconStethoscope } from "@/components/ui/icons-publics";
+import { IconBuilding, IconHand, IconHeart, IconManager, IconStairs, IconStethoscope } from "@/components/ui/icons-publics";
 
 export const metadata = {
   title:
@@ -71,12 +71,14 @@ export default function ContactPage() {
             {
               numero: "01",
               titre: "Continuité",
-              texte: "Ateliers courts en cycle pour ne pas désorganiser les équipes.",
+              texte:
+                "Ateliers courts en cycle pour ne pas désorganiser les équipes.",
             },
             {
               numero: "02",
               titre: "Assimilation",
-              texte: "Appropriation progressive des contenus au fil des séances.",
+              texte:
+                "Appropriation progressive des contenus au fil des séances.",
             },
             {
               numero: "03",
@@ -108,9 +110,15 @@ export default function ContactPage() {
           <div className="container mx-auto px-6">
             <div className="flex flex-col lg:flex-row gap-20">
               <div className="w-full md:w-1/2 lg:w-2/3">
-                <h2 className="text-4xl font-serif font-extrabold text-primary mb-12">
-                  Un cycle structuré & cohérent
-                </h2>
+                <div className="relative w-full flex flex-col items-center mb-12">
+                  <h2 className="text-4xl font-serif font-extrabold text-primary mb-6 relative z-20">
+                    Un cycle structuré & cohérent
+                  </h2>
+                  {/* Icône escalier stylisé en arrière-plan */}
+                  <span className="absolute -left-10 -bottom-15 md:-left-10 md:-bottom-35 lg:-left-20 lg:-bottom-20 z-0 opacity-10 pointer-events-none select-none">
+                    <IconStairs className="w-56 h-56 md:w-[340px] md:h-[340px] text-primary -translate-x-8 md:-translate-x-20" />
+                  </span>
+                </div>
                 <div className="space-y-6">
                   {[
                     "Mécanismes du stress et de la charge émotionnelle",

@@ -2,7 +2,7 @@
 import ArticulationBloc from "@/components/ArticulationBloc";
 import CartesContrastBloc from "@/components/CartesContrastBloc";
 import PublicsCiblesBloc from "@/components/PublicsCiblesBloc";
-import { IconBuilding, IconHand, IconManager, IconStethoscope } from "@/components/ui/icons-publics";
+import { IconBuilding, IconHand, IconManager, IconStethoscope, IconWatch } from "@/components/ui/icons-publics";
 
 import BadgesBloc from "@/components/BadgesBloc";
 import Citation from "@/components/Citation";
@@ -123,75 +123,8 @@ export default function GappPage() {
                 Une démarche inscrite dans la durée
               </h2>
               {/* Icône montre moderne en arrière-plan */}
-              <span className="absolute left-0 bottom-[-20px] md:left-[-80px] md:bottom-[-40px] z-0 opacity-10 pointer-events-none select-none">
-                <svg
-                  className="w-[180px] h-[180px] md:w-[260px] md:h-[260px] text-primary"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  viewBox="0 0 48 48"
-                >
-                  {/* Cadran */}
-                  <circle
-                    cx="24"
-                    cy="24"
-                    r="20"
-                    fill="currentColor"
-                    className="text-primary/10"
-                  />
-                  <circle
-                    cx="24"
-                    cy="24"
-                    r="18"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    fill="none"
-                  />
-                  {/* Repères horaires principaux */}
-                  <g stroke="currentColor" strokeWidth="2">
-                    <line x1="24" y1="6" x2="24" y2="10" />
-                    <line x1="24" y1="38" x2="24" y2="42" />
-                    <line x1="6" y1="24" x2="10" y2="24" />
-                    <line x1="38" y1="24" x2="42" y2="24" />
-                  </g>
-                  {/* Repères horaires secondaires (petits traits) */}
-                  <g stroke="currentColor" strokeWidth="1">
-                    <line x1="34.14" y1="13.86" x2="36.28" y2="11.72" />
-                    <line x1="13.86" y1="13.86" x2="11.72" y2="11.72" />
-                    <line x1="13.86" y1="34.14" x2="11.72" y2="36.28" />
-                    <line x1="34.14" y1="34.14" x2="36.28" y2="36.28" />
-                  </g>
-                  {/* Centre */}
-                  <circle cx="24" cy="24" r="2.5" fill="currentColor" />
-                  {/* Aiguilles */}
-                  <line
-                    x1="24"
-                    y1="24"
-                    x2="24"
-                    y2="12"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                  />
-                  <line
-                    x1="24"
-                    y1="24"
-                    x2="34"
-                    y2="24"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                  />
-                  {/* Couronne (remontoir) */}
-                  <rect
-                    x="22"
-                    y="2"
-                    width="4"
-                    height="4"
-                    rx="1.5"
-                    fill="currentColor"
-                  />
-                </svg>
+              <span className="absolute left-0 -bottom-5 md:-left-20 md:-bottom-10 z-0 opacity-10 pointer-events-none select-none">
+                <IconWatch className="w-45 h-45 md:w-65 md:h-65 text-primary" />
               </span>
             </div>
             <p className="text-lg text-primary/80 mb-2 relative z-20 text-justify">
