@@ -1,3 +1,4 @@
+import Citation from "@/components/Citation";
 import CtaElan from "@/components/CtaElan";
 
 export const metadata = {
@@ -32,7 +33,6 @@ export default function ContactPage() {
     <>
       <main className="min-h-screen overflow-hidden">
         {/* --- 1. Titre */}
-
         <section id="formations-professionnelles" className="py-20 container">
           <div className="text-center mb-8">
             <h1>Formations professionnelles.</h1>
@@ -59,7 +59,7 @@ export default function ContactPage() {
         </section>
 
         {/* --- 2. ARGUMENTAIRE "PLANNING" : CARTES CONTRASTÉES --- */}
-        <section id="formations-planning" className="py-24 bg-primary">
+        <section id="formations-planning" className="py-20 bg-primary">
           <div className="container mx-auto px-6">
             <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
               <h2 className="text-3xl lg:text-5xl !text-white font-serif font-bold max-w-xl">
@@ -102,9 +102,9 @@ export default function ContactPage() {
           </div>
         </section>
         {/* --- 3. PÉDAGOGIE : SECTION "RÉELLE" --- */}
-        <section id="formations-pedagogie" className="py-24 bg-stone-50">
+        <section id="formations-pedagogie" className="py-20 bg-stone-50">
           <div className="container mx-auto px-6 text-center">
-            <h2 className="text-primary font-serif font-bold text-3xl mb-16">
+            <h2 className="text-primary font-serif font-bold text-3xl mb-14!">
               Une pédagogie ancrée dans le réel
             </h2>
             <div className="flex flex-wrap justify-center gap-6">
@@ -122,15 +122,16 @@ export default function ContactPage() {
                 </div>
               ))}
             </div>
-            <p className="mt-12 max-w-2xl mx-auto text-muted text-lg italic">
-              "L'enjeu n'est pas de transmettre des recettes, mais de soutenir
-              la compréhension, le recul et l'ajustement des pratiques."
-            </p>
+            <Citation
+              text="L'enjeu n'est pas de transmettre des recettes, mais de soutenir la compréhension, le recul et l'ajustement des pratiques."
+              imageSrc="/coralie.png"
+              imageAlt="Coach Coralie"
+            />
           </div>
         </section>
 
         {/* --- 4. CONTENU DU CYCLE : LISTE ÉPURÉE & "KIT" --- */}
-        <section id="formations-contenu" className="py-24 bg-muted/40 relative">
+        <section id="formations-contenu" className="py-20 bg-muted/40 relative">
           <div className="container mx-auto px-6">
             <div className="flex flex-col lg:flex-row gap-20">
               <div className="w-full md:w-1/2 lg:w-2/3">
@@ -173,6 +174,124 @@ export default function ContactPage() {
                 <div className="w-12 h-1 bg-primary"></div>
               </div>
             </div>
+          </div>
+        </section>
+
+        {/* --- 5 -Bloc public cible (design moderne & lisible) --- */}
+        <section className="container py-14">
+          <div className="max-w-4xl mx-auto bg-white/90 rounded-2xl shadow-lg border border-stone-200 p-8 md:p-12 flex flex-col items-center text-center">
+            <h2 className="text-primary text-3xl md:text-4xl font-extrabold mb-4 flex items-center gap-3">
+              <span className="inline-block w-2 h-8 bg-accent rounded-full"></span>
+              À qui s’adressent ces formations&nbsp;?
+            </h2>
+            <p className="mb-8 text-lg text-stone-600 max-w-2xl mx-auto">
+              Ces formations s’adressent notamment&nbsp;:
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full">
+              <div className="bg-white rounded-lg border border-accent/20 p-6 flex items-center gap-4 shadow-sm">
+                <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-accent/10">
+                  {/* Stéthoscope icon */}
+                  <svg
+                    className="w-6 h-6 text-accent"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M6 3v7a6 6 0 0 0 12 0V3" />
+                    <circle cx="6" cy="3" r="2" />
+                    <circle cx="18" cy="3" r="2" />
+                    <path d="M12 17v2a3 3 0 0 0 6 0v-2" />
+                  </svg>
+                </span>
+                <span className="font-semibold text-primary text-left">
+                  Aux professionnels de santé
+                </span>
+              </div>
+              <div className="bg-white rounded-lg border border-accent/20 p-6 flex items-center gap-4 shadow-sm">
+                <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-accent/10">
+                  {/* Dialogue icon */}
+                  <svg
+                    className="w-6 h-6 text-accent"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                  </svg>
+                </span>
+                <span className="font-semibold text-primary text-left">
+                  Aux équipes exposées à une forte charge émotionnelle
+                </span>
+              </div>
+              <div className="bg-white rounded-lg border border-accent/20 p-6 flex items-center gap-4 shadow-sm">
+                <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-accent/10">
+                  {/* Manager icon */}
+                  <svg
+                    className="w-6 h-6 text-accent"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle cx="12" cy="7" r="4" />
+                    <path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" />
+                  </svg>
+                </span>
+                <span className="font-semibold text-primary text-left">
+                  Aux cadres et managers de proximité
+                </span>
+              </div>
+              <div className="bg-white rounded-lg border border-accent/20 p-6 flex items-center gap-4 shadow-sm">
+                <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-accent/10">
+                  {/* Building icon */}
+                  <svg
+                    className="w-6 h-6 text-accent"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <rect x="3" y="7" width="18" height="13" rx="2" />
+                    <path d="M16 3v4M8 3v4M3 10h18" />
+                  </svg>
+                </span>
+                <span className="font-semibold text-primary text-left">
+                  Aux établissements souhaitant agir en prévention
+                </span>
+              </div>
+              <div className="bg-white rounded-lg border border-accent/20 p-6 flex items-center gap-4 shadow-sm col-span-1 sm:col-span-2">
+                <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-accent/10">
+                  {/* Interim/healthcare icon */}
+                  <svg
+                    className="w-6 h-6 text-accent"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle cx="12" cy="7" r="4" />
+                    <path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" />
+                    <path d="M16 3v1M8 3v1" />
+                  </svg>
+                </span>
+                <span className="font-semibold text-primary text-left">
+                  Aux agences d’intérim accompagnant leurs professionnels
+                </span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* --- 6- Bloc Lien avec les autres accompagnements --- */}
+        <section id="lien-autres-accompagnements" className="container mb-14">
+          <div className="max-w-3xl mx-auto text-justify">
+            <p className="text-muted text-sm md:text-md leading-relaxed">
+              <span className="text-primary font-bold mr-2">Lien avec les autres accompagnements :</span>
+              Selon les situations et les objectifs, la formation peut être proposée seule, ou s’inscrire dans une démarche plus globale incluant du coaching ou des groupes d’analyse de la pratique.<br />
+              <span className="text-stone-500 text-sm">Ces modalités sont envisagées uniquement lorsqu’elles sont pertinentes.</span>
+            </p>
           </div>
         </section>
 
