@@ -4,7 +4,12 @@ export default function JsonLd() {
     "@type": "Person",
     name: "Coralie Mathorel",
     url: "https://elancestvous.fr",
-    image: "https://elancestvous.fr/coralie.png",
+    image: {
+      "@type": "ImageObject",
+      url: "https://elancestvous.fr/coralie.png",
+      width: 241,
+      height: 244,
+    },
     jobTitle: "Coach professionnelle certifiée",
     description:
       "Ancienne soignante et coach certifiée, spécialisée dans l'accompagnement des professionnels et établissements de santé.",
@@ -21,8 +26,18 @@ export default function JsonLd() {
     "@type": "ProfessionalService",
     name: "Élan C'est Vous",
     url: "https://elancestvous.fr",
-    logo: "https://elancestvous.fr/logo_elancestvous.png",
-    image: "https://elancestvous.fr/logo_elancestvous.png",
+    logo: {
+      "@type": "ImageObject",
+      url: "https://elancestvous.fr/logo_elancestvous.png",
+      width: 521,
+      height: 521,
+    },
+    image: {
+      "@type": "ImageObject",
+      url: "https://elancestvous.fr/og-banner.jpg",
+      width: 1200,
+      height: 630,
+    },
     description:
       "Coaching individuel et collectif, formations QVCT/RPS et groupes d'analyse des pratiques professionnelles pour les établissements de santé.",
     founder: { "@type": "Person", name: "Coralie Mathorel" },

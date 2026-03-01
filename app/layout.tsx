@@ -56,7 +56,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    images: ["/logo_elancestvous.png"],
+    images: ["/og-banner.jpg"],
   },
 };
 

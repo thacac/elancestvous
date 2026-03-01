@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     title: "Préserver la santé de ceux qui soignent | Élan C’est Vous",
     description:
       "Coaching, formations et accompagnement pour la santé au travail et la performance humaine dans le secteur de la santé.",
-    images: ["/logo_elancestvous.png"],
+    images: ["/og-banner.jpg"],
   },
 };
 
