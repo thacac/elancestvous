@@ -36,11 +36,7 @@ echo "Arrêt des anciens containers pour éviter les conflits..."
 # Le down assure que les réseaux et containers sont supprimés avant le up
 docker compose down --remove-orphans
 
-# Suppression du réseau Docker existant pour éviter le conflit
-docker network rm elancestvous_web || true
 
-# Suppression du conteneur certbot existant pour éviter le conflit de nom (ne touche pas aux certificats)
-docker rm -f elancestvous-certbot-1 || true
 
 echo "Démarrage des nouveaux containers..."
 docker compose up -d
