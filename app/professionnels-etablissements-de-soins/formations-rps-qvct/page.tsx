@@ -33,7 +33,7 @@ export const metadata = {
   },
 };
 
-export default function ContactPage() {
+export default function FormationsProPage() {
   return (
     <>
       <main className="min-h-screen overflow-hidden">
@@ -116,7 +116,7 @@ export default function ContactPage() {
                   </h2>
                   {/* Icône escalier stylisé en arrière-plan */}
                   <span className="absolute -left-10 -bottom-15 md:-left-10 md:-bottom-35 lg:-left-20 lg:-bottom-20 z-0 opacity-10 pointer-events-none select-none">
-                    <IconStairs className="w-56 h-56 md:w-[340px] md:h-[340px] text-primary -translate-x-8 md:-translate-x-20" />
+                    <IconStairs className="w-56 h-56 md:w-85 md:h-85 text-primary -translate-x-8 md:-translate-x-20" />
                   </span>
                 </div>
                 <div className="space-y-6">

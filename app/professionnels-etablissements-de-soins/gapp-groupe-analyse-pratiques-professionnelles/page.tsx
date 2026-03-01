@@ -71,6 +71,14 @@ export default function GappPage() {
           </div>
         </section>
 
+        <section>
+          <div className="container mx-auto text-center -mt-20 mb-20">
+            <p className="text-md italic text-stone-500 mb-2">
+              (En cours de certification, animation de groupe d’analyse des pratiques professionnelles.)
+            </p>
+          </div>
+        </section>
+
         {/* --- 2. Objectifs du GAPP --- */}
         <CartesContrastBloc
           titre="Les objectifs du GAPP"
