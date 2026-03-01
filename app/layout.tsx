@@ -9,10 +9,54 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "ÉlanC’estVous | Coaching & Formation",
-  description:
-    "Coaching professionnel, formation et accompagnement au changement.",
   metadataBase: new URL("https://elancestvous.fr"),
+  title: {
+    default: "Élan C’est Vous | Coaching & Formation en santé au travail",
+    template: "%s | Élan C’est Vous",
+  },
+  description:
+    "Coaching individuel et collectif, formations QVCT/RPS et groupes d’analyse des pratiques pour les professionnels et établissements de santé.",
+  keywords: [
+    "coaching professionnel",
+    "formation santé au travail",
+    "prévention RPS",
+    "QVCT",
+    "établissements de santé",
+    "gestion du stress",
+    "burnout soignants",
+    "coaching soignants",
+    "Coralie Mathorel",
+  ],
+  authors: [{ name: "Coralie Mathorel", url: "https://elancestvous.fr" }],
+  creator: "Coralie Mathorel",
+  publisher: "Élan C’est Vous",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  openGraph: {
+    siteName: "Élan C’est Vous",
+    locale: "fr_FR",
+    type: "website",
+    images: [
+      {
+        url: "/logo_elancestvous.png",
+        width: 800,
+        height: 800,
+        alt: "Logo Élan C’est Vous",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/logo_elancestvous.png"],
+  },
 };
 
 export const viewport: Viewport = {

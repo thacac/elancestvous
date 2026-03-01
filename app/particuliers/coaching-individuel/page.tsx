@@ -26,6 +26,9 @@ export const metadata = {
     "développement personnel",
     "coaching à distance",
   ],
+  alternates: {
+    canonical: "https://elancestvous.fr/particuliers/coaching-individuel",
+  },
   openGraph: {
     title: "Coaching individuel pour particuliers | Élan C'est Vous",
     description:

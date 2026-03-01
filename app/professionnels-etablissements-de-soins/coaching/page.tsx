@@ -27,6 +27,9 @@ export const metadata = {
     "accompagnement professionnel",
     "coaching à distance",
   ],
+  alternates: {
+    canonical: "https://elancestvous.fr/professionnels-etablissements-de-soins/coaching",
+  },
   openGraph: {
     title:
       "Coaching individuel et collectif en établissements de santé | Élan C'est Vous",
