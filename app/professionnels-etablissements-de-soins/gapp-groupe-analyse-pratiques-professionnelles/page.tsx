@@ -24,6 +24,9 @@ export const metadata = {
     "qualité des soins",
     "accompagnement",
   ],
+  alternates: {
+    canonical: "https://elancestvous.fr/professionnels-etablissements-de-soins/gapp-groupe-analyse-pratiques-professionnelles",
+  },
   openGraph: {
     title:
       "Groupe d'analyse des pratiques professionnelles (GAPP) | Élan C'est Vous",

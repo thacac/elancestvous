@@ -3,12 +3,14 @@ import CTA from "@/components/home/CTA";
 import Image from "next/image";
 
 export const metadata = {
-  title: "À propos | Mon parcours & ma méthode | ÉlanC’estVous",
+  title: "À propos | Mon parcours & ma méthode",
   description:
     "Découvrez le parcours de Coralie, ancienne soignante devenue coach certifiée, et sa méthode d’accompagnement humain pour soutenir durablement ceux qui soignent.",
-  robots: "index, follow",
+  alternates: {
+    canonical: "https://elancestvous.fr/a-propos",
+  },
   openGraph: {
-    title: "À propos | Mon parcours & ma méthode | ÉlanC’estVous",
+    title: "À propos | Mon parcours & ma méthode",
     description:
       "Ancienne soignante, j’accompagne aujourd’hui la santé de ceux qui soignent. Découvrez mon approche humaine et concrète.",
     url: "https://elancestvous.fr/a-propos",

@@ -4,7 +4,13 @@ export const metadata = {
   title: "Contactez-nous | Coaching et accompagnement personnalisé",
   description:
     "Prenez contact pour un premier échange afin de comprendre votre situation et définir ensemble la réponse la plus adaptée à vos besoins.",
-  robots: "index, follow",
+  alternates: {
+    canonical: "https://elancestvous.fr/contact",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
   openGraph: {
     title: "Contactez-nous | Coaching et accompagnement personnalisé",
     description:

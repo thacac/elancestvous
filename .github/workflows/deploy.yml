@@ -9,6 +9,11 @@ on:
       - master
   workflow_dispatch:
 
+# Prevent concurrent deploys on the same branch — avoids container name conflicts
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.actor }}/elancestvous-nextjs-16

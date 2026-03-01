@@ -23,6 +23,9 @@ export const metadata = {
     "pédagogie",
     "kit de prévention",
   ],
+  alternates: {
+    canonical: "https://elancestvous.fr/professionnels-etablissements-de-soins/formations-rps-qvct",
+  },
   openGraph: {
     title:
       "Formations professionnelles QVCT, RPS, stress et émotions | Élan C'est Vous",
