@@ -47,9 +47,9 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/logo_elancestvous.png",
-        width: 800,
-        height: 800,
+        url: "/og-banner.jpg",
+        width: 1200,
+        height: 630,
         alt: "Logo Élan C’est Vous",
       },
     ],
