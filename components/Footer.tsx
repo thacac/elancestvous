@@ -94,8 +94,12 @@ export default function Footer() {
           <Socials isObfuscated={!isHome} className="px-5 py-2 -mt-1" />
         </nav>
 
-        <p className="mt-8 text-xs leading-6 text-center text-primary">
-          {`${new Date().getFullYear()} - ElanC’estVous - Coaching & Formation - Tous droits réservés.`}
+        <p className="mt-2 text-xs leading-6 text-center text-primary/70">
+          Toulouse (31) · Haute-Garonne · Occitanie ·{" "}
+          <a href="tel:+33695991922" className="hover:underline">06 95 99 19 22</a>
+        </p>
+        <p className="mt-2 text-xs leading-6 text-center text-primary">
+          {`${new Date().getFullYear()} - Élan C’est Vous - Coaching & Formations - Tous droits réservés.`}
         </p>
       </div>
     </footer>
