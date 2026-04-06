@@ -1,3 +1,37 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "À propos – Coach certifiée à Toulouse",
+  description:
+    "Découvrez le parcours de Coralie Mathorel, ancienne soignante devenue coach certifiée à Toulouse, et sa méthode d'accompagnement pour soutenir durablement les soignants en Occitanie.",
+  alternates: {
+    canonical: "https://www.elancestvous.fr/a-propos",
+  },
+  openGraph: {
+    title: "À propos – Coach certifiée à Toulouse | Élan C'est Vous",
+    description:
+      "Ancienne soignante et coach certifiée à Toulouse, j'accompagne la santé de ceux qui soignent. Découvrez mon approche humaine et concrète.",
+    url: "https://www.elancestvous.fr/a-propos",
+  },
+};
+
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "À propos – Coach certifiée à Toulouse",
+  description:
+    "Découvrez le parcours de Coralie Mathorel, ancienne soignante devenue coach certifiée à Toulouse, et sa méthode d'accompagnement pour soutenir durablement les soignants en Occitanie.",
+  alternates: {
+    canonical: "https://www.elancestvous.fr/a-propos",
+  },
+  openGraph: {
+    title: "À propos – Coach certifiée à Toulouse | Élan C'est Vous",
+    description:
+      "Ancienne soignante et coach certifiée à Toulouse, j'accompagne la santé de ceux qui soignent. Découvrez mon approche humaine et concrète.",
+    url: "https://www.elancestvous.fr/a-propos",
+  },
+};
+
 import CtaElan from "@/components/CtaElan";
 import CTA from "@/components/home/CTA";
 import Image from "next/image";

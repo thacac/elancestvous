@@ -1,22 +1,18 @@
 import ContactForm from "@/components/contact-form/ContactForm";
+import type { Metadata } from "next";
 
-export const metadata = {
-  title: "Contactez-nous | Coaching et accompagnement personnalisé",
+export const metadata: Metadata = {
+  title: "Contact – Parlons de vos besoins",
   description:
-    "Prenez contact pour un premier échange afin de comprendre votre situation et définir ensemble la réponse la plus adaptée à vos besoins.",
+    "Contactez Élan C'est Vous pour discuter de vos besoins en coaching, formation QVCT/RPS ou groupe d'analyse des pratiques à Toulouse.",
   alternates: {
-    canonical: "https://elancestvous.fr/contact",
-  },
-  robots: {
-    index: true,
-    follow: true,
+    canonical: "https://www.elancestvous.fr/contact",
   },
   openGraph: {
-    title: "Contactez-nous | Coaching et accompagnement personnalisé",
+    title: "Contact | Élan C'est Vous",
     description:
       "Un premier échange pour comprendre votre situation et définir ensemble la réponse la plus adaptée.",
-    url: "https://elancestvous.fr/contact",
-    type: "website",
+    url: "https://www.elancestvous.fr/contact",
   },
 };
 

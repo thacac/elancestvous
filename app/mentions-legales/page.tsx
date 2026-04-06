@@ -1,3 +1,19 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Mentions légales",
+  description: "Mentions légales du site Élan C'est Vous, coach certifiée à Toulouse.",
+  robots: { index: false, follow: false },
+};
+
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Mentions légales",
+  description: "Mentions légales du site Élan C'est Vous, coach certifiée à Toulouse.",
+  robots: { index: false, follow: false },
+};
+
 export const metadata = {
   title: "Mentions légales",
   description:
