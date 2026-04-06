@@ -1,7 +1,6 @@
 services:
   app:
     image: ghcr.io/thacac/elancestvous-nextjs-16:latest
-    container_name: elancestvous
     restart: unless-stopped
     env_file:
       - .env
