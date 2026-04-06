@@ -32,6 +32,7 @@ services:
       - traefik.http.services.elancestvous.loadbalancer.server.port=80
 
 
+  # Lancé à la demande via infra/init-ssl.sh (1ère fois) et infra/renew.sh (cron)
 networks:
   web:
     driver: bridge
