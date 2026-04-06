@@ -9,11 +9,6 @@ on:
       - master
   workflow_dispatch:
 
-# Prevent concurrent deploys on the same branch — avoids container name conflicts
-concurrency:
-  group: deploy-${{ github.ref }}
-  cancel-in-progress: true
-
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.actor }}/elancestvous-nextjs-16
@@ -88,7 +83,7 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USR }}
           password: ${{ secrets.VPS_PASSWORD }} # Ou key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "docker-compose.yaml,infra/nginx.conf,infra/deploy.sh,.env"
+          source: "docker-compose.yaml,infra/nginx.conf,infra/deploy.sh,infra/renew.sh,.env"
           target: "/home/${{ secrets.VPS_USR }}/elancestvous/"
           strip_components: 0 # Garde la structure des dossiers si besoin (infra dossier etc.)
 
