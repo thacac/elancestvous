@@ -10,6 +10,7 @@ services:
     networks:
       - web
 
+
   nginx:
     image: nginx:alpine
     container_name: nginx
@@ -19,21 +20,24 @@ services:
       - "443:443"
     volumes:
       - ./infra/nginx.conf:/etc/nginx/conf.d/default.conf:ro
-      - /etc/letsencrypt:/etc/letsencrypt
-      - /var/www/certbot:/var/www/certbot:ro
     depends_on:
       - app
     networks:
       - web
+      - traefik-proxy
+    labels:
+      - traefik.enable=true
+      # Remplace par tes domaines
+      - traefik.http.routers.elancestvous.rule=Host(`elancestvous.fr`,`www.elancestvous.fr`)
+      - traefik.http.routers.elancestvous.entrypoints=websecure
+      - traefik.http.routers.elancestvous.tls=true
+      - traefik.http.routers.elancestvous.tls.certresolver=letsencrypt
+      - traefik.http.services.elancestvous.loadbalancer.server.port=80
+
 
   # Lancé à la demande via infra/init-ssl.sh (1ère fois) et infra/renew.sh (cron)
-  certbot:
-    image: certbot/certbot
-    profiles: ["manual"]
-    volumes:
-      - /etc/letsencrypt:/etc/letsencrypt
-      - /var/www/certbot:/var/www/certbot
-
 networks:
   web:
     driver: bridge
+  traefik-proxy:
+    external: true
