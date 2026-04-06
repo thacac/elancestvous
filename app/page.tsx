@@ -1,6 +1,6 @@
 import Axes from "@/components/home/Axes";
 import Hero from "@/components/home/Hero";
-import { Metadata, Viewport } from "next";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Coaching & Formations pour la santé des soignants à Toulouse",

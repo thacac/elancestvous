@@ -12,6 +12,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.actor }}/elancestvous-nextjs-16
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   build:
@@ -41,7 +42,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
@@ -62,7 +63,7 @@ jobs:
           echo "SMTP_PWD=${{ secrets.SMTP_PWD }}" >> .env
 
       - name: Prepare deployment folder on VPS
-        uses: appleboy/ssh-action@v0.1.10
+        uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USR }}
@@ -78,7 +79,7 @@ jobs:
             chmod 700 /home/${{ secrets.VPS_USR }}/elancestvous
 
       - name: Copy files to VPS (Docker Compose, Nginx, .env)
-        uses: appleboy/scp-action@v0.1.7
+        uses: appleboy/scp-action@v1.0.0
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USR }}
@@ -88,7 +89,7 @@ jobs:
           strip_components: 0 # Garde la structure des dossiers si besoin (infra dossier etc.)
 
       - name: Run deployment script
-        uses: appleboy/ssh-action@v0.1.10
+        uses: appleboy/ssh-action@v1.2.0
         env:
           VPS_USR: ${{ secrets.VPS_USR }}
           GITHUB_ACTOR: ${{ github.actor }}

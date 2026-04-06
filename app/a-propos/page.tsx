@@ -1,54 +1,19 @@
 import type { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "À propos – Coach certifiée à Toulouse",
-  description:
-    "Découvrez le parcours de Coralie Mathorel, ancienne soignante devenue coach certifiée à Toulouse, et sa méthode d'accompagnement pour soutenir durablement les soignants en Occitanie.",
-  alternates: {
-    canonical: "https://www.elancestvous.fr/a-propos",
-  },
-  openGraph: {
-    title: "À propos – Coach certifiée à Toulouse | Élan C'est Vous",
-    description:
-      "Ancienne soignante et coach certifiée à Toulouse, j'accompagne la santé de ceux qui soignent. Découvrez mon approche humaine et concrète.",
-    url: "https://www.elancestvous.fr/a-propos",
-  },
-};
-
-import type { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "À propos – Coach certifiée à Toulouse",
-  description:
-    "Découvrez le parcours de Coralie Mathorel, ancienne soignante devenue coach certifiée à Toulouse, et sa méthode d'accompagnement pour soutenir durablement les soignants en Occitanie.",
-  alternates: {
-    canonical: "https://www.elancestvous.fr/a-propos",
-  },
-  openGraph: {
-    title: "À propos – Coach certifiée à Toulouse | Élan C'est Vous",
-    description:
-      "Ancienne soignante et coach certifiée à Toulouse, j'accompagne la santé de ceux qui soignent. Découvrez mon approche humaine et concrète.",
-    url: "https://www.elancestvous.fr/a-propos",
-  },
-};
-
 import CtaElan from "@/components/CtaElan";
-import CTA from "@/components/home/CTA";
 import Image from "next/image";
 
-export const metadata = {
-  title: "À propos | Mon parcours & ma méthode",
+export const metadata: Metadata = {
+  title: "À propos – Coach certifiée à Toulouse",
   description:
-    "Découvrez le parcours de Coralie, ancienne soignante devenue coach certifiée, et sa méthode d’accompagnement humain pour soutenir durablement ceux qui soignent.",
+    "Découvrez le parcours de Coralie Mathorel, ancienne soignante devenue coach certifiée à Toulouse, et sa méthode d'accompagnement pour soutenir durablement les soignants en Occitanie.",
   alternates: {
-    canonical: "https://elancestvous.fr/a-propos",
+    canonical: "https://www.elancestvous.fr/a-propos",
   },
   openGraph: {
-    title: "À propos | Mon parcours & ma méthode",
+    title: "À propos – Coach certifiée à Toulouse | Élan C'est Vous",
     description:
-      "Ancienne soignante, j’accompagne aujourd’hui la santé de ceux qui soignent. Découvrez mon approche humaine et concrète.",
-    url: "https://elancestvous.fr/a-propos",
-    type: "website",
+      "Ancienne soignante et coach certifiée à Toulouse, j'accompagne la santé de ceux qui soignent. Découvrez mon approche humaine et concrète.",
+    url: "https://www.elancestvous.fr/a-propos",
   },
 };
 
@@ -58,13 +23,13 @@ export default function About() {
       <section id="apropos" className="pt-20 mb-40">
         <div className="container text-center mb-20">
           <h1>
-            Mon parcours &{" "}
+            Coralie Mathorel –{" "}
             <span className="text-accent">
-              <strong>ma méthode</strong>
+              <strong>Coach certifiée à Toulouse</strong>
             </span>
           </h1>
           <h2 className="h3-like">
-            Ancienne soignante, j’accompagne aujourd’hui la santé de ceux qui
+            Ancienne soignante, j'accompagne aujourd'hui la santé de ceux qui
             soignent.
           </h2>
         </div>
@@ -76,9 +41,8 @@ export default function About() {
               width={300}
               height={300}
               className="rounded-full w-full object-cover shadow-lg max-w-[250px] mx-auto"
-              alt="Logo ÉlanC’estVous"
+              alt="Coralie Mathorel, coach certifiée à Toulouse"
             />
-
             <div className="absolute left-0 md:-bottom-15 right-0 p-6 text-center">
               <p className="text-primary font-serif text-lg md:text-xl italic">
                 "Accompagnement humain."
@@ -90,26 +54,23 @@ export default function About() {
               <div className="prose text-stone-600 mb-8 space-y-4 text-justify">
                 <p>
                   Mon parcours a débuté au cœur du soin. Cette réalité du
-                  terrain, je la connais : l’urgence, la charge mentale, la
+                  terrain, je la connais : l'urgence, la charge mentale, la
                   pression du quotidien.
                 </p>
                 <p>
                   <strong>
-                    C’est ce qui fait aujourd’hui ma force :&nbsp;
+                    C'est ce qui fait aujourd'hui ma force :&nbsp;
                     <span className="text-accent font-serif font-extrabold text-2xl italic">
                       je ne parle pas de théorie, je parle de votre réalité.
                     </span>
                   </strong>
                 </p>
                 <p>
-                  Formée au coaching et forte de mon expérience du soin, j’ai
-                  construit une approche qui s’appuie sur l’écoute, la mise en
-                  mouvement et des outils concrets, pour agir en prévention et
-                  soutenir des changements durables.
+                  Formée au coaching et forte de mon expérience du soin, j'ai construit à Toulouse une approche qui s'appuie sur l'écoute, la mise en mouvement et des outils concrets — coaching individuel, formations QVCT/RPS, groupes d'analyse des pratiques — pour agir en prévention et soutenir des changements durables.
                 </p>
                 <p>
                   <strong>
-                    Former, accompagner, soutenir dans la durée : c’est le fil
+                    Former, accompagner, soutenir dans la durée : c'est le fil
                     conducteur de mon engagement professionnel.
                   </strong>
                 </p>
