@@ -4,6 +4,7 @@ import Hero from "@/components/home/Hero";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.elancestvous.fr"),
   title: "ÉlanC’estVous | Coaching & Formation - Préserver la santé de ceux qui soignent | eLanceStVous",
   description:
     "Accompagnement des établissements et professionnels de santé : prévention de l'épuisement, gestion des émotions, formations, coaching et groupes d'analyse des pratiques professionnelles.",
