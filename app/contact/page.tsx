@@ -30,6 +30,12 @@ export default function ContactPage() {
           Un premier échange pour comprendre votre situation et définir ensemble
           la réponse la plus adaptée.
         </h2>
+        <p className="text-sm text-stone-500 mt-3">
+          Coaching, formations QVCT/RPS et GAPP à{" "}
+          <strong>Toulouse</strong> et en Occitanie.{" "}
+          <span className="text-stone-400">·</span>{" "}
+          <a href="tel:+33695991922" className="hover:underline">06 95 99 19 22</a>
+        </p>
       </div>
 
       <div className="bg-stone-50 rounded-2xl shadow-xl p-8 md:p-12 border border-stone-100">

@@ -41,7 +41,18 @@ export default function JsonLd() {
     description:
       "Coaching individuel et collectif, formations QVCT/RPS et groupes d'analyse des pratiques professionnelles pour les établissements de santé.",
     founder: { "@type": "Person", name: "Coralie Mathorel" },
-    areaServed: { "@type": "Country", name: "France" },
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Toulouse",
+      postalCode: "31000",
+      addressRegion: "Occitanie",
+      addressCountry: "FR",
+    },
+    areaServed: [
+      { "@type": "City", name: "Toulouse" },
+      { "@type": "AdministrativeArea", name: "Haute-Garonne" },
+      { "@type": "AdministrativeArea", name: "Occitanie" },
+    ],
     availableLanguage: "French",
     contactPoint: {
       "@type": "ContactPoint",

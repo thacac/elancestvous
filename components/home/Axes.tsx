@@ -14,7 +14,7 @@ const Axes: FC<AxesProps> = () => {
       <div className="text-center">
         <h2>Mes 3 Axes d'Intervention</h2>
         <h3>
-          Une approche globale, avec des modaliés d'intervention adaptables aux
+          Une approche globale, avec des modalités d'intervention adaptables aux
           besoins des équipes.
         </h3>
       </div>
@@ -50,7 +50,7 @@ const Axes: FC<AxesProps> = () => {
               variant: "ghost",
             })} mt-4 bg-primary text-white px-6 py-2 rounded-full!`}
           >
-           Décourvrir les formations
+           Découvrir les formations
           </Link>
         </div>
 
@@ -87,7 +87,7 @@ const Axes: FC<AxesProps> = () => {
               variant: "ghost",
             })} mt-4 bg-primary text-white px-6 py-2 rounded-full!`}
           >
-           Décourvrir le coaching
+           Découvrir le coaching
           </Link>
         </div>
 
@@ -121,7 +121,7 @@ const Axes: FC<AxesProps> = () => {
               variant: "ghost",
             })} mt-4 bg-primary text-white px-6 py-2 rounded-full!`}
           >
-           Décourvrir les GAPP
+           Découvrir les GAPP
           </Link>
         </div>
       </div>
