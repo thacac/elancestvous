@@ -1,6 +1,7 @@
 services:
   app:
     image: ghcr.io/thacac/elancestvous-nextjs-16:latest
+    container_name: elancestvous
     restart: unless-stopped
     env_file:
       - .env
@@ -18,19 +19,20 @@ services:
       - "443:443"
     volumes:
       - ./infra/nginx.conf:/etc/nginx/conf.d/default.conf:ro
-      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /etc/letsencrypt:/etc/letsencrypt
       - /var/www/certbot:/var/www/certbot:ro
     depends_on:
       - app
     networks:
       - web
 
+  # Lancé à la demande via infra/init-ssl.sh (1ère fois) et infra/renew.sh (cron)
   certbot:
     image: certbot/certbot
+    profiles: ["manual"]
     volumes:
       - /etc/letsencrypt:/etc/letsencrypt
       - /var/www/certbot:/var/www/certbot
-    # Lancé à la demande via infra/renew.sh (cron sur le host)
 
 networks:
   web:

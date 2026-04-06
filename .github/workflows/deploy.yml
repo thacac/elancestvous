@@ -84,7 +84,7 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USR }}
           password: ${{ secrets.VPS_PASSWORD }} # Ou key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "docker-compose.yaml,infra/nginx.conf,infra/deploy.sh,infra/renew.sh,.env"
+          source: "docker-compose.yaml,infra/nginx.conf,infra/deploy.sh,infra/renew.sh,infra/init-ssl.sh,.env"
           target: "/home/${{ secrets.VPS_USR }}/elancestvous/"
           strip_components: 0 # Garde la structure des dossiers si besoin (infra dossier etc.)
 
@@ -98,12 +98,23 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USR }}
           password: ${{ secrets.VPS_PASSWORD }}
-          # On passe les variables nécessaires au script deploy.sh
-          # On liste ces variables pour qu'elles soient envoyées au VPS
           envs: GITHUB_ACTOR,GITHUB_TOKEN,VPS_USR
           script: |
-            # 1. Donner les droits d'exécution
             chmod +x /home/${{ secrets.VPS_USR }}/elancestvous/infra/deploy.sh
-            
-            # 2. Lancer le script (les variables sont déjà dans l'env grâce à 'envs' plus haut)
             /home/${{ secrets.VPS_USR }}/elancestvous/infra/deploy.sh
+
+      - name: Init SSL certificate (first time only)
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USR }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          script: |
+            CERT=/etc/letsencrypt/live/elancestvous.fr/fullchain.pem
+            if [ ! -f "$CERT" ]; then
+              echo "Certificat absent, lancement de init-ssl.sh..."
+              chmod +x /home/${{ secrets.VPS_USR }}/elancestvous/infra/init-ssl.sh
+              /home/${{ secrets.VPS_USR }}/elancestvous/infra/init-ssl.sh
+            else
+              echo "Certificat déjà présent, init-ssl.sh ignoré."
+            fi

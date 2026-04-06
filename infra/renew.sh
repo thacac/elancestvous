@@ -4,7 +4,8 @@ set -e
 PROJECT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 
 echo "[$(date)] Tentative de renouvellement du certificat SSL..."
-docker compose -f "$PROJECT_DIR/docker-compose.yaml" run --rm certbot renew \
+docker compose -f "$PROJECT_DIR/docker-compose.yaml" \
+  --profile manual run --rm certbot renew \
   --webroot -w /var/www/certbot \
   --quiet
 
