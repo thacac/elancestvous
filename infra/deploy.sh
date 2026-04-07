@@ -44,9 +44,3 @@ docker compose up -d
 echo "Nettoyage des images Docker obsolètes..."
 # Supprime les images inutilisées pour libérer de l'espace
 docker image prune -f
-
-# Enregistre le cron job de renouvellement SSL (idempotent : remplace l'ancienne entrée)
-CHEMIN_SCRIPT="/home/$VPS_USR/elancestvous/infra/renew.sh"
-chmod +x "$CHEMIN_SCRIPT"
-( crontab -l 2>/dev/null | grep -v "renew.sh"; echo "0 5 * * * $CHEMIN_SCRIPT >> /var/log/certbot-renew.log 2>&1" ) | crontab -
-echo "Cron SSL enregistré : 0 5 * * * $CHEMIN_SCRIPT"
