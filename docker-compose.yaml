@@ -9,7 +9,6 @@ services:
       - "3000"
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik-proxy
       - traefik.http.routers.elancestvous.rule=Host(`elancestvous.fr`,`www.elancestvous.fr`)
       - traefik.http.routers.elancestvous.entrypoints=websecure
       - traefik.http.routers.elancestvous.tls=true
