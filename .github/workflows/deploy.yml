@@ -101,7 +101,4 @@ jobs:
           envs: GITHUB_ACTOR,GITHUB_TOKEN,VPS_USR
           script: |
             cd /home/${{ secrets.VPS_USR }}/elancestvous
-            mkdir -p ./letsencrypt
-            touch ./letsencrypt/acme.json
-            chmod 600 ./letsencrypt/acme.json
             docker compose up -d --pull always
