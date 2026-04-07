@@ -11,7 +11,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.actor }}/elancestvous-nextjs-16
+  IMAGE_NAME: ${{ github.repository_owner }}/elancestvous-nextjs-16
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
@@ -102,19 +102,3 @@ jobs:
           script: |
             chmod +x /home/${{ secrets.VPS_USR }}/elancestvous/infra/deploy.sh
             /home/${{ secrets.VPS_USR }}/elancestvous/infra/deploy.sh
-
-      - name: Init SSL certificate (first time only)
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USR }}
-          password: ${{ secrets.VPS_PASSWORD }}
-          script: |
-            CERT=/etc/letsencrypt/live/elancestvous.fr/fullchain.pem
-            if [ ! -f "$CERT" ]; then
-              echo "Certificat absent, lancement de init-ssl.sh..."
-              chmod +x /home/${{ secrets.VPS_USR }}/elancestvous/infra/init-ssl.sh
-              /home/${{ secrets.VPS_USR }}/elancestvous/infra/init-ssl.sh
-            else
-              echo "Certificat déjà présent, init-ssl.sh ignoré."
-            fi
