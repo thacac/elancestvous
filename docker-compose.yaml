@@ -20,4 +20,4 @@ services:
 
 networks:
   traefik-proxy:
-    external:true
+    external: true
