@@ -1,4 +1,32 @@
 services:
+  traefik:
+    image: traefik:v3.1
+    container_name: traefik
+    restart: unless-stopped
+    environment:
+      - DOCKER_API_VERSION=1.44
+    ports:
+      - "80:80"
+      - "443:443"
+    command:
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=traefik-proxy"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.letsencrypt.acme.email=contact@elancestvous.fr"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./letsencrypt:/letsencrypt
+    networks:
+      - traefik-proxy
+
   app:
     image: ghcr.io/thacac/elancestvous-nextjs-16:latest
     container_name: elancestvous
@@ -8,21 +36,17 @@ services:
     expose:
       - "3000"
     networks:
-      - web
       - traefik-proxy
     labels:
       - traefik.enable=true
-      # Remplace par tes domaines
+      - traefik.docker.network=traefik-proxy
       - traefik.http.routers.elancestvous.rule=Host(`elancestvous.fr`,`www.elancestvous.fr`)
       - traefik.http.routers.elancestvous.entrypoints=websecure
       - traefik.http.routers.elancestvous.tls=true
       - traefik.http.routers.elancestvous.tls.certresolver=letsencrypt
       - traefik.http.services.elancestvous.loadbalancer.server.port=3000
 
-
-  # Lancé à la demande via infra/init-ssl.sh (1ère fois) et infra/renew.sh (cron)
 networks:
-  web:
-    driver: bridge
   traefik-proxy:
-    external: true
+    name: traefik-proxy
+    driver: bridge
