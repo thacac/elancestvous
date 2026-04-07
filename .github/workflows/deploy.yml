@@ -84,7 +84,7 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USR }}
           password: ${{ secrets.VPS_PASSWORD }} # Ou key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "docker-compose.yaml,infra/nginx.conf,infra/deploy.sh,infra/renew.sh,infra/init-ssl.sh,.env"
+          source: "docker-compose.yaml,infra/nginx.conf,infra/deploy.sh,.env"
           target: "/home/${{ secrets.VPS_USR }}/elancestvous/"
           strip_components: 0 # Garde la structure des dossiers si besoin (infra dossier etc.)
 
@@ -100,5 +100,8 @@ jobs:
           password: ${{ secrets.VPS_PASSWORD }}
           envs: GITHUB_ACTOR,GITHUB_TOKEN,VPS_USR
           script: |
-            chmod +x /home/${{ secrets.VPS_USR }}/elancestvous/infra/deploy.sh
-            /home/${{ secrets.VPS_USR }}/elancestvous/infra/deploy.sh
+            cd /home/${{ secrets.VPS_USR }}/elancestvous
+            mkdir -p ./letsencrypt
+            touch ./letsencrypt/acme.json
+            chmod 600 ./letsencrypt/acme.json
+            docker compose up -d --pull always
