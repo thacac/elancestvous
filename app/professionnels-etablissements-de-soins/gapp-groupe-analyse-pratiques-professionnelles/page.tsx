@@ -10,7 +10,7 @@ import CtaElan from "@/components/CtaElan";
 
 export const metadata = {
   title:
-    "Groupe d'analyse des pratiques professionnelles (GAPP) | Élan C'est Vous",
+    "GAPP – Groupe d'analyse des pratiques professionnelles en santé",
   description:
     "Groupe d'analyse des pratiques professionnelles (GAPP) : un espace sécurisé pour partager, analyser et améliorer les pratiques professionnelles en équipe, animé par une coach certifiée.",
   keywords: [
@@ -25,14 +25,15 @@ export const metadata = {
     "accompagnement",
   ],
   alternates: {
-    canonical: "https://elancestvous.fr/professionnels-etablissements-de-soins/gapp-groupe-analyse-pratiques-professionnelles",
+    canonical:
+      "/professionnels-etablissements-de-soins/gapp-groupe-analyse-pratiques-professionnelles",
   },
   openGraph: {
     title:
       "Groupe d'analyse des pratiques professionnelles (GAPP) | Élan C'est Vous",
     description:
       "Groupe d'analyse des pratiques professionnelles (GAPP) : un espace sécurisé pour partager, analyser et améliorer les pratiques professionnelles en équipe, animé par une coach certifiée.",
-    url: "https://elancestvous.fr/gapp-groupe-analyse-pratiques-professionnelles",
+    url: "https://elancestvous.fr/professionnels-etablissements-de-soins/gapp-groupe-analyse-pratiques-professionnelles",
     type: "website",
   },
 };

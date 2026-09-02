@@ -7,13 +7,13 @@ export const metadata: Metadata = {
   description:
     "Découvrez le parcours de Coralie Mathorel, ancienne soignante devenue coach certifiée à Toulouse, et sa méthode d'accompagnement pour soutenir durablement les soignants en Occitanie.",
   alternates: {
-    canonical: "https://www.elancestvous.fr/a-propos",
+    canonical: "/a-propos",
   },
   openGraph: {
     title: "À propos – Coach certifiée à Toulouse | Élan C'est Vous",
     description:
       "Ancienne soignante et coach certifiée à Toulouse, j'accompagne la santé de ceux qui soignent. Découvrez mon approche humaine et concrète.",
-    url: "https://www.elancestvous.fr/a-propos",
+    url: "https://elancestvous.fr/a-propos",
   },
 };
 
@@ -41,7 +41,7 @@ export default function About() {
               width={300}
               height={300}
               className="rounded-full w-full object-cover shadow-lg max-w-[250px] mx-auto"
-              alt="Coralie Mathorel, coach certifiée à Toulouse"
+              alt="Coralie Mathorel, coach professionnelle certifiée et ancienne soignante, à Toulouse"
             />
             <div className="absolute left-0 md:-bottom-15 right-0 p-6 text-center">
               <p className="text-primary font-serif text-lg md:text-xl italic">

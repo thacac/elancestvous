@@ -54,7 +54,7 @@ export default function Hero() {
             width={400}
             height={400}
             className="max-w-1/2 mt-20 mb-10 md:max-w-2/3 md:mt-0 xl:max-w-2xl"
-            alt="Logo ÉlanC’estVous"
+            alt="Élan C’est Vous – coaching et formations pour les professionnels de santé"
           />
         </div>
       </div>

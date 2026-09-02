@@ -4,7 +4,8 @@ export const metadata: Metadata = {
   title: "Mentions légales",
   description:
     "Mentions légales du site Élan C'est Vous : éditeur, hébergeur, propriété intellectuelle et protection des données personnelles.",
-  robots: { index: false, follow: false },
+  alternates: { canonical: "/mentions-legales" },
+  robots: { index: false, follow: true },
 };
 
 export default function MentionsLegales() {

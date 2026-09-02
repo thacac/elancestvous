@@ -7,8 +7,7 @@ import PublicsCiblesBloc from "@/components/PublicsCiblesBloc";
 import { IconBuilding, IconHand, IconHeart, IconManager, IconStairs, IconStethoscope } from "@/components/ui/icons-publics";
 
 export const metadata = {
-  title:
-    "Formations professionnelles QVCT, RPS, stress et émotions | Élan C'est Vous",
+  title: "Formations QVCT, RPS, gestion du stress et des émotions",
   description:
     "Formations professionnelles pour la gestion du stress, des émotions et la prévention de l'usure professionnelle en établissements de santé. QVCT, prévention des risques psycho-sociaux (RPS), ateliers pratiques et pédagogie adaptée au terrain.",
   keywords: [
@@ -24,14 +23,14 @@ export const metadata = {
     "kit de prévention",
   ],
   alternates: {
-    canonical: "https://elancestvous.fr/professionnels-etablissements-de-soins/formations-rps-qvct",
+    canonical: "/professionnels-etablissements-de-soins/formations-rps-qvct",
   },
   openGraph: {
     title:
       "Formations professionnelles QVCT, RPS, stress et émotions | Élan C'est Vous",
     description:
       "Formations pour la gestion du stress, des émotions et la prévention de l'usure professionnelle en établissements de santé.",
-    url: "https://elancestvous.fr/formations-rps-qvct",
+    url: "https://elancestvous.fr/professionnels-etablissements-de-soins/formations-rps-qvct",
     type: "website",
   },
 };

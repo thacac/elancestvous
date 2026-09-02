@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/icons-publics";
 
 export const metadata = {
-  title: "Coaching individuel pour particuliers | Élan C'est Vous",
+  title: "Coaching individuel pour particuliers à Toulouse et à distance",
   description:
     "Coaching individuel pour particuliers : clarifier une situation, débloquer ce qui fait obstacle et avancer vers vos objectifs. Un espace d'écoute et de réflexion, dans un cadre sécurisant et confidentiel.",
   keywords: [
@@ -27,7 +27,7 @@ export const metadata = {
     "coaching à distance",
   ],
   alternates: {
-    canonical: "https://elancestvous.fr/particuliers/coaching-individuel",
+    canonical: "/particuliers/coaching-individuel",
   },
   openGraph: {
     title: "Coaching individuel pour particuliers | Élan C'est Vous",
