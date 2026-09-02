@@ -6,13 +6,13 @@ export const metadata: Metadata = {
   description:
     "Contactez Élan C'est Vous pour discuter de vos besoins en coaching, formation QVCT/RPS ou groupe d'analyse des pratiques à Toulouse.",
   alternates: {
-    canonical: "https://www.elancestvous.fr/contact",
+    canonical: "/contact",
   },
   openGraph: {
     title: "Contact | Élan C'est Vous",
     description:
       "Un premier échange pour comprendre votre situation et définir ensemble la réponse la plus adaptée.",
-    url: "https://www.elancestvous.fr/contact",
+    url: "https://elancestvous.fr/contact",
   },
 };
 

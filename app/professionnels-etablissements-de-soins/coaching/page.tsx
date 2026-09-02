@@ -12,8 +12,7 @@ import {
 } from "@/components/ui/icons-publics";
 
 export const metadata = {
-  title:
-    "Coaching individuel et collectif en établissements de santé | Élan C'est Vous",
+  title: "Coaching individuel et collectif en établissements de santé",
   description:
     "Coaching individuel ou collectif pour les équipes et professionnels des établissements de santé. Un espace structuré de réflexion et de mise en mouvement, ancré dans la réalité du terrain.",
   keywords: [
@@ -28,7 +27,7 @@ export const metadata = {
     "coaching à distance",
   ],
   alternates: {
-    canonical: "https://elancestvous.fr/professionnels-etablissements-de-soins/coaching",
+    canonical: "/professionnels-etablissements-de-soins/coaching",
   },
   openGraph: {
     title:

@@ -3,12 +3,13 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import JsonLd from "@/components/JsonLd";
 import { Toaster } from "sonner";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://www.elancestvous.fr"),
+  metadataBase: new URL("https://elancestvous.fr"),
   title: {
     default: "Élan C'est Vous | Coaching & Formations – Toulouse",
     template: "%s | Élan C'est Vous",
@@ -36,7 +37,7 @@ export const metadata: Metadata = {
     "Haute-Garonne",
     "Occitanie",
   ],
-  authors: [{ name: "Coralie Mathorel", url: "https://www.elancestvous.fr" }],
+  authors: [{ name: "Coralie Mathorel", url: "https://elancestvous.fr" }],
   creator: "Coralie Mathorel",
   publisher: "Élan C'est Vous",
   robots: {
@@ -49,8 +50,12 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
     siteName: "Élan C'est Vous",
+    url: "https://elancestvous.fr",
     locale: "fr_FR",
     type: "website",
     images: [
@@ -76,6 +81,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="fr" data-theme="elancestvous">
       <body className={inter.className + " bg-white text-brand-dark"}>
+        <JsonLd />
         <Navbar />
         <main className="min-h-[70vh]">{children}</main>
         <Footer />
