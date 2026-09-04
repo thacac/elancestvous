@@ -51,6 +51,13 @@ export function createGithubBlogRepo(options: {
       coverImage: Buffer;
       commitMessage: string;
     }): Promise<{ branch: string; url: string }> {
+      // Contents API plutôt que Git Data API (blobs/trees/commits) : un seul
+      // article + une image à la fois, pas besoin de la plomberie bas niveau —
+      // GitHub construit blob/tree/commit tout seul derrière un simple PUT.
+      // Contrepartie : deux fichiers = deux commits séquentiels sur la branche
+      // plutôt qu'un seul commit atomique, sans conséquence pour une branche de
+      // brouillon jetable. La création de branche, elle, reste Git Data API —
+      // la Contents API ne sait pas créer une branche, seulement y écrire.
       const branchName = `blog-draft/${args.slug}`;
 
       const { data: baseRef } = await octokit.rest.git.getRef({
@@ -59,76 +66,47 @@ export function createGithubBlogRepo(options: {
         ref: `heads/${baseBranch}`,
       });
       const baseSha = baseRef.object.sha;
-      const { data: baseCommit } = await octokit.rest.git.getCommit({
-        owner,
-        repo,
-        commit_sha: baseSha,
-      });
-
-      const [postBlob, imageBlob] = await Promise.all([
-        octokit.rest.git.createBlob({
-          owner,
-          repo,
-          content: Buffer.from(args.postMarkdown, "utf8").toString("base64"),
-          encoding: "base64",
-        }),
-        octokit.rest.git.createBlob({
-          owner,
-          repo,
-          content: args.coverImage.toString("base64"),
-          encoding: "base64",
-        }),
-      ]);
-
-      const { data: newTree } = await octokit.rest.git.createTree({
-        owner,
-        repo,
-        base_tree: baseCommit.tree.sha,
-        tree: [
-          {
-            path: `content/_drafts/${args.slug}/post.md`,
-            mode: "100644",
-            type: "blob",
-            sha: postBlob.data.sha,
-          },
-          {
-            path: `content/_drafts/${args.slug}/cover.jpg`,
-            mode: "100644",
-            type: "blob",
-            sha: imageBlob.data.sha,
-          },
-        ],
-      });
-
-      const { data: newCommit } = await octokit.rest.git.createCommit({
-        owner,
-        repo,
-        message: args.commitMessage,
-        tree: newTree.sha,
-        parents: [baseSha],
-      });
 
       try {
         await octokit.rest.git.createRef({
           owner,
           repo,
           ref: `refs/heads/${branchName}`,
-          sha: newCommit.sha,
+          sha: baseSha,
         });
       } catch (err) {
-        // La branche existe déjà (re-génération d'un même slug) : on la met à jour.
+        // La branche existe déjà (re-génération d'un même slug) : on la
+        // réinitialise sur la base actuelle plutôt que de gérer les sha des
+        // fichiers existants un par un.
         if (isUnprocessable(err)) {
           await octokit.rest.git.updateRef({
             owner,
             repo,
             ref: `heads/${branchName}`,
-            sha: newCommit.sha,
+            sha: baseSha,
             force: true,
           });
         } else {
           throw err;
         }
       }
+
+      await octokit.rest.repos.createOrUpdateFileContents({
+        owner,
+        repo,
+        branch: branchName,
+        path: `content/_drafts/${args.slug}/post.md`,
+        message: args.commitMessage,
+        content: Buffer.from(args.postMarkdown, "utf8").toString("base64"),
+      });
+      await octokit.rest.repos.createOrUpdateFileContents({
+        owner,
+        repo,
+        branch: branchName,
+        path: `content/_drafts/${args.slug}/cover.jpg`,
+        message: args.commitMessage,
+        content: args.coverImage.toString("base64"),
+      });
 
       return {
         branch: branchName,

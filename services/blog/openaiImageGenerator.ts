@@ -16,6 +16,14 @@ export function createOpenAiImageGenerator(options?: {
         prompt,
         size: "1536x1024",
         n: 1,
+        // JPEG compressé plutôt que le PNG par défaut (souvent plusieurs Mo) :
+        // ces images sont committées dans le dépôt git (content/_drafts puis
+        // public/blog) et y restent pour toujours, même remplacées — mieux
+        // vaut borner leur poids à la source qu'alourdir l'historique du repo
+        // chaque semaine.
+        output_format: "jpeg",
+        output_compression: 75,
+        quality: "medium",
       });
 
       const image = response.data?.[0];
