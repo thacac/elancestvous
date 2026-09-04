@@ -1,0 +1,30 @@
+import type { Post } from "@/lib/blog";
+
+const SITE = "https://elancestvous.fr";
+const ORG_ID = `${SITE}/#organization`;
+const PERSON_ID = `${SITE}/#coralie-mathorel`;
+
+export default function PostJsonLd({ post }: { post: Post }) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "@id": `${SITE}/blog/${post.slug}#article`,
+    mainEntityOfPage: { "@type": "WebPage", "@id": `${SITE}/blog/${post.slug}` },
+    headline: post.title,
+    description: post.description,
+    image: `${SITE}${post.coverImage}`,
+    datePublished: post.publishedAt,
+    dateModified: post.updatedAt ?? post.publishedAt,
+    inLanguage: "fr-FR",
+    keywords: post.tags.join(", "),
+    author: { "@id": PERSON_ID },
+    publisher: { "@id": ORG_ID },
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+    />
+  );
+}

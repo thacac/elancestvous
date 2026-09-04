@@ -2,6 +2,7 @@
 @import "tw-animate-css";
 
 @plugin "tailwindcss-animate";
+@plugin "@tailwindcss/typography";
 /* Tailwind CSS v4: border color compatibility for v3 */
 @layer base {
   *,

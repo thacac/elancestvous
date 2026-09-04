@@ -17,6 +17,7 @@ export const links = [
     href: "/professionnels-etablissements-de-soins/gapp-groupe-analyse-pratiques-professionnelles",
     label: "GAPP",
   },
+  { href: "/blog", label: "Blog" },
   { href: "/a-propos", label: "À propos" },
   { href: "/contact", label: "Contact" },
 ];
