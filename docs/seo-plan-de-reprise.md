@@ -97,6 +97,78 @@ Next.js).
   de cleanup entre tests (pas de `test.globals` dans `vitest.config.mjs`) —
   ajout de `vitest.setup.ts` (`afterEach(cleanup)` + jest-dom matchers).
 
+## 2 ter. Audit outillé (`claude-seo`) — validation + 2 nouveaux bugs trouvés et corrigés
+
+Installation du plugin [`claude-seo`](https://github.com/AgriciDaniel/claude-seo)
+v2.2.5 (25 sous-skills) à la demande explicite, pour croiser les constats
+manuels avec un outillage réel plutôt que de continuer en lecture de code
+seule.
+
+**Limite d'environnement** : tous les scripts réseau du plugin
+(`fetch_page.py`, `render_page.py`, `capture_screenshot.py`, PageSpeed/CrUX…)
+échouent dans ce sandbox — leur protection SSRF interne (`url_safety.py`)
+rejette comme « IP non-publique » le proxy loopback obligatoire de
+l'environnement (`127.0.0.1`), avant même d'atteindre le site. Ce n'est pas
+un bug du site : c'est une incompatibilité entre le sandbox et le
+durcissement SSRF du plugin, et il n'a pas été question de désactiver cette
+protection (code de sécurité tiers). Contournement : récupération des pages
+en prod via `curl` (qui passe le proxy sans problème), puis analyse de ce
+HTML avec les scripts du plugin qui acceptent un fichier local
+(`parse_html.py`, `content_quality.py`). **Conséquence : Core Web Vitals
+réels, captures d'écran et audit visuel n'ont pas pu être obtenus depuis
+cette session** — à relancer un jour depuis un poste sans ce proxy, ou via
+Search Console / PageSpeed Insights manuellement.
+
+Résultats sur les 8 pages indexables + `robots.txt` + `sitemap.xml` :
+
+- **Sitemap et robots.txt propres** : 7 URLs indexables (mentions-légales
+  bien exclue), `/blog` explicitement disallow tant que `BLOG_ENABLED` est
+  faux. Rien à corriger.
+- **JSON-LD `@graph` bien présent sur les 8 pages** (`WebSite` + `Person` +
+  `ProfessionalService`), confirme le correctif de la section 1.
+- **Qualité de contenu (scoring QRG) : 91-92/100 sur les 8 pages.** Un flag
+  « repetitive » sort partout — normal, le scorer lit le HTML complet et
+  Navbar/Footer sont identiques mot pour mot sur chaque page ; ce n'est pas
+  du contenu dupliqué au sens Google (qui regarde le contenu principal),
+  mais confirme qu'il n'y a pas de quoi s'inquiéter sur la qualité
+  rédactionnelle en l'état.
+- **Finding #3 de la section 2 reconfirmé** : chaque page de service n'a que
+  2 images (logo + visuel du menu), aucune illustration de contenu.
+- **2 nouveaux bugs trouvés, corrigés en TDD sur cette branche** (test
+  ajouté d'abord, rouge confirmé sur les 10 assertions, puis fix) :
+  - **`og:image` absent sur les 8 pages "réelles" du site** (accueil,
+    à-propos, contact, 2× coaching, formations, GAPP, index blog) — seule
+    `mentions-légales` avait une image. Cause : Next.js ne fusionne pas
+    `openGraph`/`twitter` en profondeur entre le layout racine et une page ;
+    dès qu'une page redéclare `openGraph` (pour son propre titre/description/
+    url), l'objet entier du layout racine — `images` compris — est remplacé,
+    pas fusionné. Un partage LinkedIn/Facebook de n'importe quelle page du
+    site n'affichait donc aucune image de prévisualisation. Fix : constante
+    partagée `lib/openGraph.ts` (`OG_BANNER_IMAGES`, `TWITTER_BANNER_IMAGES`),
+    réinjectée dans chaque `openGraph`/`twitter` qui se redéclare (layout
+    racine inclus, pour ne garder qu'une seule source de vérité). Test :
+    `app/__tests__/opengraph-images.test.ts`.
+  - **`og:url` de `/mentions-legales` pointait vers la page d'accueil** au
+    lieu d'elle-même — seule page à ne jamais redéclarer `openGraph` du
+    tout, elle héritait donc de `openGraph.url: "https://elancestvous.fr"`
+    du layout racine tel quel. Fix : `openGraph.url` explicite ajouté à
+    cette page (impact mineur, la page est en `noindex`, mais incorrect
+    pour un partage direct de son lien).
+- **Nouveau : aucun header de sécurité HTTP** (`Strict-Transport-Security`,
+  `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`,
+  `Permissions-Policy`) — vérifié par `curl -D -` sur plusieurs pages,
+  confirmé par lecture de `next.config.ts` : pas de fonction `headers()` du
+  tout. N'empêche pas l'indexation mais dégrade le score "Bonnes pratiques"
+  Lighthouse/PageSpeed et les signaux de confiance. Corrigé en TDD
+  (`next.config.test.ts`) par l'ajout d'un `headers()` appliquant ces 5
+  en-têtes à toutes les routes.
+- **Positif à noter** : `/llms.txt` existe déjà (généré par la chaîne blog
+  mergée, section 3) — accessibilité aux crawlers IA (GEO) déjà en place.
+
+Validé avant commit : `yarn vitest run` (63 tests, tous verts),
+`yarn lint` (0 erreur — les warnings restants sont ceux déjà pris en charge
+par la session dédiée au nettoyage ESLint), `yarn build` propre.
+
 ## 3. Volet contenu (blog) — chaîne #29 → #36 → #37 → #43 mergée dans `master`
 
 Toute la chaîne est passée dans `master` (confirmé par `git log
@@ -137,6 +209,13 @@ recaler selon la date réelle d'activation de `BLOG_ENABLED`.
 3. ~~Traiter le finding #1 de l'audit (maillage interne) en PR dédiée~~ —
    fait sur cette branche, en TDD, avec en prime la correction du bug
    Navbar/Footer bien plus impactant découvert au passage (section 2 bis).
+3 bis. ~~Installer `claude-seo` et refaire un audit outillé~~ — fait
+   (section 2 ter) : sitemap/robots/JSON-LD validés, contenu 91-92/100,
+   finding #3 (images) reconfirmé, et 2 nouveaux bugs trouvés + corrigés en
+   TDD (`og:image` absent partout, `og:url` faux sur `/mentions-legales`) +
+   ajout des headers de sécurité HTTP manquants. Core Web Vitals réels et
+   captures d'écran restent à faire hors de ce sandbox (proxy réseau
+   incompatible avec la protection SSRF du plugin).
 4. **Décider de la date d'activation de `BLOG_ENABLED`** (secret serveur,
    nécessite un redéploiement — voir `lib/featureFlags.ts`), puis une fois
    le blog en ligne et le premier article publié : implémenter le
@@ -147,10 +226,9 @@ recaler selon la date réelle d'activation de `BLOG_ENABLED`.
    proposer des sujets libres.
 5. **Finding #3 (images) et #4 (breadcrumbs)** : à planifier après le
    maillage interne, priorité basse — ne bloquent rien d'autre.
-6. **Installer et exécuter `claude-seo`** (github.com/AgriciDaniel/claude-seo,
-   mentionné dans les deux audits comme non encore fait) pour croiser ces
-   constats manuels avec un audit outillé : indexation réelle, performance,
-   éventuelles balises manquantes non détectées ici.
+6. ~~Installer et exécuter `claude-seo`~~ — fait (section 2 ter, étape 3 bis).
+   Reste à relancer les volets Core Web Vitals/captures d'écran depuis un
+   environnement sans proxy loopback obligatoire.
 7. **Après quelques semaines de publication** : croiser le calendrier de
    mots-clés avec Search Console (impressions/clics réels) pour valider ou
    réordonner les priorités du plan éditorial — un mot-clé sans impression
