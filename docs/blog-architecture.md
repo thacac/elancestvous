@@ -6,22 +6,31 @@ validation humaine. État d'avancement au 2026-09 : **Phases 1-2 livrées** (PR 
 
 ## Verrou de lancement public
 
-Le blog reste invisible tant que `NEXT_PUBLIC_BLOG_ENABLED` n'est pas explicitement
-`"true"` (voir `lib/featureFlags.ts`) : `/blog` et `/blog/[slug]` renvoient 404,
-aucun lien dans la navbar, rien dans le sitemap. Ce verrou est volontairement
-indépendant du reste du pipeline : la génération IA hebdomadaire (Phase 2) continue
-de tourner et de committer ses brouillons sur des branches `blog-draft/<slug>`
-privées, jamais exposées, que le blog soit public ou non. Activer le lancement se
-fait en une seule variable (`NEXT_PUBLIC_BLOG_ENABLED=true` en secret GitHub), le
-jour où le contenu et l'illustration sont jugés prêts.
+Le blog reste invisible tant que `BLOG_ENABLED` n'est pas explicitement `"true"`
+(voir `lib/featureFlags.ts`) : `/blog` et `/blog/[slug]` renvoient 404, aucun lien
+dans la navbar, rien dans le sitemap. Ce verrou est volontairement indépendant du
+reste du pipeline : la génération IA hebdomadaire (Phase 2) continue de tourner et
+de committer ses brouillons sur des branches `blog-draft/<slug>` privées, jamais
+exposées, que le blog soit public ou non. Activer le lancement se fait en une seule
+variable (`BLOG_ENABLED=true` en secret GitHub), le jour où le contenu et
+l'illustration sont jugés prêts.
+
+Cette variable est volontairement **server-only**, sans préfixe `NEXT_PUBLIC_` :
+`app/layout.tsx` calcule `isBlogPublic()` côté serveur et transmet un booléen en
+prop au composant client `Navbar`, plutôt que de laisser ce dernier lire la
+variable d'environnement dans son propre bundle. Conséquence pratique : `/blog`,
+`/blog/[slug]`, `robots.txt` et `sitemap.xml` sont tous pré-rendus statiquement au
+`next build` (vérifié par un build manuel dans les deux états) — changer ce flag
+nécessite donc un nouveau build/déploiement (ex. `workflow_dispatch` sur
+`deploy.yml`), pas seulement un redémarrage du conteneur avec un `.env` modifié.
 
 **SEO pendant que c'est désactivé** : le 404 (`notFound()`) empêche déjà
 l'indexation et ne fuit pas les métadonnées de la page (vérifié : le `<title>`
 retombe sur celui du layout racine). `app/robots.ts` ajoute en plus un
 `disallow: /blog` explicite tant que `isBlogPublic()` est faux — pour éviter que
 les robots crawlent la page pour rien plutôt que de compter uniquement sur le 404.
-Ce disallow disparaît automatiquement dès que `NEXT_PUBLIC_BLOG_ENABLED=true`
-(jamais l'inverse, pour ne pas reproduire le classique "disallow oublié après le
+Ce disallow disparaît automatiquement dès que `BLOG_ENABLED=true` (jamais
+l'inverse, pour ne pas reproduire le classique "disallow oublié après le
 lancement" qui empêcherait l'indexation une fois le blog réellement public).
 
 ## Schéma du flux
