@@ -9,7 +9,7 @@ directement dans le code (`grep`/lecture des fichiers), pas des suppositions.
 ## Ce qui est déjà solide (ne pas casser)
 
 - **Metadata complète sur chaque page** : `title`, `description`, `alternates.canonical`,
-  `openGraph` sont présents et différenciés sur les 7 pages (accueil, à propos,
+  `openGraph` sont présents et différenciés sur les 8 pages (accueil, à propos,
   contact, mentions légales, 3 pages professionnels + 1 page particuliers).
 - **Un seul `<h1>` par page**, y compris l'accueil (dans `components/home/Hero.tsx`,
   pas directement dans `app/page.tsx` — vérifié après une première fausse alerte).

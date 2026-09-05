@@ -6,9 +6,10 @@
 > maillage interne quasiment inexistant entre les pages commerciales
 > elles-mêmes, complémentaire du maillage blog → pages décrit ci-dessous.
 
-Ce document relie le contenu produit par le blog (`content/blog/`, généré
-chaque semaine via `services/blog/generateDraft.ts`) au travail SEO déjà en
-place : host canonique unifié sur `elancestvous.fr`, données structurées
+Ce document relie le contenu produit par le blog (`services/blog/generateDraft.ts`
+génère chaque semaine un brouillon sous `content/_drafts/<slug>/`, promu vers
+`content/blog/` une fois relu et publié) au travail SEO déjà en place : host
+canonique unifié sur `elancestvous.fr`, données structurées
 (`components/JsonLd.tsx` : `WebSite`, `Person`, `ProfessionalService` avec un
 catalogue de 4 services), et mots-clés déjà ciblés dans `app/layout.tsx`
 (`metadata.keywords`).
@@ -77,8 +78,8 @@ connues (Search Console) :
 ## 3. Calendrier de publication — 12 premières semaines
 
 Le pipeline publie au rythme d'un article par semaine (voir
-`docs/blog-architecture.md`, cron hebdomadaire). Les deux articles déjà en
-zone de relecture ont été publiés à une semaine d'intervalle exacte
+`docs/blog-architecture.md`, cron hebdomadaire). Les deux premiers articles,
+relus puis publiés, l'ont été à une semaine d'intervalle exacte
 (25/08/2026 et 01/09/2026, un mardi) : le calendrier ci-dessous suppose que ce
 jour de la semaine se poursuit, à ajuster si le cron change de jour.
 
