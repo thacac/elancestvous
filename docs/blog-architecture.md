@@ -56,10 +56,11 @@ lancement" qui empêcherait l'indexation une fois le blog réellement public).
                     └──────────────┬───────────┘
                                    ▼
                      ┌───────────────────────────────┐
-                     │ GitHub Git Data API              │
+                     │ GitHub Contents API               │
                      │ commit sur blog-draft/<slug>     │
                      │ (content/_drafts/<slug>/post.md  │
-                     │  + cover.jpg)                    │
+                     │  + cover.jpg — Git Data API       │
+                     │  réservée à la branche)           │
                      └───────────────┬───────────────────┘
                                      │  Phase 3 (à venir)
                                      ▼
