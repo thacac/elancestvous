@@ -44,22 +44,27 @@ function listMarkdownFiles(dir: string): string[] {
     .map((file) => path.join(dir, file));
 }
 
-function readAndValidate(filePath: string): {
-  frontmatter: z.infer<typeof frontmatterSchema>;
-  content: string;
-} {
-  const raw = fs.readFileSync(filePath, "utf8");
+export function parsePostContent(
+  raw: string,
+  sourceLabel: string
+): { frontmatter: z.infer<typeof frontmatterSchema>; content: string } {
   const { data, content } = matter(raw);
   const result = frontmatterSchema.safeParse(data);
   if (!result.success) {
     const issues = result.error.issues
       .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
       .join("; ");
-    throw new Error(
-      `Frontmatter invalide dans ${path.basename(filePath)} — ${issues}`
-    );
+    throw new Error(`Frontmatter invalide dans ${sourceLabel} — ${issues}`);
   }
   return { frontmatter: result.data, content };
+}
+
+function readAndValidate(filePath: string): {
+  frontmatter: z.infer<typeof frontmatterSchema>;
+  content: string;
+} {
+  const raw = fs.readFileSync(filePath, "utf8");
+  return parsePostContent(raw, path.basename(filePath));
 }
 
 function loadAllMeta(dir: string): Array<PostMeta & { content: string }> {
@@ -88,7 +93,7 @@ function loadAllMeta(dir: string): Array<PostMeta & { content: string }> {
   );
 }
 
-async function renderMarkdownToSafeHtml(markdown: string): Promise<string> {
+export async function renderMarkdownToSafeHtml(markdown: string): Promise<string> {
   const file = await unified()
     .use(remarkParse)
     .use(remarkGfm)

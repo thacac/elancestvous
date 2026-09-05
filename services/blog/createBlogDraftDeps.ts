@@ -1,19 +1,25 @@
+import { createReviewToken } from "@/lib/reviewToken";
+import { SITE } from "@/lib/siteIdentifiers";
+
 import { createAnthropicDraftGenerator } from "./anthropicDraftGenerator";
+import { createDiscordNotifier } from "./discordNotifier";
+import { createGithubBlogRepo, parseGithubRepoEnv } from "./githubBlogRepo";
 import { createOpenAiImageGenerator } from "./openaiImageGenerator";
-import { createGithubBlogRepo } from "./githubBlogRepo";
+
 import type { GenerateDraftDeps } from "./generateDraft";
 
 /**
- * Construit les dépendances réelles (Anthropic, OpenAI, GitHub) à partir des
- * variables d'environnement. Isolé de generateDraft() pour que l'orchestrateur
- * reste testable par injection sans toucher au réseau.
+ * Construit les dépendances réelles (Anthropic, OpenAI, GitHub, Discord) à
+ * partir des variables d'environnement. Isolé de generateDraft() pour que
+ * l'orchestrateur reste testable par injection sans toucher au réseau.
  */
 export function createBlogDraftDeps(): GenerateDraftDeps {
-  const segments = requireEnv("GITHUB_REPO").split("/").map((s) => s.trim());
-  if (segments.length !== 2 || !segments[0] || !segments[1]) {
-    throw new Error('GITHUB_REPO doit être au format "owner/repo"');
-  }
-  const [owner, repo] = segments;
+  const { owner, repo } = parseGithubRepoEnv(requireEnv("GITHUB_REPO"));
+  const reviewSecret = requireEnv("BLOG_REVIEW_SECRET");
+  const discordNotifier = createDiscordNotifier({
+    botToken: requireEnv("DISCORD_BOT_TOKEN"),
+    channelId: requireEnv("DISCORD_CHANNEL_ID"),
+  });
 
   return {
     anthropic: createAnthropicDraftGenerator({
@@ -27,6 +33,13 @@ export function createBlogDraftDeps(): GenerateDraftDeps {
       owner,
       repo,
     }),
+    discord: {
+      async notifyDraftReady(args) {
+        const token = createReviewToken(args.slug, reviewSecret);
+        const previewUrl = `${SITE}/blog-review/${args.slug}?token=${token}`;
+        return discordNotifier.notifyDraftReady({ ...args, previewUrl });
+      },
+    },
   };
 }
 

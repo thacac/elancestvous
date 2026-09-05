@@ -6,10 +6,6 @@ Suit le même mécanisme que les secrets existants (`SMTP_*`) : secret GitHub Ac
 n'est nécessaire pour ajouter un secret : une ligne `echo "X=${{ secrets.X }}" >> .env`
 de plus dans l'étape "Create .env file from GitHub Secrets" de `deploy.yml` suffit.
 
-> Ce fichier fait office de `.env.example` pour la partie blog en attendant que
-> `.env.example` (créé par la PR #28) soit fusionné dans cette lignée de branches —
-> à consolider dans `.env.example` à ce moment-là.
-
 ## Phases 1-2 (livrées, PR #29 / #36)
 
 | Variable | Rôle | Où l'obtenir |
@@ -36,14 +32,18 @@ continu sur le VPS et doit pouvoir écrire sur le dépôt à n'importe quel mome
 semaine (typiquement, quand quelqu'un clique "Approuver" sur Discord). D'où un PAT
 dédié à l'app plutôt qu'un jeton de run Actions.
 
-## Phase 3-4 (à venir, issue #35 — pas encore utilisées par le code)
+## Phase 3 (livrée, cette PR — issue #35)
 
-| Variable | Rôle |
-|---|---|
-| `DISCORD_BOT_TOKEN` | Poster/éditer les messages Discord (notification hebdomadaire, statut "Publié") |
-| `DISCORD_PUBLIC_KEY` | Vérifier la signature Ed25519 des interactions entrantes (boutons/modale) |
-| `DISCORD_CHANNEL_ID` | Salon Discord privé cible pour la notification hebdomadaire |
-| `BLOG_REVIEW_SECRET` | Signe les tokens de prévisualisation à usage unique (`/blog-review/[slug]`) |
+| Variable | Rôle | Où l'obtenir |
+|---|---|---|
+| `DISCORD_BOT_TOKEN` | Poster le message hebdomadaire (`services/blog/discordNotifier.ts`) | Discord Developer Portal → application → onglet **Bot** → Reset Token |
+| `DISCORD_PUBLIC_KEY` | Vérifier la signature Ed25519 des interactions entrantes (`lib/discordSignature.ts`) — pas un secret au sens strict, sert à vérifier, pas à s'authentifier | Onglet **General Information** → Public Key |
+| `DISCORD_CHANNEL_ID` | Salon Discord privé cible pour la notification hebdomadaire | Mode développeur activé → clic droit sur le salon → Copier l'identifiant |
+| `BLOG_REVIEW_SECRET` | Signe les tokens de prévisualisation (`lib/reviewToken.ts`, `/blog-review/[slug]`) | À générer soi-même (`openssl rand -hex 32`) |
 
-Ces variables seront ajoutées à ce document (et propagées dans `deploy.yml`) au
-moment où la Phase 3 sera implémentée.
+**Ce qui n'est pas encore fait (Phase 4)** : le clic sur "Approuver" ne publie
+pas encore réellement l'article, et "Retoucher" ne relance pas encore Claude —
+la Phase 3 se contente de vérifier la signature et de journaliser la décision
+(le message Discord est mis à jour pour le confirmer), pour valider le
+mécanisme avant de le brancher sur des actions réelles. Voir
+`docs/blog-architecture.md`.

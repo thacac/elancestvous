@@ -1,9 +1,14 @@
 # Guide de validation des articles — Discord
 
-> **À venir** : ce guide décrit le fonctionnement prévu de la Phase 3 (validation
-> Discord), pas encore implémentée (voir issue #35). Il sert de référence de conception
-> et sera mis à jour avec des captures d'écran réelles une fois la fonctionnalité
-> livrée.
+> **État actuel** : le message Discord (image, titre, extrait, lien de
+> prévisualisation, boutons Approuver/Retoucher) est en place, ainsi que la modale de
+> retouche — Phase 3 livrée. **Mais "Approuver" ne publie pas encore réellement
+> l'article, et "Retoucher" ne relance pas encore Claude** : ces deux clics ne font
+> pour l'instant que journaliser la décision (le message Discord se met à jour pour
+> le confirmer), le temps de valider signature et UX avant de brancher des actions
+> irréversibles (Phase 4, voir issue #35). Ce guide décrit déjà le comportement visé
+> une fois la Phase 4 livrée ; il sera mis à jour avec des captures d'écran réelles à
+> ce moment-là.
 
 ## Ce qui va se passer, chaque semaine
 
