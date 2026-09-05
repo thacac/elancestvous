@@ -43,7 +43,10 @@ export type GenerateDraftDeps = {
   anthropic: {
     parseDraft(existingTitles: string[]): Promise<AnthropicParseResult>;
   };
-  imageGenerator: {
+  // Optionnel : tant qu'aucune clé de génération d'image n'est configurée
+  // (ex. accès API OpenAI pas encore activé), le brouillon est committé et
+  // notifié sans illustration plutôt que de bloquer toute la génération.
+  imageGenerator?: {
     generateCoverImage(prompt: string): Promise<Buffer>;
   };
   github: {
@@ -51,7 +54,7 @@ export type GenerateDraftDeps = {
     commitDraftBranch(args: {
       slug: string;
       postMarkdown: string;
-      coverImage: Buffer;
+      coverImage: Buffer | null;
       commitMessage: string;
     }): Promise<{ branch: string; url: string }>;
   };
@@ -60,7 +63,7 @@ export type GenerateDraftDeps = {
       slug: string;
       title: string;
       excerpt: string;
-      coverImage: Buffer;
+      coverImage: Buffer | null;
     }): Promise<{ messageId: string }>;
   };
 };
@@ -99,18 +102,20 @@ export async function generateDraft(
   }
   const draft = parsed.data;
 
-  let coverImage: Buffer;
-  try {
-    coverImage = await deps.imageGenerator.generateCoverImage(
-      draft.imagePrompts[0].prompt
-    );
-  } catch (err) {
-    return {
-      status: "generation_failed",
-      reason: `génération de l'illustration échouée : ${
-        err instanceof Error ? err.message : String(err)
-      }`,
-    };
+  let coverImage: Buffer | null = null;
+  if (deps.imageGenerator) {
+    try {
+      coverImage = await deps.imageGenerator.generateCoverImage(
+        draft.imagePrompts[0].prompt
+      );
+    } catch (err) {
+      return {
+        status: "generation_failed",
+        reason: `génération de l'illustration échouée : ${
+          err instanceof Error ? err.message : String(err)
+        }`,
+      };
+    }
   }
 
   const postMarkdown = buildDraftMarkdown(draft);

@@ -51,6 +51,36 @@ describe("createGithubBlogRepo.listPublishedPostTitles", () => {
   });
 });
 
+describe("createGithubBlogRepo.commitDraftBranch", () => {
+  it("skips writing cover.jpg when no cover image is provided", async () => {
+    getRef.mockReset();
+    createRef.mockReset();
+    createOrUpdateFileContents.mockReset();
+    getRef.mockResolvedValue({ data: { object: { sha: "base-sha" } } });
+    createRef.mockResolvedValue({});
+    createOrUpdateFileContents.mockResolvedValue({});
+
+    const github = createGithubBlogRepo({
+      auth: "token",
+      owner: "thacac",
+      repo: "elancestvous",
+      baseBranch: "master",
+    });
+
+    await github.commitDraftBranch({
+      slug: "sans-image",
+      postMarkdown: "contenu",
+      coverImage: null,
+      commitMessage: "blog: brouillon",
+    });
+
+    expect(createOrUpdateFileContents).toHaveBeenCalledTimes(1);
+    expect(createOrUpdateFileContents).toHaveBeenCalledWith(
+      expect.objectContaining({ path: "content/_drafts/sans-image/post.md" })
+    );
+  });
+});
+
 describe("createGithubBlogRepo.getDraftContent", () => {
   it("reads the post markdown and cover image from the draft branch", async () => {
     getContent.mockReset();

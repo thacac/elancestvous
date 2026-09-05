@@ -21,13 +21,18 @@ export function createBlogDraftDeps(): GenerateDraftDeps {
     channelId: requireEnv("DISCORD_CHANNEL_ID"),
   });
 
+  // Optionnelle : tant que l'accès à l'API OpenAI n'est pas configuré, le
+  // brouillon est généré et notifié sans illustration plutôt que de bloquer
+  // toute la génération (cf. generateDraft.ts).
+  const imageGenApiKey = process.env.IMAGE_GEN_API_KEY;
+
   return {
     anthropic: createAnthropicDraftGenerator({
       apiKey: requireEnv("ANTHROPIC_API_KEY"),
     }),
-    imageGenerator: createOpenAiImageGenerator({
-      apiKey: requireEnv("IMAGE_GEN_API_KEY"),
-    }),
+    imageGenerator: imageGenApiKey
+      ? createOpenAiImageGenerator({ apiKey: imageGenApiKey })
+      : undefined,
     github: createGithubBlogRepo({
       auth: requireEnv("GITHUB_BLOG_PAT"),
       owner,
