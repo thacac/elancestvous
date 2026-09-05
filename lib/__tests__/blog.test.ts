@@ -2,7 +2,7 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { getAllPostsMeta, getPostBySlug, getPostSlugs } from "../blog";
+import { getAllPostsMeta, getPostBySlug, getPostSlugs, parseDraftContent } from "../blog";
 
 const FIXTURES = path.join(__dirname, "fixtures", "blog");
 const VALID = path.join(FIXTURES, "valid");
@@ -56,5 +56,31 @@ describe("getPostBySlug", () => {
     expect(post.html).not.toMatch(/on\w+\s*=/i);
     expect(post.html).not.toContain("javascript:");
     expect(post.html).toContain("Un paragraphe normal.");
+  });
+});
+
+describe("parseDraftContent", () => {
+  const draftWithoutImage = `---
+title: "Brouillon sans image"
+slug: "brouillon-sans-image"
+description: "Description"
+excerpt: "Extrait"
+publishedAt: "2026-01-01"
+tags: []
+---
+Corps du brouillon.
+`;
+
+  it("accepts a draft with no coverImage/coverImageAlt (bypass génération d'image)", () => {
+    const { frontmatter, content } = parseDraftContent(draftWithoutImage, "test");
+
+    expect(frontmatter.title).toBe("Brouillon sans image");
+    expect(frontmatter.coverImage).toBeUndefined();
+    expect(content).toContain("Corps du brouillon.");
+  });
+
+  it("still rejects a draft missing a required field like title", () => {
+    const invalid = draftWithoutImage.replace('title: "Brouillon sans image"\n', "");
+    expect(() => parseDraftContent(invalid, "test")).toThrow(/title/);
   });
 });

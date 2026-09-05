@@ -142,11 +142,19 @@ describe("generateDraft", () => {
 
 describe("buildDraftMarkdown", () => {
   it("produces frontmatter compatible with lib/blog.ts's schema", () => {
-    const markdown = buildDraftMarkdown(validDraft);
+    const markdown = buildDraftMarkdown(validDraft, Buffer.from("fake-image"));
 
     expect(markdown).toContain(`title: ${validDraft.title}`);
     expect(markdown).toContain("slug: un-titre-valide");
     expect(markdown).toContain("coverImage: /blog/un-titre-valide/cover.jpg");
+    expect(markdown).toContain("Contenu de l'article.");
+  });
+
+  it("omits coverImage/coverImageAlt when no cover image was generated", () => {
+    const markdown = buildDraftMarkdown(validDraft, null);
+
+    expect(markdown).not.toContain("coverImage:");
+    expect(markdown).not.toContain("coverImageAlt:");
     expect(markdown).toContain("Contenu de l'article.");
   });
 });

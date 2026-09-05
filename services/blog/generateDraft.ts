@@ -68,7 +68,7 @@ export type GenerateDraftDeps = {
   };
 };
 
-export function buildDraftMarkdown(draft: BlogDraft): string {
+export function buildDraftMarkdown(draft: BlogDraft, coverImage: Buffer | null): string {
   const publishedAt = new Date().toISOString().slice(0, 10);
   return matter.stringify(draft.bodyMarkdown.trim(), {
     title: draft.title,
@@ -76,8 +76,16 @@ export function buildDraftMarkdown(draft: BlogDraft): string {
     description: draft.description,
     excerpt: draft.excerpt,
     publishedAt,
-    coverImage: `/blog/${draft.slug}/cover.jpg`,
-    coverImageAlt: draft.imagePrompts[0].altText,
+    // Pas de couverture tant que la génération d'image n'est pas configurée
+    // (cf. IMAGE_GEN_API_KEY) : un frontmatter promettant une image absente
+    // casserait l'aperçu (lib/blog.ts::parseDraftContent tolère leur absence
+    // pour cette raison précise).
+    ...(coverImage
+      ? {
+          coverImage: `/blog/${draft.slug}/cover.jpg`,
+          coverImageAlt: draft.imagePrompts[0].altText,
+        }
+      : {}),
     tags: draft.tags,
   });
 }
@@ -118,7 +126,7 @@ export async function generateDraft(
     }
   }
 
-  const postMarkdown = buildDraftMarkdown(draft);
+  const postMarkdown = buildDraftMarkdown(draft, coverImage);
   const { branch, url } = await deps.github.commitDraftBranch({
     slug: draft.slug,
     postMarkdown,

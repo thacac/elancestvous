@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { parsePostContent, renderMarkdownToSafeHtml } from "@/lib/blog";
+import { parseDraftContent, renderMarkdownToSafeHtml } from "@/lib/blog";
 import { verifyReviewToken } from "@/lib/reviewToken";
 import { createGithubBlogRepo, parseGithubRepoEnv } from "@/services/blog/githubBlogRepo";
 
@@ -49,9 +49,11 @@ export default async function BlogReviewPage({
   const draft = await loadDraft(slug);
   if (!draft) notFound();
 
-  const { frontmatter, content } = parsePostContent(draft.markdown, slug);
+  const { frontmatter, content } = parseDraftContent(draft.markdown, slug);
   const html = await renderMarkdownToSafeHtml(content);
-  const coverDataUrl = `data:image/jpeg;base64,${draft.coverImage.toString("base64")}`;
+  const coverDataUrl = draft.coverImage
+    ? `data:image/jpeg;base64,${draft.coverImage.toString("base64")}`
+    : null;
 
   return (
     <article className="pt-20 mb-40">
@@ -68,16 +70,18 @@ export default async function BlogReviewPage({
           })}
         </p>
         <h1 className="mb-6">{frontmatter.title}</h1>
-        <div className="relative aspect-[16/9] mb-8 rounded-xl overflow-hidden">
-          <Image
-            src={coverDataUrl}
-            alt={frontmatter.coverImageAlt}
-            fill
-            className="object-cover"
-            unoptimized
-            priority
-          />
-        </div>
+        {coverDataUrl && (
+          <div className="relative aspect-[16/9] mb-8 rounded-xl overflow-hidden">
+            <Image
+              src={coverDataUrl}
+              alt={frontmatter.coverImageAlt ?? ""}
+              fill
+              className="object-cover"
+              unoptimized
+              priority
+            />
+          </div>
+        )}
         <div
           className="prose prose-stone max-w-none"
           dangerouslySetInnerHTML={{ __html: html }}

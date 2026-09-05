@@ -123,15 +123,19 @@ lancement" qui empêcherait l'indexation une fois le blog réellement public).
 | `services/blog/publishDraft.ts` | Greffe les blobs déjà commités sur `blog-draft/<slug>` sur un nouveau commit `master` (pas de re-upload) |
 | `services/blog/reviseDraft.ts` | Relance Claude avec le brouillon + les retours de retouche |
 
-**`reviseDraft.ts` : activer le prompt caching Anthropic sur `SYSTEM_PROMPT`** (bloc
-`system` en `cache_control: { type: "ephemeral" }` dans `anthropicDraftGenerator.ts`).
-Contrairement à la génération hebdomadaire (`generateDraft.ts`), inutile là-bas car le
-cron ne tourne qu'une fois par semaine — largement au-delà du TTL du cache (5 min, 1h
-en étendu) donc toujours un cache miss, écriture payée pour rien — la boucle de
-retouche relance Claude avec le **même prompt système** quelques minutes après la
-génération initiale (l'humain clique "Retoucher" sur Discord juste après avoir vu le
-brouillon), donc dans la fenêtre de cache : c'est le seul point du pipeline où le
-caching a un effet réel.
+**`reviseDraft.ts` : activer le prompt caching Anthropic sur `SYSTEM_PROMPT`**, mais
+**seulement pour cet appel-là** — `anthropicDraftGenerator.ts` est partagé avec la
+génération hebdomadaire (`generateDraft.ts`), donc `cache_control` ne doit pas être mis
+en dur sur le bloc `system` de ce module (ça l'activerait aussi pour le cron, cf.
+ci-dessous). Prévoir plutôt une option explicite sur `parseDraft()` (ex.
+`parseDraft(existingTitles, { cacheSystemPrompt: true })`) ou une méthode dédiée,
+appelée uniquement par `reviseDraft.ts`.
+Inutile pour la génération hebdomadaire : le cron ne tourne qu'une fois par semaine —
+largement au-delà du TTL du cache (5 min, 1h en étendu) donc toujours un cache miss,
+écriture payée pour rien. La boucle de retouche, elle, relance Claude avec le **même
+prompt système** quelques minutes après la génération initiale (l'humain clique
+"Retoucher" sur Discord juste après avoir vu le brouillon), donc dans la fenêtre de
+cache : c'est le seul point du pipeline où le caching a un effet réel.
 
 ## Pourquoi cette architecture (rappel des choix)
 
