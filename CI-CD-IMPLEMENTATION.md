@@ -10,7 +10,6 @@ déclenchement et le dépannage, voir `DEPLOYMENT.md` (source de vérité).
 | `.github/workflows/deploy.yml` | Build + push GHCR + déploiement SSH sur push `master` |
 | `docker-compose.yaml` | Service de production, labels Traefik (routing + TLS) |
 | `docker-compose.dev.yaml` | MailHog pour tester les emails en local |
-| `infra/nginx.conf`, `infra/init-ssl.sh`, `infra/renew.sh` | Reliquat d'une configuration Nginx/Certbot antérieure — copiés sur le VPS mais non exécutés (Traefik gère TLS/routing aujourd'hui) ; à nettoyer |
 | `infra/deploy.sh` | Script de déploiement alternatif (login GHCR + pull + up), copié sur le VPS mais non appelé par `deploy.yml` (qui exécute directement `docker compose up -d --pull always`) |
 
 ## Tags d'image

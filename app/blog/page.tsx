@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { getAllPostsMeta } from "@/lib/blog";
+import { isBlogPublic } from "@/lib/featureFlags";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui";
 
 export const metadata: Metadata = {
@@ -20,6 +22,8 @@ export const metadata: Metadata = {
 };
 
 export default function BlogIndex() {
+  if (!isBlogPublic()) notFound();
+
   const posts = getAllPostsMeta();
 
   return (
