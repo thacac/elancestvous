@@ -17,6 +17,7 @@ describe("handleDiscordInteraction", () => {
     expect(result.data?.components).toEqual([]);
     expect(result.data?.content).toContain("mon-article");
     expect(result.data?.content).toContain("Approuver");
+    expect(result.data?.allowed_mentions).toEqual({ parse: [] });
   });
 
   it("opens a feedback modal for the revise button", () => {
@@ -47,6 +48,25 @@ describe("handleDiscordInteraction", () => {
     expect(result.data?.components).toEqual([]);
     expect(result.data?.content).toContain("mon-article");
     expect(result.data?.content).toContain("Le titre est trop générique");
+    expect(result.data?.allowed_mentions).toEqual({ parse: [] });
+  });
+
+  it("neutralizes mentions in feedback so @everyone/@here/@user can't ping anyone", () => {
+    const result = handleDiscordInteraction({
+      type: 5,
+      data: {
+        custom_id: "revise_feedback:mon-article",
+        components: [
+          {
+            components: [
+              { custom_id: "feedback", value: "@everyone regarde ça, @here aussi" },
+            ],
+          },
+        ],
+      },
+    });
+
+    expect(result.data?.allowed_mentions).toEqual({ parse: [] });
   });
 
   it("falls back to an ephemeral acknowledgment for an unrecognized interaction", () => {

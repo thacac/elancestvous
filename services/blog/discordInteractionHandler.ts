@@ -18,8 +18,14 @@ export type DiscordInteractionResponse = {
     custom_id?: string;
     title?: string;
     flags?: number;
+    allowed_mentions?: { parse: string[] };
   };
 };
+
+// Le contenu des messages "journalise la décision" ci-dessous inclut le
+// texte de retouche saisi par un humain dans la modale Discord : sans ça,
+// un "@everyone" ou "@here" tapé par accident pingerait tout le salon.
+const NO_MENTIONS: { parse: string[] } = { parse: [] };
 
 const APPROVE_PREFIX = "blog_approve:";
 const REVISE_PREFIX = "blog_revise:";
@@ -46,6 +52,7 @@ export function handleDiscordInteraction(
       data: {
         content: `✅ Décision reçue : **Approuver** pour \`${slug}\`. La publication automatique arrivera en Phase 4 — pour l'instant, cette décision est seulement enregistrée.`,
         components: [],
+        allowed_mentions: NO_MENTIONS,
       },
     };
   }
@@ -85,6 +92,7 @@ export function handleDiscordInteraction(
       data: {
         content: `🔵 Retouche demandée pour \`${slug}\` : "${feedback}" — la relance automatique de l'IA arrivera en Phase 4.`,
         components: [],
+        allowed_mentions: NO_MENTIONS,
       },
     };
   }
