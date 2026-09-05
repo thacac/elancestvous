@@ -1,8 +1,4 @@
-const SITE = "https://elancestvous.fr";
-
-const ORG_ID = `${SITE}/#organization`;
-const PERSON_ID = `${SITE}/#coralie-mathorel`;
-const WEBSITE_ID = `${SITE}/#website`;
+import { SITE, ORG_ID, PERSON_ID, WEBSITE_ID } from "@/lib/siteIdentifiers";
 
 export default function JsonLd() {
   const graph = [
