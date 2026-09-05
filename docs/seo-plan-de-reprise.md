@@ -97,39 +97,50 @@ Next.js).
   de cleanup entre tests (pas de `test.globals` dans `vitest.config.mjs`) —
   ajout de `vitest.setup.ts` (`afterEach(cleanup)` + jest-dom matchers).
 
-## 3. Volet contenu (blog) — PRs ouvertes, non mergées
+## 3. Volet contenu (blog) — chaîne #29 → #36 → #37 → #43 mergée dans `master`
 
-Chaîne empilée, dans l'ordre de dépendance :
+Toute la chaîne est passée dans `master` (confirmé par `git log
+origin/master`, plus plus aucune de ces PRs listée comme ouverte). Récupéré
+sur `feat/seo-improvements` par merge de `master` (un seul conflit, dans
+`components/Navbar.tsx` : master ajoutait le prop `blogEnabled` au même
+endroit où cette branche retirait `useIsHome` — résolu en gardant
+`blogEnabled`, sans réintroduire `isHome`).
 
-- **PR #29** — pipeline de contenu Markdown (sans IA), base `master`.
-- **PR #36** — génération hebdomadaire IA en zone de relecture, base #29.
-- **PR #37** — doc roadmap (architecture, secrets, charte éditoriale, guide
-  Discord), base #36.
-- **PR #43** — plan éditorial 12 semaines + audit pages existantes, base #37.
+Ce qui arrive avec la chaîne mergée :
+- `app/blog/`, `app/api/blog/generate/`, `services/blog/*`, `lib/blog.ts`,
+  `lib/featureFlags.ts` : pipeline de contenu + génération IA hebdomadaire
+  en zone de relecture.
+- 2 articles déjà rédigés dans `content/blog/*.md` (pilier C : QVCT/RPS).
+- `docs/blog-plan-editorial.md`, `docs/seo-audit-pages-existantes.md`,
+  `docs/blog-architecture.md`, `docs/blog-charte-editoriale.md`,
+  `docs/blog-guide-validation-discord.md`, `docs/blog-secrets.md`.
+- **`/blog` et `/blog/[slug]` sont derrière un flag serveur `BLOG_ENABLED`**
+  (`lib/featureFlags.ts`, `isBlogPublic()`), désactivé par défaut : tant
+  qu'il n'est pas mis à `"true"` en variable d'env/secret (+ redéploiement,
+  ce n'est pas un toggle "live"), le blog renvoie 404 et n'apparaît ni dans
+  la navbar ni dans le sitemap. Rien d'exposé involontairement tant que ce
+  n'est pas activé délibérément.
 
 Le plan éditorial (`docs/blog-plan-editorial.md`) mappe 12 semaines
 d'articles à un mot-clé, une intention de recherche et **une page de
 service cible pour le maillage interne** (piliers coaching individuel /
 coaching établissement / QVCT-RPS / GAPP + un axe SEO local
-Toulouse/Occitanie). Le premier article visé est daté du 08/09/2026.
-
-**Risque identifié : chaîne de 4 PRs empilées, aucune mergée.** Plus elle
-s'allonge, plus les conflits de rebase deviennent coûteux et plus le
-calendrier du plan éditorial (dates déjà fixées) risque de glisser sans que
-personne ne s'en aperçoive avant la publication.
+Toulouse/Occitanie). Le premier article visé était daté du 08/09/2026 — à
+recaler selon la date réelle d'activation de `BLOG_ENABLED`.
 
 ## 4. Séquencement recommandé
 
 1. ~~Ouvrir et merger la PR technique de `feat/seo-improvements`~~ — déjà en
    production sur `master` (section 1).
-2. **Merger la chaîne blog dans l'ordre #29 → #36 → #37 → #43**, ou a minima
-   valider et merger #29+#36 rapidement pour éviter que la chaîne continue
-   de s'allonger avant que rien ne soit en `master`.
+2. ~~Merger la chaîne blog #29 → #36 → #37 → #43~~ — fait, dans `master`
+   (section 3).
 3. ~~Traiter le finding #1 de l'audit (maillage interne) en PR dédiée~~ —
    fait sur cette branche, en TDD, avec en prime la correction du bug
    Navbar/Footer bien plus impactant découvert au passage (section 2 bis).
-4. **Une fois le blog en ligne** (`NEXT_PUBLIC_BLOG_ENABLED`) et le premier
-   article publié : implémenter le mécanisme décrit en section 4 de
+4. **Décider de la date d'activation de `BLOG_ENABLED`** (secret serveur,
+   nécessite un redéploiement — voir `lib/featureFlags.ts`), puis une fois
+   le blog en ligne et le premier article publié : implémenter le
+   mécanisme décrit en section 4 de
    `docs/blog-plan-editorial.md` (fichier `content/blog/sujets-prioritaires.json`
    consommé par `generateDraft.ts`, avec TDD) pour que la génération
    hebdomadaire suive réellement le calendrier de mots-clés plutôt que de
