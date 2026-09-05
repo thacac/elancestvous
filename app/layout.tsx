@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import JsonLd from "@/components/JsonLd";
+import { isBlogPublic } from "@/lib/featureFlags";
 import { Toaster } from "sonner";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -82,7 +83,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="fr" data-theme="elancestvous">
       <body className={inter.className + " bg-white text-brand-dark"}>
         <JsonLd />
-        <Navbar />
+        <Navbar blogEnabled={isBlogPublic()} />
         <main className="min-h-[70vh]">{children}</main>
         <Footer />
         <Toaster />

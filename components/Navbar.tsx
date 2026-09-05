@@ -8,7 +8,7 @@ import { FC, useState } from "react";
 import Socials from "./Socials";
 import { buttonVariants } from "./ui";
 
-export const links = [
+const baseLinks = [
   { href: "/", label: "Accueil" },
   { href: "/professionnels-etablissements-de-soins/formations-rps-qvct", label: "Formations" },
   { href: "/professionnels-etablissements-de-soins/coaching", label: "Coaching" },
@@ -16,14 +16,30 @@ export const links = [
     href: "/professionnels-etablissements-de-soins/gapp-groupe-analyse-pratiques-professionnelles",
     label: "GAPP",
   },
+];
+
+const trailingLinks = [
   { href: "/a-propos", label: "À propos" },
   { href: "/contact", label: "Contact" },
 ];
 
-type NavbarProps = {};
+type NavbarProps = {
+  // Calculé côté serveur (cf. app/layout.tsx) à partir de
+  // lib/featureFlags.ts. Un composant client ne doit pas lire cette
+  // variable d'environnement lui-même : sans préfixe `NEXT_PUBLIC_`, elle ne
+  // serait de toute façon pas disponible dans le bundle navigateur.
+  blogEnabled?: boolean;
+};
 
-export const Navbar: FC<NavbarProps> = () => {
+export const Navbar: FC<NavbarProps> = ({ blogEnabled = false }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const links = [
+    ...baseLinks,
+    // Le blog n'apparaît dans la navigation qu'une fois lancé publiquement,
+    // cf. lib/featureFlags.ts.
+    ...(blogEnabled ? [{ href: "/blog", label: "Blog" }] : []),
+    ...trailingLinks,
+  ];
 
   return (
     <header className="sticky top-0 z-50 backdrop-blur-sm border-b">

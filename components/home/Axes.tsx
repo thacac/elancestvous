@@ -1,4 +1,3 @@
-import { links } from "@/components/Navbar"
 import Link from "next/link";
 import { FC } from "react";
 import { buttonVariants } from "../ui";

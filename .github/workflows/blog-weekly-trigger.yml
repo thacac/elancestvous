@@ -1,0 +1,27 @@
+name: Blog weekly draft generation
+
+on:
+  schedule:
+    # Chaque lundi ~07:00 UTC (~08:00/09:00 heure de Paris selon la saison —
+    # GitHub Actions ne gère que l'UTC, cf. issue de suivi sur la dérive DST).
+    - cron: "0 7 * * 1"
+  workflow_dispatch: {}
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Réveiller /api/blog/generate
+        # Tant que BLOG_CRON_SECRET n'est pas configuré côté repo, l'étape se
+        # contente de ne rien faire plutôt que d'échouer bruyamment (401) à
+        # chaque déclenchement hebdomadaire. Le `secrets` context n'est
+        # évaluable de façon fiable qu'au niveau d'une step, pas d'un job
+        # (un `if:` de job référençant `secrets` a fait échouer tout le
+        # run — 0 job exécuté, conclusion "failure" — plutôt que de skipper
+        # proprement).
+        if: ${{ secrets.BLOG_CRON_SECRET != '' }}
+        run: |
+          curl --fail-with-body -sS -X POST \
+            --max-time 30 --retry 3 --retry-delay 5 \
+            "https://elancestvous.fr/api/blog/generate" \
+            -H "Authorization: Bearer ${{ secrets.BLOG_CRON_SECRET }}"

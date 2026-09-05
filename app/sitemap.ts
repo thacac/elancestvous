@@ -1,8 +1,12 @@
 import type { MetadataRoute } from "next";
+import { getAllPostsMeta } from "@/lib/blog";
+import { isBlogPublic } from "@/lib/featureFlags";
 
 const BASE_URL = "https://elancestvous.fr";
 
 export default function sitemap(): MetadataRoute.Sitemap {
+  const posts = isBlogPublic() ? getAllPostsMeta() : [];
+
   return [
     {
       url: BASE_URL,
@@ -46,5 +50,21 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "yearly",
       priority: 0.7,
     },
+    ...(isBlogPublic()
+      ? [
+          {
+            url: `${BASE_URL}/blog`,
+            lastModified: new Date(),
+            changeFrequency: "weekly" as const,
+            priority: 0.6,
+          },
+          ...posts.map((post) => ({
+            url: `${BASE_URL}/blog/${post.slug}`,
+            lastModified: new Date(post.updatedAt ?? post.publishedAt),
+            changeFrequency: "yearly" as const,
+            priority: 0.5,
+          })),
+        ]
+      : []),
   ];
 }

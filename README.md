@@ -43,6 +43,16 @@ Le formulaire envoie un email via SMTP (`services/mailer/mailer.ts` +
 `components/contact-form/action.ts`). Configurez `SMTP_HOST`, `SMTP_PORT`,
 `SMTP_USR`, `SMTP_PWD` (voir `.env.example`).
 
+## Blog
+
+Blog Markdown alimenté chaque semaine par une IA (texte + illustration). Les
+brouillons sont pour l'instant générés en zone de relecture sur GitHub, sans
+validation ni publication automatique ; la validation humaine via Discord avant
+publication est prévue en Phase 3 (voir issue #35, pas encore livrée). Voir
+`docs/blog-architecture.md` pour le détail du pipeline, `docs/blog-secrets.md`
+pour les secrets requis, et `docs/blog-charte-editoriale.md` pour les règles de
+contenu.
+
 ## Déploiement / CI-CD
 
 Le site est buildé en image Docker, publiée sur GitHub Container Registry, puis
