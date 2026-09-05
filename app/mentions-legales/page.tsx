@@ -56,7 +56,9 @@ export default function MentionsLegales() {
             sauf autorisation écrite préalable.
           </p>
 
-          <h4>Protection des données personnelles</h4>
+          <h4 id="protection-des-donnees-personnelles">
+            Protection des données personnelles
+          </h4>
           <p>
             Conformément à la loi « Informatique et Libertés » et au RGPD, vous
             disposez d'un droit d'accès, de rectification et de suppression des

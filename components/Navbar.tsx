@@ -1,5 +1,4 @@
 "use client";
-import { useIsHome } from "@/hooks/useIsHome";
 import { Dialog, DialogPanel } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { Bars3BottomRightIcon } from "@heroicons/react/24/solid";
@@ -24,7 +23,6 @@ export const links = [
 type NavbarProps = {};
 
 export const Navbar: FC<NavbarProps> = () => {
-  const isHome = useIsHome();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -34,31 +32,11 @@ export const Navbar: FC<NavbarProps> = () => {
         className="flex items-center justify-between p-6 lg:px-8"
       >
         <div className="flex lg:flex-1">
-          {isHome ? (
-            <Link
-              href="/"
-              className="font-serif italic font-extrabold text-primary text-xl"
-            >
-              <span>
-                <Image
-                  src="/logo_elancestvous_small.png"
-                  alt="Élan C’est Vous logo"
-                  width={32}
-                  height={32}
-                  className="inline-block mr-2 align-middle"
-                />
-                ÉlanC’estVous
-              </span>
-            </Link>
-          ) : (
-            <span
-              className="font-serif italic font-extrabold text-primary text-xl cursor-pointer"
-              title="ÉlanC’estVous (ouvrir l'accueil dans un nouvel onglet)"
-              tabIndex={0}
-              role="button"
-              aria-label="ÉlanC’estVous (ouvrir l'accueil dans un nouvel onglet)"
-              onClick={() => window.open("/", "_blank", "noopener,noreferrer")}
-            >
+          <Link
+            href="/"
+            className="font-serif italic font-extrabold text-primary text-xl"
+          >
+            <span>
               <Image
                 src="/logo_elancestvous_small.png"
                 alt="Élan C’est Vous logo"
@@ -68,7 +46,7 @@ export const Navbar: FC<NavbarProps> = () => {
               />
               ÉlanC’estVous
             </span>
-          )}
+          </Link>
         </div>
         <div className="flex lg:hidden">
           <button
@@ -84,63 +62,25 @@ export const Navbar: FC<NavbarProps> = () => {
           </button>
         </div>
         <div className="hidden lg:flex lg:gap-x-12">
-          {links.map((item) =>
-            isHome ? (
-              <Link
-                key={item.label}
-                href={item.href}
-                className="text-sm/6 font-semibold text-primary link-custom"
-              >
-                {item.label}
-              </Link>
-            ) : (
-              <span
-                key={item.label}
-                className="text-sm/6 font-semibold text-primary cursor-pointer link-custom"
-                title={`${item.label} `}
-                tabIndex={0}
-                role="button"
-                aria-label={`${item.label} `}
-                onClick={() =>
-                  window.open(item.href, "_self", "noopener,noreferrer")
-                }
-              >
-                {item.label}
-              </span>
-            )
-          )}
+          {links.map((item) => (
+            <Link
+              key={item.label}
+              href={item.href}
+              className="text-sm/6 font-semibold text-primary link-custom"
+            >
+              {item.label}
+            </Link>
+          ))}
         </div>
         <div className="hidden lg:flex lg:flex-1 lg:justify-end align-baseline">
-          {isHome ? (
-            <Link
-              href="/particuliers/coaching-individuel"
-              className={
-                buttonVariants({ variant: "outline", size: "sm" }) + " text-sm"
-              }
-            >
-              Particuliers
-            </Link>
-          ) : (
-            <span
-              className={
-                buttonVariants({ variant: "outline", size: "sm" }) +
-                " text-sm cursor-pointer"
-              }
-              title="Particuliers "
-              tabIndex={0}
-              role="button"
-              aria-label="Particuliers "
-              onClick={() =>
-                window.open(
-                  "/particuliers/coaching-individuel",
-                  "_self",
-                  "noopener,noreferrer"
-                )
-              }
-            >
-              Particuliers
-            </span>
-          )}
+          <Link
+            href="/particuliers/coaching-individuel"
+            className={
+              buttonVariants({ variant: "outline", size: "sm" }) + " text-sm"
+            }
+          >
+            Particuliers
+          </Link>
         </div>
       </nav>
       <Dialog
@@ -174,66 +114,28 @@ export const Navbar: FC<NavbarProps> = () => {
           <div className="mt-6 flow-root">
             <div className="-my-6 divide-y divide-primary/10">
               <div className="space-y-2 py-6">
-                {links.map((item) =>
-                  isHome ? (
-                    <Link
-                      key={item.label}
-                      href={item.href}
-                      className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibol text-primary hover:bg-primary hover:text-white"
-                    >
-                      {item.label}
-                    </Link>
-                  ) : (
-                    <span
-                      key={item.label}
-                      className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-primary hover:bg-primary hover:text-white cursor-pointer"
-                      title={`${item.label} `}
-                      tabIndex={0}
-                      role="button"
-                      aria-label={`${item.label} `}
-                      onClick={() =>
-                        window.open(item.href, "_self", "noopener,noreferrer")
-                      }
-                    >
-                      {item.label}
-                    </span>
-                  )
-                )}
+                {links.map((item) => (
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibol text-primary hover:bg-primary hover:text-white"
+                  >
+                    {item.label}
+                  </Link>
+                ))}
               </div>
               <div>
-                {isHome ? (
-                  <Link
-                    href="/particuliers/coaching-individuel"
-                    className={
-                      buttonVariants({ variant: "outline", size: "sm" }) +
-                      " text-sm"
-                    }
-                  >
-                    Particuliers, découvrez mes solutions.
-                  </Link>
-                ) : (
-                  <span
-                    className={
-                      buttonVariants({ variant: "outline", size: "sm" }) +
-                      " text-sm cursor-pointer"
-                    }
-                    title="Particuliers, découvrez mes solutions."
-                    tabIndex={0}
-                    role="button"
-                    aria-label="Particuliers, découvrez mes solutions."
-                    onClick={() =>
-                      window.open(
-                        "/particuliers/coaching-individuel",
-                        "_self",
-                        "noopener,noreferrer"
-                      )
-                    }
-                  >
-                    Particuliers, découvrez mes solutions.
-                  </span>
-                )}
+                <Link
+                  href="/particuliers/coaching-individuel"
+                  className={
+                    buttonVariants({ variant: "outline", size: "sm" }) +
+                    " text-sm"
+                  }
+                >
+                  Particuliers, découvrez mes solutions.
+                </Link>
               </div>
-              <Socials isObfuscated={!isHome} className="mt-6" />
+              <Socials className="mt-6" />
             </div>
           </div>
         </DialogPanel>
