@@ -3,8 +3,12 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import PostJsonLd from "@/components/PostJsonLd";
 import { getAllPostsMeta, getPostBySlug, getPostSlugs } from "@/lib/blog";
+import { isBlogPublic } from "@/lib/featureFlags";
 
 export function generateStaticParams() {
+  // Tant que le blog n'est pas lancé publiquement, aucune page n'est
+  // pré-générée — cf. lib/featureFlags.ts.
+  if (!isBlogPublic()) return [];
   return getPostSlugs().map((slug) => ({ slug }));
 }
 
@@ -13,6 +17,8 @@ export async function generateMetadata({
 }: {
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
+  if (!isBlogPublic()) return {};
+
   const { slug } = await params;
   const post = getAllPostsMeta().find((p) => p.slug === slug);
   if (!post) return {};
@@ -40,6 +46,8 @@ export default async function BlogPost({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+
+  if (!isBlogPublic()) notFound();
 
   let post;
   try {
