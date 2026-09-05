@@ -1,4 +1,5 @@
 import matter from "gray-matter";
+
 import { BlogDraftSchema, type BlogDraft } from "./draftSchema";
 
 const SYSTEM_PROMPT = `Tu écris pour le blog d'Élan C'est Vous (Coralie Mathorel), coach
@@ -53,6 +54,14 @@ export type GenerateDraftDeps = {
       coverImage: Buffer;
       commitMessage: string;
     }): Promise<{ branch: string; url: string }>;
+  };
+  discord: {
+    notifyDraftReady(args: {
+      slug: string;
+      title: string;
+      excerpt: string;
+      coverImage: Buffer;
+    }): Promise<{ messageId: string }>;
   };
 };
 
@@ -110,6 +119,17 @@ export async function generateDraft(
     postMarkdown,
     coverImage,
     commitMessage: `blog: brouillon "${draft.title}" (génération hebdomadaire)`,
+  });
+
+  // Le brouillon est déjà en sécurité sur GitHub à ce stade : une erreur ici
+  // (Discord indisponible, etc.) remonte comme generation_failed via la route
+  // API, mais ne perd aucun contenu — une relance retombera sur la même
+  // branche (commitDraftBranch la réinitialise plutôt que d'échouer).
+  await deps.discord.notifyDraftReady({
+    slug: draft.slug,
+    title: draft.title,
+    excerpt: draft.excerpt,
+    coverImage,
   });
 
   return { status: "committed", slug: draft.slug, title: draft.title, branch, url };

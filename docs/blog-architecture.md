@@ -1,8 +1,8 @@
 # Architecture du blog IA hebdomadaire
 
 Vue d'ensemble du pipeline, du contenu Markdown à la publication automatique après
-validation humaine. État d'avancement au 2026-09 : **Phases 1-2 livrées** (PR #29,
-#36), **Phases 3-4 pas commencées** (bloquées sur des secrets, voir issue #35).
+validation humaine. État d'avancement : **Phases 1-3 livrées** (PR #29, #36, et
+celle-ci), **Phase 4 pas commencée** (publication/relance réelles, voir issue #35).
 
 ## Verrou de lancement public
 
@@ -62,13 +62,22 @@ lancement" qui empêcherait l'indexation une fois le blog réellement public).
                      │  + cover.jpg — Git Data API       │
                      │  réservée à la branche)           │
                      └───────────────┬───────────────────┘
-                                     │  Phase 3 (à venir)
                                      ▼
                      ┌───────────────────────────────┐
                      │ Discord — message avec aperçu    │
                      │ + boutons Approuver / Retoucher  │
+                     │ (services/blog/discordNotifier)  │
                      └───────────────┬───────────────────┘
                         Approuver ▼      ▼ Retoucher
+          ┌─────────────────────┐   ┌─────────────────────────┐
+          │ app/api/discord/       │   │ app/api/discord/           │
+          │ interactions/route.ts  │   │ interactions/route.ts      │
+          │ (vérifie la signature, │   │ (ouvre une modale, puis     │
+          │  journalise — Phase 3) │   │  journalise le retour —    │
+          └──────────┬─────────────┘   │  Phase 3)                  │
+                     │                 └──────────┬─────────────────┘
+                     │  Phase 4 (à venir)          │  Phase 4 (à venir)
+                     ▼                             ▼
           ┌─────────────────────┐   ┌─────────────────────────┐
           │ services/blog/         │   │ Claude relit le brouillon │
           │ publishDraft.ts        │   │ + les retours → nouvelle   │
@@ -96,12 +105,21 @@ lancement" qui empêcherait l'indexation une fois le blog réellement public).
 | `app/api/blog/generate/route.ts` | Point d'entrée protégé par `BLOG_CRON_SECRET` |
 | `.github/workflows/blog-weekly-trigger.yml` | Cron hebdomadaire (réveille la route, aucune logique métier dans le workflow) |
 
-## Composants à venir (Phases 3-4, issue #35)
+## Composants livrés (Phase 3)
 
 | Fichier | Rôle |
 |---|---|
-| `app/api/discord/interactions/route.ts` | Vérifie la signature Ed25519, gère les boutons Approuver/Retoucher et la modale de retouche |
-| `app/blog-review/[slug]/page.tsx` | Prévisualisation signée (token HMAC) du brouillon, rendu avec le même pipeline que les articles publiés |
+| `lib/discordSignature.ts` | Vérifie la signature Ed25519 d'une requête Discord (`tweetnacl`) — protection centrale de la route d'interactions |
+| `lib/reviewToken.ts` | Jeton HMAC-SHA256 protégeant les liens de prévisualisation |
+| `services/blog/discordNotifier.ts` | Poste le message hebdomadaire (embed + image de couverture en pièce jointe + boutons Approuver/Retoucher) |
+| `services/blog/discordInteractionHandler.ts` | Logique pure de routage des interactions (PING, boutons, modale) — journalise la décision, ne publie/ne relance rien encore (Phase 4) |
+| `app/api/discord/interactions/route.ts` | Vérifie la signature (401 sinon) puis délègue à `discordInteractionHandler` |
+| `app/blog-review/[slug]/page.tsx` | Prévisualisation signée (`?token=`) du brouillon, allée chercher en direct sur `blog-draft/<slug>` via `githubBlogRepo.getDraftContent`, jamais depuis le disque (le conteneur ne contient pas `content/_drafts`) — `noindex`, image de couverture en data URI |
+
+## Composants à venir (Phase 4, issue #35)
+
+| Fichier | Rôle |
+|---|---|
 | `services/blog/publishDraft.ts` | Greffe les blobs déjà commités sur `blog-draft/<slug>` sur un nouveau commit `master` (pas de re-upload) |
 | `services/blog/reviseDraft.ts` | Relance Claude avec le brouillon + les retours de retouche |
 
@@ -135,7 +153,19 @@ lancement" qui empêcherait l'indexation une fois le blog réellement public).
   croissance du dépôt reste de l'ordre de quelques Mo par an. Si le blog devait un
   jour publier beaucoup plus souvent ou en plus haute résolution, Git LFS serait la
   suite logique — pas nécessaire à ce stade.
+- **Phase 3 journalise, ne publie/ne relance rien** : `discordInteractionHandler.ts`
+  répond à "Approuver" et à la soumission de la modale "Retoucher" en mettant
+  simplement à jour le message Discord — aucun push sur `master`, aucun appel à
+  Claude. Objectif : valider la vérification de signature et l'UX (mobile compris)
+  en conditions réelles avant de brancher des actions irréversibles (Phase 4).
+- **Image de couverture en data URI sur la page de prévisualisation** : le brouillon
+  n'est jamais sur le disque du conteneur (voir plus haut), donc pas d'URL statique
+  `next/image` classique possible pour son illustration. Plutôt que d'ajouter une
+  route dédiée au service du binaire, l'image (récupérée via Contents API) est
+  encodée en base64 directement dans le HTML — un aperçu réservé à 1-2 personnes,
+  pas une page à fort trafic, donc le coût d'une image non mise en cache est
+  négligeable.
 
 Voir aussi `docs/blog-secrets.md` (secrets requis), `docs/blog-charte-editoriale.md`
 (voix/contraintes du prompt système) et `docs/blog-guide-validation-discord.md`
-(usage prévu pour la validation, une fois la Phase 3 livrée).
+(usage prévu pour la validation).

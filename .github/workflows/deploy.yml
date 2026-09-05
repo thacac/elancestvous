@@ -74,6 +74,10 @@ jobs:
           echo "GITHUB_BLOG_PAT=${{ secrets.GITHUB_BLOG_PAT }}" >> .env
           echo "GITHUB_REPO=${{ github.repository }}" >> .env
           echo "BLOG_CRON_SECRET=${{ secrets.BLOG_CRON_SECRET }}" >> .env
+          echo "DISCORD_BOT_TOKEN=${{ secrets.DISCORD_BOT_TOKEN }}" >> .env
+          echo "DISCORD_PUBLIC_KEY=${{ secrets.DISCORD_PUBLIC_KEY }}" >> .env
+          echo "DISCORD_CHANNEL_ID=${{ secrets.DISCORD_CHANNEL_ID }}" >> .env
+          echo "BLOG_REVIEW_SECRET=${{ secrets.BLOG_REVIEW_SECRET }}" >> .env
 
       - name: Prepare deployment folder on VPS
         uses: appleboy/ssh-action@v1.2.0
