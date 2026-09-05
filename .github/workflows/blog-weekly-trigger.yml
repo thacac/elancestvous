@@ -12,16 +12,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Réveiller /api/blog/generate
-        # Tant que BLOG_CRON_SECRET n'est pas configuré côté repo, l'étape se
-        # contente de ne rien faire plutôt que d'échouer bruyamment (401) à
-        # chaque déclenchement hebdomadaire. Le `secrets` context n'est
-        # évaluable de façon fiable qu'au niveau d'une step, pas d'un job
-        # (un `if:` de job référençant `secrets` a fait échouer tout le
-        # run — 0 job exécuté, conclusion "failure" — plutôt que de skipper
-        # proprement).
-        if: ${{ secrets.BLOG_CRON_SECRET != '' }}
+        # Le contexte `secrets` n'est pas une "named-value" reconnue dans une
+        # expression `if:` (ni au niveau job, ni au niveau step) — GitHub
+        # Actions refuse alors de parser le workflow entier (erreur "failed
+        # to parse workflow" à l'exécution, 0 job, conclusion "failure" sur
+        # CHAQUE push du repo, pas seulement sur ce workflow). La présence de
+        # BLOG_CRON_SECRET doit donc être testée en shell, dans `run:`, via
+        # une variable d'env — jamais dans `if:`.
+        env:
+          BLOG_CRON_SECRET: ${{ secrets.BLOG_CRON_SECRET }}
         run: |
+          if [ -z "$BLOG_CRON_SECRET" ]; then
+            echo "BLOG_CRON_SECRET n'est pas configuré — rien à faire."
+            exit 0
+          fi
           curl --fail-with-body -sS -X POST \
             --max-time 30 --retry 3 --retry-delay 5 \
             "https://elancestvous.fr/api/blog/generate" \
-            -H "Authorization: Bearer ${{ secrets.BLOG_CRON_SECRET }}"
+            -H "Authorization: Bearer $BLOG_CRON_SECRET"
