@@ -16,7 +16,8 @@ vers la branche **`master`** (pas `main`) ou manuellement (`workflow_dispatch`).
      commité) — voir `.env.example` pour la liste des variables.
    - Copie `docker-compose.yaml`, `infra/nginx.conf`, `infra/deploy.sh` et `.env`
      sur le VPS via SCP, dans `/home/$VPS_USR/elancestvous`.
-   - Se connecte en SSH et exécute `docker compose up -d --pull always`.
+   - Se connecte en SSH, s'authentifie auprès de GHCR avec le `GITHUB_TOKEN` du
+     run, puis exécute `docker compose up -d --pull always`.
 
 Le reverse-proxy en production est **Traefik** (voir les labels dans
 `docker-compose.yaml` : routing sur `elancestvous.fr` / `www.elancestvous.fr`,
@@ -92,9 +93,8 @@ yarn dev
 ## Dépannage
 
 - **Build échoue** : vérifier `package.json` et les logs de l'onglet Actions.
-- **`docker login ghcr.io` échoue sur le VPS** : le token utilisé est le
-  `GITHUB_TOKEN` du run (éphémère) — relancer le workflow si le job de déploiement
-  a expiré/timeout avant de pull l'image.
+- **Pull d'image GHCR refusé sur le VPS** : vérifier que le package est accessible
+  au dépôt et relancer le workflow afin d'obtenir un `GITHUB_TOKEN` de run valide.
 - **Container ne démarre pas** : `docker logs elancestvous`, vérifier que `.env`
   contient bien toutes les variables de `.env.example`.
 - **404/certificat invalide** : vérifier que Traefik tourne bien sur le VPS et
