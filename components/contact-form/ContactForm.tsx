@@ -28,7 +28,7 @@ import { submit_contact_form } from "./action";
 import { contactFormSchema, ContactFormValues } from "./validation";
 
 export default function ContactForm() {
-  const form = useForm<ContactFormValues & { projectType: string }>({
+  const form = useForm<ContactFormValues>({
     resolver: zodResolver(contactFormSchema),
     defaultValues: {
       firstName: "",
