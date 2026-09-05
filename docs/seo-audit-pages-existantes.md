@@ -42,7 +42,7 @@ existe (via `components/CtaElan.tsx`).
   rediriger ce trafic vers une conversion.
 
 **Recommandation** : ajouter un bloc "Voir aussi" en bas de chacune des 3 pages
-`professionnels-etablissements-de-soins/*` (liens croisés entre elles), et au
+`/professionnels-etablissements-de-soins/*` (liens croisés entre elles), et au
 moins un lien contextuel dans `app/a-propos/page.tsx` vers la page de service la
 plus pertinente selon le paragraphe (ex. le passage sur l'accompagnement des
 soignants pourrait lier vers `coaching` ou `formations-rps-qvct`). Correctif

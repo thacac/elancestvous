@@ -40,7 +40,8 @@ local.
 | **E — SEO local (transversal)** | `/a-propos`, page d'accueil, ou la page de service la plus proche du sujet | N'est pas un pilier de contenu autonome : c'est un angle (Toulouse, Haute-Garonne, Occitanie) à injecter dans des articles des 4 piliers ci-dessus, plus 1-2 articles dédiés à forte intention commerciale locale. |
 
 Les deux articles déjà publiés se rattachent tous les deux au pilier C
-(`qvct-par-ou-commencer-etablissement-sante`, `reconnaitre-signes-...`) — le
+(`qvct-par-ou-commencer-etablissement-sante`,
+`reconnaitre-signes-epuisement-professionnel-soignants`) — le
 calendrier ci-dessous rééquilibre volontairement vers B, D et E pour ne pas
 sur-représenter un seul pilier dans le maillage.
 
