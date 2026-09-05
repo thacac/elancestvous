@@ -54,6 +54,31 @@ describe("createDiscordNotifier", () => {
 
     const filePart = body.get("files[0]");
     expect(filePart).toBeInstanceOf(Blob);
+
+    expect(payload.allowed_mentions).toEqual({ parse: [] });
+  });
+
+  it("truncates an oversized title and excerpt to Discord's embed limits", async () => {
+    const fetchImpl = makeFetch();
+    const notifier = createDiscordNotifier({
+      botToken: "bot-token",
+      channelId: "channel-123",
+      fetchImpl,
+    });
+
+    await notifier.notifyDraftReady({
+      slug: "mon-article",
+      title: "T".repeat(300),
+      excerpt: "E".repeat(5000),
+      coverImage: Buffer.from("fake-image-bytes"),
+      previewUrl: "https://elancestvous.fr/blog-review/mon-article?token=abc",
+    });
+
+    const body = fetchImpl.mock.calls[0][1].body as FormData;
+    const payload = JSON.parse(body.get("payload_json") as string);
+
+    expect(payload.embeds[0].title.length).toBeLessThanOrEqual(256);
+    expect(payload.embeds[0].description.length).toBeLessThanOrEqual(4096);
   });
 
   it("throws with the response status when Discord rejects the request", async () => {
