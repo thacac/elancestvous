@@ -15,6 +15,15 @@ privées, jamais exposées, que le blog soit public ou non. Activer le lancement
 fait en une seule variable (`NEXT_PUBLIC_BLOG_ENABLED=true` en secret GitHub), le
 jour où le contenu et l'illustration sont jugés prêts.
 
+**SEO pendant que c'est désactivé** : le 404 (`notFound()`) empêche déjà
+l'indexation et ne fuit pas les métadonnées de la page (vérifié : le `<title>`
+retombe sur celui du layout racine). `app/robots.ts` ajoute en plus un
+`disallow: /blog` explicite tant que `isBlogPublic()` est faux — pour éviter que
+les robots crawlent la page pour rien plutôt que de compter uniquement sur le 404.
+Ce disallow disparaît automatiquement dès que `NEXT_PUBLIC_BLOG_ENABLED=true`
+(jamais l'inverse, pour ne pas reproduire le classique "disallow oublié après le
+lancement" qui empêcherait l'indexation une fois le blog réellement public).
+
 ## Schéma du flux
 
 ```
