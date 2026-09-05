@@ -8,9 +8,12 @@ directement dans le code (`grep`/lecture des fichiers), pas des suppositions.
 
 ## Ce qui est déjà solide (ne pas casser)
 
-- **Metadata complète sur chaque page** : `title`, `description`, `alternates.canonical`,
-  `openGraph` sont présents et différenciés sur les 8 pages (accueil, à propos,
-  contact, mentions légales, 3 pages professionnels + 1 page particuliers).
+- **Metadata complète sur chaque page** : `title`, `description` et
+  `alternates.canonical` sont présents et différenciés sur les 8 pages (accueil,
+  à propos, contact, mentions légales, 3 pages pour professionnels + 1 page
+  particuliers). `openGraph` est en plus défini spécifiquement sur 7 d'entre
+  elles ; seule `/mentions-legales` n'en a pas (elle hérite de l'`openGraph`
+  global du layout), cohérent avec son statut `noindex`.
 - **Un seul `<h1>` par page**, y compris l'accueil (dans `components/home/Hero.tsx`,
   pas directement dans `app/page.tsx` — vérifié après une première fausse alerte).
 - **Aucune balise `<img>` brute** : tout passe par `next/image` (bon pour le LCP/Core
@@ -29,7 +32,7 @@ vers une autre page de service ou vers à propos** — seul un lien vers `/conta
 existe (via `components/CtaElan.tsx`).
 
 - L'accueil est correct : `components/home/Axes.tsx` lie vers les 3 pages
-  professionnels, `components/home/Hero.tsx` lie vers la page particuliers.
+  pour professionnels, `components/home/Hero.tsx` lie vers la page particuliers.
 - Mais une fois qu'un visiteur est *sur* une page de service, il n'a aucun chemin
   vers les offres connexes — un établissement qui lit la page GAPP ne voit jamais
   qu'il existe aussi du coaching collectif ou des formations QVCT/RPS, alors que
@@ -86,8 +89,8 @@ peut faire apparaître un fil d'Ariane dans les résultats de recherche pour ces
 pages.
 
 **Recommandation** : ajouter un composant `Breadcrumbs` (visuel + JSON-LD
-`BreadcrumbList`) sur les 3 pages professionnels, réutilisable si d'autres
-niveaux de profondeur apparaissent plus tard (ex. le blog).
+`BreadcrumbList`) sur les 3 pages pour professionnels, réutilisable si
+d'autres niveaux de profondeur apparaissent plus tard (ex. le blog).
 
 ## Prochaine étape possible : audit outillé
 

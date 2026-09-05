@@ -79,7 +79,7 @@ connues (Search Console) :
 
 Le pipeline publie au rythme d'un article par semaine (voir
 `docs/blog-architecture.md`, cron hebdomadaire). Les deux premiers articles,
-relus puis publiés, l'ont été à une semaine d'intervalle exacte
+relus puis publiés, l'ont été à une semaine d'intervalle exact
 (25/08/2026 et 01/09/2026, un mardi) : le calendrier ci-dessous suppose que ce
 jour de la semaine se poursuit, à ajuster si le cron change de jour.
 
