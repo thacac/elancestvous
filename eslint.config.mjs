@@ -1,19 +1,18 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { FlatCompat } from "@eslint/eslintrc";
+import nextTs from "eslint-config-next/typescript";
+import nextVitals from "eslint-config-next/core-web-vitals";
 import importPlugin from "eslint-plugin-import"; // Import the plugin
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
-
 export default [
-  // 1. Next.js Recommended Config (using FlatCompat)
-  // This extends your configuration with Next.js's base rules
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+  {
+    ignores: [".yarn/**"],
+  },
+  ...nextVitals,
+  ...nextTs,
 
   // 2. Import Plugin Configuration
   {
@@ -34,8 +33,11 @@ export default [
       },
     },
     rules: {
+      "@typescript-eslint/no-empty-object-type": "warn",
+      "@typescript-eslint/no-explicit-any": "warn",
       // Enable the rule to check for unresolved imports
       "import/no-unresolved": "error",
+      "react/no-unescaped-entities": "warn",
       
       // OPTIONAL: Configure import sorting to keep absolute imports grouped
       'import/order': [
