@@ -1,5 +1,11 @@
 # Plan éditorial SEO du blog
 
+> **Périmètre de ce document : uniquement le contenu du blog.** Pour les
+> recommandations sur les pages existantes du site (accueil, à propos,
+> pages de service), voir `docs/seo-audit-pages-existantes.md` — notamment un
+> maillage interne quasiment inexistant entre les pages commerciales
+> elles-mêmes, complémentaire du maillage blog → pages décrit ci-dessous.
+
 Ce document relie le contenu produit par le blog (`content/blog/`, généré
 chaque semaine via `services/blog/generateDraft.ts`) au travail SEO déjà en
 place : host canonique unifié sur `elancestvous.fr`, données structurées
