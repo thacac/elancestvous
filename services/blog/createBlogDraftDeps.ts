@@ -9,10 +9,11 @@ import type { GenerateDraftDeps } from "./generateDraft";
  * reste testable par injection sans toucher au réseau.
  */
 export function createBlogDraftDeps(): GenerateDraftDeps {
-  const [owner, repo] = requireEnv("GITHUB_REPO").split("/");
-  if (!owner || !repo) {
+  const segments = requireEnv("GITHUB_REPO").split("/").map((s) => s.trim());
+  if (segments.length !== 2 || !segments[0] || !segments[1]) {
     throw new Error('GITHUB_REPO doit être au format "owner/repo"');
   }
+  const [owner, repo] = segments;
 
   return {
     anthropic: createAnthropicDraftGenerator({
