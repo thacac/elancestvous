@@ -1,11 +1,14 @@
 import "./globals.css";
-import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
-import Navbar from "@/components/Navbar";
+import { Toaster } from "sonner";
+
 import Footer from "@/components/Footer";
 import JsonLd from "@/components/JsonLd";
+import Navbar from "@/components/Navbar";
 import { isBlogPublic } from "@/lib/featureFlags";
-import { Toaster } from "sonner";
+import { OG_BANNER_IMAGES, TWITTER_BANNER_IMAGES } from "@/lib/openGraph";
+
+import type { Metadata, Viewport } from "next";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -59,18 +62,11 @@ export const metadata: Metadata = {
     url: "https://elancestvous.fr",
     locale: "fr_FR",
     type: "website",
-    images: [
-      {
-        url: "/og-banner.jpg",
-        width: 1200,
-        height: 630,
-        alt: "Élan C'est Vous – Coaching & Formations pour soignants à Toulouse",
-      },
-    ],
+    images: OG_BANNER_IMAGES,
   },
   twitter: {
     card: "summary_large_image",
-    images: ["/og-banner.jpg"],
+    images: TWITTER_BANNER_IMAGES,
   },
 };
 

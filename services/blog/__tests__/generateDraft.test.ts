@@ -1,9 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
+
 import {
   buildDraftMarkdown,
   generateDraft,
   type GenerateDraftDeps,
 } from "../generateDraft";
+
 import type { BlogDraft } from "../draftSchema";
 
 const validDraft: BlogDraft = {

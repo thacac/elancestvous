@@ -5,6 +5,7 @@ import Citation from "@/components/Citation";
 import CtaElan from "@/components/CtaElan";
 import PublicsCiblesBloc from "@/components/PublicsCiblesBloc";
 import { IconBuilding, IconHand, IconHeart, IconManager, IconStairs, IconStethoscope } from "@/components/ui/icons-publics";
+import { OG_BANNER_IMAGES } from "@/lib/openGraph";
 
 export const metadata = {
   title: "Formations QVCT, RPS, gestion du stress et des émotions",
@@ -32,6 +33,7 @@ export const metadata = {
       "Formations pour la gestion du stress, des émotions et la prévention de l'usure professionnelle en établissements de santé.",
     url: "https://elancestvous.fr/professionnels-etablissements-de-soins/formations-rps-qvct",
     type: "website",
+    images: OG_BANNER_IMAGES,
   },
 };
 
@@ -56,7 +58,7 @@ export default function FormationsProPage() {
               <span className="text-accent">
                 <strong>prévention</strong>
               </span>{" "}
-              de l'usure professionnelle.
+              de l&apos;usure professionnelle.
             </h2>
             <h3>
               QVCT, prévention des risques psycho-sociaux (RPS), stress et
@@ -149,7 +151,7 @@ export default function FormationsProPage() {
                   Le Kit de Prévention
                 </h4>
                 <p className="text-primary text-lg leading-relaxed mb-6">
-                  À l'issue du cycle, les participants repartent avec des
+                  À l&apos;issue du cycle, les participants repartent avec des
                   repères et des outils concrets, mobilisables{" "}
                   <strong>individuellement</strong> et{" "}
                   <strong>collectivement</strong>.
@@ -189,7 +191,19 @@ export default function FormationsProPage() {
         />
 
         {/* --- 6- Bloc Lien avec les autres accompagnements --- */}
-        <ArticulationBloc textePrincipal="Selon les situations et les objectifs, la formation peut être proposée seule, ou s’inscrire dans une démarche plus globale incluant du coaching ou des groupes d’analyse de la pratique." />
+        <ArticulationBloc
+          textePrincipal="Selon les situations et les objectifs, la formation peut être proposée seule, ou s’inscrire dans une démarche plus globale incluant du coaching ou des groupes d’analyse de la pratique."
+          liens={[
+            {
+              href: "/professionnels-etablissements-de-soins/coaching",
+              label: "Coaching en établissement",
+            },
+            {
+              href: "/professionnels-etablissements-de-soins/gapp-groupe-analyse-pratiques-professionnelles",
+              label: "GAPP",
+            },
+          ]}
+        />
 
         {/* --- 5. CTA FINAL : IMPACT MAXIMAL --- */}
         <CtaElan />

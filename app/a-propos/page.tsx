@@ -1,6 +1,11 @@
-import type { Metadata } from "next";
-import CtaElan from "@/components/CtaElan";
 import Image from "next/image";
+import Link from "next/link";
+
+import CtaElan from "@/components/CtaElan";
+import { OG_BANNER_IMAGES } from "@/lib/openGraph";
+
+
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "À propos – Coach certifiée à Toulouse",
@@ -14,6 +19,7 @@ export const metadata: Metadata = {
     description:
       "Ancienne soignante et coach certifiée à Toulouse, j'accompagne la santé de ceux qui soignent. Découvrez mon approche humaine et concrète.",
     url: "https://elancestvous.fr/a-propos",
+    images: OG_BANNER_IMAGES,
   },
 };
 
@@ -29,7 +35,7 @@ export default function About() {
             </span>
           </h1>
           <h2 className="h3-like">
-            Ancienne soignante, j'accompagne aujourd'hui la santé de ceux qui
+            Ancienne soignante, j&apos;accompagne aujourd&apos;hui la santé de ceux qui
             soignent.
           </h2>
         </div>
@@ -45,7 +51,7 @@ export default function About() {
             />
             <div className="absolute left-0 md:-bottom-15 right-0 p-6 text-center">
               <p className="text-primary font-serif text-lg md:text-xl italic">
-                "Accompagnement humain."
+                &quot;Accompagnement humain.&quot;
               </p>
             </div>
           </div>
@@ -54,23 +60,47 @@ export default function About() {
               <div className="prose text-stone-600 mb-8 space-y-4 text-justify">
                 <p>
                   Mon parcours a débuté au cœur du soin. Cette réalité du
-                  terrain, je la connais : l'urgence, la charge mentale, la
+                  terrain, je la connais : l&apos;urgence, la charge mentale, la
                   pression du quotidien.
                 </p>
                 <p>
                   <strong>
-                    C'est ce qui fait aujourd'hui ma force :&nbsp;
+                    C&apos;est ce qui fait aujourd&apos;hui ma force :&nbsp;
                     <span className="text-accent font-serif font-extrabold text-2xl italic">
                       je ne parle pas de théorie, je parle de votre réalité.
                     </span>
                   </strong>
                 </p>
                 <p>
-                  Formée au coaching et forte de mon expérience du soin, j'ai construit à Toulouse une approche qui s'appuie sur l'écoute, la mise en mouvement et des outils concrets — coaching individuel, formations QVCT/RPS, groupes d'analyse des pratiques — pour agir en prévention et soutenir des changements durables.
+                  Formée au coaching et forte de mon expérience du soin, j&apos;ai
+                  construit à Toulouse une approche qui s&apos;appuie sur l&apos;écoute,
+                  la mise en mouvement et des outils concrets —{" "}
+                  <Link
+                    href="/particuliers/coaching-individuel"
+                    className="text-accent underline underline-offset-2 hover:text-primary"
+                  >
+                    coaching individuel
+                  </Link>
+                  ,{" "}
+                  <Link
+                    href="/professionnels-etablissements-de-soins/formations-rps-qvct"
+                    className="text-accent underline underline-offset-2 hover:text-primary"
+                  >
+                    formations QVCT/RPS
+                  </Link>
+                  ,{" "}
+                  <Link
+                    href="/professionnels-etablissements-de-soins/gapp-groupe-analyse-pratiques-professionnelles"
+                    className="text-accent underline underline-offset-2 hover:text-primary"
+                  >
+                    groupes d&apos;analyse des pratiques
+                  </Link>{" "}
+                  — pour agir en prévention et soutenir des changements
+                  durables.
                 </p>
                 <p>
                   <strong>
-                    Former, accompagner, soutenir dans la durée : c'est le fil
+                    Former, accompagner, soutenir dans la durée : c&apos;est le fil
                     conducteur de mon engagement professionnel.
                   </strong>
                 </p>
@@ -82,7 +112,7 @@ export default function About() {
                     10+
                   </span>
                   <span className="text-xs text-stone-500 uppercase tracking-wide">
-                    Années d'expérience
+                    Années d&apos;expérience
                   </span>
                 </div>
                 <div className="bg-white p-4 rounded-lg shadow-sm border border-stone-200 text-center">
@@ -90,7 +120,7 @@ export default function About() {
                     Coach
                   </span>
                   <span className="text-xs text-stone-500 uppercase tracking-wide">
-                    Certifiée d'État
+                    Certifiée d&apos;État
                   </span>
                 </div>
               </div>

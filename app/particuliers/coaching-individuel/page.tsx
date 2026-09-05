@@ -1,4 +1,3 @@
-import ArticulationBloc from "@/components/ArticulationBloc";
 import BadgesBloc from "@/components/BadgesBloc";
 import CartesContrastBloc from "@/components/CartesContrastBloc";
 import Citation from "@/components/Citation";
@@ -10,6 +9,7 @@ import {
   IconManager,
   IconStairs,
 } from "@/components/ui/icons-publics";
+import { OG_BANNER_IMAGES } from "@/lib/openGraph";
 
 export const metadata = {
   title: "Coaching individuel pour particuliers à Toulouse et à distance",
@@ -35,6 +35,7 @@ export const metadata = {
       "Un espace pour faire le point, prendre du recul et avancer à partir de votre situation.",
     url: "https://elancestvous.fr/particuliers/coaching-individuel",
     type: "website",
+    images: OG_BANNER_IMAGES,
   },
 };
 
@@ -147,13 +148,13 @@ export default function ParticuliersPage() {
               {/* Cadre de l'accompagnement */}
               <div className="w-full md:w-1/2 lg:w-1/3 bg-white/5 p-12 cursor-default border border-white/10">
                 <h3 className="text-2xl font-bold mb-4">
-                  Cadre de l'accompagnement
+                  Cadre de l&apos;accompagnement
                 </h3>
                 <h4 className="text-accent font-black text-2xl mb-4 uppercase italic">
                   Modalités pratiques
                 </h4>
                 <p className="text-primary text-lg leading-relaxed mb-6">
-                  L'accompagnement se déroule généralement sur{" "}
+                  L&apos;accompagnement se déroule généralement sur{" "}
                   <strong>environ huit séances</strong>, permettant un travail
                   progressif, en profondeur, et respectueux de votre rythme.
                 </p>

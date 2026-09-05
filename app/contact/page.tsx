@@ -1,4 +1,6 @@
 import ContactForm from "@/components/contact-form/ContactForm";
+import { OG_BANNER_IMAGES } from "@/lib/openGraph";
+
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -13,6 +15,7 @@ export const metadata: Metadata = {
     description:
       "Un premier échange pour comprendre votre situation et définir ensemble la réponse la plus adaptée.",
     url: "https://elancestvous.fr/contact",
+    images: OG_BANNER_IMAGES,
   },
 };
 

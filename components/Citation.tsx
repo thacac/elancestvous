@@ -17,7 +17,7 @@ export default function Citation({ text, author, imageSrc = "/coralie.png", imag
         height={80}
         className="rounded-full object-cover shadow-lg mb-2"
       />
-      <blockquote className="text-center">"{text}"</blockquote>
+      <blockquote className="text-center">&quot;{text}&quot;</blockquote>
       {author && <figcaption className="text-primary font-serif font-bold mt-2">{author}</figcaption>}
     </figure>
   );

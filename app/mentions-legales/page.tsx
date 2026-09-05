@@ -1,3 +1,5 @@
+import { OG_BANNER_IMAGES } from "@/lib/openGraph";
+
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -6,6 +8,10 @@ export const metadata: Metadata = {
     "Mentions légales du site Élan C'est Vous : éditeur, hébergeur, propriété intellectuelle et protection des données personnelles.",
   alternates: { canonical: "/mentions-legales" },
   robots: { index: false, follow: true },
+  openGraph: {
+    url: "https://elancestvous.fr/mentions-legales",
+    images: OG_BANNER_IMAGES,
+  },
 };
 
 export default function MentionsLegales() {
@@ -48,7 +54,7 @@ export default function MentionsLegales() {
 
           <h4>Propriété intellectuelle</h4>
           <p>
-            L'ensemble du contenu du site (textes, images, graphismes, logo,
+            L&apos;ensemble du contenu du site (textes, images, graphismes, logo,
             icônes, etc.) est la propriété exclusive de la société Elancestvous,
             sauf mention contraire. Toute reproduction, représentation,
             modification, publication, adaptation de tout ou partie des éléments
@@ -56,34 +62,36 @@ export default function MentionsLegales() {
             sauf autorisation écrite préalable.
           </p>
 
-          <h4>Protection des données personnelles</h4>
+          <h4 id="protection-des-donnees-personnelles">
+            Protection des données personnelles
+          </h4>
           <p>
             Conformément à la loi « Informatique et Libertés » et au RGPD, vous
-            disposez d'un droit d'accès, de rectification et de suppression des
+            disposez d&apos;un droit d&apos;accès, de rectification et de suppression des
             données vous concernant. Pour exercer ce droit, contactez-nous à
-            l'adresse suivante : contact@elancestvous.fr.
+            l&apos;adresse suivante : contact@elancestvous.fr.
           </p>
 
           <h4>Cookies</h4>
           <p>
             Le site peut être amené à utiliser des cookies pour améliorer
-            l'expérience utilisateur et réaliser des statistiques de visites.
+            l&apos;expérience utilisateur et réaliser des statistiques de visites.
             Vous pouvez configurer votre navigateur pour refuser les cookies.
           </p>
 
           <h4>Responsabilité</h4>
           <p>
-            La société Elancestvous s'efforce de fournir des informations aussi
+            La société Elancestvous s&apos;efforce de fournir des informations aussi
             précises que possible. Toutefois, elle ne pourra être tenue
             responsable des omissions, des inexactitudes et des carences dans la
-            mise à jour, qu'elles soient de son fait ou du fait des tiers
+            mise à jour, qu&apos;elles soient de son fait ou du fait des tiers
             partenaires.
           </p>
 
           <h4>Liens externes</h4>
           <p>
-            Le site peut contenir des liens vers d'autres sites. La société
-            Elancestvous n'exerce aucun contrôle sur ces sites et ne saurait
+            Le site peut contenir des liens vers d&apos;autres sites. La société
+            Elancestvous n&apos;exerce aucun contrôle sur ces sites et ne saurait
             être responsable de leur contenu.
           </p>
 

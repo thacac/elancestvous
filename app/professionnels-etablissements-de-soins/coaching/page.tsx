@@ -10,6 +10,7 @@ import {
   IconManager,
   IconStairs,
 } from "@/components/ui/icons-publics";
+import { OG_BANNER_IMAGES } from "@/lib/openGraph";
 
 export const metadata = {
   title: "Coaching individuel et collectif en établissements de santé",
@@ -36,6 +37,7 @@ export const metadata = {
       "Un accompagnement sur-mesure pour soutenir les fonctionnements d'équipe et répondre à des objectifs précis.",
     url: "https://elancestvous.fr/professionnels-etablissements-de-soins/coaching",
     type: "website",
+    images: OG_BANNER_IMAGES,
   },
 };
 
@@ -66,11 +68,11 @@ export default function CoachingPage() {
               <span className="text-accent">
                 <strong>mise en mouvement</strong>
               </span>
-              , au service d'un objectif clairement défini.
+              , au service d&apos;un objectif clairement défini.
             </h2>
             <h3>
               Issu de mon expérience du soin et de la pratique du coaching, cet
-              accompagnement s'inscrit dans une approche respectueuse du travail
+              accompagnement s&apos;inscrit dans une approche respectueuse du travail
               réel et des contraintes organisationnelles.
             </h3>
           </div>
@@ -220,6 +222,16 @@ export default function CoachingPage() {
         <ArticulationBloc
           textePrincipal="Selon les situations, le coaching peut être proposé de manière indépendante, en complément d'une action de formation, ou en articulation avec des groupes d'analyse de la pratique."
           texteSecondaire="Ces modalités sont envisagées au cas par cas, uniquement lorsqu'elles sont pertinentes."
+          liens={[
+            {
+              href: "/professionnels-etablissements-de-soins/formations-rps-qvct",
+              label: "Formations QVCT / RPS",
+            },
+            {
+              href: "/professionnels-etablissements-de-soins/gapp-groupe-analyse-pratiques-professionnelles",
+              label: "GAPP",
+            },
+          ]}
         />
 
         {/* --- 7. CTA FINAL --- */}

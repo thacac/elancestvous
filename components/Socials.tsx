@@ -5,10 +5,9 @@ import { FC } from "react";
 
 type SocialsProps = {
   className?: string;
-  isObfuscated?: boolean;
 };
 
-const Socials: FC<SocialsProps> = ({ isObfuscated = false, className = "" }) => {
+const Socials: FC<SocialsProps> = ({ className = "" }) => {
   const socialsList = [
     // {
     //   name: "Facebook",
@@ -44,42 +43,21 @@ const Socials: FC<SocialsProps> = ({ isObfuscated = false, className = "" }) => 
     },
   ];
 
-  const handleClick = (href: string) => {
-    window.open(href, "_blank", "noopener,noreferrer");
-  };
-
   return (
     <div className={`flex justify-center space-x-6 ${className}`}>
-      {!isObfuscated
-        ? socialsList.map((social) => (
-            <Link
-              key={social.name}
-              target="_blank"
-              title={`Elancestvous ${social.name} official profile`}
-              href={social.href}
-              className="text-primary hover:text-gray-500"
-            >
-              <span className="sr-only">{social.name}</span>
-              {social.svg}
-            </Link>
-          ))
-        : socialsList.map((social) => (
-            <p
-              key={social.name}
-              className="text-primary hover:text-gray-500 cursor-pointer"
-              title={`Elancestvous ${social.name} official profile`}
-              onClick={() => handleClick(social.href)}
-              tabIndex={0}
-              onKeyPress={(e) => {
-                if (e.key === "Enter" || e.key === " ") handleClick(social.href);
-              }}
-              role="button"
-              aria-label={social.name}
-            >
-              <span className="sr-only">{social.name}</span>
-              {social.svg}
-            </p>
-          ))}
+      {socialsList.map((social) => (
+        <Link
+          key={social.name}
+          target="_blank"
+          rel="noopener noreferrer"
+          title={`Elancestvous ${social.name} official profile`}
+          href={social.href}
+          className="text-primary hover:text-gray-500"
+        >
+          <span className="sr-only">{social.name}</span>
+          {social.svg}
+        </Link>
+      ))}
     </div>
   );
 };

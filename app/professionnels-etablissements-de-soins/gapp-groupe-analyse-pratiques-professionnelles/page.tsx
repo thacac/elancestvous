@@ -1,12 +1,13 @@
 
 import ArticulationBloc from "@/components/ArticulationBloc";
-import CartesContrastBloc from "@/components/CartesContrastBloc";
-import PublicsCiblesBloc from "@/components/PublicsCiblesBloc";
-import { IconBuilding, IconHand, IconManager, IconStethoscope, IconWatch } from "@/components/ui/icons-publics";
-
 import BadgesBloc from "@/components/BadgesBloc";
+import CartesContrastBloc from "@/components/CartesContrastBloc";
 import Citation from "@/components/Citation";
 import CtaElan from "@/components/CtaElan";
+import PublicsCiblesBloc from "@/components/PublicsCiblesBloc";
+import { IconBuilding, IconHand, IconManager, IconStethoscope, IconWatch } from "@/components/ui/icons-publics";
+import { OG_BANNER_IMAGES } from "@/lib/openGraph";
+
 
 export const metadata = {
   title:
@@ -35,6 +36,7 @@ export const metadata = {
       "Groupe d'analyse des pratiques professionnelles (GAPP) : un espace sécurisé pour partager, analyser et améliorer les pratiques professionnelles en équipe, animé par une coach certifiée.",
     url: "https://elancestvous.fr/professionnels-etablissements-de-soins/gapp-groupe-analyse-pratiques-professionnelles",
     type: "website",
+    images: OG_BANNER_IMAGES,
   },
 };
 
@@ -46,7 +48,7 @@ export default function GappPage() {
         <section id="gapp-titre" className="py-20 container">
           <div className="text-center mb-8">
             <h1>
-              Groupe d'analyse des{" "}
+              Groupe d&apos;analyse des{" "}
               <span className="text-accent">
                 <strong>pratiques professionnelles</strong>
               </span>
@@ -180,7 +182,19 @@ export default function GappPage() {
         />
 
         {/* --- 5. Bloc articulation avec les autres accompagnements --- */}
-        <ArticulationBloc textePrincipal="Les groupes d’analyse de la pratique peuvent être proposés de manière autonome ou en articulation avec des actions de formation ou de coaching, selon les besoins identifiés." />
+        <ArticulationBloc
+          textePrincipal="Les groupes d’analyse de la pratique peuvent être proposés de manière autonome ou en articulation avec des actions de formation ou de coaching, selon les besoins identifiés."
+          liens={[
+            {
+              href: "/professionnels-etablissements-de-soins/coaching",
+              label: "Coaching en établissement",
+            },
+            {
+              href: "/professionnels-etablissements-de-soins/formations-rps-qvct",
+              label: "Formations QVCT / RPS",
+            },
+          ]}
+        />
         {/* --- 6. CTA FINAL --- */}
         <CtaElan />
       </main>

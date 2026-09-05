@@ -1,5 +1,7 @@
 import path from "node:path";
+
 import { describe, expect, it } from "vitest";
+
 import { getAllPostsMeta, getPostBySlug, getPostSlugs } from "../blog";
 
 const FIXTURES = path.join(__dirname, "fixtures", "blog");
