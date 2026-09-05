@@ -1,8 +1,5 @@
 import type { Post } from "@/lib/blog";
-
-const SITE = "https://elancestvous.fr";
-const ORG_ID = `${SITE}/#organization`;
-const PERSON_ID = `${SITE}/#coralie-mathorel`;
+import { SITE, ORG_ID, PERSON_ID } from "@/lib/siteIdentifiers";
 
 export default function PostJsonLd({ post }: { post: Post }) {
   const jsonLd = {

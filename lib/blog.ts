@@ -96,8 +96,9 @@ async function renderMarkdownToSafeHtml(markdown: string): Promise<string> {
     .use(rehypeSanitize)
     .use(rehypeStringify)
     .process(markdown);
-  // Deuxième couche de nettoyage (défense en profondeur) : le contenu vient
-  // d'une IA sans revue ligne à ligne avant d'atteindre content/_drafts.
+  // Deuxième couche de nettoyage (défense en profondeur) : ce module lit
+  // content/blog/*.md, dont le contenu peut provenir d'une génération IA
+  // (services/blog/) promue depuis content/_drafts sans revue ligne à ligne.
   return DOMPurify.sanitize(String(file));
 }
 
