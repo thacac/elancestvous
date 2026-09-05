@@ -14,18 +14,14 @@ vers la branche **`master`** (pas `main`) ou manuellement (`workflow_dispatch`).
 2. **Job `deploy`** :
    - Écrit les secrets SMTP dans un fichier `.env` (checké dans le job, jamais
      commité) — voir `.env.example` pour la liste des variables.
-   - Copie `docker-compose.yaml`, `infra/nginx.conf`, `infra/deploy.sh` et `.env`
+   - Copie `docker-compose.yaml`, `infra/deploy.sh` et `.env`
      sur le VPS via SCP, dans `/home/$VPS_USR/elancestvous`.
    - Se connecte en SSH, s'authentifie auprès de GHCR avec le `GITHUB_TOKEN` du
      run, puis exécute `docker compose up -d --pull always`.
 
 Le reverse-proxy en production est **Traefik** (voir les labels dans
 `docker-compose.yaml` : routing sur `elancestvous.fr` / `www.elancestvous.fr`,
-TLS via le resolver `letsencrypt`, redirection `www` → apex). `infra/nginx.conf`,
-`infra/init-ssl.sh` et `infra/renew.sh` viennent d'une configuration Nginx/Certbot
-antérieure ; ils sont encore copiés sur le VPS par le workflow mais **ne sont plus
-exécutés** — à nettoyer dans un futur sprint technique si Traefik reste la solution
-retenue.
+TLS via le resolver `letsencrypt`, redirection `www` → apex).
 
 ## Secrets GitHub requis (Settings → Secrets and variables → Actions)
 
