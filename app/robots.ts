@@ -10,8 +10,8 @@ export default function robots(): MetadataRoute.Robots {
         // Défense en profondeur en plus du 404 (notFound()) : tant que le
         // blog n'est pas lancé publiquement, on évite même que les robots
         // tentent de le crawler. À retirer automatiquement dès que
-        // NEXT_PUBLIC_BLOG_ENABLED passe à "true" — jamais l'inverse, pour ne
-        // pas reproduire le classique "disallow oublié après le lancement".
+        // BLOG_ENABLED passe à "true" — jamais l'inverse, pour ne pas
+        // reproduire le classique "disallow oublié après le lancement".
         disallow: isBlogPublic() ? ["/api/", "/_next/"] : ["/api/", "/_next/", "/blog"],
       },
     ],
