@@ -166,7 +166,7 @@ du volume de recherche et de la concurrence — pas d'un outil d'audit dédié.
 L'utilisateur dispose d'un plugin Claude Code, **claude-seo**
 (github.com/AgriciDaniel/claude-seo), qui n'a pas encore été installé ni
 exécuté sur ce dépôt. Une fois ce plan validé et les premiers articles
-publiés (blog rendu public via `NEXT_PUBLIC_BLOG_ENABLED`), il serait
+publiés (blog rendu public via `BLOG_ENABLED`), il serait
 pertinent de :
 
 - l'installer et l'exécuter pour un audit technique complémentaire (maillage
