@@ -69,7 +69,9 @@ export const Navbar: FC<NavbarProps> = ({ blogEnabled = false }) => {
           <button
             type="button"
             onClick={() => setMobileMenuOpen(true)}
-            className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-200"
+            aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-menu-panel"
+            className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-200 touch-manipulation active:bg-primary/10 active:scale-95 transition-transform"
           >
             <span className="sr-only">Open main menu</span>
             <Bars3BottomRightIcon
@@ -106,7 +108,10 @@ export const Navbar: FC<NavbarProps> = ({ blogEnabled = false }) => {
         className="lg:hidden"
       >
         <div className="fixed inset-0 z-50" />
-        <DialogPanel className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-pastel p-6 sm:max-w-sm sm:ring-1 sm:ring-gray-100/10">
+        <DialogPanel
+          id="mobile-menu-panel"
+          className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-pastel p-6 sm:max-w-sm sm:ring-1 sm:ring-gray-100/10"
+        >
           <div className="flex items-center justify-between">
             <Image
               alt="logo Élan C’est Vous"
@@ -119,7 +124,7 @@ export const Navbar: FC<NavbarProps> = ({ blogEnabled = false }) => {
             <button
               type="button"
               onClick={() => setMobileMenuOpen(false)}
-              className="-m-2.5 rounded-md p-2.5 text-primary"
+              className="-m-2.5 rounded-md p-2.5 text-primary touch-manipulation active:bg-primary/10 active:scale-95 transition-transform"
             >
               <span className="sr-only">Close menu</span>
               <XMarkIcon
@@ -135,7 +140,8 @@ export const Navbar: FC<NavbarProps> = ({ blogEnabled = false }) => {
                   <Link
                     key={item.label}
                     href={item.href}
-                    className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-primary hover:bg-primary hover:text-white"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-primary touch-manipulation hover:bg-primary hover:text-white active:bg-primary active:text-white"
                   >
                     {item.label}
                   </Link>
@@ -144,9 +150,10 @@ export const Navbar: FC<NavbarProps> = ({ blogEnabled = false }) => {
               <div>
                 <Link
                   href="/particuliers/coaching-individuel"
+                  onClick={() => setMobileMenuOpen(false)}
                   className={
                     buttonVariants({ variant: "outline", size: "sm" }) +
-                    " text-sm"
+                    " text-sm touch-manipulation active:scale-95 transition-transform"
                   }
                 >
                   Particuliers, découvrez mes solutions.
