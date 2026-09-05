@@ -68,6 +68,7 @@ jobs:
           echo "SMTP_PORT=${{ secrets.SMTP_PORT }}" >> .env
           echo "SMTP_USR=${{ secrets.SMTP_USR }}" >> .env
           echo "SMTP_PWD=${{ secrets.SMTP_PWD }}" >> .env
+          echo "BLOG_ENABLED=${{ secrets.BLOG_ENABLED }}" >> .env
 
       - name: Prepare deployment folder on VPS
         uses: appleboy/ssh-action@v1.2.0
