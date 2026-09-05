@@ -99,5 +99,33 @@ export function createDiscordNotifier(options: {
       const data = (await response.json()) as { id: string };
       return { messageId: data.id };
     },
+
+    // Seul signal visible en cas d'échec de génération (clé API manquante/
+    // expirée, solde épuisé, refus Claude...) : sans ça, un lundi qui plante
+    // ne se voit que dans les logs GitHub Actions. Appelé en best-effort par
+    // app/api/blog/generate/route.ts, jamais depuis generateDraft.ts lui-même
+    // (qui peut échouer avant même d'avoir des deps Discord utilisables).
+    async notifyGenerationFailed(reason: string): Promise<void> {
+      const response = await fetchImpl(
+        `https://discord.com/api/v10/channels/${options.channelId}/messages`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bot ${options.botToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            content: `❌ Génération du blog échouée cette semaine : ${reason}`,
+            allowed_mentions: { parse: [] },
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          `Discord a refusé l'envoi du message (${response.status}) : ${await response.text()}`
+        );
+      }
+    },
   };
 }
