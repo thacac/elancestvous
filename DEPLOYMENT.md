@@ -6,8 +6,11 @@ Le déploiement est piloté par `.github/workflows/deploy.yml`, déclenché sur 
 vers la branche **`master`** (pas `main`) ou manuellement (`workflow_dispatch`).
 
 1. **Job `build`** : build de l'image Docker (multi-stage, `output: 'standalone'`),
-   push sur GitHub Container Registry
-   (`ghcr.io/<owner>/elancestvous-nextjs-16:latest`).
+   push sur GitHub Container Registry avec deux tags
+   (`ghcr.io/<owner>/elancestvous-nextjs-16:latest` et
+   `ghcr.io/<owner>/elancestvous-nextjs-16:<sha-complet>`) — le tag par SHA
+   garantit une cible de rollback fiable dans le registre, indépendante du
+   cache Docker local du VPS.
 2. **Job `deploy`** :
    - Écrit les secrets SMTP dans un fichier `.env` (checké dans le job, jamais
      commité) — voir `.env.example` pour la liste des variables.
@@ -67,9 +70,11 @@ curl -I https://elancestvous.fr
 ## Rollback manuel
 
 ```bash
-docker images | grep elancestvous-nextjs-16   # repérer un tag précédent (SHA)
+# Repérer le SHA du commit à restaurer (ex. via l'onglet Actions ou `git log`)
+# Le tag correspondant existe dans le registre : ghcr.io/<owner>/elancestvous-nextjs-16:<sha-precedent>
 cd /home/<user>/elancestvous
 docker compose down
+docker pull ghcr.io/<owner>/elancestvous-nextjs-16:<sha-precedent>
 docker run -d --name elancestvous --restart unless-stopped \
   --env-file .env \
   --label traefik.enable=true \
