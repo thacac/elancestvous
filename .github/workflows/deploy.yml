@@ -68,6 +68,11 @@ jobs:
           echo "SMTP_PORT=${{ secrets.SMTP_PORT }}" >> .env
           echo "SMTP_USR=${{ secrets.SMTP_USR }}" >> .env
           echo "SMTP_PWD=${{ secrets.SMTP_PWD }}" >> .env
+          echo "ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}" >> .env
+          echo "IMAGE_GEN_API_KEY=${{ secrets.IMAGE_GEN_API_KEY }}" >> .env
+          echo "GITHUB_BLOG_PAT=${{ secrets.GITHUB_BLOG_PAT }}" >> .env
+          echo "GITHUB_REPO=${{ github.repository }}" >> .env
+          echo "BLOG_CRON_SECRET=${{ secrets.BLOG_CRON_SECRET }}" >> .env
 
       - name: Prepare deployment folder on VPS
         uses: appleboy/ssh-action@v1.2.0
