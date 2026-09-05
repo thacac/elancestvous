@@ -81,6 +81,29 @@ describe("createDiscordNotifier", () => {
     expect(payload.embeds[0].description.length).toBeLessThanOrEqual(4096);
   });
 
+  it("posts a plain JSON message without an attachment when no cover image is provided", async () => {
+    const fetchImpl = makeFetch();
+    const notifier = createDiscordNotifier({
+      botToken: "bot-token",
+      channelId: "channel-123",
+      fetchImpl,
+    });
+
+    await notifier.notifyDraftReady({
+      slug: "mon-article",
+      title: "Mon article",
+      excerpt: "Un extrait court.",
+      coverImage: null,
+      previewUrl: "https://elancestvous.fr/blog-review/mon-article?token=abc",
+    });
+
+    const [, init] = fetchImpl.mock.calls[0];
+    expect(init.body).not.toBeInstanceOf(FormData);
+    const payload = JSON.parse(init.body as string);
+    expect(init.headers["Content-Type"]).toBe("application/json");
+    expect(payload.embeds[0].image).toBeUndefined();
+  });
+
   it("throws with the response status when Discord rejects the request", async () => {
     const fetchImpl = makeFetch(401);
     const notifier = createDiscordNotifier({

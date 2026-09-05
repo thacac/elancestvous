@@ -50,7 +50,7 @@ export function createGithubBlogRepo(options: {
     async commitDraftBranch(args: {
       slug: string;
       postMarkdown: string;
-      coverImage: Buffer;
+      coverImage: Buffer | null;
       commitMessage: string;
     }): Promise<{ branch: string; url: string }> {
       // Contents API plutôt que Git Data API (blobs/trees/commits) : un seul
@@ -101,14 +101,19 @@ export function createGithubBlogRepo(options: {
         message: args.commitMessage,
         content: Buffer.from(args.postMarkdown, "utf8").toString("base64"),
       });
-      await octokit.rest.repos.createOrUpdateFileContents({
-        owner,
-        repo,
-        branch: branchName,
-        path: `content/_drafts/${args.slug}/cover.jpg`,
-        message: args.commitMessage,
-        content: args.coverImage.toString("base64"),
-      });
+      // Pas d'image tant que la génération n'est pas configurée (ex. clé
+      // OpenAI absente) : on committe le brouillon texte seul plutôt que
+      // d'échouer sur un fichier qu'on n'a pas.
+      if (args.coverImage) {
+        await octokit.rest.repos.createOrUpdateFileContents({
+          owner,
+          repo,
+          branch: branchName,
+          path: `content/_drafts/${args.slug}/cover.jpg`,
+          message: args.commitMessage,
+          content: args.coverImage.toString("base64"),
+        });
+      }
 
       return {
         branch: branchName,
