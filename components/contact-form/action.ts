@@ -25,7 +25,7 @@ export async function submit_contact_form(
       lastName: data.lastName,
       fromEmail: data.email,
       subject: "Prise de contact via le formulaire",
-      message: data.message,
+      message: fullMessage,
     });
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
