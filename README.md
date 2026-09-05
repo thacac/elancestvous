@@ -57,7 +57,9 @@ contenu.
 
 Le site est buildé en image Docker, publiée sur GitHub Container Registry, puis
 déployée sur un VPS Hostinger derrière un reverse-proxy Traefik (TLS Let's Encrypt).
-Le pipeline (`.github/workflows/deploy.yml`) se déclenche sur push vers `master`.
+Le pipeline (`.github/workflows/deploy.yml`) construit l'image sur chaque push et
+chaque pull request vers `master` (vérification), mais ne déploie sur le VPS que sur
+un push réel (merge) vers `master` ou un déclenchement manuel — jamais depuis une PR.
 
 Voir `DEPLOYMENT.md` pour le détail du pipeline, des secrets requis et du
 dépannage.
