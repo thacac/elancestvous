@@ -1,12 +1,12 @@
 
 import ArticulationBloc from "@/components/ArticulationBloc";
+import BadgesBloc from "@/components/BadgesBloc";
 import CartesContrastBloc from "@/components/CartesContrastBloc";
+import Citation from "@/components/Citation";
+import CtaElan from "@/components/CtaElan";
 import PublicsCiblesBloc from "@/components/PublicsCiblesBloc";
 import { IconBuilding, IconHand, IconManager, IconStethoscope, IconWatch } from "@/components/ui/icons-publics";
 
-import BadgesBloc from "@/components/BadgesBloc";
-import Citation from "@/components/Citation";
-import CtaElan from "@/components/CtaElan";
 
 export const metadata = {
   title:

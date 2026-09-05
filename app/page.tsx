@@ -1,5 +1,6 @@
 import Axes from "@/components/home/Axes";
 import Hero from "@/components/home/Hero";
+
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {

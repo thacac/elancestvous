@@ -1,11 +1,14 @@
 import "./globals.css";
-import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
-import Navbar from "@/components/Navbar";
+import { Toaster } from "sonner";
+
 import Footer from "@/components/Footer";
 import JsonLd from "@/components/JsonLd";
+import Navbar from "@/components/Navbar";
 import { isBlogPublic } from "@/lib/featureFlags";
-import { Toaster } from "sonner";
+
+
+import type { Metadata, Viewport } from "next";
 
 const inter = Inter({ subsets: ["latin"] });
 

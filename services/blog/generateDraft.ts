@@ -1,4 +1,5 @@
 import matter from "gray-matter";
+
 import { BlogDraftSchema, type BlogDraft } from "./draftSchema";
 
 const SYSTEM_PROMPT = `Tu écris pour le blog d'Élan C'est Vous (Coralie Mathorel), coach

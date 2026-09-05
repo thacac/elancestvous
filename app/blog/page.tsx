@@ -1,10 +1,12 @@
-import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui";
 import { getAllPostsMeta } from "@/lib/blog";
 import { isBlogPublic } from "@/lib/featureFlags";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui";
+
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Blog",

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { FC } from "react";
+
 import { buttonVariants } from "../ui";
 
 interface AxesProps {}

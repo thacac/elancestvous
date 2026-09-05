@@ -1,9 +1,11 @@
-import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
+
 import PostJsonLd from "@/components/PostJsonLd";
 import { getAllPostsMeta, getPostBySlug, getPostSlugs } from "@/lib/blog";
 import { isBlogPublic } from "@/lib/featureFlags";
+
+import type { Metadata } from "next";
 
 export function generateStaticParams() {
   // Tant que le blog n'est pas lancé publiquement, aucune page n'est

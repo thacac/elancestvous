@@ -1,7 +1,9 @@
-import type { Metadata } from "next";
-import CtaElan from "@/components/CtaElan";
 import Image from "next/image";
 import Link from "next/link";
+
+import CtaElan from "@/components/CtaElan";
+
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "À propos – Coach certifiée à Toulouse",
