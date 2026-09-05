@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { OG_BANNER_IMAGES } from "@/lib/openGraph";
 
 export const metadata: Metadata = {
   title: "Mentions légales",
@@ -6,6 +7,10 @@ export const metadata: Metadata = {
     "Mentions légales du site Élan C'est Vous : éditeur, hébergeur, propriété intellectuelle et protection des données personnelles.",
   alternates: { canonical: "/mentions-legales" },
   robots: { index: false, follow: true },
+  openGraph: {
+    url: "https://elancestvous.fr/mentions-legales",
+    images: OG_BANNER_IMAGES,
+  },
 };
 
 export default function MentionsLegales() {

@@ -3,6 +3,7 @@ import ArticulationBloc from "@/components/ArticulationBloc";
 import CartesContrastBloc from "@/components/CartesContrastBloc";
 import PublicsCiblesBloc from "@/components/PublicsCiblesBloc";
 import { IconBuilding, IconHand, IconManager, IconStethoscope, IconWatch } from "@/components/ui/icons-publics";
+import { OG_BANNER_IMAGES } from "@/lib/openGraph";
 
 import BadgesBloc from "@/components/BadgesBloc";
 import Citation from "@/components/Citation";
@@ -35,6 +36,7 @@ export const metadata = {
       "Groupe d'analyse des pratiques professionnelles (GAPP) : un espace sécurisé pour partager, analyser et améliorer les pratiques professionnelles en équipe, animé par une coach certifiée.",
     url: "https://elancestvous.fr/professionnels-etablissements-de-soins/gapp-groupe-analyse-pratiques-professionnelles",
     type: "website",
+    images: OG_BANNER_IMAGES,
   },
 };
 

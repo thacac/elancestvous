@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getAllPostsMeta } from "@/lib/blog";
 import { isBlogPublic } from "@/lib/featureFlags";
+import { OG_BANNER_IMAGES } from "@/lib/openGraph";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui";
 
 export const metadata: Metadata = {
@@ -18,6 +19,7 @@ export const metadata: Metadata = {
     description:
       "Conseils, retours d'expérience et ressources sur la QVCT, la prévention des RPS et le coaching des professionnels de santé.",
     url: "https://elancestvous.fr/blog",
+    images: OG_BANNER_IMAGES,
   },
 };
 

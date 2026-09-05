@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import CtaElan from "@/components/CtaElan";
 import Image from "next/image";
 import Link from "next/link";
+import { OG_BANNER_IMAGES } from "@/lib/openGraph";
 
 export const metadata: Metadata = {
   title: "À propos – Coach certifiée à Toulouse",
@@ -15,6 +16,7 @@ export const metadata: Metadata = {
     description:
       "Ancienne soignante et coach certifiée à Toulouse, j'accompagne la santé de ceux qui soignent. Découvrez mon approche humaine et concrète.",
     url: "https://elancestvous.fr/a-propos",
+    images: OG_BANNER_IMAGES,
   },
 };
 
