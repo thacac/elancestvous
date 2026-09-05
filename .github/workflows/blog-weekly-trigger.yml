@@ -10,12 +10,16 @@ on:
 jobs:
   trigger:
     runs-on: ubuntu-latest
-    # Tant que BLOG_CRON_SECRET n'est pas configuré côté repo, le job se
-    # contente de ne rien faire plutôt que d'échouer bruyamment (401) à
-    # chaque déclenchement hebdomadaire.
-    if: ${{ secrets.BLOG_CRON_SECRET != '' }}
     steps:
       - name: Réveiller /api/blog/generate
+        # Tant que BLOG_CRON_SECRET n'est pas configuré côté repo, l'étape se
+        # contente de ne rien faire plutôt que d'échouer bruyamment (401) à
+        # chaque déclenchement hebdomadaire. Le `secrets` context n'est
+        # évaluable de façon fiable qu'au niveau d'une step, pas d'un job
+        # (un `if:` de job référençant `secrets` a fait échouer tout le
+        # run — 0 job exécuté, conclusion "failure" — plutôt que de skipper
+        # proprement).
+        if: ${{ secrets.BLOG_CRON_SECRET != '' }}
         run: |
           curl --fail-with-body -sS -X POST \
             --max-time 30 --retry 3 --retry-delay 5 \
