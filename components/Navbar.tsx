@@ -6,6 +6,7 @@ import { Bars3BottomRightIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
 import Link from "next/link";
 import { FC, useState } from "react";
+import { isBlogPublic } from "@/lib/featureFlags";
 import Socials from "./Socials";
 import { buttonVariants } from "./ui";
 
@@ -17,7 +18,9 @@ export const links = [
     href: "/professionnels-etablissements-de-soins/gapp-groupe-analyse-pratiques-professionnelles",
     label: "GAPP",
   },
-  { href: "/blog", label: "Blog" },
+  // Le blog n'apparaît dans la navigation qu'une fois lancé publiquement,
+  // cf. lib/featureFlags.ts.
+  ...(isBlogPublic() ? [{ href: "/blog", label: "Blog" }] : []),
   { href: "/a-propos", label: "À propos" },
   { href: "/contact", label: "Contact" },
 ];
