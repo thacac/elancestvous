@@ -49,6 +49,7 @@ const Socials: FC<SocialsProps> = ({ className = "" }) => {
         <Link
           key={social.name}
           target="_blank"
+          rel="noopener noreferrer"
           title={`Elancestvous ${social.name} official profile`}
           href={social.href}
           className="text-primary hover:text-gray-500"

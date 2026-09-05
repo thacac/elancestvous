@@ -4,11 +4,10 @@ import { describe, expect, it } from "vitest";
 // objects across route segments: as soon as a page defines its own
 // `openGraph`, the entire object from the root layout (including its
 // `images`) is replaced, not merged. Every page below re-declares
-// `openGraph` for its own title/description/url but forgot to re-declare
-// `images`, so none of these pages actually ship an og:image — only
-// `mentions-legales` (which never overrides `openGraph` at all) keeps the
-// root's image, but for the same reason also keeps the root's `url`
-// (the homepage) instead of its own.
+// `openGraph` for its own title/description/url and must also re-declare
+// `images`, or it silently loses its og:image — this guards against that
+// regression (and against `mentions-legales` losing its own `og:url` by
+// not overriding `openGraph` at all).
 const EXPECTED_OG_IMAGE = {
   url: "/og-banner.jpg",
   width: 1200,

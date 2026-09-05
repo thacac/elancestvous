@@ -1,9 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
-
-vi.mock("next/navigation", () => ({
-  usePathname: () => "/a-propos",
-}));
+import { describe, expect, it } from "vitest";
 
 import Footer from "../Footer";
 

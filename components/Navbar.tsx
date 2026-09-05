@@ -134,7 +134,7 @@ export const Navbar: FC<NavbarProps> = ({ blogEnabled = false }) => {
                   <Link
                     key={item.label}
                     href={item.href}
-                    className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibol text-primary hover:bg-primary hover:text-white"
+                    className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-primary hover:bg-primary hover:text-white"
                   >
                     {item.label}
                   </Link>
