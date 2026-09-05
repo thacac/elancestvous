@@ -5,6 +5,7 @@ import Citation from "@/components/Citation";
 import CtaElan from "@/components/CtaElan";
 import PublicsCiblesBloc from "@/components/PublicsCiblesBloc";
 import { IconBuilding, IconHand, IconHeart, IconManager, IconStairs, IconStethoscope } from "@/components/ui/icons-publics";
+import { OG_BANNER_IMAGES } from "@/lib/openGraph";
 
 export const metadata = {
   title: "Formations QVCT, RPS, gestion du stress et des émotions",
@@ -32,6 +33,7 @@ export const metadata = {
       "Formations pour la gestion du stress, des émotions et la prévention de l'usure professionnelle en établissements de santé.",
     url: "https://elancestvous.fr/professionnels-etablissements-de-soins/formations-rps-qvct",
     type: "website",
+    images: OG_BANNER_IMAGES,
   },
 };
 

@@ -10,6 +10,7 @@ import {
   IconManager,
   IconStairs,
 } from "@/components/ui/icons-publics";
+import { OG_BANNER_IMAGES } from "@/lib/openGraph";
 
 export const metadata = {
   title: "Coaching individuel et collectif en établissements de santé",
@@ -36,6 +37,7 @@ export const metadata = {
       "Un accompagnement sur-mesure pour soutenir les fonctionnements d'équipe et répondre à des objectifs précis.",
     url: "https://elancestvous.fr/professionnels-etablissements-de-soins/coaching",
     type: "website",
+    images: OG_BANNER_IMAGES,
   },
 };
 

@@ -9,6 +9,7 @@ import {
   IconManager,
   IconStairs,
 } from "@/components/ui/icons-publics";
+import { OG_BANNER_IMAGES } from "@/lib/openGraph";
 
 export const metadata = {
   title: "Coaching individuel pour particuliers à Toulouse et à distance",
@@ -34,6 +35,7 @@ export const metadata = {
       "Un espace pour faire le point, prendre du recul et avancer à partir de votre situation.",
     url: "https://elancestvous.fr/particuliers/coaching-individuel",
     type: "website",
+    images: OG_BANNER_IMAGES,
   },
 };
 
