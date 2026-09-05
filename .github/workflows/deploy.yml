@@ -40,17 +40,24 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=latest
+            type=sha,prefix=,format=long
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
           context: .
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
   
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -78,13 +85,13 @@ jobs:
             # Restrict permissions so only the user can access the directory
             chmod 700 /home/${{ secrets.VPS_USR }}/elancestvous
 
-      - name: Copy files to VPS (Docker Compose, Nginx, .env)
+      - name: Copy files to VPS (Docker Compose, .env)
         uses: appleboy/scp-action@v1.0.0
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USR }}
           password: ${{ secrets.VPS_PASSWORD }} # Ou key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "docker-compose.yaml,infra/nginx.conf,infra/deploy.sh,.env"
+          source: "docker-compose.yaml,infra/deploy.sh,.env"
           target: "/home/${{ secrets.VPS_USR }}/elancestvous/"
           strip_components: 0 # Garde la structure des dossiers si besoin (infra dossier etc.)
 
@@ -101,4 +108,5 @@ jobs:
           envs: GITHUB_ACTOR,GITHUB_TOKEN,VPS_USR
           script: |
             cd /home/${{ secrets.VPS_USR }}/elancestvous
+            echo "$GITHUB_TOKEN" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
             docker compose up -d --pull always
