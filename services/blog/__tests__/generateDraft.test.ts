@@ -38,6 +38,9 @@ function makeDeps(overrides: Partial<GenerateDraftDeps> = {}): GenerateDraftDeps
         url: "https://github.com/thacac/elancestvous/tree/blog-draft/un-titre-valide",
       }),
     },
+    discord: {
+      notifyDraftReady: vi.fn().mockResolvedValue({ messageId: "message-id-123" }),
+    },
     ...overrides,
   };
 }
@@ -61,6 +64,12 @@ describe("generateDraft", () => {
     expect(deps.github.commitDraftBranch).toHaveBeenCalledWith(
       expect.objectContaining({ slug: "un-titre-valide" })
     );
+    expect(deps.discord.notifyDraftReady).toHaveBeenCalledWith({
+      slug: "un-titre-valide",
+      title: "Un titre valide",
+      excerpt: "Extrait",
+      coverImage: Buffer.from("fake-image"),
+    });
   });
 
   it("returns a refused status without calling image generation or committing anything", async () => {
@@ -79,6 +88,7 @@ describe("generateDraft", () => {
     expect(result).toEqual({ status: "refused", category: "frontier_llm" });
     expect(deps.imageGenerator.generateCoverImage).not.toHaveBeenCalled();
     expect(deps.github.commitDraftBranch).not.toHaveBeenCalled();
+    expect(deps.discord.notifyDraftReady).not.toHaveBeenCalled();
   });
 
   it("returns generation_failed when structured output fails validation", async () => {
@@ -95,6 +105,7 @@ describe("generateDraft", () => {
 
     expect(result.status).toBe("generation_failed");
     expect(deps.github.commitDraftBranch).not.toHaveBeenCalled();
+    expect(deps.discord.notifyDraftReady).not.toHaveBeenCalled();
   });
 
   it("returns generation_failed and does not commit when image generation fails", async () => {
@@ -111,6 +122,7 @@ describe("generateDraft", () => {
       reason: expect.stringContaining("quota exceeded"),
     });
     expect(deps.github.commitDraftBranch).not.toHaveBeenCalled();
+    expect(deps.discord.notifyDraftReady).not.toHaveBeenCalled();
   });
 });
 

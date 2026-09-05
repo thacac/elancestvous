@@ -115,7 +115,56 @@ export function createGithubBlogRepo(options: {
         url: `https://github.com/${owner}/${repo}/tree/${branchName}`,
       };
     },
+
+    async getDraftContent(
+      slug: string
+    ): Promise<{ markdown: string; coverImage: Buffer } | null> {
+      const branch = `blog-draft/${slug}`;
+      try {
+        const [postRes, coverRes] = await Promise.all([
+          octokit.rest.repos.getContent({
+            owner,
+            repo,
+            path: `content/_drafts/${slug}/post.md`,
+            ref: branch,
+          }),
+          octokit.rest.repos.getContent({
+            owner,
+            repo,
+            path: `content/_drafts/${slug}/cover.jpg`,
+            ref: branch,
+          }),
+        ]);
+        const postData = postRes.data;
+        const coverData = coverRes.data;
+        if (
+          Array.isArray(postData) ||
+          postData.type !== "file" ||
+          !postData.content ||
+          Array.isArray(coverData) ||
+          coverData.type !== "file" ||
+          !coverData.content
+        ) {
+          return null;
+        }
+        return {
+          markdown: Buffer.from(postData.content, "base64").toString("utf8"),
+          coverImage: Buffer.from(coverData.content, "base64"),
+        };
+      } catch (err) {
+        if (isNotFound(err)) return null;
+        throw err;
+      }
+    },
   };
+}
+
+export function parseGithubRepoEnv(value: string): { owner: string; repo: string } {
+  const segments = value.split("/").map((s) => s.trim());
+  if (segments.length !== 2 || !segments[0] || !segments[1]) {
+    throw new Error('GITHUB_REPO doit être au format "owner/repo"');
+  }
+  return { owner: segments[0], repo: segments[1] };
 }
 
 function isNotFound(err: unknown): boolean {
