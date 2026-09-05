@@ -58,7 +58,7 @@ export default function FormationsProPage() {
               <span className="text-accent">
                 <strong>prévention</strong>
               </span>{" "}
-              de l'usure professionnelle.
+              de l&apos;usure professionnelle.
             </h2>
             <h3>
               QVCT, prévention des risques psycho-sociaux (RPS), stress et
@@ -151,7 +151,7 @@ export default function FormationsProPage() {
                   Le Kit de Prévention
                 </h4>
                 <p className="text-primary text-lg leading-relaxed mb-6">
-                  À l'issue du cycle, les participants repartent avec des
+                  À l&apos;issue du cycle, les participants repartent avec des
                   repères et des outils concrets, mobilisables{" "}
                   <strong>individuellement</strong> et{" "}
                   <strong>collectivement</strong>.

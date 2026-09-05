@@ -68,11 +68,11 @@ export default function CoachingPage() {
               <span className="text-accent">
                 <strong>mise en mouvement</strong>
               </span>
-              , au service d'un objectif clairement défini.
+              , au service d&apos;un objectif clairement défini.
             </h2>
             <h3>
               Issu de mon expérience du soin et de la pratique du coaching, cet
-              accompagnement s'inscrit dans une approche respectueuse du travail
+              accompagnement s&apos;inscrit dans une approche respectueuse du travail
               réel et des contraintes organisationnelles.
             </h3>
           </div>

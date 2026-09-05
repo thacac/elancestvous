@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+
 import FormationsProPage from "../page";
 
 describe("FormationsProPage internal linking (audit SEO finding #1)", () => {

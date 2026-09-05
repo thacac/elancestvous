@@ -1,13 +1,13 @@
 
 import ArticulationBloc from "@/components/ArticulationBloc";
+import BadgesBloc from "@/components/BadgesBloc";
 import CartesContrastBloc from "@/components/CartesContrastBloc";
+import Citation from "@/components/Citation";
+import CtaElan from "@/components/CtaElan";
 import PublicsCiblesBloc from "@/components/PublicsCiblesBloc";
 import { IconBuilding, IconHand, IconManager, IconStethoscope, IconWatch } from "@/components/ui/icons-publics";
 import { OG_BANNER_IMAGES } from "@/lib/openGraph";
 
-import BadgesBloc from "@/components/BadgesBloc";
-import Citation from "@/components/Citation";
-import CtaElan from "@/components/CtaElan";
 
 export const metadata = {
   title:
@@ -48,7 +48,7 @@ export default function GappPage() {
         <section id="gapp-titre" className="py-20 container">
           <div className="text-center mb-8">
             <h1>
-              Groupe d'analyse des{" "}
+              Groupe d&apos;analyse des{" "}
               <span className="text-accent">
                 <strong>pratiques professionnelles</strong>
               </span>

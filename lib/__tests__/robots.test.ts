@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
+
 import robots from "../../app/robots";
 
 describe("robots", () => {

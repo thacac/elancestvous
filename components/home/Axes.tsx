@@ -1,19 +1,18 @@
 import Link from "next/link";
 import { FC } from "react";
+
 import { buttonVariants } from "../ui";
 
-interface AxesProps {}
-
-const Axes: FC<AxesProps> = () => {
+const Axes: FC = () => {
   return (
     <section
       id="axes-de-travail"
       className="pt-0 pb-15 bg-white container wide"
     >
       <div className="text-center">
-        <h2>Mes 3 Axes d'Intervention</h2>
+        <h2>Mes 3 Axes d&apos;Intervention</h2>
         <h3>
-          Une approche globale, avec des modalités d'intervention adaptables aux
+          Une approche globale, avec des modalités d&apos;intervention adaptables aux
           besoins des équipes.
         </h3>
       </div>
@@ -39,7 +38,7 @@ const Axes: FC<AxesProps> = () => {
           </div>
           <h3 className="text-xl font-bold text-dark mb-3">Formations</h3>
           <p className="text-stone-600 mb-4 text-sm leading-relaxed">
-            Des formations sur-mesure pour prévenir l'épuisement professionnel,
+            Des formations sur-mesure pour prévenir l&apos;épuisement professionnel,
             mieux comprendre le stress et la charge émotionnelle, et renforcer
             les ressources individuelles et collectives.
           </p>
@@ -72,7 +71,7 @@ const Axes: FC<AxesProps> = () => {
             </svg>
           </div>
           <h3 className="text-xl font-bold text-dark mb-3">
-            Coaching d'équipe ou individuel
+            Coaching d&apos;équipe ou individuel
           </h3>
           <p className="text-stone-600 mb-4 text-sm leading-relaxed">
             Des accompagnements de coaching, individuels ou collectifs,
@@ -107,7 +106,7 @@ const Axes: FC<AxesProps> = () => {
             </svg>
           </div>
           <h3 className="text-xl font-bold text-dark mb-3">
-            GAPP (Groupe d'analyse des pratiques professionnelles)
+            GAPP (Groupe d&apos;analyse des pratiques professionnelles)
           </h3>
           <p className="text-stone-600 mb-4 text-sm leading-relaxed">
             Des espaces réguliers de réflexion collective pour prendre du recul

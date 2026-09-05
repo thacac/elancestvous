@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+
 import CoachingPage from "../page";
 
 describe("CoachingPage internal linking (audit SEO finding #1)", () => {

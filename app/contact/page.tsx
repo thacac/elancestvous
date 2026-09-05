@@ -1,6 +1,7 @@
 import ContactForm from "@/components/contact-form/ContactForm";
-import type { Metadata } from "next";
 import { OG_BANNER_IMAGES } from "@/lib/openGraph";
+
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Contact – Parlons de vos besoins",

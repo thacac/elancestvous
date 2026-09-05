@@ -1,6 +1,7 @@
-import type { MetadataRoute } from "next";
 import { getAllPostsMeta } from "@/lib/blog";
 import { isBlogPublic } from "@/lib/featureFlags";
+
+import type { MetadataRoute } from "next";
 
 const BASE_URL = "https://elancestvous.fr";
 
