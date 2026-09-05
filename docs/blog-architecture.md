@@ -4,6 +4,17 @@ Vue d'ensemble du pipeline, du contenu Markdown à la publication automatique ap
 validation humaine. État d'avancement au 2026-09 : **Phases 1-2 livrées** (PR #29,
 #36), **Phases 3-4 pas commencées** (bloquées sur des secrets, voir issue #35).
 
+## Verrou de lancement public
+
+Le blog reste invisible tant que `NEXT_PUBLIC_BLOG_ENABLED` n'est pas explicitement
+`"true"` (voir `lib/featureFlags.ts`) : `/blog` et `/blog/[slug]` renvoient 404,
+aucun lien dans la navbar, rien dans le sitemap. Ce verrou est volontairement
+indépendant du reste du pipeline : la génération IA hebdomadaire (Phase 2) continue
+de tourner et de committer ses brouillons sur des branches `blog-draft/<slug>`
+privées, jamais exposées, que le blog soit public ou non. Activer le lancement se
+fait en une seule variable (`NEXT_PUBLIC_BLOG_ENABLED=true` en secret GitHub), le
+jour où le contenu et l'illustration sont jugés prêts.
+
 ## Schéma du flux
 
 ```
