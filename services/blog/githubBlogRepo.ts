@@ -21,6 +21,7 @@ export function createGithubBlogRepo(options: {
           owner,
           repo,
           path: CONTENT_BLOG_PATH,
+          ref: baseBranch,
         });
         entries = Array.isArray(data) ? data : [data];
       } catch (err) {
@@ -36,6 +37,7 @@ export function createGithubBlogRepo(options: {
           owner,
           repo,
           path: entry.path,
+          ref: baseBranch,
         });
         if (Array.isArray(file) || file.type !== "file" || !file.content) continue;
         const raw = Buffer.from(file.content, "base64").toString("utf8");
