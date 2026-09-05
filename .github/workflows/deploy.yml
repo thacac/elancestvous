@@ -54,11 +54,15 @@ jobs:
   
   deploy:
     needs: build
-    # Une pull request vers master ne doit jamais toucher au VPS de prod —
-    # seul un push réel sur master (merge) ou un déclenchement manuel le
-    # fait. `build` continue de tourner sur les PR (vérifie que l'image
-    # Docker se construit), seul `deploy` est sauté.
-    if: github.event_name != 'pull_request'
+    # Le VPS de prod ne doit jamais être touché depuis une PR, ni depuis un
+    # déclenchement manuel sur une branche de feature (`workflow_dispatch`
+    # peut être lancé depuis n'importe quelle branche — un simple
+    # `event_name != 'pull_request'` ne suffit pas à l'exclure, relevé en
+    # revue sur la PR #47). Seul un push réel sur `master` (merge ou push
+    # direct) ou un déclenchement manuel explicitement sur `master`
+    # déclenche `deploy`. `build` continue de tourner sur les PR (vérifie
+    # que l'image Docker se construit), seul `deploy` est restreint.
+    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     permissions:
       contents: read
