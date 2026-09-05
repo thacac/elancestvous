@@ -189,7 +189,19 @@ export default function FormationsProPage() {
         />
 
         {/* --- 6- Bloc Lien avec les autres accompagnements --- */}
-        <ArticulationBloc textePrincipal="Selon les situations et les objectifs, la formation peut être proposée seule, ou s’inscrire dans une démarche plus globale incluant du coaching ou des groupes d’analyse de la pratique." />
+        <ArticulationBloc
+          textePrincipal="Selon les situations et les objectifs, la formation peut être proposée seule, ou s’inscrire dans une démarche plus globale incluant du coaching ou des groupes d’analyse de la pratique."
+          liens={[
+            {
+              href: "/professionnels-etablissements-de-soins/coaching",
+              label: "Coaching en établissement",
+            },
+            {
+              href: "/professionnels-etablissements-de-soins/gapp-groupe-analyse-pratiques-professionnelles",
+              label: "GAPP",
+            },
+          ]}
+        />
 
         {/* --- 5. CTA FINAL : IMPACT MAXIMAL --- */}
         <CtaElan />

@@ -180,7 +180,19 @@ export default function GappPage() {
         />
 
         {/* --- 5. Bloc articulation avec les autres accompagnements --- */}
-        <ArticulationBloc textePrincipal="Les groupes d’analyse de la pratique peuvent être proposés de manière autonome ou en articulation avec des actions de formation ou de coaching, selon les besoins identifiés." />
+        <ArticulationBloc
+          textePrincipal="Les groupes d’analyse de la pratique peuvent être proposés de manière autonome ou en articulation avec des actions de formation ou de coaching, selon les besoins identifiés."
+          liens={[
+            {
+              href: "/professionnels-etablissements-de-soins/coaching",
+              label: "Coaching en établissement",
+            },
+            {
+              href: "/professionnels-etablissements-de-soins/formations-rps-qvct",
+              label: "Formations QVCT / RPS",
+            },
+          ]}
+        />
         {/* --- 6. CTA FINAL --- */}
         <CtaElan />
       </main>

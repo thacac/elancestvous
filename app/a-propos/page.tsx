@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import CtaElan from "@/components/CtaElan";
 import Image from "next/image";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "À propos – Coach certifiée à Toulouse",
@@ -66,7 +67,31 @@ export default function About() {
                   </strong>
                 </p>
                 <p>
-                  Formée au coaching et forte de mon expérience du soin, j'ai construit à Toulouse une approche qui s'appuie sur l'écoute, la mise en mouvement et des outils concrets — coaching individuel, formations QVCT/RPS, groupes d'analyse des pratiques — pour agir en prévention et soutenir des changements durables.
+                  Formée au coaching et forte de mon expérience du soin, j'ai
+                  construit à Toulouse une approche qui s'appuie sur l'écoute,
+                  la mise en mouvement et des outils concrets —{" "}
+                  <Link
+                    href="/particuliers/coaching-individuel"
+                    className="text-accent underline underline-offset-2 hover:text-primary"
+                  >
+                    coaching individuel
+                  </Link>
+                  ,{" "}
+                  <Link
+                    href="/professionnels-etablissements-de-soins/formations-rps-qvct"
+                    className="text-accent underline underline-offset-2 hover:text-primary"
+                  >
+                    formations QVCT/RPS
+                  </Link>
+                  ,{" "}
+                  <Link
+                    href="/professionnels-etablissements-de-soins/gapp-groupe-analyse-pratiques-professionnelles"
+                    className="text-accent underline underline-offset-2 hover:text-primary"
+                  >
+                    groupes d'analyse des pratiques
+                  </Link>{" "}
+                  — pour agir en prévention et soutenir des changements
+                  durables.
                 </p>
                 <p>
                   <strong>

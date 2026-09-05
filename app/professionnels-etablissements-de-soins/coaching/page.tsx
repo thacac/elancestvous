@@ -220,6 +220,16 @@ export default function CoachingPage() {
         <ArticulationBloc
           textePrincipal="Selon les situations, le coaching peut être proposé de manière indépendante, en complément d'une action de formation, ou en articulation avec des groupes d'analyse de la pratique."
           texteSecondaire="Ces modalités sont envisagées au cas par cas, uniquement lorsqu'elles sont pertinentes."
+          liens={[
+            {
+              href: "/professionnels-etablissements-de-soins/formations-rps-qvct",
+              label: "Formations QVCT / RPS",
+            },
+            {
+              href: "/professionnels-etablissements-de-soins/gapp-groupe-analyse-pratiques-professionnelles",
+              label: "GAPP",
+            },
+          ]}
         />
 
         {/* --- 7. CTA FINAL --- */}
