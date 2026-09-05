@@ -5,6 +5,7 @@ import { Bars3BottomRightIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
 import Link from "next/link";
 import { FC, useState } from "react";
+
 import Socials from "./Socials";
 import { buttonVariants } from "./ui";
 

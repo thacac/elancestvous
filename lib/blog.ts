@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+
 import matter from "gray-matter";
 import DOMPurify from "isomorphic-dompurify";
 import readingTime from "reading-time";
@@ -107,7 +108,7 @@ export function getPostSlugs(dir: string = BLOG_CONTENT_DIR): string[] {
 }
 
 export function getAllPostsMeta(dir: string = BLOG_CONTENT_DIR): PostMeta[] {
-  return loadAllMeta(dir).map(({ content: _content, ...meta }) => meta);
+  return loadAllMeta(dir).map(({ content, ...meta }) => meta);
 }
 
 export async function getPostBySlug(

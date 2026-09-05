@@ -15,17 +15,18 @@ export async function submit_contact_form(
       return { error: "Adresse e-mail destinataire manquante sur le serveur." };
     }
 
-    const fullMessage = `Message de ${data.firstName} ${data.lastName} (${data.email}) :
-                Type de projet : ${data.projectType}
-                ${data.message}
-        `;
+    const fullMessage = [
+      `Message de ${data.firstName} ${data.lastName} (${data.email}) :`,
+      `Type de projet : ${data.projectType}`,
+      data.message,
+    ].join("\n");
 
     return await mailer.sendMailToUs({
       firstName: data.firstName,
       lastName: data.lastName,
       fromEmail: data.email,
       subject: "Prise de contact via le formulaire",
-      message: data.message,
+      message: fullMessage,
     });
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);

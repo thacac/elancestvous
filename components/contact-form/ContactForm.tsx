@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 import {
   Button,
@@ -21,17 +23,12 @@ import {
   FieldSet,
 } from "@/components/ui/field";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
+
 import { submit_contact_form } from "./action";
 import { contactFormSchema, ContactFormValues } from "./validation";
 
 export default function ContactForm() {
-  const [status, setStatus] = useState<"idle" | "loading" | "sent">("idle");
-  const [result, setResult] = useState<{ error?: string } | null>(null);
-
-  const form = useForm<ContactFormValues & { projectType: string }>({
+  const form = useForm<ContactFormValues>({
     resolver: zodResolver(contactFormSchema),
     defaultValues: {
       firstName: "",
@@ -99,7 +96,7 @@ export default function ContactForm() {
                   >
                     Établissement / DRH
                     <span className="block text-xs text-stone-500 font-normal ml-2">
-                      Formation, Coaching d'équipe ou individuel, GAPP
+                      Formation, Coaching d&apos;équipe ou individuel, GAPP
                     </span>
                   </FieldLabel>
                 </Field>
@@ -243,10 +240,6 @@ export default function ContactForm() {
           En soumettant ce formulaire, vous acceptez d’être recontacté(e).
           Aucune donnée n’est partagée.
         </p>
-        {/* Example error feedback */}
-        {status === "idle" && result?.error && (
-          <p className="text-error text-xs mt-2">{result.error}</p>
-        )}
       </form>
     </Form>
   );

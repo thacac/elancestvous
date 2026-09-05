@@ -1,11 +1,13 @@
-import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui";
 import { getAllPostsMeta } from "@/lib/blog";
 import { isBlogPublic } from "@/lib/featureFlags";
 import { OG_BANNER_IMAGES } from "@/lib/openGraph";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui";
+
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Blog",
@@ -34,7 +36,7 @@ export default function BlogIndex() {
         <h1>Le blog</h1>
         <h2 className="h3-like">
           Ressources et réflexions autour de la santé au travail et de
-          l'accompagnement des soignants.
+          l&apos;accompagnement des soignants.
         </h2>
       </div>
 
