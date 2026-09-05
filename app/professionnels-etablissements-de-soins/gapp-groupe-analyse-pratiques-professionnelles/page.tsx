@@ -46,7 +46,7 @@ export default function GappPage() {
         <section id="gapp-titre" className="py-20 container">
           <div className="text-center mb-8">
             <h1>
-              Groupe d'analyse des{" "}
+              Groupe d&apos;analyse des{" "}
               <span className="text-accent">
                 <strong>pratiques professionnelles</strong>
               </span>

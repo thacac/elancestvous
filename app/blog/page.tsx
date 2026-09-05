@@ -34,7 +34,7 @@ export default function BlogIndex() {
         <h1>Le blog</h1>
         <h2 className="h3-like">
           Ressources et réflexions autour de la santé au travail et de
-          l'accompagnement des soignants.
+          l&apos;accompagnement des soignants.
         </h2>
       </div>
 

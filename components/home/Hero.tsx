@@ -18,8 +18,8 @@ export default function Hero() {
             <span className="text-accent italic">ceux qui soignent</span>.
           </h1>
           <p className="text-md md:text-lg text-secondary leading-relaxed max-w-2xl">
-            Ancienne soignante basée à <strong>Toulouse</strong>, j'accompagne les établissements et les
-            professionnels de santé à prévenir l'épuisement, réguler la charge
+            Ancienne soignante basée à <strong>Toulouse</strong>, j&apos;accompagne les établissements et les
+            professionnels de santé à prévenir l&apos;épuisement, réguler la charge
             émotionnelle et soutenir des pratiques de travail durables.
           </p>
           <div className="my-8">
@@ -39,7 +39,7 @@ export default function Hero() {
             </p>
             <p className="text-sm text-secondary">
               Pour débloquer une situation ou travailler un objectif, découvrez
-              l'
+              l&apos;
               <span className="font-serif text-accent italic underline cursor-alias">
                 <Link href="/particuliers/coaching-individuel">
                   <strong>accompagnement individuel</strong>

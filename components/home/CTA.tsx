@@ -11,7 +11,7 @@ export default function CTA() {
             Vous êtes un établissement de soins ou un particulier ?
           </h4>
           <p className="text-sm text-stone-600">
-            Découvrez mes solutions d'accompagnement.
+            Découvrez mes solutions d&apos;accompagnement.
           </p>
         </div>
         <Link

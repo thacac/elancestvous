@@ -100,7 +100,7 @@ export default function ContactForm() {
                   >
                     Établissement / DRH
                     <span className="block text-xs text-stone-500 font-normal ml-2">
-                      Formation, Coaching d'équipe ou individuel, GAPP
+                      Formation, Coaching d&apos;équipe ou individuel, GAPP
                     </span>
                   </FieldLabel>
                 </Field>
