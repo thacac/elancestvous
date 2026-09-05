@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -29,9 +28,6 @@ import { submit_contact_form } from "./action";
 import { contactFormSchema, ContactFormValues } from "./validation";
 
 export default function ContactForm() {
-  const [status, setStatus] = useState<"idle" | "loading" | "sent">("idle");
-  const [result, setResult] = useState<{ error?: string } | null>(null);
-
   const form = useForm<ContactFormValues & { projectType: string }>({
     resolver: zodResolver(contactFormSchema),
     defaultValues: {
@@ -244,10 +240,6 @@ export default function ContactForm() {
           En soumettant ce formulaire, vous acceptez d’être recontacté(e).
           Aucune donnée n’est partagée.
         </p>
-        {/* Example error feedback */}
-        {status === "idle" && result?.error && (
-          <p className="text-error text-xs mt-2">{result.error}</p>
-        )}
       </form>
     </Form>
   );

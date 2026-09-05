@@ -108,7 +108,7 @@ export function getPostSlugs(dir: string = BLOG_CONTENT_DIR): string[] {
 }
 
 export function getAllPostsMeta(dir: string = BLOG_CONTENT_DIR): PostMeta[] {
-  return loadAllMeta(dir).map(({ content: _content, ...meta }) => meta);
+  return loadAllMeta(dir).map(({ content, ...meta }) => meta);
 }
 
 export async function getPostBySlug(

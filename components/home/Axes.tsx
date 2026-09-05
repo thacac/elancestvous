@@ -3,9 +3,7 @@ import { FC } from "react";
 
 import { buttonVariants } from "../ui";
 
-interface AxesProps {}
-
-const Axes: FC<AxesProps> = () => {
+const Axes: FC = () => {
   return (
     <section
       id="axes-de-travail"

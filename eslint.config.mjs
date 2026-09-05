@@ -7,7 +7,7 @@ import importPlugin from "eslint-plugin-import"; // Import the plugin
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export default [
+const eslintConfig = [
   {
     ignores: [".yarn/**"],
   },
@@ -35,6 +35,7 @@ export default [
     rules: {
       "@typescript-eslint/no-empty-object-type": "warn",
       "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/no-unused-vars": ["warn", { ignoreRestSiblings: true }],
       // Enable the rule to check for unresolved imports
       "import/no-unresolved": "error",
       "react/no-unescaped-entities": "warn",
@@ -62,3 +63,5 @@ export default [
     },
   },
 ];
+
+export default eslintConfig;

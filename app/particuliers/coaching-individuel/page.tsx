@@ -1,4 +1,3 @@
-import ArticulationBloc from "@/components/ArticulationBloc";
 import BadgesBloc from "@/components/BadgesBloc";
 import CartesContrastBloc from "@/components/CartesContrastBloc";
 import Citation from "@/components/Citation";

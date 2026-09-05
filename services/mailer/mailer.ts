@@ -33,7 +33,7 @@ class Mailer {
     fromEmail: string;
     subject: string;
     message: string;
-  }): Promise<any> {
+  }): Promise<SMTPTransport.SentMessageInfo> {
     // 1. Nettoyage des headers (Header Injection)
     const cleanFirstName = firstName.replace(/[\r\n]/g, "").trim();
     const cleanLastName = lastName.replace(/[\r\n]/g, "").trim();
