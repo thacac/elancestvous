@@ -4,6 +4,7 @@ export type PublishDraftResult =
   | { status: "published"; slug: string; title: string; commitUrl: string }
   | { status: "missing_cover_image"; slug: string }
   | { status: "slug_mismatch"; slug: string }
+  | { status: "invalid_cover_path"; slug: string }
   | { status: "draft_not_found"; slug: string };
 
 export type PublishDraftDeps = {
@@ -47,6 +48,15 @@ export async function publishDraft(
   // corrompu sur la branche ne doit pas non plus passer.
   if (!frontmatter.coverImage || !draft.coverImage) {
     return { status: "missing_cover_image", slug };
+  }
+
+  // githubBlogRepo.publishDraft() écrit toujours l'asset à
+  // public/blog/<slug>/cover.jpg, quel que soit le contenu du frontmatter.
+  // Si coverImage référence autre chose (édition manuelle, génération
+  // buggée...), l'article publié pointerait vers une image qui n'existe
+  // pas à l'endroit indiqué.
+  if (frontmatter.coverImage !== `/blog/${slug}/cover.jpg`) {
+    return { status: "invalid_cover_path", slug };
   }
 
   const { commitUrl } = await deps.github.publishDraft({

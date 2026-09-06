@@ -70,6 +70,37 @@ describe("publishDraft", () => {
     expect(deps.github.publishDraft).not.toHaveBeenCalled();
   });
 
+  it("returns invalid_cover_path when frontmatter.coverImage doesn't match the path that will actually be published", async () => {
+    // githubBlogRepo.publishDraft() écrit toujours l'asset à
+    // public/blog/<slug>/cover.jpg — si le frontmatter référence autre
+    // chose (ex. une extension différente après une édition manuelle),
+    // l'article publié pointerait vers une image qui n'existe pas à
+    // l'endroit indiqué.
+    const deps = makeDeps({
+      getDraftContent: vi.fn().mockResolvedValue({
+        markdown: [
+          "---",
+          'title: "Un article"',
+          'slug: "un-article"',
+          'description: "Description"',
+          'excerpt: "Extrait"',
+          'publishedAt: "2026-01-01"',
+          'coverImage: "/blog/un-article/cover.png"',
+          'coverImageAlt: "Illustration"',
+          "tags: []",
+          "---",
+          "Corps.",
+        ].join("\n"),
+        coverImage: Buffer.from("fake-image"),
+      }),
+    });
+
+    const result = await publishDraft("un-article", deps);
+
+    expect(result).toEqual({ status: "invalid_cover_path", slug: "un-article" });
+    expect(deps.github.publishDraft).not.toHaveBeenCalled();
+  });
+
   it("returns missing_cover_image when the frontmatter references an image but the blob itself is absent", async () => {
     const deps = makeDeps({
       getDraftContent: vi.fn().mockResolvedValue({

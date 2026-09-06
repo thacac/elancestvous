@@ -170,6 +170,36 @@ describe("POST /api/discord/interactions", () => {
     });
   });
 
+  it("logs (without leaking the interaction token) when the final message update itself fails", async () => {
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    const body = JSON.stringify({
+      type: 3,
+      data: { custom_id: "blog_approve:mon-article" },
+      application_id: "app-123",
+      token: "super-secret-interaction-token",
+    });
+    vi.mocked(handleDiscordInteraction).mockReturnValue({ type: 7 });
+    vi.mocked(getApprovalSlug).mockReturnValue("mon-article");
+    vi.mocked(publishDraft).mockResolvedValue({
+      status: "published",
+      slug: "mon-article",
+      title: "Mon article",
+      commitUrl: "https://github.com/thacac/elancestvous/commit/abc",
+    });
+    vi.mocked(updateInteractionMessage).mockRejectedValue(new Error("Unknown Webhook"));
+
+    await POST(makeRequest(body));
+
+    await vi.waitFor(() => {
+      expect(consoleError).toHaveBeenCalled();
+    });
+    const loggedText = consoleError.mock.calls.flat().join(" ");
+    expect(loggedText).toContain("Unknown Webhook");
+    expect(loggedText).not.toContain("super-secret-interaction-token");
+
+    consoleError.mockRestore();
+  });
+
   it("updates the message with the error when publishing throws unexpectedly", async () => {
     const body = JSON.stringify({
       type: 3,

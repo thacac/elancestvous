@@ -45,6 +45,9 @@ async function completeApproval(
       case "slug_mismatch":
         content = `⚠️ Impossible de publier \`${slug}\` : le frontmatter du brouillon référence un autre slug — probablement corrompu, régénère-le.`;
         break;
+      case "invalid_cover_path":
+        content = `⚠️ Impossible de publier \`${slug}\` : le chemin de l'image de couverture dans le frontmatter ne correspond pas à celui publié — probablement corrompu, régénère-le.`;
+        break;
       case "draft_not_found":
         content = `⚠️ Brouillon \`${slug}\` introuvable (branche supprimée ?).`;
         break;
@@ -60,9 +63,17 @@ async function completeApproval(
 
   try {
     await updateInteractionMessage(applicationId, interactionToken, { content });
-  } catch {
+  } catch (err) {
     // Le token d'interaction expire au bout de 15 min ; si la mise à jour
-    // échoue à ce stade, il n'y a plus rien à faire de ce côté-là.
+    // échoue à ce stade, il n'y a plus rien à faire côté Discord — mais
+    // avaler l'erreur en silence laisserait le message bloqué sur
+    // "publication en cours" sans aucune trace pour diagnostiquer. Jamais
+    // le token lui-même dans le log (secret de courte durée mais un secret
+    // quand même).
+    console.error(
+      `[discord/interactions] échec de la mise à jour finale du message pour "${slug}" :`,
+      err instanceof Error ? err.message : String(err)
+    );
   }
 }
 
