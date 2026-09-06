@@ -37,6 +37,22 @@ export type PostMeta = z.infer<typeof frontmatterSchema> & {
 
 export type Post = PostMeta & { html: string };
 
+// Un brouillon en relecture n'a pas les mêmes invariants qu'un article publié
+// (content/blog/*.md) : tant que la génération d'image est en bypass (voir
+// services/blog/generateDraft.ts), il n'a pas encore de coverImage/
+// coverImageAlt. Un schéma dédié, plutôt que d'assouplir frontmatterSchema
+// partagé par tout le pipeline de publication (app/blog/*), qui doit rester
+// strict — un article publié sans image casserait son rendu silencieusement.
+const draftFrontmatterSchema = frontmatterSchema
+  .extend({
+    coverImage: z.string().min(1).optional(),
+    coverImageAlt: z.string().min(1).optional(),
+  })
+  .refine((data) => Boolean(data.coverImage) === Boolean(data.coverImageAlt), {
+    message: "coverImage et coverImageAlt doivent être tous les deux présents ou tous les deux absents",
+    path: ["coverImage"],
+  });
+
 function listMarkdownFiles(dir: string): string[] {
   if (!fs.existsSync(dir)) return [];
   return fs
@@ -51,6 +67,21 @@ export function parsePostContent(
 ): { frontmatter: z.infer<typeof frontmatterSchema>; content: string } {
   const { data, content } = matter(raw);
   const result = frontmatterSchema.safeParse(data);
+  if (!result.success) {
+    const issues = result.error.issues
+      .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
+      .join("; ");
+    throw new Error(`Frontmatter invalide dans ${sourceLabel} — ${issues}`);
+  }
+  return { frontmatter: result.data, content };
+}
+
+export function parseDraftContent(
+  raw: string,
+  sourceLabel: string
+): { frontmatter: z.infer<typeof draftFrontmatterSchema>; content: string } {
+  const { data, content } = matter(raw);
+  const result = draftFrontmatterSchema.safeParse(data);
   if (!result.success) {
     const issues = result.error.issues
       .map((issue) => `${issue.path.join(".")}: ${issue.message}`)

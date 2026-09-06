@@ -43,7 +43,10 @@ export type GenerateDraftDeps = {
   anthropic: {
     parseDraft(existingTitles: string[]): Promise<AnthropicParseResult>;
   };
-  imageGenerator: {
+  // Optionnel : tant qu'aucune clé de génération d'image n'est configurée
+  // (ex. accès API OpenAI pas encore activé), le brouillon est committé et
+  // notifié sans illustration plutôt que de bloquer toute la génération.
+  imageGenerator?: {
     generateCoverImage(prompt: string): Promise<Buffer>;
   };
   github: {
@@ -51,7 +54,7 @@ export type GenerateDraftDeps = {
     commitDraftBranch(args: {
       slug: string;
       postMarkdown: string;
-      coverImage: Buffer;
+      coverImage: Buffer | null;
       commitMessage: string;
     }): Promise<{ branch: string; url: string }>;
   };
@@ -60,12 +63,12 @@ export type GenerateDraftDeps = {
       slug: string;
       title: string;
       excerpt: string;
-      coverImage: Buffer;
+      coverImage: Buffer | null;
     }): Promise<{ messageId: string }>;
   };
 };
 
-export function buildDraftMarkdown(draft: BlogDraft): string {
+export function buildDraftMarkdown(draft: BlogDraft, coverImage: Buffer | null): string {
   const publishedAt = new Date().toISOString().slice(0, 10);
   return matter.stringify(draft.bodyMarkdown.trim(), {
     title: draft.title,
@@ -73,8 +76,16 @@ export function buildDraftMarkdown(draft: BlogDraft): string {
     description: draft.description,
     excerpt: draft.excerpt,
     publishedAt,
-    coverImage: `/blog/${draft.slug}/cover.jpg`,
-    coverImageAlt: draft.imagePrompts[0].altText,
+    // Pas de couverture tant que la génération d'image n'est pas configurée
+    // (cf. IMAGE_GEN_API_KEY) : un frontmatter promettant une image absente
+    // casserait l'aperçu (lib/blog.ts::parseDraftContent tolère leur absence
+    // pour cette raison précise).
+    ...(coverImage
+      ? {
+          coverImage: `/blog/${draft.slug}/cover.jpg`,
+          coverImageAlt: draft.imagePrompts[0].altText,
+        }
+      : {}),
     tags: draft.tags,
   });
 }
@@ -99,21 +110,23 @@ export async function generateDraft(
   }
   const draft = parsed.data;
 
-  let coverImage: Buffer;
-  try {
-    coverImage = await deps.imageGenerator.generateCoverImage(
-      draft.imagePrompts[0].prompt
-    );
-  } catch (err) {
-    return {
-      status: "generation_failed",
-      reason: `génération de l'illustration échouée : ${
-        err instanceof Error ? err.message : String(err)
-      }`,
-    };
+  let coverImage: Buffer | null = null;
+  if (deps.imageGenerator) {
+    try {
+      coverImage = await deps.imageGenerator.generateCoverImage(
+        draft.imagePrompts[0].prompt
+      );
+    } catch (err) {
+      return {
+        status: "generation_failed",
+        reason: `génération de l'illustration échouée : ${
+          err instanceof Error ? err.message : String(err)
+        }`,
+      };
+    }
   }
 
-  const postMarkdown = buildDraftMarkdown(draft);
+  const postMarkdown = buildDraftMarkdown(draft, coverImage);
   const { branch, url } = await deps.github.commitDraftBranch({
     slug: draft.slug,
     postMarkdown,

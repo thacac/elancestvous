@@ -58,7 +58,7 @@ describe("generateDraft", () => {
       url: "https://github.com/thacac/elancestvous/tree/blog-draft/un-titre-valide",
     });
     expect(deps.github.listPublishedPostTitles).toHaveBeenCalled();
-    expect(deps.imageGenerator.generateCoverImage).toHaveBeenCalledWith(
+    expect(deps.imageGenerator?.generateCoverImage).toHaveBeenCalledWith(
       "a calm office illustration"
     );
     expect(deps.github.commitDraftBranch).toHaveBeenCalledWith(
@@ -86,7 +86,7 @@ describe("generateDraft", () => {
     const result = await generateDraft(deps);
 
     expect(result).toEqual({ status: "refused", category: "frontier_llm" });
-    expect(deps.imageGenerator.generateCoverImage).not.toHaveBeenCalled();
+    expect(deps.imageGenerator?.generateCoverImage).not.toHaveBeenCalled();
     expect(deps.github.commitDraftBranch).not.toHaveBeenCalled();
     expect(deps.discord.notifyDraftReady).not.toHaveBeenCalled();
   });
@@ -106,6 +106,20 @@ describe("generateDraft", () => {
     expect(result.status).toBe("generation_failed");
     expect(deps.github.commitDraftBranch).not.toHaveBeenCalled();
     expect(deps.discord.notifyDraftReady).not.toHaveBeenCalled();
+  });
+
+  it("skips image generation and commits without a cover image when imageGenerator is not configured", async () => {
+    const deps = makeDeps({ imageGenerator: undefined });
+
+    const result = await generateDraft(deps);
+
+    expect(result.status).toBe("committed");
+    expect(deps.github.commitDraftBranch).toHaveBeenCalledWith(
+      expect.objectContaining({ coverImage: null })
+    );
+    expect(deps.discord.notifyDraftReady).toHaveBeenCalledWith(
+      expect.objectContaining({ coverImage: null })
+    );
   });
 
   it("returns generation_failed and does not commit when image generation fails", async () => {
@@ -128,11 +142,19 @@ describe("generateDraft", () => {
 
 describe("buildDraftMarkdown", () => {
   it("produces frontmatter compatible with lib/blog.ts's schema", () => {
-    const markdown = buildDraftMarkdown(validDraft);
+    const markdown = buildDraftMarkdown(validDraft, Buffer.from("fake-image"));
 
     expect(markdown).toContain(`title: ${validDraft.title}`);
     expect(markdown).toContain("slug: un-titre-valide");
     expect(markdown).toContain("coverImage: /blog/un-titre-valide/cover.jpg");
+    expect(markdown).toContain("Contenu de l'article.");
+  });
+
+  it("omits coverImage/coverImageAlt when no cover image was generated", () => {
+    const markdown = buildDraftMarkdown(validDraft, null);
+
+    expect(markdown).not.toContain("coverImage:");
+    expect(markdown).not.toContain("coverImageAlt:");
     expect(markdown).toContain("Contenu de l'article.");
   });
 });

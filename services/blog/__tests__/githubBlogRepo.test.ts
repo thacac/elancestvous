@@ -51,6 +51,36 @@ describe("createGithubBlogRepo.listPublishedPostTitles", () => {
   });
 });
 
+describe("createGithubBlogRepo.commitDraftBranch", () => {
+  it("skips writing cover.jpg when no cover image is provided", async () => {
+    getRef.mockReset();
+    createRef.mockReset();
+    createOrUpdateFileContents.mockReset();
+    getRef.mockResolvedValue({ data: { object: { sha: "base-sha" } } });
+    createRef.mockResolvedValue({});
+    createOrUpdateFileContents.mockResolvedValue({});
+
+    const github = createGithubBlogRepo({
+      auth: "token",
+      owner: "thacac",
+      repo: "elancestvous",
+      baseBranch: "master",
+    });
+
+    await github.commitDraftBranch({
+      slug: "sans-image",
+      postMarkdown: "contenu",
+      coverImage: null,
+      commitMessage: "blog: brouillon",
+    });
+
+    expect(createOrUpdateFileContents).toHaveBeenCalledTimes(1);
+    expect(createOrUpdateFileContents).toHaveBeenCalledWith(
+      expect.objectContaining({ path: "content/_drafts/sans-image/post.md" })
+    );
+  });
+});
+
 describe("createGithubBlogRepo.getDraftContent", () => {
   it("reads the post markdown and cover image from the draft branch", async () => {
     getContent.mockReset();
@@ -96,7 +126,7 @@ describe("createGithubBlogRepo.getDraftContent", () => {
 
   it("returns null when the draft branch or files don't exist", async () => {
     getContent.mockReset();
-    getContent.mockRejectedValueOnce({ status: 404 });
+    getContent.mockRejectedValue({ status: 404 });
 
     const github = createGithubBlogRepo({
       auth: "token",
@@ -108,5 +138,34 @@ describe("createGithubBlogRepo.getDraftContent", () => {
     const result = await github.getDraftContent("inconnu");
 
     expect(result).toBeNull();
+  });
+
+  it("returns the markdown with coverImage null when only cover.jpg is missing (bypass image)", async () => {
+    getContent.mockReset();
+    getContent.mockImplementation(({ path }: { path: string }) => {
+      if (path.endsWith("cover.jpg")) return Promise.reject({ status: 404 });
+      return Promise.resolve({
+        data: {
+          type: "file",
+          content: Buffer.from("---\ntitle: Brouillon sans image\n---\nCorps.").toString(
+            "base64"
+          ),
+        },
+      });
+    });
+
+    const github = createGithubBlogRepo({
+      auth: "token",
+      owner: "thacac",
+      repo: "elancestvous",
+      baseBranch: "master",
+    });
+
+    const result = await github.getDraftContent("sans-image");
+
+    expect(result).toEqual({
+      markdown: "---\ntitle: Brouillon sans image\n---\nCorps.",
+      coverImage: null,
+    });
   });
 });

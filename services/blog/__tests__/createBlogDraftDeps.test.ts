@@ -25,6 +25,7 @@ vi.mock("../discordNotifier", () => ({
 import { createBlogDraftDeps } from "../createBlogDraftDeps";
 import { createGithubBlogRepo } from "../githubBlogRepo";
 import { createDiscordNotifier } from "../discordNotifier";
+import { createOpenAiImageGenerator } from "../openaiImageGenerator";
 
 describe("createBlogDraftDeps", () => {
   const envBackup = { ...process.env };
@@ -38,6 +39,7 @@ describe("createBlogDraftDeps", () => {
     process.env.BLOG_REVIEW_SECRET = "review-secret";
     vi.mocked(createGithubBlogRepo).mockClear();
     vi.mocked(createDiscordNotifier).mockClear();
+    vi.mocked(createOpenAiImageGenerator).mockClear();
     notifyDraftReady.mockClear();
   });
 
@@ -65,6 +67,16 @@ describe("createBlogDraftDeps", () => {
     process.env.GITHUB_REPO = "thacac";
 
     expect(() => createBlogDraftDeps()).toThrow(/owner\/repo/);
+  });
+
+  it("omits the image generator when IMAGE_GEN_API_KEY is not set (bypass en attendant l'accès OpenAI)", () => {
+    process.env.GITHUB_REPO = "thacac/elancestvous";
+    delete process.env.IMAGE_GEN_API_KEY;
+
+    const deps = createBlogDraftDeps();
+
+    expect(createOpenAiImageGenerator).not.toHaveBeenCalled();
+    expect(deps.imageGenerator).toBeUndefined();
   });
 
   it("wires DISCORD_BOT_TOKEN and DISCORD_CHANNEL_ID into the notifier", () => {
