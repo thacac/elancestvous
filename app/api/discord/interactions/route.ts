@@ -6,7 +6,7 @@ import {
   getRevisionRequest,
   handleDiscordInteraction,
 } from "@/services/blog/discordInteractionHandler";
-import { updateInteractionMessage } from "@/services/blog/discordNotifier";
+import { buildDraftActionRow, updateInteractionMessage } from "@/services/blog/discordNotifier";
 import { createGithubBlogRepo, parseGithubRepoEnv } from "@/services/blog/githubBlogRepo";
 import { publishDraft } from "@/services/blog/publishDraft";
 import { reviseDraft } from "@/services/blog/reviseDraft";
@@ -33,6 +33,12 @@ async function completeApproval(
   slug: string
 ): Promise<void> {
   let content: string;
+  // Le clic initial désactive déjà les boutons (components: [] — cf.
+  // discordInteractionHandler.ts) ; sans les rattacher explicitement ici,
+  // un échec laisserait le message bloqué sans aucun moyen de réessayer
+  // depuis Discord (constaté en prod). Réattachés seulement sur échec — une
+  // publication réussie n'a plus besoin d'être réessayée.
+  let retryable = false;
   try {
     const { owner, repo } = parseGithubRepoEnv(requireEnv("GITHUB_REPO"));
     const github = createGithubBlogRepo({ auth: requireEnv("GH_PAT_TOKEN"), owner, repo });
@@ -44,15 +50,19 @@ async function completeApproval(
         break;
       case "missing_cover_image":
         content = `⚠️ Impossible de publier \`${slug}\` : il manque une image de couverture. Configure la génération d'image puis régénère avant de réessayer.`;
+        retryable = true;
         break;
       case "slug_mismatch":
         content = `⚠️ Impossible de publier \`${slug}\` : le frontmatter du brouillon référence un autre slug — probablement corrompu, régénère-le.`;
+        retryable = true;
         break;
       case "invalid_cover_path":
         content = `⚠️ Impossible de publier \`${slug}\` : le chemin de l'image de couverture dans le frontmatter ne correspond pas à celui publié — probablement corrompu, régénère-le.`;
+        retryable = true;
         break;
       case "draft_not_found":
         content = `⚠️ Brouillon \`${slug}\` introuvable (branche supprimée ?).`;
+        retryable = true;
         break;
     }
   } catch (err) {
@@ -62,10 +72,14 @@ async function completeApproval(
     content = `⚠️ Échec de la publication de \`${slug}\` : ${
       err instanceof Error ? err.message : String(err)
     }`;
+    retryable = true;
   }
 
   try {
-    await updateInteractionMessage(applicationId, interactionToken, { content });
+    await updateInteractionMessage(applicationId, interactionToken, {
+      content,
+      ...(retryable ? { components: buildDraftActionRow(slug) } : {}),
+    });
   } catch (err) {
     // Le token d'interaction expire au bout de 15 min ; si la mise à jour
     // échoue à ce stade, il n'y a plus rien à faire côté Discord — mais
@@ -92,6 +106,11 @@ async function completeRevision(
   feedback: string
 ): Promise<void> {
   let content: string;
+  // Même raisonnement que completeApproval() : réattacher les boutons sur
+  // échec pour permettre de réessayer depuis Discord. Pas nécessaire sur
+  // succès — reviseDraft() poste déjà un nouveau message avec ses propres
+  // boutons pour la version retouchée.
+  let retryable = false;
   try {
     const result = await reviseDraft(slug, feedback, createReviseDraftDeps());
 
@@ -103,12 +122,15 @@ async function completeRevision(
         content = `⚠️ Le modèle a refusé de retoucher \`${slug}\` (catégorie : ${
           result.category ?? "inconnue"
         }). Réessaie avec une formulation différente.`;
+        retryable = true;
         break;
       case "generation_failed":
         content = `⚠️ Échec de la retouche de \`${slug}\` : ${result.reason}`;
+        retryable = true;
         break;
       case "draft_not_found":
         content = `⚠️ Brouillon \`${slug}\` introuvable (branche supprimée ?).`;
+        retryable = true;
         break;
     }
   } catch (err) {
@@ -117,10 +139,14 @@ async function completeRevision(
     content = `⚠️ Échec de la retouche de \`${slug}\` : ${
       err instanceof Error ? err.message : String(err)
     }`;
+    retryable = true;
   }
 
   try {
-    await updateInteractionMessage(applicationId, interactionToken, { content });
+    await updateInteractionMessage(applicationId, interactionToken, {
+      content,
+      ...(retryable ? { components: buildDraftActionRow(slug) } : {}),
+    });
   } catch (err) {
     // Jamais le token lui-même dans le log (secret de courte durée mais un
     // secret quand même).
