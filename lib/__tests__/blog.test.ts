@@ -83,4 +83,21 @@ Corps du brouillon.
     const invalid = draftWithoutImage.replace('title: "Brouillon sans image"\n', "");
     expect(() => parseDraftContent(invalid, "test")).toThrow(/title/);
   });
+
+  it("rejects coverImage present without coverImageAlt (or vice versa)", () => {
+    const withImageOnly = draftWithoutImage.replace(
+      "tags: []",
+      'coverImage: "/blog/brouillon-sans-image/cover.jpg"\ntags: []'
+    );
+    expect(() => parseDraftContent(withImageOnly, "test")).toThrow(/coverImage/);
+  });
+
+  it("accepts a draft with both coverImage and coverImageAlt", () => {
+    const withImage = draftWithoutImage.replace(
+      "tags: []",
+      'coverImage: "/blog/brouillon-sans-image/cover.jpg"\ncoverImageAlt: "Illustration"\ntags: []'
+    );
+    const { frontmatter } = parseDraftContent(withImage, "test");
+    expect(frontmatter.coverImage).toBe("/blog/brouillon-sans-image/cover.jpg");
+  });
 });

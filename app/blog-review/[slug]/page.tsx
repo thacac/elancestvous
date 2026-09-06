@@ -74,7 +74,7 @@ export default async function BlogReviewPage({
           <div className="relative aspect-[16/9] mb-8 rounded-xl overflow-hidden">
             <Image
               src={coverDataUrl}
-              alt={frontmatter.coverImageAlt ?? ""}
+              alt={frontmatter.coverImageAlt ?? frontmatter.title}
               fill
               className="object-cover"
               unoptimized

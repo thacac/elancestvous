@@ -158,4 +158,18 @@ describe("createDiscordNotifier.notifyGenerationFailed", () => {
 
     await expect(notifier.notifyGenerationFailed("boom")).rejects.toThrow(/401/);
   });
+
+  it("truncates an oversized reason to Discord's 2000-character message limit", async () => {
+    const fetchImpl = makeFetch();
+    const notifier = createDiscordNotifier({
+      botToken: "bot-token",
+      channelId: "channel-123",
+      fetchImpl,
+    });
+
+    await notifier.notifyGenerationFailed("R".repeat(3000));
+
+    const payload = JSON.parse(fetchImpl.mock.calls[0][1].body as string);
+    expect(payload.content.length).toBeLessThanOrEqual(2000);
+  });
 });

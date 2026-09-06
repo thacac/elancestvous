@@ -43,10 +43,15 @@ export type Post = PostMeta & { html: string };
 // coverImageAlt. Un schéma dédié, plutôt que d'assouplir frontmatterSchema
 // partagé par tout le pipeline de publication (app/blog/*), qui doit rester
 // strict — un article publié sans image casserait son rendu silencieusement.
-const draftFrontmatterSchema = frontmatterSchema.extend({
-  coverImage: z.string().min(1).optional(),
-  coverImageAlt: z.string().min(1).optional(),
-});
+const draftFrontmatterSchema = frontmatterSchema
+  .extend({
+    coverImage: z.string().min(1).optional(),
+    coverImageAlt: z.string().min(1).optional(),
+  })
+  .refine((data) => Boolean(data.coverImage) === Boolean(data.coverImageAlt), {
+    message: "coverImage et coverImageAlt doivent être tous les deux présents ou tous les deux absents",
+    path: ["coverImage"],
+  });
 
 function listMarkdownFiles(dir: string): string[] {
   if (!fs.existsSync(dir)) return [];

@@ -13,6 +13,9 @@ const BRAND_COLOR = 0x29b5ad;
 // que le brouillon a déjà été commité sur GitHub.
 const EMBED_TITLE_MAX = 256;
 const EMBED_DESCRIPTION_MAX = 4096;
+// Limite de contenu d'un message Discord classique (pas un embed) :
+// https://discord.com/developers/docs/resources/message#create-message
+const MESSAGE_CONTENT_MAX = 2000;
 
 function truncate(value: string, max: number): string {
   return value.length > max ? `${value.slice(0, max - 1)}…` : value;
@@ -115,7 +118,10 @@ export function createDiscordNotifier(options: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            content: `❌ Génération du blog échouée cette semaine : ${reason}`,
+            content: truncate(
+              `❌ Génération du blog échouée cette semaine : ${reason}`,
+              MESSAGE_CONTENT_MAX
+            ),
             allowed_mentions: { parse: [] },
           }),
         }
