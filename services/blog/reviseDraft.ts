@@ -67,7 +67,13 @@ export async function reviseDraft(
   // la publication).
   const draft = { ...parsed.data, slug };
 
-  let coverImage: Buffer | null = null;
+  // Par défaut, on conserve l'illustration déjà commitée sur la branche —
+  // sans ça, une retouche sans imageGenerator configuré supprimerait
+  // silencieusement cover.jpg (commitDraftBranch réécrit l'état de la
+  // branche), ce qui ferait ensuite échouer systématiquement publishDraft.ts
+  // avec missing_cover_image même si le brouillon d'origine avait déjà une
+  // image.
+  let coverImage: Buffer | null = existing.coverImage;
   if (deps.imageGenerator) {
     try {
       coverImage = await deps.imageGenerator.generateCoverImage(
