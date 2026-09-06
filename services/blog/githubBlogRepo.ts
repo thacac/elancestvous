@@ -148,7 +148,8 @@ export function createGithubBlogRepo(options: {
       });
 
       const postEntry = draftTree.tree.find(
-        (entry) => entry.path === `content/_drafts/${args.slug}/post.md`
+        (entry) =>
+          entry.path === `content/_drafts/${args.slug}/post.md` && entry.type === "blob"
       );
       if (!postEntry?.sha) {
         throw new Error(
@@ -156,7 +157,8 @@ export function createGithubBlogRepo(options: {
         );
       }
       const coverEntry = draftTree.tree.find(
-        (entry) => entry.path === `content/_drafts/${args.slug}/cover.jpg`
+        (entry) =>
+          entry.path === `content/_drafts/${args.slug}/cover.jpg` && entry.type === "blob"
       );
 
       const { data: masterRef } = await octokit.rest.git.getRef({

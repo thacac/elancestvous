@@ -30,8 +30,11 @@ export async function publishDraft(
   // coverImageAlt — contrairement au brouillon, qui peut en être dépourvu
   // tant que la génération d'image est en bypass. Publier sans image
   // produirait un article dont le rendu (app/blog/[slug]/page.tsx,
-  // PostJsonLd) est cassé silencieusement.
-  if (!frontmatter.coverImage) {
+  // PostJsonLd) est cassé silencieusement. On vérifie à la fois le
+  // frontmatter (référence textuelle) ET le blob réel (draft.coverImage) :
+  // un frontmatter qui promet une image dont le fichier a disparu/est
+  // corrompu sur la branche ne doit pas non plus passer.
+  if (!frontmatter.coverImage || !draft.coverImage) {
     return { status: "missing_cover_image", slug };
   }
 

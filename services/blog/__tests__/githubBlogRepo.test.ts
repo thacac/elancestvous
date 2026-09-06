@@ -214,6 +214,67 @@ describe("createGithubBlogRepo.publishDraft", () => {
     ).rejects.toThrow(/post\.md/);
     expect(createCommit).not.toHaveBeenCalled();
   });
+
+  it("ignores a non-blob tree entry at the post.md path (e.g. an unexpected submodule/tree)", async () => {
+    resetGraftMocks();
+    getRef.mockResolvedValueOnce({ data: { object: { sha: "draft-commit-sha" } } });
+    getCommit.mockResolvedValueOnce({ data: { tree: { sha: "draft-tree-sha" } } });
+    getTree.mockResolvedValueOnce({
+      data: {
+        tree: [
+          { path: "content/_drafts/corrompu/post.md", sha: "not-a-blob-sha", type: "tree" },
+        ],
+      },
+    });
+
+    const github = createGithubBlogRepo({
+      auth: "token",
+      owner: "thacac",
+      repo: "elancestvous",
+      baseBranch: "master",
+    });
+
+    await expect(
+      github.publishDraft({ slug: "corrompu", commitMessage: "blog: publication" })
+    ).rejects.toThrow(/post\.md/);
+    expect(createCommit).not.toHaveBeenCalled();
+  });
+
+  it("ignores a non-blob tree entry at the cover.jpg path", async () => {
+    resetGraftMocks();
+    getRef
+      .mockResolvedValueOnce({ data: { object: { sha: "draft-commit-sha" } } })
+      .mockResolvedValueOnce({ data: { object: { sha: "master-commit-sha" } } });
+    getCommit
+      .mockResolvedValueOnce({ data: { tree: { sha: "draft-tree-sha" } } })
+      .mockResolvedValueOnce({ data: { tree: { sha: "master-tree-sha" } } });
+    getTree.mockResolvedValueOnce({
+      data: {
+        tree: [
+          { path: "content/_drafts/mon-article/post.md", sha: "post-blob-sha", type: "blob" },
+          { path: "content/_drafts/mon-article/cover.jpg", sha: "not-a-blob-sha", type: "tree" },
+        ],
+      },
+    });
+    createTree.mockResolvedValueOnce({ data: { sha: "new-tree-sha" } });
+    createCommit.mockResolvedValueOnce({ data: { sha: "new-commit-sha" } });
+    updateRef.mockResolvedValueOnce({});
+
+    const github = createGithubBlogRepo({
+      auth: "token",
+      owner: "thacac",
+      repo: "elancestvous",
+      baseBranch: "master",
+    });
+
+    await github.publishDraft({ slug: "mon-article", commitMessage: "blog: publication" });
+
+    expect(createTree).toHaveBeenCalledWith(
+      expect.objectContaining({
+        tree: [expect.objectContaining({ path: "content/blog/mon-article.md" })],
+      })
+    );
+  });
 });
 
 describe("createGithubBlogRepo.getDraftContent", () => {

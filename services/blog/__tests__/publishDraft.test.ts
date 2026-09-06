@@ -39,6 +39,35 @@ describe("publishDraft", () => {
     expect(deps.github.publishDraft).not.toHaveBeenCalled();
   });
 
+  it("returns missing_cover_image when the frontmatter references an image but the blob itself is absent", async () => {
+    const deps = makeDeps({
+      getDraftContent: vi.fn().mockResolvedValue({
+        markdown: [
+          "---",
+          'title: "Un article"',
+          'slug: "un-article"',
+          'description: "Description"',
+          'excerpt: "Extrait"',
+          'publishedAt: "2026-01-01"',
+          'coverImage: "/blog/un-article/cover.jpg"',
+          'coverImageAlt: "Illustration"',
+          "tags: []",
+          "---",
+          "Corps.",
+        ].join("\n"),
+        // Le frontmatter promet une image, mais le blob cover.jpg lui-même
+        // est absent/corrompu sur la branche — publier quand même laisserait
+        // un article pointant vers une image inexistante.
+        coverImage: null,
+      }),
+    });
+
+    const result = await publishDraft("un-article", deps);
+
+    expect(result).toEqual({ status: "missing_cover_image", slug: "un-article" });
+    expect(deps.github.publishDraft).not.toHaveBeenCalled();
+  });
+
   it("returns missing_cover_image and does not publish when the draft has no cover image", async () => {
     const deps = makeDeps({
       getDraftContent: vi.fn().mockResolvedValue({
