@@ -408,30 +408,35 @@ describe("POST /api/discord/interactions", () => {
     });
   });
 
-  it("re-attaches the original Approuver/Retoucher buttons when publishing fails, so the click can be retried", async () => {
-    const body = JSON.stringify({
-      type: 3,
-      data: { custom_id: "blog_approve:mon-article" },
-      application_id: "app-123",
-      token: "tok",
-    });
-    vi.mocked(handleDiscordInteraction).mockReturnValue({ type: 7 });
-    vi.mocked(getApprovalSlug).mockReturnValue("mon-article");
-    vi.mocked(publishDraft).mockResolvedValue({
-      status: "missing_cover_image",
-      slug: "mon-article",
-    });
+  it.each([
+    "missing_cover_image",
+    "slug_mismatch",
+    "invalid_cover_path",
+    "draft_not_found",
+  ] as const)(
+    "re-attaches the original Approuver/Retoucher buttons when publishing returns %s, so the click can be retried",
+    async (status) => {
+      const body = JSON.stringify({
+        type: 3,
+        data: { custom_id: "blog_approve:mon-article" },
+        application_id: "app-123",
+        token: "tok",
+      });
+      vi.mocked(handleDiscordInteraction).mockReturnValue({ type: 7 });
+      vi.mocked(getApprovalSlug).mockReturnValue("mon-article");
+      vi.mocked(publishDraft).mockResolvedValue({ status, slug: "mon-article" });
 
-    await POST(makeRequest(body));
+      await POST(makeRequest(body));
 
-    await vi.waitFor(() => {
-      expect(updateInteractionMessage).toHaveBeenCalledWith(
-        "app-123",
-        "tok",
-        expect.objectContaining({ components: [{ type: 1, marker: "row-for-mon-article" }] })
-      );
-    });
-  });
+      await vi.waitFor(() => {
+        expect(updateInteractionMessage).toHaveBeenCalledWith(
+          "app-123",
+          "tok",
+          expect.objectContaining({ components: [{ type: 1, marker: "row-for-mon-article" }] })
+        );
+      });
+    }
+  );
 
   it("re-attaches the buttons when publishing throws unexpectedly", async () => {
     const body = JSON.stringify({
@@ -479,30 +484,34 @@ describe("POST /api/discord/interactions", () => {
     expect(buildDraftActionRow).not.toHaveBeenCalled();
   });
 
-  it("re-attaches the original buttons when revising fails, so the click can be retried", async () => {
-    const body = JSON.stringify({
-      type: 5,
-      data: { custom_id: "revise_feedback:mon-article" },
-      application_id: "app-123",
-      token: "tok",
-    });
-    vi.mocked(handleDiscordInteraction).mockReturnValue({ type: 7 });
-    vi.mocked(getRevisionRequest).mockReturnValue({ slug: "mon-article", feedback: "..." });
-    vi.mocked(reviseDraft).mockResolvedValue({
-      status: "generation_failed",
-      reason: "sortie structurée invalide",
-    });
+  it.each([
+    { status: "refused" as const, category: "harmful" },
+    { status: "generation_failed" as const, reason: "sortie structurée invalide" },
+    { status: "draft_not_found" as const, slug: "mon-article" },
+  ])(
+    "re-attaches the original buttons when revising returns $status, so the click can be retried",
+    async (result) => {
+      const body = JSON.stringify({
+        type: 5,
+        data: { custom_id: "revise_feedback:mon-article" },
+        application_id: "app-123",
+        token: "tok",
+      });
+      vi.mocked(handleDiscordInteraction).mockReturnValue({ type: 7 });
+      vi.mocked(getRevisionRequest).mockReturnValue({ slug: "mon-article", feedback: "..." });
+      vi.mocked(reviseDraft).mockResolvedValue(result);
 
-    await POST(makeRequest(body));
+      await POST(makeRequest(body));
 
-    await vi.waitFor(() => {
-      expect(updateInteractionMessage).toHaveBeenCalledWith(
-        "app-123",
-        "tok",
-        expect.objectContaining({ components: [{ type: 1, marker: "row-for-mon-article" }] })
-      );
-    });
-  });
+      await vi.waitFor(() => {
+        expect(updateInteractionMessage).toHaveBeenCalledWith(
+          "app-123",
+          "tok",
+          expect.objectContaining({ components: [{ type: 1, marker: "row-for-mon-article" }] })
+        );
+      });
+    }
+  );
 
   it("re-attaches the buttons when revising throws unexpectedly", async () => {
     const body = JSON.stringify({
