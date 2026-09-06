@@ -32,9 +32,14 @@ const REVISE_PREFIX = "blog_revise:";
 const REVISE_FEEDBACK_PREFIX = "revise_feedback:";
 
 /**
- * Phase 3 : vérifie/route les interactions Discord et journalise la décision
- * (contenu du message mis à jour) sans déclencher de publication ni de
- * relance IA réelle — ça, c'est la Phase 4, une fois l'UX/signature validées.
+ * Vérifie/route les interactions Discord. "Approuver" déclenche une vraie
+ * publication (Phase 4) mais celle-ci prend plus que les ~3s que Discord
+ * accorde pour répondre à un clic — d'où le type 6 (DEFERRED_UPDATE_MESSAGE,
+ * pas de spinner visible) : app/api/discord/interactions/route.ts répond ça
+ * immédiatement, puis termine le vrai travail de façon asynchrone et met à
+ * jour le message via updateInteractionMessage(). "Retoucher" reste
+ * Phase 3 : journalise la décision, la relance IA réelle n'est pas encore
+ * construite.
  */
 export function handleDiscordInteraction(
   payload: DiscordInteractionPayload
@@ -46,15 +51,7 @@ export function handleDiscordInteraction(
   const customId = payload.data?.custom_id ?? "";
 
   if (payload.type === 3 && customId.startsWith(APPROVE_PREFIX)) {
-    const slug = customId.slice(APPROVE_PREFIX.length);
-    return {
-      type: 7,
-      data: {
-        content: `✅ Décision reçue : **Approuver** pour \`${slug}\`. La publication automatique arrivera en Phase 4 — pour l'instant, cette décision est seulement enregistrée.`,
-        components: [],
-        allowed_mentions: NO_MENTIONS,
-      },
-    };
+    return { type: 6 };
   }
 
   if (payload.type === 3 && customId.startsWith(REVISE_PREFIX)) {
@@ -98,4 +95,14 @@ export function handleDiscordInteraction(
   }
 
   return { type: 4, data: { content: "Interaction non reconnue.", flags: 64 } };
+}
+
+// Utilisé par route.ts pour décider s'il faut lancer la publication réelle
+// après avoir répondu à Discord (le type 6 renvoyé ci-dessus par
+// handleDiscordInteraction ne porte pas cette information).
+export function getApprovalSlug(payload: DiscordInteractionPayload): string | null {
+  if (payload.type !== 3) return null;
+  const customId = payload.data?.custom_id ?? "";
+  if (!customId.startsWith(APPROVE_PREFIX)) return null;
+  return customId.slice(APPROVE_PREFIX.length);
 }
