@@ -22,9 +22,9 @@ vi.mock("../discordNotifier", () => ({
   createDiscordNotifier: vi.fn().mockReturnValue({ notifyDraftReady }),
 }));
 
-import { createBlogDraftDeps } from "../createBlogDraftDeps";
-import { createGithubBlogRepo } from "../githubBlogRepo";
+import { createBlogDraftDeps, createReviseDraftDeps } from "../createBlogDraftDeps";
 import { createDiscordNotifier } from "../discordNotifier";
+import { createGithubBlogRepo } from "../githubBlogRepo";
 import { createOpenAiImageGenerator } from "../openaiImageGenerator";
 
 describe("createBlogDraftDeps", () => {
@@ -105,6 +105,57 @@ describe("createBlogDraftDeps", () => {
         slug: "mon-article",
         title: "Mon article",
         excerpt: "Extrait",
+        previewUrl: expect.stringMatching(
+          /^https:\/\/elancestvous\.fr\/blog-review\/mon-article\?token=[0-9a-f]{64}$/
+        ),
+      })
+    );
+  });
+});
+
+describe("createReviseDraftDeps", () => {
+  const envBackup = { ...process.env };
+
+  beforeEach(() => {
+    process.env.ANTHROPIC_API_KEY = "anthropic-key";
+    process.env.IMAGE_GEN_API_KEY = "image-key";
+    process.env.GH_PAT_TOKEN = "pat";
+    process.env.DISCORD_BOT_TOKEN = "bot-token";
+    process.env.DISCORD_CHANNEL_ID = "channel-123";
+    process.env.BLOG_REVIEW_SECRET = "review-secret";
+    process.env.GITHUB_REPO = "thacac/elancestvous";
+    vi.mocked(createGithubBlogRepo).mockClear();
+    vi.mocked(createDiscordNotifier).mockClear();
+    notifyDraftReady.mockClear();
+  });
+
+  afterEach(() => {
+    process.env = { ...envBackup };
+  });
+
+  it("wires the same GITHUB_REPO/Discord/image setup as createBlogDraftDeps", () => {
+    createReviseDraftDeps();
+
+    expect(createGithubBlogRepo).toHaveBeenCalledWith(
+      expect.objectContaining({ owner: "thacac", repo: "elancestvous" })
+    );
+    expect(createDiscordNotifier).toHaveBeenCalledWith(
+      expect.objectContaining({ botToken: "bot-token", channelId: "channel-123" })
+    );
+  });
+
+  it("builds a signed preview URL and delegates to the real notifier", async () => {
+    const deps = createReviseDraftDeps();
+
+    await deps.discord.notifyDraftReady({
+      slug: "mon-article",
+      title: "Mon article",
+      excerpt: "Extrait",
+      coverImage: Buffer.from("img"),
+    });
+
+    expect(notifyDraftReady).toHaveBeenCalledWith(
+      expect.objectContaining({
         previewUrl: expect.stringMatching(
           /^https:\/\/elancestvous\.fr\/blog-review\/mon-article\?token=[0-9a-f]{64}$/
         ),

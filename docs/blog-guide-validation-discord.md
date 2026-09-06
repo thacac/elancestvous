@@ -1,14 +1,9 @@
 # Guide de validation des articles — Discord
 
-> **État actuel** : le message Discord (image, titre, extrait, lien de
-> prévisualisation, boutons Approuver/Retoucher) est en place, ainsi que la modale de
-> retouche — Phase 3 livrée. **Mais "Approuver" ne publie pas encore réellement
-> l'article, et "Retoucher" ne relance pas encore Claude** : ces deux clics ne font
-> pour l'instant que journaliser la décision (le message Discord se met à jour pour
-> le confirmer), le temps de valider signature et UX avant de brancher des actions
-> irréversibles (Phase 4, voir issue #35). Ce guide décrit déjà le comportement visé
-> une fois la Phase 4 livrée ; il sera mis à jour avec des captures d'écran réelles à
-> ce moment-là.
+> **État actuel** : le comportement décrit ci-dessous est réel — "Approuver" publie
+> effectivement l'article, "Retoucher" relance effectivement Claude avec vos retours
+> (Phase 3-4 livrées, voir issue #35). Ce guide reste à mettre à jour avec des
+> captures d'écran réelles.
 
 ## Ce qui va se passer, chaque semaine
 
@@ -34,9 +29,10 @@ par exemple :
 - « L'illustration ne correspond pas du tout au propos »
 
 L'IA relit l'article à la lumière de ces retours et repropose une nouvelle version
-dans le même salon, avec les mêmes boutons. Ce cycle est limité à quelques
-allers-retours — au-delà, mieux vaut reprendre l'article à la main plutôt que
-d'insister sur des retouches automatiques.
+dans le même salon, avec les mêmes boutons. Il n'y a pour l'instant pas de limite au
+nombre de retouches successives — au-delà de 2-3 allers-retours sans résultat
+satisfaisant, mieux vaut reprendre l'article à la main plutôt que d'insister sur des
+retouches automatiques.
 
 ## Ce qui ne se passe jamais automatiquement
 

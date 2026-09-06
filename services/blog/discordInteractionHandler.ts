@@ -42,8 +42,9 @@ const REVISE_FEEDBACK_PREFIX = "revise_feedback:";
  * non-fast-forward sur master, au pire une confusion côté Discord). Le vrai
  * travail se termine ensuite de façon asynchrone
  * (app/api/discord/interactions/route.ts) et met à jour le même message via
- * updateInteractionMessage() une fois terminé. "Retoucher" reste Phase 3 :
- * journalise la décision, la relance IA réelle n'est pas encore construite.
+ * updateInteractionMessage() une fois terminé. Même schéma pour la
+ * soumission de la modale "Retoucher" (relance Claude + recommit + nouvelle
+ * notification Discord).
  */
 export function handleDiscordInteraction(
   payload: DiscordInteractionPayload
@@ -95,11 +96,14 @@ export function handleDiscordInteraction(
 
   if (payload.type === 5 && customId.startsWith(REVISE_FEEDBACK_PREFIX)) {
     const slug = customId.slice(REVISE_FEEDBACK_PREFIX.length);
-    const feedback = payload.data?.components?.[0]?.components?.[0]?.value ?? "";
+    // Même raisonnement que pour "Approuver" : la relance Claude + le
+    // commit + la notification Discord dépassent souvent les ~3s
+    // accordés pour répondre, donc réponse immédiate avec les boutons
+    // désactivés plutôt qu'un différé qui les laisserait cliquables.
     return {
       type: 7,
       data: {
-        content: `🔵 Retouche demandée pour \`${slug}\` : "${feedback}" — la relance automatique de l'IA arrivera en Phase 4.`,
+        content: `🔄 Retouche de \`${slug}\` en cours...`,
         components: [],
         allowed_mentions: NO_MENTIONS,
       },
@@ -117,4 +121,19 @@ export function getApprovalSlug(payload: DiscordInteractionPayload): string | nu
   const customId = payload.data?.custom_id ?? "";
   if (!customId.startsWith(APPROVE_PREFIX)) return null;
   return customId.slice(APPROVE_PREFIX.length);
+}
+
+// Même rôle que getApprovalSlug() ci-dessus, pour la soumission de la
+// modale de retouche : la réponse type 7 renvoyée par
+// handleDiscordInteraction ne porte pas le slug ni le texte de feedback,
+// dont route.ts a besoin pour lancer reviseDraft() de façon asynchrone.
+export function getRevisionRequest(
+  payload: DiscordInteractionPayload
+): { slug: string; feedback: string } | null {
+  if (payload.type !== 5) return null;
+  const customId = payload.data?.custom_id ?? "";
+  if (!customId.startsWith(REVISE_FEEDBACK_PREFIX)) return null;
+  const slug = customId.slice(REVISE_FEEDBACK_PREFIX.length);
+  const feedback = payload.data?.components?.[0]?.components?.[0]?.value ?? "";
+  return { slug, feedback };
 }

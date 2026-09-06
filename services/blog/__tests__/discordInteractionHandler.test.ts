@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { getApprovalSlug, handleDiscordInteraction } from "../discordInteractionHandler";
+import {
+  getApprovalSlug,
+  getRevisionRequest,
+  handleDiscordInteraction,
+} from "../discordInteractionHandler";
 
 describe("handleDiscordInteraction", () => {
   it("responds to a PING with a PONG", () => {
@@ -32,7 +36,7 @@ describe("handleDiscordInteraction", () => {
     expect(textInput?.type).toBe(4);
   });
 
-  it("logs the revise feedback from a submitted modal", () => {
+  it("acknowledges the modal submission immediately and disables the buttons, before the real revision completes", () => {
     const result = handleDiscordInteraction({
       type: 5,
       data: {
@@ -46,7 +50,6 @@ describe("handleDiscordInteraction", () => {
     expect(result.type).toBe(7);
     expect(result.data?.components).toEqual([]);
     expect(result.data?.content).toContain("mon-article");
-    expect(result.data?.content).toContain("Le titre est trop générique");
     expect(result.data?.allowed_mentions).toEqual({ parse: [] });
   });
 
@@ -94,5 +97,31 @@ describe("getApprovalSlug", () => {
 
   it("returns null for a non-component interaction", () => {
     expect(getApprovalSlug({ type: 1 })).toBeNull();
+  });
+});
+
+describe("getRevisionRequest", () => {
+  it("extracts the slug and feedback text from a submitted modal", () => {
+    expect(
+      getRevisionRequest({
+        type: 5,
+        data: {
+          custom_id: "revise_feedback:mon-article",
+          components: [
+            { components: [{ custom_id: "feedback", value: "Le titre est trop générique" }] },
+          ],
+        },
+      })
+    ).toEqual({ slug: "mon-article", feedback: "Le titre est trop générique" });
+  });
+
+  it("returns null for a non-modal-submit interaction", () => {
+    expect(
+      getRevisionRequest({ type: 3, data: { custom_id: "blog_revise:mon-article" } })
+    ).toBeNull();
+  });
+
+  it("returns null for an unrelated modal submission", () => {
+    expect(getRevisionRequest({ type: 5, data: { custom_id: "something_else" } })).toBeNull();
   });
 });
