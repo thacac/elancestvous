@@ -26,7 +26,18 @@ jobs:
             echo "BLOG_CRON_SECRET n'est pas configuré — rien à faire."
             exit 0
           fi
+          # Ni --retry ni un --max-time court : /api/blog/generate N'EST PAS
+          # idempotent (Claude + génération d'image + commit GitHub + post
+          # Discord, plusieurs dizaines de secondes). Avec --max-time 30
+          # --retry 3, curl abandonnait côté client après 30s ("0 bytes
+          # received") pendant que le serveur continuait le traitement en
+          # arrière-plan (rien n'annule le travail Node.js à la déconnexion
+          # du client) — chaque retry déclenchait une NOUVELLE génération
+          # complète et indépendante. Constaté en conditions réelles : 4
+          # tentatives = 4 articles distincts commités + 4 notifications
+          # Discord pour un seul déclenchement. --max-time généreux et sans
+          # retry : un seul appel, qui attend le temps qu'il faut.
           curl --fail-with-body -sS -X POST \
-            --max-time 30 --retry 3 --retry-delay 5 \
+            --max-time 300 \
             "https://elancestvous.fr/api/blog/generate" \
             -H "Authorization: Bearer $BLOG_CRON_SECRET"
