@@ -275,6 +275,37 @@ describe("createGithubBlogRepo.publishDraft", () => {
       })
     );
   });
+
+  it("throws a clear error when master advanced in the meantime (non-fast-forward)", async () => {
+    resetGraftMocks();
+    getRef
+      .mockResolvedValueOnce({ data: { object: { sha: "draft-commit-sha" } } })
+      .mockResolvedValueOnce({ data: { object: { sha: "master-commit-sha" } } });
+    getCommit
+      .mockResolvedValueOnce({ data: { tree: { sha: "draft-tree-sha" } } })
+      .mockResolvedValueOnce({ data: { tree: { sha: "master-tree-sha" } } });
+    getTree.mockResolvedValueOnce({
+      data: {
+        tree: [
+          { path: "content/_drafts/mon-article/post.md", sha: "post-blob-sha", type: "blob" },
+        ],
+      },
+    });
+    createTree.mockResolvedValueOnce({ data: { sha: "new-tree-sha" } });
+    createCommit.mockResolvedValueOnce({ data: { sha: "new-commit-sha" } });
+    updateRef.mockRejectedValueOnce({ status: 422 });
+
+    const github = createGithubBlogRepo({
+      auth: "token",
+      owner: "thacac",
+      repo: "elancestvous",
+      baseBranch: "master",
+    });
+
+    await expect(
+      github.publishDraft({ slug: "mon-article", commitMessage: "blog: publication" })
+    ).rejects.toThrow(/master a changé/);
+  });
 });
 
 describe("createGithubBlogRepo.getDraftContent", () => {

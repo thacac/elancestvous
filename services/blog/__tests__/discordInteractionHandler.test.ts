@@ -7,13 +7,16 @@ describe("handleDiscordInteraction", () => {
     expect(result).toEqual({ type: 1 });
   });
 
-  it("defers the approve interaction (real publication happens async, Phase 4)", () => {
+  it("disables the buttons immediately on approve, before the real publication completes", () => {
     const result = handleDiscordInteraction({
       type: 3,
       data: { custom_id: "blog_approve:mon-article" },
     });
 
-    expect(result).toEqual({ type: 6 });
+    expect(result.type).toBe(7);
+    expect(result.data?.components).toEqual([]);
+    expect(result.data?.content).toContain("mon-article");
+    expect(result.data?.allowed_mentions).toEqual({ parse: [] });
   });
 
   it("opens a feedback modal for the revise button", () => {

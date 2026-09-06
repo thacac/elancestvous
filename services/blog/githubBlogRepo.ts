@@ -204,12 +204,25 @@ export function createGithubBlogRepo(options: {
         tree: newTree.sha,
         parents: [masterRef.object.sha],
       });
-      await octokit.rest.git.updateRef({
-        owner,
-        repo,
-        ref: `heads/${baseBranch}`,
-        sha: newCommit.sha,
-      });
+      try {
+        await octokit.rest.git.updateRef({
+          owner,
+          repo,
+          ref: `heads/${baseBranch}`,
+          sha: newCommit.sha,
+        });
+      } catch (err) {
+        // 422 = non-fast-forward : quelqu'un a poussé sur master entre la
+        // lecture de masterRef et cette mise à jour (une autre publication,
+        // un push manuel...). L'erreur Octokit brute remonterait jusqu'au
+        // message Discord de façon peu actionnable.
+        if (isUnprocessable(err)) {
+          throw new Error(
+            `Publication de "${args.slug}" impossible : ${baseBranch} a changé entre-temps, réessaie.`
+          );
+        }
+        throw err;
+      }
 
       return { commitUrl: `https://github.com/${owner}/${repo}/commit/${newCommit.sha}` };
     },

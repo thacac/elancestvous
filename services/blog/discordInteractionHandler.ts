@@ -33,13 +33,17 @@ const REVISE_FEEDBACK_PREFIX = "revise_feedback:";
 
 /**
  * Vérifie/route les interactions Discord. "Approuver" déclenche une vraie
- * publication (Phase 4) mais celle-ci prend plus que les ~3s que Discord
- * accorde pour répondre à un clic — d'où le type 6 (DEFERRED_UPDATE_MESSAGE,
- * pas de spinner visible) : app/api/discord/interactions/route.ts répond ça
- * immédiatement, puis termine le vrai travail de façon asynchrone et met à
- * jour le message via updateInteractionMessage(). "Retoucher" reste
- * Phase 3 : journalise la décision, la relance IA réelle n'est pas encore
- * construite.
+ * publication (Phase 4) qui prend plus que les ~3s que Discord accorde pour
+ * répondre à un clic. Répond type 7 (UPDATE_MESSAGE) immédiatement avec les
+ * boutons désactivés (components: []) plutôt qu'un type 6 différé : avec un
+ * type 6, le message ne change pas tant que le follow-up n'arrive pas, donc
+ * les boutons restent cliquables pendant toute la publication — un double
+ * clic déclencherait deux publications concurrentes (au mieux un 422
+ * non-fast-forward sur master, au pire une confusion côté Discord). Le vrai
+ * travail se termine ensuite de façon asynchrone
+ * (app/api/discord/interactions/route.ts) et met à jour le même message via
+ * updateInteractionMessage() une fois terminé. "Retoucher" reste Phase 3 :
+ * journalise la décision, la relance IA réelle n'est pas encore construite.
  */
 export function handleDiscordInteraction(
   payload: DiscordInteractionPayload
@@ -51,7 +55,15 @@ export function handleDiscordInteraction(
   const customId = payload.data?.custom_id ?? "";
 
   if (payload.type === 3 && customId.startsWith(APPROVE_PREFIX)) {
-    return { type: 6 };
+    const slug = customId.slice(APPROVE_PREFIX.length);
+    return {
+      type: 7,
+      data: {
+        content: `⏳ Publication de \`${slug}\` en cours...`,
+        components: [],
+        allowed_mentions: NO_MENTIONS,
+      },
+    };
   }
 
   if (payload.type === 3 && customId.startsWith(REVISE_PREFIX)) {
