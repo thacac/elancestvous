@@ -7,12 +7,13 @@ hebdomadaire validé via Discord avant publication automatique. Voir
 ## Workflow Git
 
 - Une branche par tâche, une PR par branche. Jamais de commit direct sur `master`.
-- Commits réguliers, messages descriptifs (français, cohérent avec l'historique).
+- Commits réguliers, messages descriptifs (français, cohérents avec l'historique).
 - TDD obligatoire pour tout changement de code : écrire le test, le voir échouer,
   puis implémenter.
 - Avant de pousser : `yarn test`, `yarn tsc --noEmit`, `yarn lint` doivent tous
   passer (une seule erreur `tsc` pré-existante et non liée est tolérée, déjà
-  présente sur `master` dans `discordInteractionHandler.test.ts`).
+  présente sur `master` dans
+  `services/blog/__tests__/discordInteractionHandler.test.ts`).
 
 ## Revue avant PR (remplace GitHub Copilot)
 
@@ -21,11 +22,12 @@ L'abonnement Copilot du dépôt a expiré — plus de revue automatique sur les 
 propre (skill `code-review`, ou un subagent dédié) plutôt que de se relire
 soi-même : un regard qui n'a pas suivi l'implémentation pas à pas repère plus
 facilement les vrais bugs. Corriger les findings confirmés (avec tests), vérifier
-à nouveau (`yarn test`/`tsc`/`lint`), puis pousser et ouvrir la PR.
+à nouveau (`yarn test`, `yarn tsc --noEmit`, `yarn lint`), puis pousser et ouvrir
+la PR.
 
 ## Secrets
 
-- Noms de secrets GitHub Actions ne peuvent jamais commencer par `GITHUB_`
+- Les noms de secrets GitHub Actions ne peuvent jamais commencer par `GITHUB_`
   (préfixe réservé par la plateforme) — voir `docs/blog-secrets.md`.
 - Ne jamais faire écho à une valeur de secret/jeton réelle dans une conversation ;
   si un secret a été exposé, le traiter comme compromis et le faire régénérer via
