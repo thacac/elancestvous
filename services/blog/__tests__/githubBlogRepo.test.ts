@@ -4,13 +4,18 @@ const getContent = vi.fn();
 const getRef = vi.fn();
 const createRef = vi.fn();
 const createOrUpdateFileContents = vi.fn();
+const getCommit = vi.fn();
+const getTree = vi.fn();
+const createTree = vi.fn();
+const createCommit = vi.fn();
+const updateRef = vi.fn();
 
 vi.mock("@octokit/rest", () => ({
   Octokit: function Octokit() {
     return {
       rest: {
         repos: { getContent, createOrUpdateFileContents },
-        git: { getRef, createRef },
+        git: { getRef, createRef, getCommit, getTree, createTree, createCommit, updateRef },
       },
     };
   },
@@ -78,6 +83,136 @@ describe("createGithubBlogRepo.commitDraftBranch", () => {
     expect(createOrUpdateFileContents).toHaveBeenCalledWith(
       expect.objectContaining({ path: "content/_drafts/sans-image/post.md" })
     );
+  });
+});
+
+describe("createGithubBlogRepo.publishDraft", () => {
+  function resetGraftMocks() {
+    getRef.mockReset();
+    getCommit.mockReset();
+    getTree.mockReset();
+    createTree.mockReset();
+    createCommit.mockReset();
+    updateRef.mockReset();
+  }
+
+  it("grafts the draft's blobs onto a new commit on master and updates the ref", async () => {
+    resetGraftMocks();
+    getRef
+      .mockResolvedValueOnce({ data: { object: { sha: "draft-commit-sha" } } }) // heads/blog-draft/mon-article
+      .mockResolvedValueOnce({ data: { object: { sha: "master-commit-sha" } } }); // heads/master
+    getCommit
+      .mockResolvedValueOnce({ data: { tree: { sha: "draft-tree-sha" } } })
+      .mockResolvedValueOnce({ data: { tree: { sha: "master-tree-sha" } } });
+    getTree.mockResolvedValueOnce({
+      data: {
+        tree: [
+          { path: "content/_drafts/mon-article/post.md", sha: "post-blob-sha", type: "blob" },
+          { path: "content/_drafts/mon-article/cover.jpg", sha: "cover-blob-sha", type: "blob" },
+        ],
+      },
+    });
+    createTree.mockResolvedValueOnce({ data: { sha: "new-tree-sha" } });
+    createCommit.mockResolvedValueOnce({ data: { sha: "new-commit-sha" } });
+    updateRef.mockResolvedValueOnce({});
+
+    const github = createGithubBlogRepo({
+      auth: "token",
+      owner: "thacac",
+      repo: "elancestvous",
+      baseBranch: "master",
+    });
+
+    const result = await github.publishDraft({
+      slug: "mon-article",
+      commitMessage: 'blog: publication "Mon article"',
+    });
+
+    expect(getTree).toHaveBeenCalledWith(
+      expect.objectContaining({ tree_sha: "draft-tree-sha", recursive: "true" })
+    );
+    expect(createTree).toHaveBeenCalledWith(
+      expect.objectContaining({
+        base_tree: "master-tree-sha",
+        tree: [
+          expect.objectContaining({
+            path: "content/blog/mon-article.md",
+            sha: "post-blob-sha",
+          }),
+          expect.objectContaining({
+            path: "public/blog/mon-article/cover.jpg",
+            sha: "cover-blob-sha",
+          }),
+        ],
+      })
+    );
+    expect(createCommit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        tree: "new-tree-sha",
+        parents: ["master-commit-sha"],
+        message: 'blog: publication "Mon article"',
+      })
+    );
+    expect(updateRef).toHaveBeenCalledWith(
+      expect.objectContaining({ ref: "heads/master", sha: "new-commit-sha" })
+    );
+    expect(result).toEqual({
+      commitUrl: "https://github.com/thacac/elancestvous/commit/new-commit-sha",
+    });
+  });
+
+  it("publishes text-only when the draft has no cover.jpg blob", async () => {
+    resetGraftMocks();
+    getRef
+      .mockResolvedValueOnce({ data: { object: { sha: "draft-commit-sha" } } })
+      .mockResolvedValueOnce({ data: { object: { sha: "master-commit-sha" } } });
+    getCommit
+      .mockResolvedValueOnce({ data: { tree: { sha: "draft-tree-sha" } } })
+      .mockResolvedValueOnce({ data: { tree: { sha: "master-tree-sha" } } });
+    getTree.mockResolvedValueOnce({
+      data: {
+        tree: [
+          { path: "content/_drafts/sans-image/post.md", sha: "post-blob-sha", type: "blob" },
+        ],
+      },
+    });
+    createTree.mockResolvedValueOnce({ data: { sha: "new-tree-sha" } });
+    createCommit.mockResolvedValueOnce({ data: { sha: "new-commit-sha" } });
+    updateRef.mockResolvedValueOnce({});
+
+    const github = createGithubBlogRepo({
+      auth: "token",
+      owner: "thacac",
+      repo: "elancestvous",
+      baseBranch: "master",
+    });
+
+    await github.publishDraft({ slug: "sans-image", commitMessage: "blog: publication" });
+
+    expect(createTree).toHaveBeenCalledWith(
+      expect.objectContaining({
+        tree: [expect.objectContaining({ path: "content/blog/sans-image.md" })],
+      })
+    );
+  });
+
+  it("throws when the draft's post.md blob can't be found", async () => {
+    resetGraftMocks();
+    getRef.mockResolvedValueOnce({ data: { object: { sha: "draft-commit-sha" } } });
+    getCommit.mockResolvedValueOnce({ data: { tree: { sha: "draft-tree-sha" } } });
+    getTree.mockResolvedValueOnce({ data: { tree: [] } });
+
+    const github = createGithubBlogRepo({
+      auth: "token",
+      owner: "thacac",
+      repo: "elancestvous",
+      baseBranch: "master",
+    });
+
+    await expect(
+      github.publishDraft({ slug: "corrompu", commitMessage: "blog: publication" })
+    ).rejects.toThrow(/post\.md/);
+    expect(createCommit).not.toHaveBeenCalled();
   });
 });
 

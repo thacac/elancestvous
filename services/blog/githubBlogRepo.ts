@@ -121,6 +121,97 @@ export function createGithubBlogRepo(options: {
       };
     },
 
+    async publishDraft(args: {
+      slug: string;
+      commitMessage: string;
+    }): Promise<{ commitUrl: string }> {
+      // Git Data API plutôt que Contents API : on réutilise les blobs déjà
+      // commités sur blog-draft/<slug> à leur SHA (pas de re-upload) —
+      // c'est le "greffage" documenté dans docs/blog-architecture.md.
+      const draftBranch = `blog-draft/${args.slug}`;
+
+      const { data: draftRef } = await octokit.rest.git.getRef({
+        owner,
+        repo,
+        ref: `heads/${draftBranch}`,
+      });
+      const { data: draftCommit } = await octokit.rest.git.getCommit({
+        owner,
+        repo,
+        commit_sha: draftRef.object.sha,
+      });
+      const { data: draftTree } = await octokit.rest.git.getTree({
+        owner,
+        repo,
+        tree_sha: draftCommit.tree.sha,
+        recursive: "true",
+      });
+
+      const postEntry = draftTree.tree.find(
+        (entry) => entry.path === `content/_drafts/${args.slug}/post.md`
+      );
+      if (!postEntry?.sha) {
+        throw new Error(
+          `Impossible de publier "${args.slug}" : post.md introuvable sur ${draftBranch}`
+        );
+      }
+      const coverEntry = draftTree.tree.find(
+        (entry) => entry.path === `content/_drafts/${args.slug}/cover.jpg`
+      );
+
+      const { data: masterRef } = await octokit.rest.git.getRef({
+        owner,
+        repo,
+        ref: `heads/${baseBranch}`,
+      });
+      const { data: masterCommit } = await octokit.rest.git.getCommit({
+        owner,
+        repo,
+        commit_sha: masterRef.object.sha,
+      });
+
+      const tree = [
+        {
+          path: `content/blog/${args.slug}.md`,
+          mode: "100644" as const,
+          type: "blob" as const,
+          sha: postEntry.sha,
+        },
+        ...(coverEntry?.sha
+          ? [
+              {
+                path: `public/blog/${args.slug}/cover.jpg`,
+                mode: "100644" as const,
+                type: "blob" as const,
+                sha: coverEntry.sha,
+              },
+            ]
+          : []),
+      ];
+
+      const { data: newTree } = await octokit.rest.git.createTree({
+        owner,
+        repo,
+        base_tree: masterCommit.tree.sha,
+        tree,
+      });
+      const { data: newCommit } = await octokit.rest.git.createCommit({
+        owner,
+        repo,
+        message: args.commitMessage,
+        tree: newTree.sha,
+        parents: [masterRef.object.sha],
+      });
+      await octokit.rest.git.updateRef({
+        owner,
+        repo,
+        ref: `heads/${baseBranch}`,
+        sha: newCommit.sha,
+      });
+
+      return { commitUrl: `https://github.com/${owner}/${repo}/commit/${newCommit.sha}` };
+    },
+
     async getDraftContent(
       slug: string
     ): Promise<{ markdown: string; coverImage: Buffer | null } | null> {
