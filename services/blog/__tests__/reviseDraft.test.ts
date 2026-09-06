@@ -151,8 +151,31 @@ describe("reviseDraft", () => {
     expect(deps.github.commitDraftBranch).not.toHaveBeenCalled();
   });
 
-  it("skips image generation and commits without a cover image when imageGenerator is not configured", async () => {
+  it("skips image generation and preserves the existing cover image when imageGenerator is not configured", async () => {
     const deps = makeDeps({ imageGenerator: undefined });
+
+    const result = await reviseDraft("mon-article", "feedback", deps);
+
+    expect(result.status).toBe("committed");
+    expect(deps.github.commitDraftBranch).toHaveBeenCalledWith(
+      expect.objectContaining({ coverImage: Buffer.from("old-image") })
+    );
+    expect(deps.discord.notifyDraftReady).toHaveBeenCalledWith(
+      expect.objectContaining({ coverImage: Buffer.from("old-image") })
+    );
+  });
+
+  it("commits without a cover image when the draft had none and imageGenerator is not configured", async () => {
+    const deps = makeDeps({
+      imageGenerator: undefined,
+      github: {
+        ...makeDeps().github,
+        getDraftContent: vi.fn().mockResolvedValue({
+          markdown: "---\ntitle: Ancien titre\nslug: mon-article\n---\nAncien corps.",
+          coverImage: null,
+        }),
+      },
+    });
 
     const result = await reviseDraft("mon-article", "feedback", deps);
 
