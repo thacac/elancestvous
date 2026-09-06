@@ -77,41 +77,56 @@ export function createGithubBlogRepo(options: {
           sha: baseSha,
         });
       } catch (err) {
-        // La branche existe déjà (re-génération d'un même slug) : on la
-        // réinitialise sur la base actuelle plutôt que de gérer les sha des
-        // fichiers existants un par un.
-        if (isUnprocessable(err)) {
-          await octokit.rest.git.updateRef({
-            owner,
-            repo,
-            ref: `heads/${branchName}`,
-            sha: baseSha,
-            force: true,
-          });
-        } else {
-          throw err;
-        }
+        if (!isUnprocessable(err)) throw err;
+        // La branche existe déjà (retouche d'un brouillon déjà généré, ou
+        // re-génération d'un même slug) : on commite directement dessus
+        // plutôt que de la réinitialiser sur la base actuelle — un ruleset
+        // de dépôt peut interdire le force-push (constaté en prod avec
+        // "Cannot force-push to this branch"), et ce n'est de toute façon
+        // pas nécessaire : createOrUpdateFileContents met à jour les
+        // fichiers en place ci-dessous, en récupérant leur sha existant.
       }
 
-      await octokit.rest.repos.createOrUpdateFileContents({
-        owner,
-        repo,
-        branch: branchName,
-        path: `content/_drafts/${args.slug}/post.md`,
-        message: args.commitMessage,
-        content: Buffer.from(args.postMarkdown, "utf8").toString("base64"),
-      });
+      await writeDraftFile(
+        `content/_drafts/${args.slug}/post.md`,
+        Buffer.from(args.postMarkdown, "utf8").toString("base64")
+      );
       // Pas d'image tant que la génération n'est pas configurée (ex. clé
       // OpenAI absente) : on committe le brouillon texte seul plutôt que
       // d'échouer sur un fichier qu'on n'a pas.
       if (args.coverImage) {
+        await writeDraftFile(
+          `content/_drafts/${args.slug}/cover.jpg`,
+          args.coverImage.toString("base64")
+        );
+      }
+
+      async function writeDraftFile(path: string, content: string): Promise<void> {
+        // Un fichier déjà présent sur la branche (retouche) exige son sha
+        // actuel pour être mis à jour ; un fichier absent (première
+        // génération, ou brouillon texte-seul qui gagne une image) doit au
+        // contraire être créé sans sha.
+        let sha: string | undefined;
+        try {
+          const { data } = await octokit.rest.repos.getContent({
+            owner,
+            repo,
+            path,
+            ref: branchName,
+          });
+          if (!Array.isArray(data) && data.type === "file") sha = data.sha;
+        } catch (err) {
+          if (!isNotFound(err)) throw err;
+        }
+
         await octokit.rest.repos.createOrUpdateFileContents({
           owner,
           repo,
           branch: branchName,
-          path: `content/_drafts/${args.slug}/cover.jpg`,
+          path,
           message: args.commitMessage,
-          content: args.coverImage.toString("base64"),
+          content,
+          ...(sha ? { sha } : {}),
         });
       }
 

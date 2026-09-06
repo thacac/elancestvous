@@ -57,12 +57,19 @@ describe("createGithubBlogRepo.listPublishedPostTitles", () => {
 });
 
 describe("createGithubBlogRepo.commitDraftBranch", () => {
-  it("skips writing cover.jpg when no cover image is provided", async () => {
+  function resetCommitMocks() {
     getRef.mockReset();
     createRef.mockReset();
     createOrUpdateFileContents.mockReset();
+    getContent.mockReset();
+    updateRef.mockReset();
+  }
+
+  it("skips writing cover.jpg when no cover image is provided", async () => {
+    resetCommitMocks();
     getRef.mockResolvedValue({ data: { object: { sha: "base-sha" } } });
     createRef.mockResolvedValue({});
+    getContent.mockRejectedValue({ status: 404 });
     createOrUpdateFileContents.mockResolvedValue({});
 
     const github = createGithubBlogRepo({
@@ -83,6 +90,71 @@ describe("createGithubBlogRepo.commitDraftBranch", () => {
     expect(createOrUpdateFileContents).toHaveBeenCalledWith(
       expect.objectContaining({ path: "content/_drafts/sans-image/post.md" })
     );
+  });
+
+  it("commits directly onto an already-existing draft branch instead of force-resetting it (retouche)", async () => {
+    resetCommitMocks();
+    getRef.mockResolvedValue({ data: { object: { sha: "base-sha" } } });
+    createRef.mockRejectedValueOnce({ status: 422 });
+    getContent
+      .mockResolvedValueOnce({ data: { type: "file", sha: "old-post-sha" } })
+      .mockResolvedValueOnce({ data: { type: "file", sha: "old-cover-sha" } });
+    createOrUpdateFileContents.mockResolvedValue({});
+
+    const github = createGithubBlogRepo({
+      auth: "token",
+      owner: "thacac",
+      repo: "elancestvous",
+      baseBranch: "master",
+    });
+
+    await github.commitDraftBranch({
+      slug: "mon-article",
+      postMarkdown: "nouveau contenu",
+      coverImage: Buffer.from("nouvelle-image"),
+      commitMessage: "blog: retouche",
+    });
+
+    // Un ruleset de dépôt peut bloquer les force-push (constaté en prod) —
+    // la branche existante ne doit donc jamais être réinitialisée.
+    expect(updateRef).not.toHaveBeenCalled();
+    expect(createOrUpdateFileContents).toHaveBeenCalledWith(
+      expect.objectContaining({ path: "content/_drafts/mon-article/post.md", sha: "old-post-sha" })
+    );
+    expect(createOrUpdateFileContents).toHaveBeenCalledWith(
+      expect.objectContaining({
+        path: "content/_drafts/mon-article/cover.jpg",
+        sha: "old-cover-sha",
+      })
+    );
+  });
+
+  it("creates files without a sha when the existing branch doesn't have them yet", async () => {
+    resetCommitMocks();
+    getRef.mockResolvedValue({ data: { object: { sha: "base-sha" } } });
+    createRef.mockRejectedValueOnce({ status: 422 });
+    getContent.mockRejectedValue({ status: 404 });
+    createOrUpdateFileContents.mockResolvedValue({});
+
+    const github = createGithubBlogRepo({
+      auth: "token",
+      owner: "thacac",
+      repo: "elancestvous",
+      baseBranch: "master",
+    });
+
+    await github.commitDraftBranch({
+      slug: "mon-article",
+      postMarkdown: "contenu",
+      coverImage: null,
+      commitMessage: "blog: retouche",
+    });
+
+    expect(createOrUpdateFileContents).toHaveBeenCalledWith(
+      expect.objectContaining({ path: "content/_drafts/mon-article/post.md" })
+    );
+    const call = createOrUpdateFileContents.mock.calls[0][0];
+    expect(call.sha).toBeUndefined();
   });
 });
 
