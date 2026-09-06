@@ -1,3 +1,4 @@
+import JsonLdScript from "@/components/JsonLdScript";
 import { SITE, ORG_ID, PERSON_ID, WEBSITE_ID } from "@/lib/siteIdentifiers";
 
 export default function JsonLd() {
@@ -126,10 +127,5 @@ export default function JsonLd() {
     "@graph": graph,
   };
 
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-    />
-  );
+  return <JsonLdScript data={jsonLd} />;
 }

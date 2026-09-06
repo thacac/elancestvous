@@ -1,3 +1,4 @@
+import JsonLdScript from "@/components/JsonLdScript";
 import type { Post } from "@/lib/blog";
 import { SITE, ORG_ID, PERSON_ID } from "@/lib/siteIdentifiers";
 
@@ -18,10 +19,5 @@ export default function PostJsonLd({ post }: { post: Post }) {
     publisher: { "@id": ORG_ID },
   };
 
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-    />
-  );
+  return <JsonLdScript data={jsonLd} />;
 }

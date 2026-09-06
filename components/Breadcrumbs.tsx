@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import JsonLdScript from "@/components/JsonLdScript";
 import { SITE } from "@/lib/siteIdentifiers";
 
 export type BreadcrumbItem = {
@@ -9,7 +10,10 @@ export type BreadcrumbItem = {
 
 export default function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
   const trail: BreadcrumbItem[] = [{ label: "Accueil", href: "/" }, ...items];
-  const lastIndex = trail.length - 1;
+  // Le fil d'Ariane accepte `items: []` (page de plus haut niveau) : dans ce
+  // cas, "Accueil" est le seul élément et doit rester un vrai lien plutôt
+  // qu'être traité comme la page courante.
+  const lastIndex = items.length > 0 ? trail.length - 1 : -1;
 
   const itemListElement = trail.map((crumb, index) => ({
     "@type": "ListItem",
@@ -26,10 +30,7 @@ export default function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <JsonLdScript data={jsonLd} />
       <nav aria-label="Fil d'Ariane" className="container py-4 text-sm">
         <ol className="flex flex-wrap items-center gap-1 text-primary/70">
           {trail.map((crumb, index) => {
