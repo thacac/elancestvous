@@ -1,5 +1,6 @@
 import ArticulationBloc from "@/components/ArticulationBloc";
 import BadgesBloc from "@/components/BadgesBloc";
+import Breadcrumbs from "@/components/Breadcrumbs";
 import CartesContrastBloc from "@/components/CartesContrastBloc";
 import Citation from "@/components/Citation";
 import CtaElan from "@/components/CtaElan";
@@ -41,6 +42,12 @@ export default function FormationsProPage() {
   return (
     <>
       <main className="min-h-screen overflow-hidden">
+        <Breadcrumbs
+          items={[
+            { label: "Professionnels & établissements de soins" },
+            { label: "Formations QVCT / RPS" },
+          ]}
+        />
         {/* --- 1. Titre */}
         <section id="formations-professionnelles" className="py-20 container">
           <div className="text-center mb-8">

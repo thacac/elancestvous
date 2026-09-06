@@ -1,4 +1,5 @@
 import BadgesBloc from "@/components/BadgesBloc";
+import Breadcrumbs from "@/components/Breadcrumbs";
 import CartesContrastBloc from "@/components/CartesContrastBloc";
 import Citation from "@/components/Citation";
 import CtaElan from "@/components/CtaElan";
@@ -43,6 +44,12 @@ export default function ParticuliersPage() {
   return (
     <>
       <main className="min-h-screen overflow-hidden">
+        <Breadcrumbs
+          items={[
+            { label: "Particuliers" },
+            { label: "Coaching individuel" },
+          ]}
+        />
         {/* --- 1. Titre */}
         <section id="coaching-individuel" className="py-20 container">
           <div className="text-center mb-8">
