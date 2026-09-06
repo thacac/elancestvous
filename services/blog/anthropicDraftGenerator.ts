@@ -39,5 +39,38 @@ export function createAnthropicDraftGenerator(options?: {
         parsed_output: response.parsed_output,
       };
     },
+
+    // Prompt caching activé ici uniquement (pas sur parseDraft) : le bouton
+    // "Retoucher" relance Claude avec le même SYSTEM_PROMPT quelques minutes
+    // après la génération initiale (ou entre deux retouches successives),
+    // donc dans la fenêtre du cache éphémère. Le cron hebdomadaire
+    // (parseDraft) ne tourne qu'une fois par semaine — toujours au-delà du
+    // TTL, un cache miss payé pour rien à chaque fois — voir
+    // docs/blog-architecture.md.
+    async reviseDraft(
+      currentMarkdown: string,
+      feedback: string
+    ): Promise<AnthropicParseResult> {
+      const response = await client.messages.parse({
+        model,
+        max_tokens: 16000,
+        system: [
+          { type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral" } },
+        ],
+        output_config: { format: zodOutputFormat(BlogDraftSchema) },
+        messages: [
+          {
+            role: "user",
+            content: `Voici le brouillon actuel :\n\n${currentMarkdown}\n\nRetours humains à intégrer :\n${feedback}\n\nProduis une version révisée complète de l'article (même sortie structurée qu'une génération initiale).`,
+          },
+        ],
+      });
+
+      return {
+        stop_reason: response.stop_reason,
+        stop_details: response.stop_details,
+        parsed_output: response.parsed_output,
+      };
+    },
   };
 }

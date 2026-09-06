@@ -7,13 +7,16 @@ import { createGithubBlogRepo, parseGithubRepoEnv } from "./githubBlogRepo";
 import { createOpenAiImageGenerator } from "./openaiImageGenerator";
 
 import type { GenerateDraftDeps } from "./generateDraft";
+import type { ReviseDraftDeps } from "./reviseDraft";
 
 /**
- * Construit les dépendances réelles (Anthropic, OpenAI, GitHub, Discord) à
- * partir des variables d'environnement. Isolé de generateDraft() pour que
- * l'orchestrateur reste testable par injection sans toucher au réseau.
+ * Construit les dépendances communes (GitHub, image, Discord) à partir des
+ * variables d'environnement — partagé par createBlogDraftDeps() (génération
+ * hebdomadaire) et createReviseDraftDeps() (retouche via Discord), qui ne
+ * diffèrent que sur la méthode Anthropic utilisée (parseDraft vs
+ * reviseDraft).
  */
-export function createBlogDraftDeps(): GenerateDraftDeps {
+function buildSharedDeps() {
   const { owner, repo } = parseGithubRepoEnv(requireEnv("GITHUB_REPO"));
   const reviewSecret = requireEnv("BLOG_REVIEW_SECRET");
   const discordNotifier = createDiscordNotifier({
@@ -27,9 +30,6 @@ export function createBlogDraftDeps(): GenerateDraftDeps {
   const imageGenApiKey = process.env.IMAGE_GEN_API_KEY;
 
   return {
-    anthropic: createAnthropicDraftGenerator({
-      apiKey: requireEnv("ANTHROPIC_API_KEY"),
-    }),
     imageGenerator: imageGenApiKey
       ? createOpenAiImageGenerator({ apiKey: imageGenApiKey })
       : undefined,
@@ -39,12 +39,46 @@ export function createBlogDraftDeps(): GenerateDraftDeps {
       repo,
     }),
     discord: {
-      async notifyDraftReady(args) {
+      async notifyDraftReady(args: {
+        slug: string;
+        title: string;
+        excerpt: string;
+        coverImage: Buffer | null;
+      }) {
         const token = createReviewToken(args.slug, reviewSecret);
         const previewUrl = `${SITE}/blog-review/${args.slug}?token=${token}`;
         return discordNotifier.notifyDraftReady({ ...args, previewUrl });
       },
     },
+  };
+}
+
+/**
+ * Construit les dépendances réelles de la génération hebdomadaire.
+ * Isolé de generateDraft() pour que l'orchestrateur reste testable par
+ * injection sans toucher au réseau.
+ */
+export function createBlogDraftDeps(): GenerateDraftDeps {
+  return {
+    anthropic: createAnthropicDraftGenerator({
+      apiKey: requireEnv("ANTHROPIC_API_KEY"),
+    }),
+    ...buildSharedDeps(),
+  };
+}
+
+/**
+ * Construit les dépendances réelles de la retouche (bouton "Retoucher" sur
+ * Discord). Mêmes secrets/branchements que createBlogDraftDeps(), seule la
+ * méthode Anthropic utilisée diffère (reviseDraft, avec prompt caching sur
+ * le system prompt, plutôt que parseDraft).
+ */
+export function createReviseDraftDeps(): ReviseDraftDeps {
+  return {
+    anthropic: createAnthropicDraftGenerator({
+      apiKey: requireEnv("ANTHROPIC_API_KEY"),
+    }),
+    ...buildSharedDeps(),
   };
 }
 

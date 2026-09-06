@@ -1,8 +1,12 @@
 # Architecture du blog IA hebdomadaire
 
 Vue d'ensemble du pipeline, du contenu Markdown à la publication automatique après
-validation humaine. État d'avancement : **Phases 1-3 livrées** (PR #29, #36, et
-celle-ci), **Phase 4 pas commencée** (publication/relance réelles, voir issue #35).
+validation humaine. État d'avancement : **Phases 1-4 livrées** (voir issue #35) —
+"Approuver" publie réellement l'article (greffe sur `master`), "Retoucher" relance
+réellement Claude avec les retours et recommite le brouillon. Reste en dehors du
+périmètre actuel : le plafond de 3 allers-retours de retouche évoqué dans le plan
+initial n'est pas implémenté — chaque clic "Retoucher" relance Claude sans limite de
+tentatives.
 
 ## Verrou de lancement public
 
@@ -73,20 +77,21 @@ lancement" qui empêcherait l'indexation une fois le blog réellement public).
           │ app/api/discord/       │   │ app/api/discord/           │
           │ interactions/route.ts  │   │ interactions/route.ts      │
           │ (vérifie la signature, │   │ (ouvre une modale, puis     │
-          │  journalise — Phase 3) │   │  journalise le retour —    │
-          └──────────┬─────────────┘   │  Phase 3)                  │
-                     │                 └──────────┬─────────────────┘
-                     │  Phase 4 (à venir)          │  Phase 4 (à venir)
+          │  répond type 7 puis    │   │  répond type 7 puis         │
+          │  publie en async)      │   │  relance en async)          │
+          └──────────┬─────────────┘   └──────────┬─────────────────┘
                      ▼                             ▼
           ┌─────────────────────┐   ┌─────────────────────────┐
-          │ services/blog/         │   │ Claude relit le brouillon │
-          │ publishDraft.ts        │   │ + les retours → nouvelle   │
-          │ (greffe les blobs sur  │   │ proposition (boucle,       │
-          │  master, sans re-upload)│  │  plafond 3 allers-retours) │
-          └──────────┬─────────────┘   └─────────────────────────┘
-                     ▼
-          push sur master → .github/workflows/deploy.yml
-          (inchangé) → build Docker → GHCR → VPS/Traefik → site en ligne
+          │ services/blog/         │   │ services/blog/             │
+          │ publishDraft.ts        │   │ reviseDraft.ts             │
+          │ (greffe les blobs sur  │   │ (Claude relit le brouillon │
+          │  master, sans re-upload)│  │  + les retours → nouveau    │
+          └──────────┬─────────────┘   │  commit sur la même branche)│
+                     │                 └──────────┬─────────────────┘
+                     ▼                             ▼
+          push sur master → .github/workflows/deploy.yml     nouveau message Discord
+          (inchangé) → build Docker → GHCR → VPS/Traefik      (Approuver / Retoucher)
+          → site en ligne
 ```
 
 ## Composants livrés (Phases 1-2)
@@ -112,30 +117,26 @@ lancement" qui empêcherait l'indexation une fois le blog réellement public).
 | `lib/discordSignature.ts` | Vérifie la signature Ed25519 d'une requête Discord (`tweetnacl`) — protection centrale de la route d'interactions |
 | `lib/reviewToken.ts` | Jeton HMAC-SHA256 protégeant les liens de prévisualisation |
 | `services/blog/discordNotifier.ts` | Poste le message hebdomadaire (embed + image de couverture en pièce jointe + boutons Approuver/Retoucher) |
-| `services/blog/discordInteractionHandler.ts` | Logique pure de routage des interactions (PING, boutons, modale) — journalise la décision, ne publie/ne relance rien encore (Phase 4) |
-| `app/api/discord/interactions/route.ts` | Vérifie la signature (401 sinon) puis délègue à `discordInteractionHandler` |
+| `app/api/discord/interactions/route.ts` | Vérifie la signature (401 sinon), répond immédiatement (type 7, boutons désactivés) puis termine la publication/retouche de façon asynchrone via `completeApproval`/`completeRevision` |
 | `app/blog-review/[slug]/page.tsx` | Prévisualisation signée (`?token=`) du brouillon, allée chercher en direct sur `blog-draft/<slug>` via `githubBlogRepo.getDraftContent`, jamais depuis le disque (le conteneur ne contient pas `content/_drafts`) — `noindex`, image de couverture en data URI |
 
-## Composants à venir (Phase 4, issue #35)
+## Composants livrés (Phase 4, issue #35)
 
 | Fichier | Rôle |
 |---|---|
-| `services/blog/publishDraft.ts` | Greffe les blobs déjà commités sur `blog-draft/<slug>` sur un nouveau commit `master` (pas de re-upload) |
-| `services/blog/reviseDraft.ts` | Relance Claude avec le brouillon + les retours de retouche |
+| `services/blog/discordInteractionHandler.ts` | Logique pure de routage des interactions (PING, boutons, modale) — répond type 7 immédiatement (boutons désactivés) pour éviter tout double clic pendant le travail asynchrone qui suit |
+| `services/blog/publishDraft.ts` | Greffe les blobs déjà commités sur `blog-draft/<slug>` sur un nouveau commit `master` (pas de re-upload), avec garde-fous (`slug_mismatch`, `missing_cover_image`, `invalid_cover_path`) |
+| `services/blog/reviseDraft.ts` | Relance Claude avec le brouillon existant + les retours de retouche, recommite sur la même branche `blog-draft/<slug>` (le slug ne change jamais d'une retouche à l'autre) et renotifie Discord |
+| `services/blog/anthropicDraftGenerator.ts` (méthode `reviseDraft`) | Prompt caching Anthropic (`cache_control: {type: "ephemeral"}`) activé **uniquement** sur cet appel, jamais sur `parseDraft()` (cron hebdomadaire) |
+| `services/blog/createBlogDraftDeps.ts` (`createReviseDraftDeps`) | Construit les dépendances réelles de la retouche, mêmes secrets que `createBlogDraftDeps()` |
 
-**`reviseDraft.ts` : activer le prompt caching Anthropic sur `SYSTEM_PROMPT`**, mais
-**seulement pour cet appel-là** — `anthropicDraftGenerator.ts` est partagé avec la
-génération hebdomadaire (`generateDraft.ts`), donc `cache_control` ne doit pas être mis
-en dur sur le bloc `system` de ce module (ça l'activerait aussi pour le cron, cf.
-ci-dessous). Prévoir plutôt une option explicite sur `parseDraft()` (ex.
-`parseDraft(existingTitles, { cacheSystemPrompt: true })`) ou une méthode dédiée,
-appelée uniquement par `reviseDraft.ts`.
-Inutile pour la génération hebdomadaire : le cron ne tourne qu'une fois par semaine —
-largement au-delà du TTL du cache (5 min, 1h en étendu) donc toujours un cache miss,
-écriture payée pour rien. La boucle de retouche, elle, relance Claude avec le **même
-prompt système** quelques minutes après la génération initiale (l'humain clique
-"Retoucher" sur Discord juste après avoir vu le brouillon), donc dans la fenêtre de
-cache : c'est le seul point du pipeline où le caching a un effet réel.
+**Pourquoi le prompt caching seulement sur `reviseDraft`** : le cron hebdomadaire
+(`parseDraft()`) ne tourne qu'une fois par semaine — largement au-delà du TTL du cache
+(5 min, 1h en étendu) donc toujours un cache miss, écriture payée pour rien. La boucle
+de retouche, elle, relance Claude avec le **même prompt système** quelques minutes
+après la génération initiale (l'humain clique "Retoucher" sur Discord juste après
+avoir vu le brouillon), donc dans la fenêtre de cache : c'est le seul point du
+pipeline où le caching a un effet réel.
 
 ## Pourquoi cette architecture (rappel des choix)
 
@@ -167,11 +168,14 @@ cache : c'est le seul point du pipeline où le caching a un effet réel.
   croissance du dépôt reste de l'ordre de quelques Mo par an. Si le blog devait un
   jour publier beaucoup plus souvent ou en plus haute résolution, Git LFS serait la
   suite logique — pas nécessaire à ce stade.
-- **Phase 3 journalise, ne publie/ne relance rien** : `discordInteractionHandler.ts`
-  répond à "Approuver" et à la soumission de la modale "Retoucher" en mettant
-  simplement à jour le message Discord — aucun push sur `master`, aucun appel à
-  Claude. Objectif : valider la vérification de signature et l'UX (mobile compris)
-  en conditions réelles avant de brancher des actions irréversibles (Phase 4).
+- **Réponse immédiate (type 7) plutôt que différée (type 6) sur "Approuver" et la
+  soumission de la modale "Retoucher"** : la publication réelle (greffe Git Data API)
+  et la retouche réelle (appel Claude + recommit + notification) dépassent souvent les
+  ~3s accordés par Discord pour répondre à un clic. Un type 6 laisserait les boutons
+  cliquables tout ce temps — double clic possible pendant un travail non-idempotent.
+  Le type 7 désactive les boutons dès la réponse initiale ; le travail réel se termine
+  ensuite de façon asynchrone dans le process Node du VPS puis met à jour le même
+  message via `updateInteractionMessage()`.
 - **Image de couverture en data URI sur la page de prévisualisation** : le brouillon
   n'est jamais sur le disque du conteneur (voir plus haut), donc pas d'URL statique
   `next/image` classique possible pour son illustration. Plutôt que d'ajouter une

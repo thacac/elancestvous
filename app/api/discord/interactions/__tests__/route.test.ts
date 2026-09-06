@@ -5,9 +5,16 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("@/services/blog/discordInteractionHandler", () => ({
   handleDiscordInteraction: vi.fn(),
   getApprovalSlug: vi.fn(),
+  getRevisionRequest: vi.fn(),
 }));
 vi.mock("@/services/blog/publishDraft", () => ({
   publishDraft: vi.fn(),
+}));
+vi.mock("@/services/blog/reviseDraft", () => ({
+  reviseDraft: vi.fn(),
+}));
+vi.mock("@/services/blog/createBlogDraftDeps", () => ({
+  createReviseDraftDeps: vi.fn().mockReturnValue({}),
 }));
 vi.mock("@/services/blog/githubBlogRepo", () => ({
   createGithubBlogRepo: vi.fn().mockReturnValue({}),
@@ -19,10 +26,12 @@ vi.mock("@/services/blog/discordNotifier", () => ({
 
 import {
   getApprovalSlug,
+  getRevisionRequest,
   handleDiscordInteraction,
 } from "@/services/blog/discordInteractionHandler";
 import { updateInteractionMessage } from "@/services/blog/discordNotifier";
 import { publishDraft } from "@/services/blog/publishDraft";
+import { reviseDraft } from "@/services/blog/reviseDraft";
 import { POST } from "../route";
 
 const keyPair = nacl.sign.keyPair();
@@ -56,7 +65,9 @@ describe("POST /api/discord/interactions", () => {
     process.env.GH_PAT_TOKEN = "pat";
     vi.mocked(handleDiscordInteraction).mockReset();
     vi.mocked(getApprovalSlug).mockReset().mockReturnValue(null);
+    vi.mocked(getRevisionRequest).mockReset().mockReturnValue(null);
     vi.mocked(publishDraft).mockReset();
+    vi.mocked(reviseDraft).mockReset();
     vi.mocked(updateInteractionMessage).mockReset().mockResolvedValue(undefined);
   });
 
@@ -218,6 +229,179 @@ describe("POST /api/discord/interactions", () => {
         "app-123",
         "tok",
         expect.objectContaining({ content: expect.stringContaining("GitHub API down") })
+      );
+    });
+  });
+
+  it("does not trigger a revision for a non-modal-submit interaction", async () => {
+    const body = JSON.stringify({ type: 1 });
+    vi.mocked(handleDiscordInteraction).mockReturnValue({ type: 1 });
+    vi.mocked(getRevisionRequest).mockReturnValue(null);
+
+    await POST(makeRequest(body));
+
+    expect(reviseDraft).not.toHaveBeenCalled();
+    expect(updateInteractionMessage).not.toHaveBeenCalled();
+  });
+
+  it("revises asynchronously and updates the message when the modal is submitted", async () => {
+    const body = JSON.stringify({
+      type: 5,
+      data: { custom_id: "revise_feedback:mon-article" },
+      application_id: "app-123",
+      token: "interaction-token-abc",
+    });
+    vi.mocked(handleDiscordInteraction).mockReturnValue({ type: 7 });
+    vi.mocked(getRevisionRequest).mockReturnValue({
+      slug: "mon-article",
+      feedback: "Le titre est trop générique",
+    });
+    vi.mocked(reviseDraft).mockResolvedValue({
+      status: "committed",
+      slug: "mon-article",
+      title: "Mon article retouché",
+      branch: "blog-draft/mon-article",
+      url: "https://github.com/thacac/elancestvous/tree/blog-draft/mon-article",
+    });
+
+    const response = await POST(makeRequest(body));
+    const responseBody = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(responseBody).toEqual({ type: 7 });
+    expect(reviseDraft).toHaveBeenCalledWith(
+      "mon-article",
+      "Le titre est trop générique",
+      expect.anything()
+    );
+
+    await vi.waitFor(() => {
+      expect(updateInteractionMessage).toHaveBeenCalledWith(
+        "app-123",
+        "interaction-token-abc",
+        expect.objectContaining({ content: expect.stringContaining("mon-article") })
+      );
+    });
+  });
+
+  it("updates the message with a clear reason when the model refuses to revise", async () => {
+    const body = JSON.stringify({
+      type: 5,
+      data: { custom_id: "revise_feedback:mon-article" },
+      application_id: "app-123",
+      token: "tok",
+    });
+    vi.mocked(handleDiscordInteraction).mockReturnValue({ type: 7 });
+    vi.mocked(getRevisionRequest).mockReturnValue({ slug: "mon-article", feedback: "..." });
+    vi.mocked(reviseDraft).mockResolvedValue({ status: "refused", category: "harmful" });
+
+    await POST(makeRequest(body));
+
+    await vi.waitFor(() => {
+      expect(updateInteractionMessage).toHaveBeenCalledWith(
+        "app-123",
+        "tok",
+        expect.objectContaining({ content: expect.stringContaining("refusé") })
+      );
+    });
+  });
+
+  it("updates the message with the reason when the revision generation fails", async () => {
+    const body = JSON.stringify({
+      type: 5,
+      data: { custom_id: "revise_feedback:mon-article" },
+      application_id: "app-123",
+      token: "tok",
+    });
+    vi.mocked(handleDiscordInteraction).mockReturnValue({ type: 7 });
+    vi.mocked(getRevisionRequest).mockReturnValue({ slug: "mon-article", feedback: "..." });
+    vi.mocked(reviseDraft).mockResolvedValue({
+      status: "generation_failed",
+      reason: "sortie structurée invalide",
+    });
+
+    await POST(makeRequest(body));
+
+    await vi.waitFor(() => {
+      expect(updateInteractionMessage).toHaveBeenCalledWith(
+        "app-123",
+        "tok",
+        expect.objectContaining({ content: expect.stringContaining("sortie structurée invalide") })
+      );
+    });
+  });
+
+  it("updates the message when the draft to revise is not found", async () => {
+    const body = JSON.stringify({
+      type: 5,
+      data: { custom_id: "revise_feedback:disparu" },
+      application_id: "app-123",
+      token: "tok",
+    });
+    vi.mocked(handleDiscordInteraction).mockReturnValue({ type: 7 });
+    vi.mocked(getRevisionRequest).mockReturnValue({ slug: "disparu", feedback: "..." });
+    vi.mocked(reviseDraft).mockResolvedValue({ status: "draft_not_found", slug: "disparu" });
+
+    await POST(makeRequest(body));
+
+    await vi.waitFor(() => {
+      expect(updateInteractionMessage).toHaveBeenCalledWith(
+        "app-123",
+        "tok",
+        expect.objectContaining({ content: expect.stringContaining("introuvable") })
+      );
+    });
+  });
+
+  it("logs (without leaking the interaction token) when the final revision message update fails", async () => {
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    const body = JSON.stringify({
+      type: 5,
+      data: { custom_id: "revise_feedback:mon-article" },
+      application_id: "app-123",
+      token: "super-secret-interaction-token",
+    });
+    vi.mocked(handleDiscordInteraction).mockReturnValue({ type: 7 });
+    vi.mocked(getRevisionRequest).mockReturnValue({ slug: "mon-article", feedback: "..." });
+    vi.mocked(reviseDraft).mockResolvedValue({
+      status: "committed",
+      slug: "mon-article",
+      title: "Mon article retouché",
+      branch: "blog-draft/mon-article",
+      url: "https://github.com/thacac/elancestvous/tree/blog-draft/mon-article",
+    });
+    vi.mocked(updateInteractionMessage).mockRejectedValue(new Error("Unknown Webhook"));
+
+    await POST(makeRequest(body));
+
+    await vi.waitFor(() => {
+      expect(consoleError).toHaveBeenCalled();
+    });
+    const loggedText = consoleError.mock.calls.flat().join(" ");
+    expect(loggedText).toContain("Unknown Webhook");
+    expect(loggedText).not.toContain("super-secret-interaction-token");
+
+    consoleError.mockRestore();
+  });
+
+  it("updates the message with the error when revising throws unexpectedly", async () => {
+    const body = JSON.stringify({
+      type: 5,
+      data: { custom_id: "revise_feedback:mon-article" },
+      application_id: "app-123",
+      token: "tok",
+    });
+    vi.mocked(handleDiscordInteraction).mockReturnValue({ type: 7 });
+    vi.mocked(getRevisionRequest).mockReturnValue({ slug: "mon-article", feedback: "..." });
+    vi.mocked(reviseDraft).mockRejectedValue(new Error("Anthropic API down"));
+
+    await POST(makeRequest(body));
+
+    await vi.waitFor(() => {
+      expect(updateInteractionMessage).toHaveBeenCalledWith(
+        "app-123",
+        "tok",
+        expect.objectContaining({ content: expect.stringContaining("Anthropic API down") })
       );
     });
   });

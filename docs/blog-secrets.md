@@ -36,7 +36,7 @@ Nommé `GH_PAT_TOKEN` et non `GITHUB_BLOG_PAT` (nom initialement prévu) : GitHu
 refuse tout secret de dépôt dont le nom commence par `GITHUB_`, préfixe réservé à
 ses propres variables.
 
-## Phase 3 (livrée, cette PR — issue #35)
+## Phase 3-4 (livrées — issue #35)
 
 | Variable | Rôle | Où l'obtenir |
 |---|---|---|
@@ -45,9 +45,13 @@ ses propres variables.
 | `DISCORD_CHANNEL_ID` | Salon Discord privé cible pour la notification hebdomadaire | Mode développeur activé → clic droit sur le salon → Copier l'identifiant |
 | `BLOG_REVIEW_SECRET` | Signe les tokens de prévisualisation (`lib/reviewToken.ts`, `/blog-review/[slug]`) | À générer soi-même (`openssl rand -hex 32`) |
 
-**Ce qui n'est pas encore fait (Phase 4)** : le clic sur "Approuver" ne publie
-pas encore réellement l'article, et "Retoucher" ne relance pas encore Claude —
-la Phase 3 se contente de vérifier la signature et de journaliser la décision
-(le message Discord est mis à jour pour le confirmer), pour valider le
-mécanisme avant de le brancher sur des actions réelles. Voir
-`docs/blog-architecture.md`.
+Le clic sur "Approuver" publie réellement l'article (greffe des blobs déjà commités
+sur `blog-draft/<slug>` vers un nouveau commit `master`, `services/blog/publishDraft.ts`)
+et "Retoucher" relance réellement Claude avec les retours saisis dans la modale
+(`services/blog/reviseDraft.ts`), recommite sur la même branche et renotifie Discord.
+Aucun secret supplémentaire par rapport à la liste ci-dessus — mêmes jetons que la
+Phase 3, simplement branchés sur des actions réelles plutôt que sur une simple mise à
+jour du message Discord. Voir `docs/blog-architecture.md`.
+
+**Non implémenté** : le plafond de 3 allers-retours de retouche évoqué dans le plan
+initial — chaque clic "Retoucher" relance Claude sans limite de tentatives.

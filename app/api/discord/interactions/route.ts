@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyDiscordSignature } from "@/lib/discordSignature";
+import { createReviseDraftDeps } from "@/services/blog/createBlogDraftDeps";
 import {
   getApprovalSlug,
+  getRevisionRequest,
   handleDiscordInteraction,
 } from "@/services/blog/discordInteractionHandler";
 import { updateInteractionMessage } from "@/services/blog/discordNotifier";
 import { createGithubBlogRepo, parseGithubRepoEnv } from "@/services/blog/githubBlogRepo";
 import { publishDraft } from "@/services/blog/publishDraft";
+import { reviseDraft } from "@/services/blog/reviseDraft";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -77,6 +80,57 @@ async function completeApproval(
   }
 }
 
+// Même raisonnement que completeApproval() ci-dessus : la soumission de la
+// modale "Retoucher" reçoit déjà une réponse immédiate (type 7) qui
+// désactive les boutons, car relancer Claude + recommiter + renotifier
+// Discord dépasse souvent les ~3s accordés. Le résultat final met donc à
+// jour ce même message une seconde fois via le webhook d'interaction.
+async function completeRevision(
+  applicationId: string,
+  interactionToken: string,
+  slug: string,
+  feedback: string
+): Promise<void> {
+  let content: string;
+  try {
+    const result = await reviseDraft(slug, feedback, createReviseDraftDeps());
+
+    switch (result.status) {
+      case "committed":
+        content = `✅ Retouche appliquée pour \`${slug}\` : nouvelle version postée ci-dessous.`;
+        break;
+      case "refused":
+        content = `⚠️ Le modèle a refusé de retoucher \`${slug}\` (catégorie : ${
+          result.category ?? "inconnue"
+        }). Réessaie avec une formulation différente.`;
+        break;
+      case "generation_failed":
+        content = `⚠️ Échec de la retouche de \`${slug}\` : ${result.reason}`;
+        break;
+      case "draft_not_found":
+        content = `⚠️ Brouillon \`${slug}\` introuvable (branche supprimée ?).`;
+        break;
+    }
+  } catch (err) {
+    // Même garde-fou que completeApproval() : ne jamais laisser Discord
+    // bloqué sur l'état différé en cas d'échec inattendu.
+    content = `⚠️ Échec de la retouche de \`${slug}\` : ${
+      err instanceof Error ? err.message : String(err)
+    }`;
+  }
+
+  try {
+    await updateInteractionMessage(applicationId, interactionToken, { content });
+  } catch (err) {
+    // Jamais le token lui-même dans le log (secret de courte durée mais un
+    // secret quand même).
+    console.error(
+      `[discord/interactions] échec de la mise à jour finale du message de retouche pour "${slug}" :`,
+      err instanceof Error ? err.message : String(err)
+    );
+  }
+}
+
 export async function POST(request: NextRequest) {
   // Corps brut obligatoire pour la vérification de signature — jamais
   // request.json() puis re-sérialisation, ça invaliderait silencieusement
@@ -96,6 +150,16 @@ export async function POST(request: NextRequest) {
   const approvalSlug = getApprovalSlug(payload);
   if (approvalSlug) {
     void completeApproval(payload.application_id, payload.token, approvalSlug);
+  }
+
+  const revisionRequest = getRevisionRequest(payload);
+  if (revisionRequest) {
+    void completeRevision(
+      payload.application_id,
+      payload.token,
+      revisionRequest.slug,
+      revisionRequest.feedback
+    );
   }
 
   return NextResponse.json(result);
