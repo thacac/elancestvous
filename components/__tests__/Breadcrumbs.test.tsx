@@ -97,4 +97,12 @@ describe("Breadcrumbs", () => {
     const jsonLd = getJsonLd();
     expect(jsonLd.itemListElement[1]).not.toHaveProperty("item");
   });
+
+  it("still renders Accueil as a real link when no items are given", () => {
+    render(<Breadcrumbs items={[]} />);
+    expect(screen.getByRole("link", { name: "Accueil" })).toHaveAttribute(
+      "href",
+      "/",
+    );
+  });
 });
