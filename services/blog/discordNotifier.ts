@@ -21,6 +21,33 @@ function truncate(value: string, max: number): string {
   return value.length > max ? `${value.slice(0, max - 1)}…` : value;
 }
 
+// Partagé entre notifyDraftReady() (message hebdomadaire initial) et
+// route.ts (ré-affiche les mêmes boutons sur un échec d'Approuver/Retoucher,
+// pour permettre de réessayer sans attendre une nouvelle génération
+// hebdomadaire) : les deux doivent toujours cibler le même slug avec les
+// mêmes custom_id.
+export function buildDraftActionRow(slug: string): unknown[] {
+  return [
+    {
+      type: 1,
+      components: [
+        {
+          type: 2,
+          style: 3,
+          label: "Approuver",
+          custom_id: `blog_approve:${slug}`,
+        },
+        {
+          type: 2,
+          style: 2,
+          label: "Retoucher",
+          custom_id: `blog_revise:${slug}`,
+        },
+      ],
+    },
+  ];
+}
+
 function buildMultipartBody(payload: unknown, coverImage: Buffer): FormData {
   const body = new FormData();
   body.set("payload_json", JSON.stringify(payload));
@@ -54,25 +81,7 @@ export function createDiscordNotifier(options: {
             ...(args.coverImage ? { image: { url: "attachment://cover.jpg" } } : {}),
           },
         ],
-        components: [
-          {
-            type: 1,
-            components: [
-              {
-                type: 2,
-                style: 3,
-                label: "Approuver",
-                custom_id: `blog_approve:${args.slug}`,
-              },
-              {
-                type: 2,
-                style: 2,
-                label: "Retoucher",
-                custom_id: `blog_revise:${args.slug}`,
-              },
-            ],
-          },
-        ],
+        components: buildDraftActionRow(args.slug),
       };
 
       const response = await fetchImpl(
