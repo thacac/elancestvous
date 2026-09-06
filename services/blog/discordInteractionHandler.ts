@@ -32,9 +32,18 @@ const REVISE_PREFIX = "blog_revise:";
 const REVISE_FEEDBACK_PREFIX = "revise_feedback:";
 
 /**
- * Phase 3 : vérifie/route les interactions Discord et journalise la décision
- * (contenu du message mis à jour) sans déclencher de publication ni de
- * relance IA réelle — ça, c'est la Phase 4, une fois l'UX/signature validées.
+ * Vérifie/route les interactions Discord. "Approuver" déclenche une vraie
+ * publication (Phase 4) qui prend plus que les ~3s que Discord accorde pour
+ * répondre à un clic. Répond type 7 (UPDATE_MESSAGE) immédiatement avec les
+ * boutons désactivés (components: []) plutôt qu'un type 6 différé : avec un
+ * type 6, le message ne change pas tant que le follow-up n'arrive pas, donc
+ * les boutons restent cliquables pendant toute la publication — un double
+ * clic déclencherait deux publications concurrentes (au mieux un 422
+ * non-fast-forward sur master, au pire une confusion côté Discord). Le vrai
+ * travail se termine ensuite de façon asynchrone
+ * (app/api/discord/interactions/route.ts) et met à jour le même message via
+ * updateInteractionMessage() une fois terminé. "Retoucher" reste Phase 3 :
+ * journalise la décision, la relance IA réelle n'est pas encore construite.
  */
 export function handleDiscordInteraction(
   payload: DiscordInteractionPayload
@@ -50,7 +59,7 @@ export function handleDiscordInteraction(
     return {
       type: 7,
       data: {
-        content: `✅ Décision reçue : **Approuver** pour \`${slug}\`. La publication automatique arrivera en Phase 4 — pour l'instant, cette décision est seulement enregistrée.`,
+        content: `⏳ Publication de \`${slug}\` en cours...`,
         components: [],
         allowed_mentions: NO_MENTIONS,
       },
@@ -98,4 +107,14 @@ export function handleDiscordInteraction(
   }
 
   return { type: 4, data: { content: "Interaction non reconnue.", flags: 64 } };
+}
+
+// Utilisé par route.ts pour décider s'il faut lancer la publication réelle
+// après avoir répondu à Discord (la réponse type 7 renvoyée ci-dessus par
+// handleDiscordInteraction ne porte pas cette information).
+export function getApprovalSlug(payload: DiscordInteractionPayload): string | null {
+  if (payload.type !== 3) return null;
+  const customId = payload.data?.custom_id ?? "";
+  if (!customId.startsWith(APPROVE_PREFIX)) return null;
+  return customId.slice(APPROVE_PREFIX.length);
 }

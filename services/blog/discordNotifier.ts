@@ -135,3 +135,35 @@ export function createDiscordNotifier(options: {
     },
   };
 }
+
+// Met à jour une seconde fois le message d'une interaction déjà répondue
+// (type 7 immédiat, cf. discordInteractionHandler.ts) une fois le vrai
+// travail asynchrone terminé (Phase 4 : publication réelle sur
+// "Approuver"). Endpoint webhook distinct de l'API des messages de canal :
+// authentifié par le token d'interaction lui-même (valable 15 min), jamais
+// par le bot token.
+export async function updateInteractionMessage(
+  applicationId: string,
+  interactionToken: string,
+  payload: { content: string; components?: unknown[] },
+  fetchImpl: typeof fetch = fetch
+): Promise<void> {
+  const response = await fetchImpl(
+    `https://discord.com/api/v10/webhooks/${applicationId}/${interactionToken}/messages/@original`,
+    {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        content: truncate(payload.content, MESSAGE_CONTENT_MAX),
+        components: payload.components ?? [],
+        allowed_mentions: { parse: [] },
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      `Discord a refusé la mise à jour du message (${response.status}) : ${await response.text()}`
+    );
+  }
+}

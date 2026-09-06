@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { createDiscordNotifier } from "../discordNotifier";
+import { createDiscordNotifier, updateInteractionMessage } from "../discordNotifier";
 
 function makeFetch(status = 200) {
   return vi.fn().mockResolvedValue({
@@ -171,5 +171,57 @@ describe("createDiscordNotifier.notifyGenerationFailed", () => {
 
     const payload = JSON.parse(fetchImpl.mock.calls[0][1].body as string);
     expect(payload.content.length).toBeLessThanOrEqual(2000);
+  });
+});
+
+describe("updateInteractionMessage", () => {
+  it("PATCHes the original interaction message via the webhook endpoint, no bot token needed", async () => {
+    const fetchImpl = vi.fn().mockResolvedValue({ ok: true, status: 200, text: vi.fn() });
+
+    await updateInteractionMessage(
+      "app-id-123",
+      "interaction-token-abc",
+      { content: "✅ Publié" },
+      fetchImpl
+    );
+
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+    const [url, init] = fetchImpl.mock.calls[0];
+    expect(url).toBe(
+      "https://discord.com/api/v10/webhooks/app-id-123/interaction-token-abc/messages/@original"
+    );
+    expect(init.method).toBe("PATCH");
+    expect(init.headers["Content-Type"]).toBe("application/json");
+    expect(init.headers.Authorization).toBeUndefined();
+    const payload = JSON.parse(init.body as string);
+    expect(payload.content).toBe("✅ Publié");
+    expect(payload.components).toEqual([]);
+    expect(payload.allowed_mentions).toEqual({ parse: [] });
+  });
+
+  it("truncates an oversized content to Discord's 2000-character message limit", async () => {
+    const fetchImpl = vi.fn().mockResolvedValue({ ok: true, status: 200, text: vi.fn() });
+
+    await updateInteractionMessage(
+      "app-id-123",
+      "interaction-token-abc",
+      { content: "C".repeat(3000) },
+      fetchImpl
+    );
+
+    const payload = JSON.parse(fetchImpl.mock.calls[0][1].body as string);
+    expect(payload.content.length).toBeLessThanOrEqual(2000);
+  });
+
+  it("throws with the response status when Discord rejects the request", async () => {
+    const fetchImpl = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 404,
+      text: vi.fn().mockResolvedValue("Unknown Webhook"),
+    });
+
+    await expect(
+      updateInteractionMessage("app-id-123", "expired-token", { content: "x" }, fetchImpl)
+    ).rejects.toThrow(/404/);
   });
 });

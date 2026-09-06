@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { handleDiscordInteraction } from "../discordInteractionHandler";
+import { getApprovalSlug, handleDiscordInteraction } from "../discordInteractionHandler";
 
 describe("handleDiscordInteraction", () => {
   it("responds to a PING with a PONG", () => {
@@ -7,7 +7,7 @@ describe("handleDiscordInteraction", () => {
     expect(result).toEqual({ type: 1 });
   });
 
-  it("logs the approve decision and disables the buttons", () => {
+  it("disables the buttons immediately on approve, before the real publication completes", () => {
     const result = handleDiscordInteraction({
       type: 3,
       data: { custom_id: "blog_approve:mon-article" },
@@ -16,7 +16,6 @@ describe("handleDiscordInteraction", () => {
     expect(result.type).toBe(7);
     expect(result.data?.components).toEqual([]);
     expect(result.data?.content).toContain("mon-article");
-    expect(result.data?.content).toContain("Approuver");
     expect(result.data?.allowed_mentions).toEqual({ parse: [] });
   });
 
@@ -77,5 +76,23 @@ describe("handleDiscordInteraction", () => {
 
     expect(result.type).toBe(4);
     expect(result.data?.flags).toBe(64);
+  });
+});
+
+describe("getApprovalSlug", () => {
+  it("extracts the slug from an approve button interaction", () => {
+    expect(
+      getApprovalSlug({ type: 3, data: { custom_id: "blog_approve:mon-article" } })
+    ).toBe("mon-article");
+  });
+
+  it("returns null for a revise button interaction", () => {
+    expect(
+      getApprovalSlug({ type: 3, data: { custom_id: "blog_revise:mon-article" } })
+    ).toBeNull();
+  });
+
+  it("returns null for a non-component interaction", () => {
+    expect(getApprovalSlug({ type: 1 })).toBeNull();
   });
 });
