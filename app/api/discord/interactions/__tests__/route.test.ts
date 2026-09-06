@@ -22,6 +22,7 @@ vi.mock("@/services/blog/githubBlogRepo", () => ({
 }));
 vi.mock("@/services/blog/discordNotifier", () => ({
   updateInteractionMessage: vi.fn().mockResolvedValue(undefined),
+  buildDraftActionRow: vi.fn((slug: string) => [{ type: 1, marker: `row-for-${slug}` }]),
 }));
 
 import {
@@ -29,7 +30,7 @@ import {
   getRevisionRequest,
   handleDiscordInteraction,
 } from "@/services/blog/discordInteractionHandler";
-import { updateInteractionMessage } from "@/services/blog/discordNotifier";
+import { buildDraftActionRow, updateInteractionMessage } from "@/services/blog/discordNotifier";
 import { publishDraft } from "@/services/blog/publishDraft";
 import { reviseDraft } from "@/services/blog/reviseDraft";
 import { POST } from "../route";
@@ -69,6 +70,7 @@ describe("POST /api/discord/interactions", () => {
     vi.mocked(publishDraft).mockReset();
     vi.mocked(reviseDraft).mockReset();
     vi.mocked(updateInteractionMessage).mockReset().mockResolvedValue(undefined);
+    vi.mocked(buildDraftActionRow).mockClear();
   });
 
   afterEach(() => {
@@ -404,5 +406,157 @@ describe("POST /api/discord/interactions", () => {
         expect.objectContaining({ content: expect.stringContaining("Anthropic API down") })
       );
     });
+  });
+
+  it.each([
+    "missing_cover_image",
+    "slug_mismatch",
+    "invalid_cover_path",
+    "draft_not_found",
+  ] as const)(
+    "re-attaches the original Approuver/Retoucher buttons when publishing returns %s, so the click can be retried",
+    async (status) => {
+      const body = JSON.stringify({
+        type: 3,
+        data: { custom_id: "blog_approve:mon-article" },
+        application_id: "app-123",
+        token: "tok",
+      });
+      vi.mocked(handleDiscordInteraction).mockReturnValue({ type: 7 });
+      vi.mocked(getApprovalSlug).mockReturnValue("mon-article");
+      vi.mocked(publishDraft).mockResolvedValue({ status, slug: "mon-article" });
+
+      await POST(makeRequest(body));
+
+      await vi.waitFor(() => {
+        expect(updateInteractionMessage).toHaveBeenCalledWith(
+          "app-123",
+          "tok",
+          expect.objectContaining({ components: [{ type: 1, marker: "row-for-mon-article" }] })
+        );
+      });
+    }
+  );
+
+  it("re-attaches the buttons when publishing throws unexpectedly", async () => {
+    const body = JSON.stringify({
+      type: 3,
+      data: { custom_id: "blog_approve:mon-article" },
+      application_id: "app-123",
+      token: "tok",
+    });
+    vi.mocked(handleDiscordInteraction).mockReturnValue({ type: 7 });
+    vi.mocked(getApprovalSlug).mockReturnValue("mon-article");
+    vi.mocked(publishDraft).mockRejectedValue(new Error("GitHub API down"));
+
+    await POST(makeRequest(body));
+
+    await vi.waitFor(() => {
+      expect(updateInteractionMessage).toHaveBeenCalledWith(
+        "app-123",
+        "tok",
+        expect.objectContaining({ components: [{ type: 1, marker: "row-for-mon-article" }] })
+      );
+    });
+  });
+
+  it("does not re-attach buttons when publishing succeeds", async () => {
+    const body = JSON.stringify({
+      type: 3,
+      data: { custom_id: "blog_approve:mon-article" },
+      application_id: "app-123",
+      token: "tok",
+    });
+    vi.mocked(handleDiscordInteraction).mockReturnValue({ type: 7 });
+    vi.mocked(getApprovalSlug).mockReturnValue("mon-article");
+    vi.mocked(publishDraft).mockResolvedValue({
+      status: "published",
+      slug: "mon-article",
+      title: "Mon article",
+      commitUrl: "https://github.com/thacac/elancestvous/commit/abc",
+    });
+
+    await POST(makeRequest(body));
+
+    await vi.waitFor(() => {
+      expect(updateInteractionMessage).toHaveBeenCalled();
+    });
+    expect(buildDraftActionRow).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    { status: "refused" as const, category: "harmful" },
+    { status: "generation_failed" as const, reason: "sortie structurée invalide" },
+    { status: "draft_not_found" as const, slug: "mon-article" },
+  ])(
+    "re-attaches the original buttons when revising returns $status, so the click can be retried",
+    async (result) => {
+      const body = JSON.stringify({
+        type: 5,
+        data: { custom_id: "revise_feedback:mon-article" },
+        application_id: "app-123",
+        token: "tok",
+      });
+      vi.mocked(handleDiscordInteraction).mockReturnValue({ type: 7 });
+      vi.mocked(getRevisionRequest).mockReturnValue({ slug: "mon-article", feedback: "..." });
+      vi.mocked(reviseDraft).mockResolvedValue(result);
+
+      await POST(makeRequest(body));
+
+      await vi.waitFor(() => {
+        expect(updateInteractionMessage).toHaveBeenCalledWith(
+          "app-123",
+          "tok",
+          expect.objectContaining({ components: [{ type: 1, marker: "row-for-mon-article" }] })
+        );
+      });
+    }
+  );
+
+  it("re-attaches the buttons when revising throws unexpectedly", async () => {
+    const body = JSON.stringify({
+      type: 5,
+      data: { custom_id: "revise_feedback:mon-article" },
+      application_id: "app-123",
+      token: "tok",
+    });
+    vi.mocked(handleDiscordInteraction).mockReturnValue({ type: 7 });
+    vi.mocked(getRevisionRequest).mockReturnValue({ slug: "mon-article", feedback: "..." });
+    vi.mocked(reviseDraft).mockRejectedValue(new Error("Anthropic API down"));
+
+    await POST(makeRequest(body));
+
+    await vi.waitFor(() => {
+      expect(updateInteractionMessage).toHaveBeenCalledWith(
+        "app-123",
+        "tok",
+        expect.objectContaining({ components: [{ type: 1, marker: "row-for-mon-article" }] })
+      );
+    });
+  });
+
+  it("does not re-attach buttons when revising succeeds (a fresh message with buttons is posted separately)", async () => {
+    const body = JSON.stringify({
+      type: 5,
+      data: { custom_id: "revise_feedback:mon-article" },
+      application_id: "app-123",
+      token: "tok",
+    });
+    vi.mocked(handleDiscordInteraction).mockReturnValue({ type: 7 });
+    vi.mocked(getRevisionRequest).mockReturnValue({ slug: "mon-article", feedback: "..." });
+    vi.mocked(reviseDraft).mockResolvedValue({
+      status: "committed",
+      slug: "mon-article",
+      title: "Titre révisé",
+      branch: "blog-draft/mon-article",
+      url: "https://github.com/thacac/elancestvous/tree/blog-draft/mon-article",
+    });
+
+    await POST(makeRequest(body));
+
+    await vi.waitFor(() => {
+      expect(updateInteractionMessage).toHaveBeenCalled();
+    });
+    expect(buildDraftActionRow).not.toHaveBeenCalled();
   });
 });
