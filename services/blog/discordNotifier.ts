@@ -136,11 +136,12 @@ export function createDiscordNotifier(options: {
   };
 }
 
-// Met à jour le message original d'une interaction différée (réponse type 6
-// DEFERRED_UPDATE_MESSAGE) une fois le vrai travail terminé (Phase 4 :
-// publication réelle sur "Approuver"). Endpoint webhook distinct de l'API
-// des messages de canal : authentifié par le token d'interaction lui-même
-// (valable 15 min), jamais par le bot token.
+// Met à jour une seconde fois le message d'une interaction déjà répondue
+// (type 7 immédiat, cf. discordInteractionHandler.ts) une fois le vrai
+// travail asynchrone terminé (Phase 4 : publication réelle sur
+// "Approuver"). Endpoint webhook distinct de l'API des messages de canal :
+// authentifié par le token d'interaction lui-même (valable 15 min), jamais
+// par le bot token.
 export async function updateInteractionMessage(
   applicationId: string,
   interactionToken: string,

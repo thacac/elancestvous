@@ -110,7 +110,7 @@ export function handleDiscordInteraction(
 }
 
 // Utilisé par route.ts pour décider s'il faut lancer la publication réelle
-// après avoir répondu à Discord (le type 6 renvoyé ci-dessus par
+// après avoir répondu à Discord (la réponse type 7 renvoyée ci-dessus par
 // handleDiscordInteraction ne porte pas cette information).
 export function getApprovalSlug(payload: DiscordInteractionPayload): string | null {
   if (payload.type !== 3) return null;

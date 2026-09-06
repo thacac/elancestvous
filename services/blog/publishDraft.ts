@@ -3,6 +3,7 @@ import { parseDraftContent } from "@/lib/blog";
 export type PublishDraftResult =
   | { status: "published"; slug: string; title: string; commitUrl: string }
   | { status: "missing_cover_image"; slug: string }
+  | { status: "slug_mismatch"; slug: string }
   | { status: "draft_not_found"; slug: string };
 
 export type PublishDraftDeps = {
@@ -25,6 +26,16 @@ export async function publishDraft(
   if (!draft) return { status: "draft_not_found", slug };
 
   const { frontmatter } = parseDraftContent(draft.markdown, slug);
+
+  // frontmatter.slug alimente le chemin de coverImage écrit dans le
+  // frontmatter (/blog/<frontmatter.slug>/...), tandis que
+  // github.publishDraft() publie le fichier réel à
+  // public/blog/<slug>/... (le slug demandé, celui de la branche
+  // blog-draft/<slug>). Un écart entre les deux casserait l'URL de
+  // l'image de l'article publié.
+  if (frontmatter.slug !== slug) {
+    return { status: "slug_mismatch", slug };
+  }
 
   // Le schéma des articles publiés (lib/blog.ts) exige coverImage/
   // coverImageAlt — contrairement au brouillon, qui peut en être dépourvu
