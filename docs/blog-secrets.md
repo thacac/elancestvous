@@ -55,3 +55,20 @@ jour du message Discord. Voir `docs/blog-architecture.md`.
 
 **Non implémenté** : le plafond de 3 allers-retours de retouche évoqué dans le plan
 initial — chaque clic "Retoucher" relance Claude sans limite de tentatives.
+
+## Optionnel — réglage coût/modèle (`services/blog/anthropicDraftGenerator.ts`)
+
+| Variable | Rôle | Défaut si absente |
+|---|---|---|
+| `ANTHROPIC_BLOG_MODEL` | Modèle Claude utilisé pour `parseDraft`/`reviseDraft` | `claude-opus-5` |
+| `ANTHROPIC_BLOG_EFFORT` | `output_config.effort` (`low`/`medium`/`high`/`xhigh`/`max`) | non défini — effort adaptatif par défaut du SDK |
+
+Chaque appel logue déjà (`console.log`, préfixe `[blog/anthropic]`) les tokens
+consommés et un coût estimé en dollars, à partir d'une petite table de tarifs
+codée en dur dans `anthropicDraftGenerator.ts` — à mettre à jour si un nouveau
+modèle est configuré via `ANTHROPIC_BLOG_MODEL`. Ne pas changer `ANTHROPIC_BLOG_EFFORT`
+sans avoir d'abord comparé la qualité obtenue : `yarn blog:compare-models`
+(`scripts/compareDraftModels.ts`) génère le même article avec plusieurs couples
+modèle/effort pour comparer coût et qualité avant de changer le réglage en
+production — appelle réellement l'API Anthropic et dépense de l'argent, réservé à
+un usage manuel ponctuel.
