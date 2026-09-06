@@ -25,7 +25,7 @@ function requireEnv(name: string): string {
 async function loadDraft(slug: string) {
   const { owner, repo } = parseGithubRepoEnv(requireEnv("GITHUB_REPO"));
   const github = createGithubBlogRepo({
-    auth: requireEnv("GITHUB_BLOG_PAT"),
+    auth: requireEnv("GH_PAT_TOKEN"),
     owner,
     repo,
   });

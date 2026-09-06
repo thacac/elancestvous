@@ -34,7 +34,7 @@ export function createBlogDraftDeps(): GenerateDraftDeps {
       ? createOpenAiImageGenerator({ apiKey: imageGenApiKey })
       : undefined,
     github: createGithubBlogRepo({
-      auth: requireEnv("GITHUB_BLOG_PAT"),
+      auth: requireEnv("GH_PAT_TOKEN"),
       owner,
       repo,
     }),

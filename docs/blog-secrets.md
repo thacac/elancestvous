@@ -12,7 +12,7 @@ de plus dans l'étape "Create .env file from GitHub Secrets" de `deploy.yml` suf
 |---|---|---|
 | `ANTHROPIC_API_KEY` | Génération du texte de l'article (`services/blog/anthropicDraftGenerator.ts`) | console.anthropic.com |
 | `IMAGE_GEN_API_KEY` | Génération de l'illustration de couverture via `gpt-image-1` (`services/blog/openaiImageGenerator.ts`) | platform.openai.com — **clé API**, distincte de l'abonnement ChatGPT (facturation séparée, voir note ci-dessous) |
-| `GITHUB_BLOG_PAT` | Commit des brouillons sur `blog-draft/<slug>` (`services/blog/githubBlogRepo.ts`) | PAT *fine-grained*, limité au dépôt `elancestvous`, permission `Contents` en lecture/écriture uniquement (principe du moindre privilège — le code actuel lit/écrit du contenu et crée des branches, sans jamais toucher aux pull requests), avec expiration |
+| `GH_PAT_TOKEN` | Commit des brouillons sur `blog-draft/<slug>` (`services/blog/githubBlogRepo.ts`) | PAT *fine-grained*, limité au dépôt `elancestvous`, permission `Contents` en lecture/écriture uniquement (principe du moindre privilège — le code actuel lit/écrit du contenu et crée des branches, sans jamais toucher aux pull requests), avec expiration |
 | `GITHUB_REPO` | Dépôt cible au format `owner/repo` (ex. `thacac/elancestvous`) | fixe |
 | `BLOG_CRON_SECRET` | Authentifie l'appel `POST /api/blog/generate` envoyé par le cron GitHub Actions | à générer soi-même (chaîne aléatoire longue) |
 
@@ -24,13 +24,17 @@ sur `platform.openai.com` et y ajouter un petit crédit prépayé (quelques doll
 suffisent pour un rythme hebdomadaire) — l'appel `gpt-image-1` n'est pas inclus
 automatiquement dans un abonnement ChatGPT Plus.
 
-### Note sur `GITHUB_BLOG_PAT`
+### Note sur `GH_PAT_TOKEN`
 
 Le `GITHUB_TOKEN` fourni automatiquement par GitHub Actions n'existe que pendant
 l'exécution d'un workflow — il n'est pas accessible à l'app Next.js qui tourne en
 continu sur le VPS et doit pouvoir écrire sur le dépôt à n'importe quel moment de la
 semaine (typiquement, quand quelqu'un clique "Approuver" sur Discord). D'où un PAT
 dédié à l'app plutôt qu'un jeton de run Actions.
+
+Nommé `GH_PAT_TOKEN` et non `GITHUB_BLOG_PAT` (nom initialement prévu) : GitHub
+refuse tout secret de dépôt dont le nom commence par `GITHUB_`, préfixe réservé à
+ses propres variables.
 
 ## Phase 3 (livrée, cette PR — issue #35)
 
