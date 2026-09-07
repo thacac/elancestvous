@@ -208,3 +208,19 @@ remonter un sujet devenu entre-temps moins pertinent).
 Voir aussi `docs/blog-secrets.md` (secrets requis), `docs/blog-charte-editoriale.md`
 (voix/contraintes du prompt système) et `docs/blog-guide-validation-discord.md`
 (usage prévu pour la validation).
+
+## Composants livrés (issue #72 — maillage retour service → blog)
+
+| Fichier | Rôle |
+|---|---|
+| `lib/blog.ts` (champ `pillar`) | Le frontmatter publié conserve désormais le pilier déclaré à la génération (`services/blog/generateDraft.ts::buildDraftMarkdown` l'écrivait déjà, mais `frontmatterSchema` l'ignorait silencieusement — zod ne garde que les clés déclarées) |
+| `lib/relatedArticles.ts` (`getRelatedArticleLinks`) | Pour une page de service donnée, retrouve les articles publiés dont le pilier cible cette page (`services/blog/pillars.ts::PILLARS`), triés du plus récent au plus ancien et plafonnés à 3 ; renvoie `[]` tant que `BLOG_ENABLED` n'est pas `"true"` (sinon lien mort vers `/blog/[slug]`, qui 404) |
+| `components/ArticlesBlogLiesBloc.tsx` | Rendu partagé par les 4 pages de service (`liens={...}` sur `ArticulationBloc`) — ne rend rien si aucun article ne cible encore la page |
+
+Le lien retour (service → article) est donc automatique et n'a **aucune étape
+manuelle par publication** : chaque brouillon déclare déjà obligatoirement son
+pilier (`services/blog/draftSchema.ts`), qui pointe déjà vers une page de
+service (`targetPage`, utilisé jusqu'ici uniquement pour le lien
+article → service demandé au modèle). Publier un article suffit à le faire
+apparaître, au prochain build, sur la page de service correspondante — sans
+nouvelle association à maintenir en parallèle du frontmatter existant.

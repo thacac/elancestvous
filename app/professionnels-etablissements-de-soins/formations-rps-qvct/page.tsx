@@ -1,3 +1,4 @@
+import ArticlesBlogLiesBloc from "@/components/ArticlesBlogLiesBloc";
 import ArticulationBloc from "@/components/ArticulationBloc";
 import BadgesBloc from "@/components/BadgesBloc";
 import Breadcrumbs from "@/components/Breadcrumbs";
@@ -211,6 +212,9 @@ export default function FormationsProPage() {
             },
           ]}
         />
+
+        {/* --- 6b. Articles du blog en lien (issue #72 : maillage retour) --- */}
+        <ArticlesBlogLiesBloc targetPage="/professionnels-etablissements-de-soins/formations-rps-qvct" />
 
         {/* --- 5. CTA FINAL : IMPACT MAXIMAL --- */}
         <CtaElan />

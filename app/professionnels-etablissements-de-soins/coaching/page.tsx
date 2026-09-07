@@ -1,3 +1,4 @@
+import ArticlesBlogLiesBloc from "@/components/ArticlesBlogLiesBloc";
 import ArticulationBloc from "@/components/ArticulationBloc";
 import BadgesBloc from "@/components/BadgesBloc";
 import Breadcrumbs from "@/components/Breadcrumbs";
@@ -240,6 +241,9 @@ export default function CoachingPage() {
             },
           ]}
         />
+
+        {/* --- 6b. Articles du blog en lien (issue #72 : maillage retour) --- */}
+        <ArticlesBlogLiesBloc targetPage="/professionnels-etablissements-de-soins/coaching" />
 
         {/* --- 7. CTA FINAL --- */}
         <CtaElan />

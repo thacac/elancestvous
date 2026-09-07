@@ -29,6 +29,12 @@ const frontmatterSchema = z.object({
   coverImage: z.string().min(1),
   coverImageAlt: z.string().min(1),
   tags: z.array(z.string()).default([]),
+  // Absent pour un article publié avant l'introduction du champ (voir
+  // services/blog/generateDraft.ts::buildDraftMarkdown) — pas validé contre
+  // l'énum PillarId ici pour ne pas faire dépendre lib/blog (couche de
+  // rendu) de services/blog/pillars ; lib/relatedArticles.ts fait ce
+  // rapprochement et ignore silencieusement une valeur inconnue.
+  pillar: z.string().optional(),
 });
 
 export type PostMeta = z.infer<typeof frontmatterSchema> & {
