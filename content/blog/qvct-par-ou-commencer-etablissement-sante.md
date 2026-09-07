@@ -7,6 +7,7 @@ publishedAt: "2026-08-25"
 coverImage: "/og-banner.jpg"
 coverImageAlt: "Illustration provisoire — sera remplacée par une image générée une fois le pipeline d'illustration branché"
 tags: ["QVCT", "établissements", "prévention"]
+pillar: "C"
 ---
 
 La qualité de vie et des conditions de travail (QVCT) est souvent perçue, à tort, comme un chantier réservé aux grandes structures dotées de moyens dédiés. En réalité, elle démarre par des actions simples, ciblées, et surtout **choisies avec les équipes** plutôt qu'imposées d'en haut.

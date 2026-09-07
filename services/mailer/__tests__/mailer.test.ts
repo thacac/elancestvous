@@ -3,15 +3,17 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import Mailer from '../mailer';
 
+const sendMailMock = vi.fn(async (opts) => ({
+    accepted: [opts.to],
+    rejected: [],
+    response: '250 OK',
+}));
+
 vi.mock('nodemailer', () => {
     return {
         default: {
             createTransport: vi.fn(() => ({
-                sendMail: vi.fn(async (opts) => ({
-                    accepted: [opts.to],
-                    rejected: [],
-                    response: '250 OK',
-                }))
+                sendMail: sendMailMock,
             }))
         }
     };
@@ -27,6 +29,7 @@ describe('Mailer', () => {
         process.env.SMTP_USR = 'test@example.com';
         process.env.SMTP_PWD = 'password';
         mailer = new Mailer();
+        sendMailMock.mockClear();
     });
 
     afterEach(() => {
@@ -55,6 +58,26 @@ describe('Mailer', () => {
         });
         expect(result.accepted).toContain('test@example.com');
         expect(result.response).toBe('250 OK');
+    });
+
+    // Contrairement à firstName/lastName/subject, fromEmail n'était que
+    // débarrassé des \r\n (protection header injection) mais jamais passé
+    // par sanitizeHtml avant d'être interpolé dans le HTML de l'email — un
+    // Server Action Next.js étant un endpoint POST directement appelable, ce
+    // champ n'est pas garanti d'être une adresse email valide côté serveur
+    // (cf. issue #75).
+    it('should sanitize HTML injected via fromEmail before embedding it in the email body', async () => {
+        await mailer.sendMailToUs({
+            firstName: 'John',
+            lastName: 'Doe',
+            fromEmail: '<img src=x onerror=alert(1)>evil@example.com',
+            subject: 'Hello',
+            message: 'Hi'
+        });
+
+        const sentOptions = sendMailMock.mock.calls[0][0];
+        expect(sentOptions.html).not.toContain('<img');
+        expect(sentOptions.html).not.toContain('onerror');
     });
 
     it('should use correct SMTP config', () => {

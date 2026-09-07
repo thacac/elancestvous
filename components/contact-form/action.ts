@@ -3,11 +3,21 @@ import SMTPTransport from "nodemailer/lib/smtp-transport";
 
 import Mailer from "@/services/mailer/mailer";
 
-import { ContactFormValues } from "./validation";
+import { contactFormSchema, ContactFormValues } from "./validation";
 
 export async function submit_contact_form(
   data: ContactFormValues
 ): Promise<SMTPTransport.SentMessageInfo | { error: string } | undefined> {
+  // Une Server Action Next.js reste un endpoint POST directement appelable,
+  // en contournant le formulaire et la validation zod côté client
+  // (zodResolver dans ContactForm.tsx) — sans revalidation ici, un "email"
+  // arbitraire atteindrait Mailer.sendMailToUs (issue #75).
+  const parsed = contactFormSchema.safeParse(data);
+  if (!parsed.success) {
+    return { error: "Formulaire invalide." };
+  }
+  data = parsed.data;
+
   const mailer = new Mailer();
 
   try {

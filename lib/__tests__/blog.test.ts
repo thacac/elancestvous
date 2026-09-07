@@ -6,12 +6,14 @@ import {
   getAllPostsMeta,
   getPostBySlug,
   getPostSlugs,
+  getRelatedPosts,
   parseDraftContent,
   renderMarkdownToSafeHtml,
 } from "../blog";
 
 const FIXTURES = path.join(__dirname, "fixtures", "blog");
 const VALID = path.join(FIXTURES, "valid");
+const PILLARS_DIR = path.join(FIXTURES, "pillars");
 
 describe("getPostSlugs", () => {
   it("lists the frontmatter slugs of every markdown file in the directory", () => {
@@ -29,6 +31,17 @@ describe("getAllPostsMeta", () => {
   it("includes a computed reading time", () => {
     const posts = getAllPostsMeta(VALID);
     expect(posts[0].readingTime).toMatch(/min/);
+  });
+
+  it("defaults pillar to null when absent from frontmatter", () => {
+    const posts = getAllPostsMeta(VALID);
+    expect(posts.every((p) => p.pillar === null)).toBe(true);
+  });
+
+  it("exposes the declared pillar when present in frontmatter", () => {
+    const posts = getAllPostsMeta(PILLARS_DIR);
+    const post = posts.find((p) => p.slug === "cocon-c-un");
+    expect(post?.pillar).toBe("C");
   });
 
   it("throws a descriptive error when frontmatter is invalid", () => {
@@ -62,6 +75,43 @@ describe("getPostBySlug", () => {
     expect(post.html).not.toMatch(/on\w+\s*=/i);
     expect(post.html).not.toContain("javascript:");
     expect(post.html).toContain("Un paragraphe normal.");
+  });
+});
+
+describe("getRelatedPosts", () => {
+  it("returns other posts sharing the same pillar, excluding itself", () => {
+    const posts = getAllPostsMeta(PILLARS_DIR);
+    const current = posts.find((p) => p.slug === "cocon-c-un")!;
+
+    const related = getRelatedPosts(current, posts);
+
+    expect(related.map((p) => p.slug)).toEqual(["cocon-c-deux"]);
+  });
+
+  it("returns an empty array when no other post shares the same pillar", () => {
+    const posts = getAllPostsMeta(PILLARS_DIR);
+    const current = posts.find((p) => p.slug === "cocon-a")!;
+
+    expect(getRelatedPosts(current, posts)).toEqual([]);
+  });
+
+  it("returns an empty array when the post has no pillar declared", () => {
+    const posts = getAllPostsMeta(PILLARS_DIR);
+    const current = posts.find((p) => p.slug === "sans-pillar")!;
+
+    expect(getRelatedPosts(current, posts)).toEqual([]);
+  });
+});
+
+describe("getPostBySlug — relatedPosts (cocon sémantique, issue #73)", () => {
+  it("includes the other posts of the same pillar", async () => {
+    const post = await getPostBySlug("cocon-c-un", PILLARS_DIR);
+    expect(post.relatedPosts.map((p) => p.slug)).toEqual(["cocon-c-deux"]);
+  });
+
+  it("is empty when the post has no pillar declared", async () => {
+    const post = await getPostBySlug("sans-pillar", PILLARS_DIR);
+    expect(post.relatedPosts).toEqual([]);
   });
 });
 

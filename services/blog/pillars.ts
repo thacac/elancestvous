@@ -48,6 +48,12 @@ export const PILLARS: Pillar[] = [
   },
 ];
 
+// Tuple non vide dérivé de PILLARS — seule source de vérité des ids valides,
+// partagée par draftSchema.ts (sortie structurée de la génération) et
+// lib/blog.ts (frontmatter des articles publiés, réutilisé comme cocon
+// sémantique, cf. issue #73) pour éviter que les deux dérivations divergent.
+export const PILLAR_IDS = PILLARS.map((p) => p.id) as [PillarId, ...PillarId[]];
+
 export type PillarSuggestion = {
   pillar: Pillar;
   recentTags: string[];
