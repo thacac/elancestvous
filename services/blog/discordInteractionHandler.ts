@@ -4,6 +4,7 @@ type DiscordComponentRow = { components?: DiscordComponentValue[] };
 type DiscordInteractionPayload = {
   type: number;
   data?: {
+    name?: string;
     custom_id?: string;
     components?: DiscordComponentRow[];
   };
@@ -37,6 +38,16 @@ const REVISE_FEEDBACK_PREFIX = "revise_feedback:";
 const ACTU_APPROVE_PREFIX = "actu_approve:";
 const ACTU_REJECT_PREFIX = "actu_reject:";
 
+// Commande slash /blog-sujet (issue #67) — ouverte à tout le salon Discord,
+// volontairement sans vérification de payload.member.user.id (décision
+// tranchée dans l'issue : le salon est privé, SYSTEM_PROMPT reste la seule
+// protection en aval contre une tentative d'injection de prompt via le
+// champ "sujet"/"notes", cf. submitBlogSujet ci-dessous).
+const BLOG_SUJET_COMMAND_NAME = "blog-sujet";
+const BLOG_SUJET_MODAL_ID = "blog_sujet_submit";
+const BLOG_SUJET_TOPIC_FIELD = "topic";
+const BLOG_SUJET_NOTES_FIELD = "notes";
+
 /**
  * Vérifie/route les interactions Discord. "Approuver" déclenche une vraie
  * publication (Phase 4) qui prend plus que les ~3s que Discord accorde pour
@@ -57,6 +68,46 @@ export function handleDiscordInteraction(
 ): DiscordInteractionResponse {
   if (payload.type === 1) {
     return { type: 1 };
+  }
+
+  if (payload.type === 2 && payload.data?.name === BLOG_SUJET_COMMAND_NAME) {
+    return {
+      type: 9,
+      data: {
+        custom_id: BLOG_SUJET_MODAL_ID,
+        title: "Proposer un sujet pour le blog",
+        components: [
+          {
+            type: 1,
+            components: [
+              {
+                type: 4,
+                custom_id: BLOG_SUJET_TOPIC_FIELD,
+                style: 1,
+                label: "Sujet / thème",
+                placeholder: "Ex. : la nouvelle obligation de formation RPS...",
+                required: true,
+                max_length: 200,
+              },
+            ],
+          },
+          {
+            type: 1,
+            components: [
+              {
+                type: 4,
+                custom_id: BLOG_SUJET_NOTES_FIELD,
+                style: 2,
+                label: "Notes (optionnel)",
+                placeholder: "Contexte, angle, source...",
+                required: false,
+                max_length: 1000,
+              },
+            ],
+          },
+        ],
+      },
+    };
   }
 
   const customId = payload.data?.custom_id ?? "";
@@ -188,4 +239,77 @@ export function getActualiteRejectionId(payload: DiscordInteractionPayload): str
   const customId = payload.data?.custom_id ?? "";
   if (!customId.startsWith(ACTU_REJECT_PREFIX)) return null;
   return customId.slice(ACTU_REJECT_PREFIX.length);
+}
+
+// Extrait le sujet/les notes de la soumission de la modale /blog-sujet.
+// Contrairement aux boutons Approuver/Retoucher, écrire l'entrée en file
+// (via l'API Contents GitHub) reste sous les ~3s accordés par Discord pour
+// répondre — cf. submitBlogSujet ci-dessous, appelée avant de répondre
+// (réponse immédiate en type 4, pas de schéma différé type 7).
+export function getBlogSujetSubmission(
+  payload: DiscordInteractionPayload
+): { topic: string; notes: string | null } | null {
+  if (payload.type !== 5) return null;
+  const customId = payload.data?.custom_id ?? "";
+  if (customId !== BLOG_SUJET_MODAL_ID) return null;
+  const rows = payload.data?.components ?? [];
+  const topic = (rows[0]?.components?.[0]?.value ?? "").trim();
+  const notes = (rows[1]?.components?.[0]?.value ?? "").trim();
+  return { topic, notes: notes || null };
+}
+
+// Mitigation 3 de l'issue #67 : même fenêtre de tags récents que
+// l'anti-cannibalisation de mots-clés de generateDraft.ts (issue #52) —
+// dupliquée ici plutôt que partagée, pour ne pas coupler deux fichiers sur
+// un simple flatMap+slice.
+const RECENT_TAGS_WINDOW = 6;
+
+// Chevauchement simple, pas un blocage : la soumission Discord ouverte à
+// tout le salon (cf. décision d'accès de l'issue #67) doit rester rapide à
+// utiliser, l'avertissement sert juste à rendre le doublon potentiel visible
+// dans la réponse plutôt que de refuser silencieusement un vrai sujet neuf.
+export function hasTagOverlap(topic: string, recentTags: string[]): boolean {
+  const normalizedTopic = topic.toLowerCase();
+  return recentTags.some((tag) => normalizedTopic.includes(tag.toLowerCase()));
+}
+
+export type SubmitBlogSujetDeps = {
+  github: {
+    listPublishedPosts(): Promise<{ tags: string[] }[]>;
+    queueDiscordTopic(entry: { topic: string; notes: string | null }): Promise<void>;
+  };
+};
+
+// Écrit le sujet en file (content/blog/sujets-discord.json, via
+// githubBlogRepo.queueDiscordTopic) puis répond immédiatement en type 4 —
+// jamais de type 7 différé ici, l'écriture d'une seule entrée JSON via
+// l'API Contents est largement sous les ~3s accordés par Discord, cf. issue
+// #67. Le contenu du champ "sujet"/"notes" n'est jamais renvoyé vers Claude
+// ici : il n'est injecté dans le message envoyé à parseDraft que plus tard,
+// par generateDraft.ts, toujours après SYSTEM_PROMPT (mitigation 4).
+export async function submitBlogSujet(
+  submission: { topic: string; notes: string | null },
+  deps: SubmitBlogSujetDeps
+): Promise<DiscordInteractionResponse> {
+  // Indépendants l'un de l'autre (le chevauchement de mots-clés ne dépend
+  // pas de l'écriture) — lancés en parallèle pour rester sous les ~3s
+  // accordés par Discord, cf. le commentaire sur cette fonction.
+  const [publishedPosts] = await Promise.all([
+    deps.github.listPublishedPosts(),
+    deps.github.queueDiscordTopic(submission),
+  ]);
+  const recentTags = publishedPosts.flatMap((p) => p.tags).slice(-RECENT_TAGS_WINDOW);
+  const overlap = hasTagOverlap(submission.topic, recentTags);
+
+  const warning = overlap
+    ? "\n⚠️ Ce sujet recoupe des mots-clés déjà traités récemment — vérifie qu'il apporte un angle nouveau."
+    : "";
+
+  return {
+    type: 4,
+    data: {
+      content: `✅ Sujet ajouté à la file : « ${submission.topic} ».${warning}`,
+      allowed_mentions: NO_MENTIONS,
+    },
+  };
 }

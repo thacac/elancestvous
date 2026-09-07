@@ -54,7 +54,8 @@ export type GenerateDraftDeps = {
   anthropic: {
     parseDraft(
       existingTitles: string[],
-      suggestion?: PillarSuggestion
+      suggestion?: PillarSuggestion,
+      discordTopic?: { topic: string; notes: string | null }
     ): Promise<AnthropicParseResult>;
   };
   // Optionnel : tant qu'aucune clé de génération d'image n'est configurée
@@ -65,6 +66,11 @@ export type GenerateDraftDeps = {
   };
   github: {
     listPublishedPosts(): Promise<PublishedPost[]>;
+    // File d'attente des sujets soumis via /blog-sujet (issue #67),
+    // prioritaire sur la rotation pondérée de piliers quand elle contient
+    // une entrée "a_publier" — voir la cascade de priorité en tête de
+    // generateDraft() ci-dessous.
+    getNextDiscordTopic(): Promise<{ topic: string; notes: string | null } | null>;
     commitDraftBranch(args: {
       slug: string;
       postMarkdown: string;
@@ -170,16 +176,16 @@ function buildPillarRotationSuggestion(publishedPosts: PublishedPost[]): PillarS
   };
 }
 
-// Cœur commun aux deux points d'entrée exportés ci-dessous : une fois qu'un
-// sujet est décidé (rotation de piliers, ou actualité approuvée par un
-// humain), la génération/commit/notification se déroule à l'identique.
-async function generateDraftFromSuggestion(
-  suggestion: PillarSuggestion,
-  existingTitles: string[],
+// Cœur commun à tous les points d'entrée ci-dessous : une fois qu'une
+// réponse structurée a été obtenue (rotation de piliers, actualité
+// approuvée, ou sujet soumis via Discord), la validation/commit/notification
+// se déroule à l'identique.
+async function generateDraftFromResponse(
+  response: AnthropicParseResult,
+  sourceUrl: string | null,
+  commitMessageSuffix: string,
   deps: GenerateDraftDeps
 ): Promise<GenerateDraftResult> {
-  const response = await deps.anthropic.parseDraft(existingTitles, suggestion);
-
   if (response.stop_reason === "refusal") {
     return { status: "refused", category: response.stop_details?.category ?? undefined };
   }
@@ -209,15 +215,12 @@ async function generateDraftFromSuggestion(
     }
   }
 
-  const sourceUrl = suggestion.actualite?.sourceUrl ?? null;
   const postMarkdown = buildDraftMarkdown(draft, coverImage, sourceUrl);
   const { branch, url } = await deps.github.commitDraftBranch({
     slug: draft.slug,
     postMarkdown,
     coverImage,
-    commitMessage: suggestion.actualite
-      ? `blog: brouillon "${draft.title}" (actualité approuvée)`
-      : `blog: brouillon "${draft.title}" (génération hebdomadaire)`,
+    commitMessage: `blog: brouillon "${draft.title}" (${commitMessageSuffix})`,
   });
 
   // Le brouillon est déjà en sécurité sur GitHub à ce stade : une erreur ici
@@ -235,17 +238,38 @@ async function generateDraftFromSuggestion(
   return { status: "committed", slug: draft.slug, title: draft.title, branch, url };
 }
 
+async function generateDraftFromSuggestion(
+  suggestion: PillarSuggestion,
+  existingTitles: string[],
+  deps: GenerateDraftDeps
+): Promise<GenerateDraftResult> {
+  const response = await deps.anthropic.parseDraft(existingTitles, suggestion);
+  const sourceUrl = suggestion.actualite?.sourceUrl ?? null;
+  const commitMessageSuffix = suggestion.actualite ? "actualité approuvée" : "génération hebdomadaire";
+  return generateDraftFromResponse(response, sourceUrl, commitMessageSuffix, deps);
+}
+
+async function generateDraftFromDiscordTopic(
+  discordTopic: { topic: string; notes: string | null },
+  existingTitles: string[],
+  deps: GenerateDraftDeps
+): Promise<GenerateDraftResult> {
+  const response = await deps.anthropic.parseDraft(existingTitles, undefined, discordTopic);
+  return generateDraftFromResponse(response, null, "sujet soumis via Discord", deps);
+}
+
 export async function generateDraft(
   deps: GenerateDraftDeps
 ): Promise<GenerateDraftResult> {
   const publishedPosts = await deps.github.listPublishedPosts();
   const existingTitles = publishedPosts.map((p) => p.title);
 
-  // Cascade de priorité du sujet de la semaine (#66) : une actualité pas
-  // déjà citée ni déjà proposée passe avant la rotation pondérée de piliers,
-  // qui reste le seul niveau toujours disponible (fallback de #52). Elle
-  // n'est cependant jamais générée directement (cf. GenerateDraftResult
-  // ci-dessus) : elle est d'abord soumise à validation humaine sur Discord.
+  // Cascade de priorité du sujet de la semaine (#66 > #67 > #52).
+  //
+  // 1. Veille actualité (#66) : une actualité pas déjà citée ni déjà
+  // proposée passe avant tout le reste. Elle n'est cependant jamais générée
+  // directement (cf. GenerateDraftResult ci-dessus) : elle est d'abord
+  // soumise à validation humaine sur Discord.
   if (deps.actualiteWatch) {
     const recentPillars = publishedPosts
       .map((p) => p.pillar)
@@ -282,6 +306,20 @@ export async function generateDraft(
     }
   }
 
+  // 2. Sujet soumis via la commande Discord /blog-sujet (#67) : s'il existe
+  // une entrée "a_publier", elle remplace entièrement la suggestion de
+  // pilier issue de la rotation pondérée. Le champ "pillar" reste
+  // obligatoire (BlogDraftSchema), donc le crédit du pilier réellement
+  // déclaré par Claude est automatiquement décrémenté la prochaine fois que
+  // pickNextPillar() rejoue l'historique publié (mitigation 2 de #67) — pas
+  // besoin d'un mécanisme de crédit séparé pour la file Discord.
+  const discordTopic = await deps.github.getNextDiscordTopic();
+  if (discordTopic) {
+    return generateDraftFromDiscordTopic(discordTopic, existingTitles, deps);
+  }
+
+  // 3. Rotation pondérée de piliers (#52) : le seul niveau toujours
+  // disponible, fallback final de la cascade.
   const suggestion = buildPillarRotationSuggestion(publishedPosts);
   return generateDraftFromSuggestion(suggestion, existingTitles, deps);
 }

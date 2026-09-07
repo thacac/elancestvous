@@ -184,6 +184,27 @@ pipeline où le caching a un effet réel.
   pas une page à fort trafic, donc le coût d'une image non mise en cache est
   négligeable.
 
+## Composants livrés (issue #67 — sujet Discord `/blog-sujet`)
+
+| Fichier | Rôle |
+|---|---|
+| `scripts/registerDiscordCommand.ts` | Enregistre la commande slash `/blog-sujet` auprès de Discord (`PUT /applications/{id}/commands`) — appel manuel ponctuel, pas dans le runtime de l'app |
+| `services/blog/discordInteractionHandler.ts` | Route l'invocation (ouvre une modale sujet/notes) et la soumission (`getBlogSujetSubmission`, `submitBlogSujet`) — réponse immédiate en **type 4** (pas de type 7 différé : écrire une entrée JSON via l'API Contents reste sous les ~3s accordés par Discord), sans aucune vérification d'identité (décision assumée) |
+| `services/blog/githubBlogRepo.ts` (`queueDiscordTopic`/`getNextDiscordTopic`) | Lit/écrit `content/blog/sujets-discord.json` directement sur `master` (comme un fichier de contenu classique, pas de branche de brouillon) |
+| `services/blog/generateDraft.ts` | Priorise le premier sujet `"a_publier"` de la file sur la rotation pondérée de piliers (#52) quand il existe ; le champ `pillar` reste obligatoire dans les deux cas |
+
+Cascade de priorité du sujet de la semaine, telle qu'implémentée aujourd'hui :
+veille actualité (#66, `services/blog/actualiteWatch.ts`) **>** sujet Discord
+(`sujets-discord.json`, ce ticket) **>** rotation pondérée de piliers (#52, seul
+niveau qui s'applique toujours). Le niveau #66 ne génère cependant jamais
+directement : un candidat trouvé est d'abord soumis à validation humaine sur
+Discord (boutons "Approuver le sujet"/"Ignorer") avant que la génération ne
+démarre — voir la section dédiée à #66 plus bas pour le détail de ce mécanisme.
+Le statut d'une entrée Discord (`"a_publier"` → `"publie"`) est mis à jour
+**manuellement** après publication, pas de synchronisation automatique — limite
+connue documentée plutôt que corrigée dans cette PR (une file chargée peut faire
+remonter un sujet devenu entre-temps moins pertinent).
+
 Voir aussi `docs/blog-secrets.md` (secrets requis), `docs/blog-charte-editoriale.md`
 (voix/contraintes du prompt système) et `docs/blog-guide-validation-discord.md`
 (usage prévu pour la validation).
