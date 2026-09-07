@@ -1,15 +1,18 @@
 import { Octokit } from "@octokit/rest";
 import matter from "gray-matter";
 
-import type { PillarId } from "./pillars";
+import { PILLARS, type PillarId } from "./pillars";
 
 const CONTENT_BLOG_PATH = "content/blog";
+const VALID_PILLAR_IDS = new Set<string>(PILLARS.map((p) => p.id));
 
 export type PublishedPost = {
   title: string;
-  // null pour un article publié avant l'introduction du champ pillar —
-  // pickNextPillar() (services/blog/pillars.ts) l'ignore simplement plutôt
-  // que d'échouer sur l'historique existant.
+  publishedAt: string;
+  // null pour un article publié avant l'introduction du champ pillar, ou
+  // portant une valeur qui ne correspond plus à un pilier connu (édition
+  // manuelle, renommage) — pickNextPillar() (services/blog/pillars.ts)
+  // l'ignore simplement plutôt que d'échouer sur l'historique existant.
   pillar: PillarId | null;
   localAngle: boolean;
   tags: string[];
@@ -55,13 +58,24 @@ export function createGithubBlogRepo(options: {
         const raw = Buffer.from(file.content, "base64").toString("utf8");
         const { data: frontmatter } = matter(raw);
         if (typeof frontmatter.title !== "string") continue;
+        const pillar =
+          typeof frontmatter.pillar === "string" && VALID_PILLAR_IDS.has(frontmatter.pillar)
+            ? (frontmatter.pillar as PillarId)
+            : null;
         posts.push({
           title: frontmatter.title,
-          pillar: typeof frontmatter.pillar === "string" ? (frontmatter.pillar as PillarId) : null,
+          publishedAt: typeof frontmatter.publishedAt === "string" ? frontmatter.publishedAt : "",
+          pillar,
           localAngle: frontmatter.localAngle === true,
           tags: Array.isArray(frontmatter.tags) ? frontmatter.tags : [],
         });
       }
+      // L'ordre de listage de l'API Contents (alphabétique par nom de
+      // fichier) ne correspond pas à l'ordre de publication (cf.
+      // lib/blog.ts qui re-trie lui aussi par publishedAt) — les
+      // consommateurs (rotation de piliers, cf. generateDraft.ts) supposent
+      // un ordre chronologique croissant (le plus récent en dernier).
+      posts.sort((a, b) => (a.publishedAt < b.publishedAt ? -1 : a.publishedAt > b.publishedAt ? 1 : 0));
       return posts;
     },
 
