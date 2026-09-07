@@ -14,6 +14,8 @@ const revisedDraft: BlogDraft = {
   imagePrompts: [
     { purpose: "cover", prompt: "a calm office illustration", altText: "Illustration" },
   ],
+  pillar: "C",
+  localAngle: false,
 };
 
 function makeDeps(overrides: Partial<ReviseDraftDeps> = {}): ReviseDraftDeps {

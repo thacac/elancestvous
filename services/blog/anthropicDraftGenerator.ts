@@ -4,6 +4,8 @@ import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import { BlogDraftSchema } from "./draftSchema";
 import { SYSTEM_PROMPT, type AnthropicParseResult } from "./generateDraft";
 
+import type { PillarSuggestion } from "./pillars";
+
 const DEFAULT_MODEL = "claude-opus-5";
 
 type Effort = "low" | "medium" | "high" | "xhigh" | "max";
@@ -77,7 +79,39 @@ export function createAnthropicDraftGenerator(options?: {
   const effort = requestedEffort as Effort | undefined;
 
   return {
-    async parseDraft(existingTitles: string[]): Promise<AnthropicParseResult> {
+    async parseDraft(
+      existingTitles: string[],
+      suggestion?: PillarSuggestion
+    ): Promise<AnthropicParseResult> {
+      const parts: string[] = [
+        existingTitles.length > 0
+          ? `Titres déjà publiés à ne pas répéter :\n- ${existingTitles.join("\n- ")}`
+          : "Aucun article publié pour l'instant.",
+      ];
+
+      // Sans suggestion (aucun ticket de source de sujet prioritaire ne
+      // s'applique cette semaine), le comportement reste inchangé : aucune
+      // contrainte de sujet, message identique à avant l'introduction de la
+      // rotation de piliers.
+      if (suggestion) {
+        parts.push(
+          `Thème suggéré pour cette semaine (pilier ${suggestion.pillar.id} — ${suggestion.pillar.label}) : ${suggestion.pillar.theme} Fais un lien interne explicite vers ${suggestion.pillar.targetPage} dans le corps de l'article. Tu peux t'écarter de ce thème si un autre sujet est manifestement plus pertinent, mais déclare alors dans le champ structuré "pillar" le pilier que ton article couvre réellement, pas celui suggéré ici.`
+        );
+        if (suggestion.recentTags.length > 0) {
+          parts.push(
+            `Mots-clés/tags déjà ciblés récemment, à éviter de reprendre comme angle principal (pour ne pas cannibaliser un article existant) : ${suggestion.recentTags.join(", ")}.`
+          );
+        }
+        if (suggestion.injectLocalAngle) {
+          parts.push(
+            "Intègre un ancrage local explicite (Toulouse / Haute-Garonne / Occitanie) dans cet article, quel que soit le pilier choisi, et reflète-le dans le champ structuré \"localAngle\"."
+          );
+        }
+      }
+      parts.push(
+        existingTitles.length > 0 ? "Propose un nouvel article." : "Propose un premier article."
+      );
+
       const response = await client.messages.parse({
         model,
         max_tokens: 16000,
@@ -86,12 +120,7 @@ export function createAnthropicDraftGenerator(options?: {
         messages: [
           {
             role: "user",
-            content:
-              existingTitles.length > 0
-                ? `Titres déjà publiés à ne pas répéter :\n- ${existingTitles.join(
-                    "\n- "
-                  )}\n\nPropose un nouvel article.`
-                : "Aucun article publié pour l'instant. Propose un premier article.",
+            content: parts.join(" "),
           },
         ],
       });

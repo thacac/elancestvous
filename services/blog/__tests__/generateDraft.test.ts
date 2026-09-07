@@ -7,6 +7,7 @@ import {
 } from "../generateDraft";
 
 import type { BlogDraft } from "../draftSchema";
+import type { PublishedPost } from "../githubBlogRepo";
 
 const validDraft: BlogDraft = {
   title: "Un titre valide",
@@ -18,7 +19,13 @@ const validDraft: BlogDraft = {
   imagePrompts: [
     { purpose: "cover", prompt: "a calm office illustration", altText: "Illustration" },
   ],
+  pillar: "C",
+  localAngle: false,
 };
+
+function makePublishedPost(overrides: Partial<PublishedPost> = {}): PublishedPost {
+  return { title: "Un autre article", pillar: "C", localAngle: false, tags: ["QVCT"], ...overrides };
+}
 
 function makeDeps(overrides: Partial<GenerateDraftDeps> = {}): GenerateDraftDeps {
   return {
@@ -32,7 +39,7 @@ function makeDeps(overrides: Partial<GenerateDraftDeps> = {}): GenerateDraftDeps
       generateCoverImage: vi.fn().mockResolvedValue(Buffer.from("fake-image")),
     },
     github: {
-      listPublishedPostTitles: vi.fn().mockResolvedValue(["Un autre article"]),
+      listPublishedPosts: vi.fn().mockResolvedValue([makePublishedPost()]),
       commitDraftBranch: vi.fn().mockResolvedValue({
         branch: "blog-draft/un-titre-valide",
         url: "https://github.com/thacac/elancestvous/tree/blog-draft/un-titre-valide",
@@ -57,7 +64,7 @@ describe("generateDraft", () => {
       branch: "blog-draft/un-titre-valide",
       url: "https://github.com/thacac/elancestvous/tree/blog-draft/un-titre-valide",
     });
-    expect(deps.github.listPublishedPostTitles).toHaveBeenCalled();
+    expect(deps.github.listPublishedPosts).toHaveBeenCalled();
     expect(deps.imageGenerator?.generateCoverImage).toHaveBeenCalledWith(
       "a calm office illustration"
     );
@@ -122,6 +129,57 @@ describe("generateDraft", () => {
     );
   });
 
+  it("passes a pillar suggestion computed from publication history to parseDraft", async () => {
+    const deps = makeDeps({
+      github: {
+        listPublishedPosts: vi.fn().mockResolvedValue([
+          makePublishedPost({ title: "Article C1", pillar: "C", localAngle: true, tags: ["RPS"] }),
+          makePublishedPost({
+            title: "Article D1",
+            pillar: "D",
+            localAngle: false,
+            tags: ["GAPP"],
+          }),
+        ]),
+        commitDraftBranch: vi.fn().mockResolvedValue({
+          branch: "blog-draft/un-titre-valide",
+          url: "https://github.com/thacac/elancestvous/tree/blog-draft/un-titre-valide",
+        }),
+      },
+    });
+
+    await generateDraft(deps);
+
+    expect(deps.anthropic.parseDraft).toHaveBeenCalledWith(
+      ["Article C1", "Article D1"],
+      expect.objectContaining({ recentTags: expect.arrayContaining(["RPS", "GAPP"]) })
+    );
+    // Dernier pilier publié = D : jamais choisi deux fois de suite.
+    const suggestion = (deps.anthropic.parseDraft as ReturnType<typeof vi.fn>).mock.calls[0][1];
+    expect(suggestion.pillar.id).not.toBe("D");
+  });
+
+  it("suggests injecting the local angle when no recent article carried it", async () => {
+    const deps = makeDeps({
+      github: {
+        listPublishedPosts: vi
+          .fn()
+          .mockResolvedValue([makePublishedPost({ localAngle: false })]),
+        commitDraftBranch: vi.fn().mockResolvedValue({
+          branch: "blog-draft/un-titre-valide",
+          url: "https://github.com/thacac/elancestvous/tree/blog-draft/un-titre-valide",
+        }),
+      },
+    });
+
+    await generateDraft(deps);
+
+    expect(deps.anthropic.parseDraft).toHaveBeenCalledWith(
+      expect.any(Array),
+      expect.objectContaining({ injectLocalAngle: true })
+    );
+  });
+
   it("returns generation_failed and does not commit when image generation fails", async () => {
     const deps = makeDeps({
       imageGenerator: {
@@ -147,6 +205,8 @@ describe("buildDraftMarkdown", () => {
     expect(markdown).toContain(`title: ${validDraft.title}`);
     expect(markdown).toContain("slug: un-titre-valide");
     expect(markdown).toContain("coverImage: /blog/un-titre-valide/cover.jpg");
+    expect(markdown).toContain("pillar: C");
+    expect(markdown).toContain("localAngle: false");
     expect(markdown).toContain("Contenu de l'article.");
   });
 

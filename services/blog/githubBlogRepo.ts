@@ -1,7 +1,19 @@
 import { Octokit } from "@octokit/rest";
 import matter from "gray-matter";
 
+import type { PillarId } from "./pillars";
+
 const CONTENT_BLOG_PATH = "content/blog";
+
+export type PublishedPost = {
+  title: string;
+  // null pour un article publié avant l'introduction du champ pillar —
+  // pickNextPillar() (services/blog/pillars.ts) l'ignore simplement plutôt
+  // que d'échouer sur l'historique existant.
+  pillar: PillarId | null;
+  localAngle: boolean;
+  tags: string[];
+};
 
 export function createGithubBlogRepo(options: {
   auth: string;
@@ -14,7 +26,7 @@ export function createGithubBlogRepo(options: {
   const baseBranch = options.baseBranch ?? "master";
 
   return {
-    async listPublishedPostTitles(): Promise<string[]> {
+    async listPublishedPosts(): Promise<PublishedPost[]> {
       let entries;
       try {
         const { data } = await octokit.rest.repos.getContent({
@@ -30,7 +42,7 @@ export function createGithubBlogRepo(options: {
         throw err;
       }
 
-      const titles: string[] = [];
+      const posts: PublishedPost[] = [];
       for (const entry of entries) {
         if (entry.type !== "file" || !entry.name.endsWith(".md")) continue;
         const { data: file } = await octokit.rest.repos.getContent({
@@ -42,9 +54,15 @@ export function createGithubBlogRepo(options: {
         if (Array.isArray(file) || file.type !== "file" || !file.content) continue;
         const raw = Buffer.from(file.content, "base64").toString("utf8");
         const { data: frontmatter } = matter(raw);
-        if (typeof frontmatter.title === "string") titles.push(frontmatter.title);
+        if (typeof frontmatter.title !== "string") continue;
+        posts.push({
+          title: frontmatter.title,
+          pillar: typeof frontmatter.pillar === "string" ? (frontmatter.pillar as PillarId) : null,
+          localAngle: frontmatter.localAngle === true,
+          tags: Array.isArray(frontmatter.tags) ? frontmatter.tags : [],
+        });
       }
-      return titles;
+      return posts;
     },
 
     async commitDraftBranch(args: {

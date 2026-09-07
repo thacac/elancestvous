@@ -23,7 +23,7 @@ vi.mock("@octokit/rest", () => ({
 
 import { createGithubBlogRepo } from "../githubBlogRepo";
 
-describe("createGithubBlogRepo.listPublishedPostTitles", () => {
+describe("createGithubBlogRepo.listPublishedPosts", () => {
   it("reads content/blog on baseBranch rather than the repo's default branch", async () => {
     getContent
       .mockResolvedValueOnce({
@@ -43,7 +43,7 @@ describe("createGithubBlogRepo.listPublishedPostTitles", () => {
       baseBranch: "master",
     });
 
-    await github.listPublishedPostTitles();
+    await github.listPublishedPosts();
 
     expect(getContent).toHaveBeenNthCalledWith(
       1,
@@ -53,6 +53,60 @@ describe("createGithubBlogRepo.listPublishedPostTitles", () => {
       2,
       expect.objectContaining({ path: "content/blog/post.md", ref: "master" })
     );
+  });
+
+  it("extracts pillar, localAngle and tags from each post's frontmatter", async () => {
+    getContent
+      .mockResolvedValueOnce({
+        data: [{ type: "file", name: "post.md", path: "content/blog/post.md" }],
+      })
+      .mockResolvedValueOnce({
+        data: {
+          type: "file",
+          content: Buffer.from(
+            "---\ntitle: Un article\npillar: C\nlocalAngle: true\ntags:\n  - QVCT\n  - RPS\n---\n"
+          ).toString("base64"),
+        },
+      });
+
+    const github = createGithubBlogRepo({
+      auth: "token",
+      owner: "thacac",
+      repo: "elancestvous",
+      baseBranch: "master",
+    });
+
+    const posts = await github.listPublishedPosts();
+
+    expect(posts).toEqual([
+      { title: "Un article", pillar: "C", localAngle: true, tags: ["QVCT", "RPS"] },
+    ]);
+  });
+
+  it("defaults gracefully when a post predates the pillar/localAngle/tags fields", async () => {
+    getContent
+      .mockResolvedValueOnce({
+        data: [{ type: "file", name: "post.md", path: "content/blog/post.md" }],
+      })
+      .mockResolvedValueOnce({
+        data: {
+          type: "file",
+          content: Buffer.from("---\ntitle: Ancien article\n---\n").toString("base64"),
+        },
+      });
+
+    const github = createGithubBlogRepo({
+      auth: "token",
+      owner: "thacac",
+      repo: "elancestvous",
+      baseBranch: "master",
+    });
+
+    const posts = await github.listPublishedPosts();
+
+    expect(posts).toEqual([
+      { title: "Ancien article", pillar: null, localAngle: false, tags: [] },
+    ]);
   });
 });
 
