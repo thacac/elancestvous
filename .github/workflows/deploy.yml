@@ -83,6 +83,13 @@ jobs:
           echo "GH_PAT_TOKEN=${{ secrets.GH_PAT_TOKEN }}" >> .env
           echo "GITHUB_REPO=${{ github.repository }}" >> .env
           echo "BLOG_CRON_SECRET=${{ secrets.BLOG_CRON_SECRET }}" >> .env
+          # Optionnels — laisser le secret non défini garde le comportement
+          # actuel (cf. .env.example) : effort/modèle adaptatifs par défaut,
+          # veille actualité désactivée (findActualite() renvoie toujours
+          # null, repli direct sur la rotation de piliers de #52).
+          echo "ANTHROPIC_BLOG_MODEL=${{ secrets.ANTHROPIC_BLOG_MODEL }}" >> .env
+          echo "ANTHROPIC_BLOG_EFFORT=${{ secrets.ANTHROPIC_BLOG_EFFORT }}" >> .env
+          echo "BLOG_VEILLE_SOURCES=${{ secrets.BLOG_VEILLE_SOURCES }}" >> .env
           echo "DISCORD_BOT_TOKEN=${{ secrets.DISCORD_BOT_TOKEN }}" >> .env
           echo "DISCORD_PUBLIC_KEY=${{ secrets.DISCORD_PUBLIC_KEY }}" >> .env
           echo "DISCORD_CHANNEL_ID=${{ secrets.DISCORD_CHANNEL_ID }}" >> .env
