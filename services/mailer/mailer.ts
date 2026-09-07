@@ -41,8 +41,9 @@ class Mailer {
     const cleanSubject = subject.replace(/[\r\n]/g, "").trim();
 
     // 2. Préparation du contenu sécurisé
-    // On retire tout HTML du nom et du sujet pour plus de sécurité
+    // On retire tout HTML du nom, de l'email et du sujet pour plus de sécurité
     const safeFullName = sanitizeHtml(`${cleanFirstName} ${cleanLastName}`, { allowedTags: [], allowedAttributes: {} });
+    const safeEmail = sanitizeHtml(cleanEmail, { allowedTags: [], allowedAttributes: {} });
     const safeSubject = sanitizeHtml(cleanSubject, { allowedTags: [], allowedAttributes: {} });
 
     // On autorise un formatage minimal pour le message
@@ -55,7 +56,7 @@ class Mailer {
     <div style="font-family: sans-serif; line-height: 1.6;">
       <h3>Nouveau message de contact</h3>
       <p><b>Nom :</b> ${safeFullName}</p>
-      <p><b>Email :</b> ${cleanEmail}</p>
+      <p><b>Email :</b> ${safeEmail}</p>
       <p><b>Sujet :</b> ${safeSubject}</p>
       <hr />
       <p><b>Message :</b><br/>
