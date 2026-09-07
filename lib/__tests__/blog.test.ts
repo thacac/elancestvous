@@ -2,7 +2,13 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { getAllPostsMeta, getPostBySlug, getPostSlugs, parseDraftContent } from "../blog";
+import {
+  getAllPostsMeta,
+  getPostBySlug,
+  getPostSlugs,
+  parseDraftContent,
+  renderMarkdownToSafeHtml,
+} from "../blog";
 
 const FIXTURES = path.join(__dirname, "fixtures", "blog");
 const VALID = path.join(FIXTURES, "valid");
@@ -56,6 +62,19 @@ describe("getPostBySlug", () => {
     expect(post.html).not.toMatch(/on\w+\s*=/i);
     expect(post.html).not.toContain("javascript:");
     expect(post.html).toContain("Un paragraphe normal.");
+  });
+});
+
+describe("renderMarkdownToSafeHtml", () => {
+  // Régression #74 : le maillage interne article → service repose sur des
+  // liens Markdown relatifs (/particuliers/...) insérés par la génération
+  // IA — rehype-sanitize (schéma GitHub par défaut) doit les laisser passer
+  // comme n'importe quel lien relatif, pas seulement les liens http(s).
+  it("keeps a relative internal link to a service page", async () => {
+    const html = await renderMarkdownToSafeHtml(
+      "Découvrez notre [accompagnement individuel](/particuliers/coaching-individuel)."
+    );
+    expect(html).toContain('href="/particuliers/coaching-individuel"');
   });
 });
 

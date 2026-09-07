@@ -1,11 +1,21 @@
 import matter from "gray-matter";
 
 import { BlogDraftSchema, type BlogDraft } from "./draftSchema";
+import { hasServiceLink } from "./editorialChecks";
 import { deriveActualiteProposalId } from "./githubBlogRepo";
-import { pickNextPillar, shouldInjectLocalAngle, type PillarId, type PillarSuggestion } from "./pillars";
+import { PILLARS, pickNextPillar, shouldInjectLocalAngle, type PillarId, type PillarSuggestion } from "./pillars";
 
 import type { ActualiteCandidate } from "./actualiteWatch";
 import type { PublishedPost } from "./githubBlogRepo";
+
+// Liste des pages de service dérivée de PILLARS (seule source de vérité,
+// services/blog/pillars.ts) : SYSTEM_PROMPT fournit ces URLs exactes plutôt
+// que de laisser le modèle deviner un chemin plausible mais inexistant
+// (#74). Les instructions par pilier ci-dessous (anthropicDraftGenerator.ts)
+// pointent déjà vers UNE page ciblée selon le thème suggéré ; cette liste
+// couvre en plus les générations sans suggestion de pilier (sujet soumis via
+// Discord, #67), qui n'avaient jusqu'ici aucune consigne de maillage.
+const SERVICE_PAGES_LIST = PILLARS.map((p) => `- ${p.label} : ${p.targetPage}`).join("\n");
 
 const SYSTEM_PROMPT = `Tu écris pour le blog d'Élan C'est Vous (Coralie Mathorel), coach
 professionnelle certifiée à Toulouse : coaching individuel et collectif, formations
@@ -23,6 +33,11 @@ Règles strictes :
 - Un article = un sujet précis, actionnable, 500 à 900 mots, en Markdown (titres ##,
   listes, pas de titre # — le titre est géré séparément).
 - Ne reprends jamais un titre déjà publié (liste fournie ci-dessous).
+- Maillage interne obligatoire : le corps de l'article doit contenir au moins un lien
+  Markdown ([texte](url)) vers l'une des pages de service ci-dessous, celle la plus
+  pertinente par rapport au sujet traité. Utilise toujours l'une de ces URLs exactes,
+  jamais une URL inventée ou approximative :
+${SERVICE_PAGES_LIST}
 - Fournis toujours au moins un prompt d'illustration de couverture, en anglais, décrivant
   une image éditoriale sobre et chaleureuse (pas de texte dans l'image, pas de visage
   reconnaissable), cohérente avec la palette turquoise/marine de la marque.`;
@@ -91,6 +106,11 @@ export type GenerateDraftDeps = {
       // vérifiable pour un article dérivé de la veille actualité (#66,
       // mitigation 4 : revue humaine renforcée).
       sourceUrl: string | null;
+      // Calculé via editorialChecks.ts::hasServiceLink() (#74) : SYSTEM_PROMPT
+      // exige un lien vers une page de service, mais une consigne de prompt
+      // n'est jamais garantie côté modèle — signalé ici pour que la
+      // validation Discord attrape ce qui lui échapperait.
+      missingServiceLink: boolean;
     }): Promise<{ messageId: string }>;
     notifyActualiteProposal(args: {
       id: string;
@@ -233,6 +253,7 @@ async function generateDraftFromResponse(
     excerpt: draft.excerpt,
     coverImage,
     sourceUrl,
+    missingServiceLink: !hasServiceLink(draft.bodyMarkdown),
   });
 
   return { status: "committed", slug: draft.slug, title: draft.title, branch, url };
