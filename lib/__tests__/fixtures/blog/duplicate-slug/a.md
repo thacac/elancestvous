@@ -7,6 +7,7 @@ publishedAt: "2026-01-01"
 coverImage: "/blog/same-slug/cover.jpg"
 coverImageAlt: "Illustration A"
 tags: []
+pillar: "A"
 ---
 
 Contenu A.

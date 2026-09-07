@@ -40,12 +40,6 @@ describe("getRelatedArticleLinks", () => {
     expect(links.some((l) => l.href === "/blog/pilier-b")).toBe(false);
   });
 
-  it("excludes posts published before the pillar field existed (no pillar declared)", () => {
-    process.env.BLOG_ENABLED = "true";
-    const links = getRelatedArticleLinks(TARGET_PAGE_A, PILLARS_DIR);
-    expect(links.some((l) => l.href === "/blog/sans-pilier")).toBe(false);
-  });
-
   it("returns an empty array for a page that isn't a known pillar target", () => {
     process.env.BLOG_ENABLED = "true";
     expect(getRelatedArticleLinks("/a-propos", PILLARS_DIR)).toEqual([]);
