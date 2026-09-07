@@ -24,7 +24,14 @@ const validDraft: BlogDraft = {
 };
 
 function makePublishedPost(overrides: Partial<PublishedPost> = {}): PublishedPost {
-  return { title: "Un autre article", pillar: "C", localAngle: false, tags: ["QVCT"], ...overrides };
+  return {
+    title: "Un autre article",
+    publishedAt: "2026-01-01",
+    pillar: "C",
+    localAngle: false,
+    tags: ["QVCT"],
+    ...overrides,
+  };
 }
 
 function makeDeps(overrides: Partial<GenerateDraftDeps> = {}): GenerateDraftDeps {
@@ -133,9 +140,16 @@ describe("generateDraft", () => {
     const deps = makeDeps({
       github: {
         listPublishedPosts: vi.fn().mockResolvedValue([
-          makePublishedPost({ title: "Article C1", pillar: "C", localAngle: true, tags: ["RPS"] }),
+          makePublishedPost({
+            title: "Article C1",
+            publishedAt: "2026-01-01",
+            pillar: "C",
+            localAngle: true,
+            tags: ["RPS"],
+          }),
           makePublishedPost({
             title: "Article D1",
+            publishedAt: "2026-01-08",
             pillar: "D",
             localAngle: false,
             tags: ["GAPP"],

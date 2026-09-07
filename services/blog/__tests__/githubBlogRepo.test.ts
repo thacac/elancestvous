@@ -55,7 +55,7 @@ describe("createGithubBlogRepo.listPublishedPosts", () => {
     );
   });
 
-  it("extracts pillar, localAngle and tags from each post's frontmatter", async () => {
+  it("extracts pillar, localAngle, tags and publishedAt from each post's frontmatter", async () => {
     getContent
       .mockResolvedValueOnce({
         data: [{ type: "file", name: "post.md", path: "content/blog/post.md" }],
@@ -64,7 +64,7 @@ describe("createGithubBlogRepo.listPublishedPosts", () => {
         data: {
           type: "file",
           content: Buffer.from(
-            "---\ntitle: Un article\npillar: C\nlocalAngle: true\ntags:\n  - QVCT\n  - RPS\n---\n"
+            "---\ntitle: Un article\npublishedAt: '2026-06-01'\npillar: C\nlocalAngle: true\ntags:\n  - QVCT\n  - RPS\n---\n"
           ).toString("base64"),
         },
       });
@@ -79,7 +79,13 @@ describe("createGithubBlogRepo.listPublishedPosts", () => {
     const posts = await github.listPublishedPosts();
 
     expect(posts).toEqual([
-      { title: "Un article", pillar: "C", localAngle: true, tags: ["QVCT", "RPS"] },
+      {
+        title: "Un article",
+        publishedAt: "2026-06-01",
+        pillar: "C",
+        localAngle: true,
+        tags: ["QVCT", "RPS"],
+      },
     ]);
   });
 
@@ -91,7 +97,9 @@ describe("createGithubBlogRepo.listPublishedPosts", () => {
       .mockResolvedValueOnce({
         data: {
           type: "file",
-          content: Buffer.from("---\ntitle: Ancien article\n---\n").toString("base64"),
+          content: Buffer.from(
+            "---\ntitle: Ancien article\npublishedAt: '2026-01-01'\n---\n"
+          ).toString("base64"),
         },
       });
 
@@ -105,8 +113,80 @@ describe("createGithubBlogRepo.listPublishedPosts", () => {
     const posts = await github.listPublishedPosts();
 
     expect(posts).toEqual([
-      { title: "Ancien article", pillar: null, localAngle: false, tags: [] },
+      {
+        title: "Ancien article",
+        publishedAt: "2026-01-01",
+        pillar: null,
+        localAngle: false,
+        tags: [],
+      },
     ]);
+  });
+
+  it("ignores an unrecognized pillar value instead of trusting it blindly", async () => {
+    getContent
+      .mockResolvedValueOnce({
+        data: [{ type: "file", name: "post.md", path: "content/blog/post.md" }],
+      })
+      .mockResolvedValueOnce({
+        data: {
+          type: "file",
+          content: Buffer.from(
+            "---\ntitle: Article corrompu\npublishedAt: '2026-01-01'\npillar: Z\n---\n"
+          ).toString("base64"),
+        },
+      });
+
+    const github = createGithubBlogRepo({
+      auth: "token",
+      owner: "thacac",
+      repo: "elancestvous",
+      baseBranch: "master",
+    });
+
+    const posts = await github.listPublishedPosts();
+
+    expect(posts[0].pillar).toBeNull();
+  });
+
+  it("returns posts sorted chronologically by publishedAt regardless of directory-listing order", async () => {
+    getContent
+      .mockResolvedValueOnce({
+        data: [
+          { type: "file", name: "recent.md", path: "content/blog/recent.md" },
+          { type: "file", name: "ancien.md", path: "content/blog/ancien.md" },
+        ],
+      })
+      // "recent.md" listé en premier par l'API (ordre alphabétique), mais
+      // publié après "ancien.md" — l'ordre de sortie doit suivre publishedAt,
+      // pas l'ordre du dossier.
+      .mockResolvedValueOnce({
+        data: {
+          type: "file",
+          content: Buffer.from(
+            "---\ntitle: Article récent\npublishedAt: '2026-06-01'\n---\n"
+          ).toString("base64"),
+        },
+      })
+      .mockResolvedValueOnce({
+        data: {
+          type: "file",
+          content: Buffer.from(
+            "---\ntitle: Article ancien\npublishedAt: '2026-01-01'\n---\n"
+          ).toString("base64"),
+        },
+      });
+
+    const github = createGithubBlogRepo({
+      auth: "token",
+      owner: "thacac",
+      repo: "elancestvous",
+      baseBranch: "master",
+    });
+
+    const posts = await github.listPublishedPosts();
+
+    expect(posts.map((p) => p.title)).toEqual(["Article ancien", "Article récent"]);
   });
 });
 
