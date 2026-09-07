@@ -9,6 +9,13 @@ vi.mock("@anthropic-ai/sdk", () => ({
 }));
 
 import { createAnthropicDraftGenerator } from "../anthropicDraftGenerator";
+import { PILLARS } from "../pillars";
+
+const pillarC = PILLARS.find((p) => p.id === "C")!;
+
+function baseSuggestion() {
+  return { pillar: pillarC, recentTags: [], injectLocalAngle: false };
+}
 
 function makeParseResponse() {
   return {
@@ -146,6 +153,52 @@ describe("createAnthropicDraftGenerator.parseDraft", () => {
       expect.stringContaining("parseDraft"),
       expect.objectContaining({ estimated_cost_usd: null })
     );
+  });
+
+  it("includes the suggested pillar's theme and target page when a suggestion is given", async () => {
+    messagesParse.mockReset().mockResolvedValue(makeParseResponse());
+    const generator = createAnthropicDraftGenerator({ apiKey: "key" });
+
+    await generator.parseDraft([], baseSuggestion());
+
+    const call = messagesParse.mock.calls[0][0];
+    const content = call.messages[0].content as string;
+    expect(content).toContain(pillarC.theme);
+    expect(content).toContain(pillarC.targetPage);
+  });
+
+  it("lists recent tags to avoid re-targeting when the suggestion carries some", async () => {
+    messagesParse.mockReset().mockResolvedValue(makeParseResponse());
+    const generator = createAnthropicDraftGenerator({ apiKey: "key" });
+
+    await generator.parseDraft([], { ...baseSuggestion(), recentTags: ["épuisement", "RPS"] });
+
+    const call = messagesParse.mock.calls[0][0];
+    const content = call.messages[0].content as string;
+    expect(content).toContain("épuisement");
+    expect(content).toContain("RPS");
+  });
+
+  it("adds the local angle instruction when injectLocalAngle is true", async () => {
+    messagesParse.mockReset().mockResolvedValue(makeParseResponse());
+    const generator = createAnthropicDraftGenerator({ apiKey: "key" });
+
+    await generator.parseDraft([], { ...baseSuggestion(), injectLocalAngle: true });
+
+    const call = messagesParse.mock.calls[0][0];
+    const content = call.messages[0].content as string;
+    expect(content).toMatch(/Toulouse|Occitanie/);
+  });
+
+  it("omits every suggestion-related instruction when no suggestion is given (unchanged legacy behavior)", async () => {
+    messagesParse.mockReset().mockResolvedValue(makeParseResponse());
+    const generator = createAnthropicDraftGenerator({ apiKey: "key" });
+
+    await generator.parseDraft([]);
+
+    const call = messagesParse.mock.calls[0][0];
+    const content = call.messages[0].content as string;
+    expect(content).toBe("Aucun article publié pour l'instant. Propose un premier article.");
   });
 });
 

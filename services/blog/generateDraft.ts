@@ -1,6 +1,9 @@
 import matter from "gray-matter";
 
 import { BlogDraftSchema, type BlogDraft } from "./draftSchema";
+import { pickNextPillar, shouldInjectLocalAngle, type PillarId, type PillarSuggestion } from "./pillars";
+
+import type { PublishedPost } from "./githubBlogRepo";
 
 const SYSTEM_PROMPT = `Tu écris pour le blog d'Élan C'est Vous (Coralie Mathorel), coach
 professionnelle certifiée à Toulouse : coaching individuel et collectif, formations
@@ -41,7 +44,10 @@ export type AnthropicParseResult = {
 
 export type GenerateDraftDeps = {
   anthropic: {
-    parseDraft(existingTitles: string[]): Promise<AnthropicParseResult>;
+    parseDraft(
+      existingTitles: string[],
+      suggestion?: PillarSuggestion
+    ): Promise<AnthropicParseResult>;
   };
   // Optionnel : tant qu'aucune clé de génération d'image n'est configurée
   // (ex. accès API OpenAI pas encore activé), le brouillon est committé et
@@ -50,7 +56,7 @@ export type GenerateDraftDeps = {
     generateCoverImage(prompt: string): Promise<Buffer>;
   };
   github: {
-    listPublishedPostTitles(): Promise<string[]>;
+    listPublishedPosts(): Promise<PublishedPost[]>;
     commitDraftBranch(args: {
       slug: string;
       postMarkdown: string;
@@ -87,15 +93,40 @@ export function buildDraftMarkdown(draft: BlogDraft, coverImage: Buffer | null):
         }
       : {}),
     tags: draft.tags,
+    pillar: draft.pillar,
+    localAngle: draft.localAngle,
   });
+}
+
+// Nombre d'articles publiés récents examinés pour l'anti-cannibalisation de
+// mots-clés (mitigation SEO de l'issue #52) — évite d'envoyer la liste
+// entière de tags depuis le premier article du blog.
+const RECENT_TAGS_WINDOW = 6;
+
+function buildPillarSuggestion(publishedPosts: PublishedPost[]): PillarSuggestion {
+  const recentPillars = publishedPosts
+    .map((p) => p.pillar)
+    .filter((p): p is PillarId => p !== null);
+  const recentLocalAngleFlags = publishedPosts.map((p) => p.localAngle);
+  const recentTags = publishedPosts
+    .flatMap((p) => p.tags)
+    .slice(-RECENT_TAGS_WINDOW);
+
+  return {
+    pillar: pickNextPillar(recentPillars),
+    recentTags,
+    injectLocalAngle: shouldInjectLocalAngle(recentLocalAngleFlags),
+  };
 }
 
 export async function generateDraft(
   deps: GenerateDraftDeps
 ): Promise<GenerateDraftResult> {
-  const existingTitles = await deps.github.listPublishedPostTitles();
+  const publishedPosts = await deps.github.listPublishedPosts();
+  const existingTitles = publishedPosts.map((p) => p.title);
+  const suggestion = buildPillarSuggestion(publishedPosts);
 
-  const response = await deps.anthropic.parseDraft(existingTitles);
+  const response = await deps.anthropic.parseDraft(existingTitles, suggestion);
 
   if (response.stop_reason === "refusal") {
     return { status: "refused", category: response.stop_details?.category ?? undefined };
