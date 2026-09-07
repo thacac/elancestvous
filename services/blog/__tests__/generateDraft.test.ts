@@ -47,6 +47,7 @@ function makeDeps(overrides: Partial<GenerateDraftDeps> = {}): GenerateDraftDeps
     },
     github: {
       listPublishedPosts: vi.fn().mockResolvedValue([makePublishedPost()]),
+      getNextDiscordTopic: vi.fn().mockResolvedValue(null),
       commitDraftBranch: vi.fn().mockResolvedValue({
         branch: "blog-draft/un-titre-valide",
         url: "https://github.com/thacac/elancestvous/tree/blog-draft/un-titre-valide",
@@ -155,6 +156,7 @@ describe("generateDraft", () => {
             tags: ["GAPP"],
           }),
         ]),
+        getNextDiscordTopic: vi.fn().mockResolvedValue(null),
         commitDraftBranch: vi.fn().mockResolvedValue({
           branch: "blog-draft/un-titre-valide",
           url: "https://github.com/thacac/elancestvous/tree/blog-draft/un-titre-valide",
@@ -179,6 +181,7 @@ describe("generateDraft", () => {
         listPublishedPosts: vi
           .fn()
           .mockResolvedValue([makePublishedPost({ localAngle: false })]),
+        getNextDiscordTopic: vi.fn().mockResolvedValue(null),
         commitDraftBranch: vi.fn().mockResolvedValue({
           branch: "blog-draft/un-titre-valide",
           url: "https://github.com/thacac/elancestvous/tree/blog-draft/un-titre-valide",
@@ -192,6 +195,57 @@ describe("generateDraft", () => {
       expect.any(Array),
       expect.objectContaining({ injectLocalAngle: true })
     );
+  });
+
+  it("prioritizes a pending Discord topic over the pillar rotation suggestion", async () => {
+    const deps = makeDeps({
+      github: {
+        listPublishedPosts: vi.fn().mockResolvedValue([makePublishedPost()]),
+        getNextDiscordTopic: vi
+          .fn()
+          .mockResolvedValue({ topic: "La nouvelle obligation RPS", notes: "Source officielle" }),
+        commitDraftBranch: vi.fn().mockResolvedValue({
+          branch: "blog-draft/un-titre-valide",
+          url: "https://github.com/thacac/elancestvous/tree/blog-draft/un-titre-valide",
+        }),
+      },
+    });
+
+    await generateDraft(deps);
+
+    expect(deps.anthropic.parseDraft).toHaveBeenCalledWith(
+      ["Un autre article"],
+      undefined,
+      { topic: "La nouvelle obligation RPS", notes: "Source officielle" }
+    );
+  });
+
+  it("still requires the pillar field in the structured output when the topic comes from Discord", async () => {
+    const deps = makeDeps({
+      github: {
+        listPublishedPosts: vi.fn().mockResolvedValue([]),
+        getNextDiscordTopic: vi
+          .fn()
+          .mockResolvedValue({ topic: "Un sujet Discord", notes: null }),
+        commitDraftBranch: vi.fn().mockResolvedValue({
+          branch: "blog-draft/un-titre-valide",
+          url: "https://github.com/thacac/elancestvous/tree/blog-draft/un-titre-valide",
+        }),
+      },
+      anthropic: {
+        parseDraft: vi.fn().mockResolvedValue({
+          stop_reason: "end_turn",
+          // Sortie sans champ "pillar" — doit être rejetée même quand le
+          // sujet vient de Discord (mitigation 1 de #67).
+          parsed_output: { ...validDraft, pillar: undefined },
+        }),
+      },
+    });
+
+    const result = await generateDraft(deps);
+
+    expect(result.status).toBe("generation_failed");
+    expect(deps.github.commitDraftBranch).not.toHaveBeenCalled();
   });
 
   it("returns generation_failed and does not commit when image generation fails", async () => {

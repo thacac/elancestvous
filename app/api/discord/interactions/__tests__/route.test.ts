@@ -6,6 +6,8 @@ vi.mock("@/services/blog/discordInteractionHandler", () => ({
   handleDiscordInteraction: vi.fn(),
   getApprovalSlug: vi.fn(),
   getRevisionRequest: vi.fn(),
+  getBlogSujetSubmission: vi.fn(),
+  submitBlogSujet: vi.fn(),
 }));
 vi.mock("@/services/blog/publishDraft", () => ({
   publishDraft: vi.fn(),
@@ -27,8 +29,10 @@ vi.mock("@/services/blog/discordNotifier", () => ({
 
 import {
   getApprovalSlug,
+  getBlogSujetSubmission,
   getRevisionRequest,
   handleDiscordInteraction,
+  submitBlogSujet,
 } from "@/services/blog/discordInteractionHandler";
 import { buildDraftActionRow, updateInteractionMessage } from "@/services/blog/discordNotifier";
 import { publishDraft } from "@/services/blog/publishDraft";
@@ -67,6 +71,8 @@ describe("POST /api/discord/interactions", () => {
     vi.mocked(handleDiscordInteraction).mockReset();
     vi.mocked(getApprovalSlug).mockReset().mockReturnValue(null);
     vi.mocked(getRevisionRequest).mockReset().mockReturnValue(null);
+    vi.mocked(getBlogSujetSubmission).mockReset().mockReturnValue(null);
+    vi.mocked(submitBlogSujet).mockReset();
     vi.mocked(publishDraft).mockReset();
     vi.mocked(reviseDraft).mockReset();
     vi.mocked(updateInteractionMessage).mockReset().mockResolvedValue(undefined);
@@ -558,5 +564,63 @@ describe("POST /api/discord/interactions", () => {
       expect(updateInteractionMessage).toHaveBeenCalled();
     });
     expect(buildDraftActionRow).not.toHaveBeenCalled();
+  });
+
+  it("responds synchronously with the submission result for a /blog-sujet modal submission, without going through handleDiscordInteraction", async () => {
+    const body = JSON.stringify({
+      type: 5,
+      data: { custom_id: "blog_sujet_submit" },
+    });
+    vi.mocked(getBlogSujetSubmission).mockReturnValue({
+      topic: "La nouvelle obligation RPS",
+      notes: null,
+    });
+    vi.mocked(submitBlogSujet).mockResolvedValue({
+      type: 4,
+      data: { content: "✅ Sujet ajouté à la file : « La nouvelle obligation RPS »." },
+    });
+
+    const response = await POST(makeRequest(body));
+    const responseBody = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(responseBody).toEqual({
+      type: 4,
+      data: { content: "✅ Sujet ajouté à la file : « La nouvelle obligation RPS »." },
+    });
+    expect(submitBlogSujet).toHaveBeenCalledWith(
+      { topic: "La nouvelle obligation RPS", notes: null },
+      expect.anything()
+    );
+    expect(handleDiscordInteraction).not.toHaveBeenCalled();
+    expect(publishDraft).not.toHaveBeenCalled();
+    expect(reviseDraft).not.toHaveBeenCalled();
+  });
+
+  it("responds gracefully (not a crash) when submitting a /blog-sujet topic fails unexpectedly", async () => {
+    const body = JSON.stringify({
+      type: 5,
+      data: { custom_id: "blog_sujet_submit" },
+    });
+    vi.mocked(getBlogSujetSubmission).mockReturnValue({ topic: "Un sujet", notes: null });
+    vi.mocked(submitBlogSujet).mockRejectedValue(new Error("GitHub API down"));
+
+    const response = await POST(makeRequest(body));
+    const responseBody = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(responseBody.type).toBe(4);
+    expect(responseBody.data.content).toContain("GitHub API down");
+  });
+
+  it("does not treat an unrelated interaction as a /blog-sujet submission", async () => {
+    const body = JSON.stringify({ type: 1 });
+    vi.mocked(handleDiscordInteraction).mockReturnValue({ type: 1 });
+    vi.mocked(getBlogSujetSubmission).mockReturnValue(null);
+
+    await POST(makeRequest(body));
+
+    expect(submitBlogSujet).not.toHaveBeenCalled();
+    expect(handleDiscordInteraction).toHaveBeenCalled();
   });
 });

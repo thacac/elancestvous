@@ -46,7 +46,8 @@ export type GenerateDraftDeps = {
   anthropic: {
     parseDraft(
       existingTitles: string[],
-      suggestion?: PillarSuggestion
+      suggestion?: PillarSuggestion,
+      discordTopic?: { topic: string; notes: string | null }
     ): Promise<AnthropicParseResult>;
   };
   // Optionnel : tant qu'aucune clé de génération d'image n'est configurée
@@ -57,6 +58,11 @@ export type GenerateDraftDeps = {
   };
   github: {
     listPublishedPosts(): Promise<PublishedPost[]>;
+    // File d'attente des sujets soumis via /blog-sujet (issue #67),
+    // prioritaire sur la rotation pondérée de piliers quand elle contient
+    // une entrée "a_publier" — voir la cascade de priorité en tête de
+    // generateDraft() ci-dessous.
+    getNextDiscordTopic(): Promise<{ topic: string; notes: string | null } | null>;
     commitDraftBranch(args: {
       slug: string;
       postMarkdown: string;
@@ -122,11 +128,25 @@ function buildPillarSuggestion(publishedPosts: PublishedPost[]): PillarSuggestio
 export async function generateDraft(
   deps: GenerateDraftDeps
 ): Promise<GenerateDraftResult> {
-  const publishedPosts = await deps.github.listPublishedPosts();
+  // Cascade de priorité du sujet de la semaine (#66 > #67 > #52) : la veille
+  // actualité (#66) n'est pas encore implémentée, donc le premier niveau
+  // réel ici est le sujet Discord — s'il existe une entrée "a_publier", il
+  // remplace entièrement la suggestion de pilier issue de la rotation
+  // pondérée. Le champ "pillar" reste obligatoire dans les deux cas
+  // (BlogDraftSchema), donc le crédit du pilier réellement déclaré par
+  // Claude est automatiquement décrémenté la prochaine fois que
+  // pickNextPillar() rejoue l'historique publié (mitigation 2 de #67) — pas
+  // besoin d'un mécanisme de crédit séparé pour la file Discord. Les deux
+  // lectures ci-dessous sont indépendantes, lancées en parallèle.
+  const [publishedPosts, discordTopic] = await Promise.all([
+    deps.github.listPublishedPosts(),
+    deps.github.getNextDiscordTopic(),
+  ]);
   const existingTitles = publishedPosts.map((p) => p.title);
-  const suggestion = buildPillarSuggestion(publishedPosts);
 
-  const response = await deps.anthropic.parseDraft(existingTitles, suggestion);
+  const response = discordTopic
+    ? await deps.anthropic.parseDraft(existingTitles, undefined, discordTopic)
+    : await deps.anthropic.parseDraft(existingTitles, buildPillarSuggestion(publishedPosts));
 
   if (response.stop_reason === "refusal") {
     return { status: "refused", category: response.stop_details?.category ?? undefined };

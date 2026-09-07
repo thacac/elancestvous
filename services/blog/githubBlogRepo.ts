@@ -5,6 +5,7 @@ import { PILLARS, type PillarId } from "./pillars";
 
 const CONTENT_BLOG_PATH = "content/blog";
 const VALID_PILLAR_IDS = new Set<string>(PILLARS.map((p) => p.id));
+const SUJETS_DISCORD_PATH = "content/blog/sujets-discord.json";
 
 export type PublishedPost = {
   title: string;
@@ -16,6 +17,17 @@ export type PublishedPost = {
   pillar: PillarId | null;
   localAngle: boolean;
   tags: string[];
+};
+
+// File d'attente des sujets soumis via la commande Discord /blog-sujet
+// (issue #67) — statut mis à jour manuellement après publication (pas de
+// synchronisation automatique, pour éviter une logique fragile en cas de
+// retry, cf. la non-idempotence documentée de /api/blog/generate).
+export type DiscordTopicEntry = {
+  topic: string;
+  notes: string | null;
+  submittedAt: string;
+  status: "a_publier" | "publie";
 };
 
 export function createGithubBlogRepo(options: {
@@ -316,6 +328,86 @@ export function createGithubBlogRepo(options: {
         markdown: Buffer.from(postData.content, "base64").toString("utf8"),
         coverImage,
       };
+    },
+
+    // Écrit directement sur baseBranch (master), pas de branche de brouillon
+    // dédiée : sujets-discord.json est un fichier de contenu comme un autre
+    // article publié, même logique de commit direct que publishDraft. Pas de
+    // gestion de conflit d'écriture concurrente (lecture-puis-écriture) : le
+    // salon reste à faible trafic, un vrai souci si ça change un jour.
+    async queueDiscordTopic(entry: { topic: string; notes: string | null }): Promise<void> {
+      let sha: string | undefined;
+      let existing: DiscordTopicEntry[] = [];
+      try {
+        const { data } = await octokit.rest.repos.getContent({
+          owner,
+          repo,
+          path: SUJETS_DISCORD_PATH,
+          ref: baseBranch,
+        });
+        if (!Array.isArray(data) && data.type === "file" && data.content) {
+          sha = data.sha;
+          const parsed: unknown = JSON.parse(Buffer.from(data.content, "base64").toString("utf8"));
+          if (Array.isArray(parsed)) existing = parsed;
+        }
+      } catch (err) {
+        if (!isNotFound(err)) throw err;
+      }
+
+      const updated: DiscordTopicEntry[] = [
+        ...existing,
+        {
+          topic: entry.topic,
+          notes: entry.notes,
+          submittedAt: new Date().toISOString(),
+          status: "a_publier",
+        },
+      ];
+
+      await octokit.rest.repos.createOrUpdateFileContents({
+        owner,
+        repo,
+        branch: baseBranch,
+        path: SUJETS_DISCORD_PATH,
+        message: `blog: sujet Discord ajouté à la file ("${entry.topic}")`,
+        content: Buffer.from(JSON.stringify(updated, null, 2) + "\n", "utf8").toString("base64"),
+        ...(sha ? { sha } : {}),
+      });
+    },
+
+    // Premier sujet "a_publier" de la file, dans l'ordre où il a été soumis
+    // — generateDraft.ts le priorise sur la rotation pondérée de piliers
+    // (#52) quand il existe. null si le fichier n'existe pas encore, est
+    // vide, ou ne contient plus que des sujets déjà "publie".
+    async getNextDiscordTopic(): Promise<DiscordTopicEntry | null> {
+      let data;
+      try {
+        ({ data } = await octokit.rest.repos.getContent({
+          owner,
+          repo,
+          path: SUJETS_DISCORD_PATH,
+          ref: baseBranch,
+        }));
+      } catch (err) {
+        if (isNotFound(err)) return null;
+        throw err;
+      }
+      if (Array.isArray(data) || data.type !== "file" || !data.content) return null;
+
+      let entries: unknown;
+      try {
+        entries = JSON.parse(Buffer.from(data.content, "base64").toString("utf8"));
+      } catch {
+        return null;
+      }
+      if (!Array.isArray(entries)) return null;
+
+      return (
+        entries.find(
+          (entry): entry is DiscordTopicEntry =>
+            typeof entry === "object" && entry !== null && entry.status === "a_publier"
+        ) ?? null
+      );
     },
   };
 }

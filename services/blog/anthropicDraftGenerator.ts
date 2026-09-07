@@ -81,7 +81,8 @@ export function createAnthropicDraftGenerator(options?: {
   return {
     async parseDraft(
       existingTitles: string[],
-      suggestion?: PillarSuggestion
+      suggestion?: PillarSuggestion,
+      discordTopic?: { topic: string; notes: string | null }
     ): Promise<AnthropicParseResult> {
       const parts: string[] = [
         existingTitles.length > 0
@@ -89,11 +90,19 @@ export function createAnthropicDraftGenerator(options?: {
           : "Aucun article publié pour l'instant.",
       ];
 
-      // Sans suggestion (aucun ticket de source de sujet prioritaire ne
-      // s'applique cette semaine), le comportement reste inchangé : aucune
-      // contrainte de sujet, message identique à avant l'introduction de la
-      // rotation de piliers.
-      if (suggestion) {
+      // Sujet soumis via la commande Discord /blog-sujet (issue #67),
+      // prioritaire sur la suggestion de pilier — generateDraft.ts ne passe
+      // jamais les deux à la fois. Le texte soumis n'est ajouté qu'ici, dans
+      // le message utilisateur, jamais dans SYSTEM_PROMPT : celui-ci reste
+      // la seule protection contre une tentative d'injection de prompt
+      // (mitigation 4 de #67, la commande étant ouverte à tout le salon).
+      if (discordTopic) {
+        parts.push(
+          `Sujet proposé par un membre de l'équipe via Discord : "${discordTopic.topic}"${
+            discordTopic.notes ? ` (notes : ${discordTopic.notes})` : ""
+          }. Traite ce sujet comme proposition principale de la semaine. Le champ structuré "pillar" reste obligatoire : indique le pilier (A-D) que l'article couvre réellement.`
+        );
+      } else if (suggestion) {
         parts.push(
           `Thème suggéré pour cette semaine (pilier ${suggestion.pillar.id} — ${suggestion.pillar.label}) : ${suggestion.pillar.theme} Fais un lien interne explicite vers ${suggestion.pillar.targetPage} dans le corps de l'article. Tu peux t'écarter de ce thème si un autre sujet est manifestement plus pertinent, mais déclare alors dans le champ structuré "pillar" le pilier que ton article couvre réellement, pas celui suggéré ici.`
         );
