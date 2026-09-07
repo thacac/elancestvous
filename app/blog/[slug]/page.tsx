@@ -1,9 +1,11 @@
 import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import PostJsonLd from "@/components/PostJsonLd";
 import { getAllPostsMeta, getPostBySlug, getPostSlugs } from "@/lib/blog";
 import { isBlogPublic } from "@/lib/featureFlags";
+import { PILLARS } from "@/services/blog/pillars";
 
 import type { Metadata } from "next";
 
@@ -58,6 +60,8 @@ export default async function BlogPost({
     notFound();
   }
 
+  const pillarLabel = PILLARS.find((p) => p.id === post.pillar)?.label;
+
   return (
     <article className="pt-20 mb-40">
       <PostJsonLd post={post} />
@@ -96,6 +100,25 @@ export default async function BlogPost({
               </li>
             ))}
           </ul>
+        )}
+        {post.relatedPosts.length > 0 && (
+          <div className="mt-12 border-t border-stone-200 pt-8">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-stone-500 mb-4">
+              À lire aussi{pillarLabel ? ` — ${pillarLabel}` : ""}
+            </h2>
+            <ul className="space-y-2">
+              {post.relatedPosts.map((relatedPost) => (
+                <li key={relatedPost.slug}>
+                  <Link
+                    href={`/blog/${relatedPost.slug}`}
+                    className="text-primary underline underline-offset-2"
+                  >
+                    {relatedPost.title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
       </div>
     </article>

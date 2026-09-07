@@ -209,6 +209,20 @@ Voir aussi `docs/blog-secrets.md` (secrets requis), `docs/blog-charte-editoriale
 (voix/contraintes du prompt système) et `docs/blog-guide-validation-discord.md`
 (usage prévu pour la validation).
 
+## Composants livrés (issue #73 — cocons sémantiques)
+
+| Fichier | Rôle |
+|---|---|
+| `lib/blog.ts` (`frontmatterSchema`, `getRelatedPosts`) | Expose le champ `pillar` (déjà imposé côté génération par `BlogDraftSchema`, désormais lu/validé aussi côté frontmatter publié, `null` par défaut pour un article publié avant cette issue) et calcule les autres articles publiés du même pilier |
+| `app/blog/[slug]/page.tsx` | Affiche, en bas de chaque article, les liens vers les autres articles du même cocon (pilier) quand il y en a |
+
+Les 4 piliers de rotation pondérée (#52, `services/blog/pillars.ts`) sont
+réutilisés tels quels comme cocons sémantiques plutôt que d'introduire une
+notion de regroupement distincte des tags — voir le détail (mapping pilier ↔
+cocon) dans `docs/blog-charte-editoriale.md`. Un article publié avant cette
+issue n'a pas de `pillar` déclaré (`null` par défaut, rétrocompatible) et
+n'affiche donc aucun lien de cocon tant qu'il n'en reçoit pas un.
+
 ## Composants livrés (issue #72 — maillage retour service → blog)
 
 | Fichier | Rôle |

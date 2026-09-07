@@ -12,6 +12,8 @@ import remarkRehype from "remark-rehype";
 import { unified } from "unified";
 import { z } from "zod";
 
+import { PILLAR_IDS } from "@/services/blog/pillars";
+
 export const BLOG_CONTENT_DIR = path.join(process.cwd(), "content", "blog");
 
 const frontmatterSchema = z.object({
@@ -29,19 +31,20 @@ const frontmatterSchema = z.object({
   coverImage: z.string().min(1),
   coverImageAlt: z.string().min(1),
   tags: z.array(z.string()).default([]),
-  // Pilier obligatoire (voir services/blog/draftSchema.ts et
-  // generateDraft.ts::buildDraftMarkdown, qui l'écrit systématiquement) —
-  // pas validé contre l'énum PillarId ici pour ne pas faire dépendre
-  // lib/blog (couche de rendu) de services/blog/pillars ;
-  // lib/relatedArticles.ts fait ce rapprochement.
-  pillar: z.string().min(1),
+  // null pour un article publié avant l'introduction de ce champ (#73) —
+  // jamais bloquant, cf. getRelatedPosts et lib/relatedArticles.ts qui
+  // l'ignorent simplement (pas de pilier déclaré ⇒ pas de maillage).
+  pillar: z.enum(PILLAR_IDS).nullable().default(null),
 });
 
 export type PostMeta = z.infer<typeof frontmatterSchema> & {
   readingTime: string;
 };
 
-export type Post = PostMeta & { html: string };
+// relatedPosts (cocon sémantique, issue #73) vit uniquement sur Post, pas sur
+// PostMeta : seule la page de détail (getPostBySlug) en a besoin, la liste
+// (getAllPostsMeta, utilisée aussi par app/sitemap.ts) n'a pas à le calculer.
+export type Post = PostMeta & { html: string; relatedPosts: PostMeta[] };
 
 // Un brouillon en relecture n'a pas les mêmes invariants qu'un article publié
 // (content/blog/*.md) : tant que la génération d'image est en bypass (voir
@@ -153,15 +156,33 @@ export function getAllPostsMeta(dir: string = BLOG_CONTENT_DIR): PostMeta[] {
   return loadAllMeta(dir).map(({ content, ...meta }) => meta);
 }
 
+// Maillage interne du cocon sémantique (issue #73) : les autres articles
+// publiés déclarant le même pilier. Vide tant que l'article n'a pas de
+// pilier déclaré (articles publiés avant #73) plutôt que de deviner un
+// regroupement à partir des tags. Prend une liste déjà chargée (pas un
+// répertoire à relire) : getPostBySlug ci-dessous la calcule à partir du
+// même passage sur content/blog/*.md que celui qui sert à retrouver
+// l'article demandé, plutôt que de relire tout le répertoire une seconde
+// fois.
+export function getRelatedPosts(
+  post: Pick<PostMeta, "slug" | "pillar">,
+  posts: PostMeta[]
+): PostMeta[] {
+  if (!post.pillar) return [];
+  return posts.filter((p) => p.pillar === post.pillar && p.slug !== post.slug);
+}
+
 export async function getPostBySlug(
   slug: string,
   dir: string = BLOG_CONTENT_DIR
 ): Promise<Post> {
-  const post = loadAllMeta(dir).find((p) => p.slug === slug);
+  const allPosts = loadAllMeta(dir);
+  const post = allPosts.find((p) => p.slug === slug);
   if (!post) {
     throw new Error(`Article introuvable pour le slug "${slug}"`);
   }
   const { content, ...meta } = post;
   const html = await renderMarkdownToSafeHtml(content);
-  return { ...meta, html };
+  const relatedPosts = getRelatedPosts(meta, allPosts);
+  return { ...meta, html, relatedPosts };
 }

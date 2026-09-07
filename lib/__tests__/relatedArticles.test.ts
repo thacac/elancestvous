@@ -5,7 +5,11 @@ import { afterEach, describe, expect, it } from "vitest";
 import { getRelatedArticleLinks } from "../relatedArticles";
 
 const FIXTURES = path.join(__dirname, "fixtures", "blog");
-const PILLARS_DIR = path.join(FIXTURES, "pillars");
+// Répertoire dédié (distinct de fixtures/blog/pillars, utilisé par
+// lib/__tests__/blog.test.ts pour les cocons sémantiques, issue #73) afin de
+// ne pas mélanger deux jeux de fixtures pilier A avec des attentes
+// différentes (liens exacts et ordonnés ici, simple filtrage là-bas).
+const PILLARS_DIR = path.join(FIXTURES, "related-articles-pillars");
 const CAP_DIR = path.join(FIXTURES, "pillars-cap");
 
 // Pilier A du plan éditorial (services/blog/pillars.ts) — reste stable ici

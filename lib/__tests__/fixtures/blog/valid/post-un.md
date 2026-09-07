@@ -7,7 +7,6 @@ publishedAt: "2026-01-10"
 coverImage: "/blog/post-un/cover.jpg"
 coverImageAlt: "Illustration de test"
 tags: ["test"]
-pillar: "A"
 ---
 
 Un **paragraphe** de test avec du _Markdown_.
