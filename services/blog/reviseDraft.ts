@@ -1,3 +1,5 @@
+import matter from "gray-matter";
+
 import { BlogDraftSchema } from "./draftSchema";
 import { buildDraftMarkdown, type AnthropicParseResult } from "./generateDraft";
 
@@ -34,6 +36,7 @@ export type ReviseDraftDeps = {
       title: string;
       excerpt: string;
       coverImage: Buffer | null;
+      sourceUrl: string | null;
     }): Promise<{ messageId: string }>;
   };
 };
@@ -45,6 +48,14 @@ export async function reviseDraft(
 ): Promise<ReviseDraftResult> {
   const existing = await deps.github.getDraftContent(slug);
   if (!existing) return { status: "draft_not_found", slug };
+
+  // Un article dérivé de la veille actualité (#66) doit garder sa source
+  // citée à travers une retouche : reviseDraft() (Claude) ne connaît rien de
+  // la veille et ne la reproduirait jamais de lui-même dans sa sortie
+  // structurée, qui n'a pas de champ sourceUrl (mitigation 2 de #66).
+  const { data: existingFrontmatter } = matter(existing.markdown);
+  const sourceUrl =
+    typeof existingFrontmatter.sourceUrl === "string" ? existingFrontmatter.sourceUrl : null;
 
   const response = await deps.anthropic.reviseDraft(existing.markdown, feedback);
 
@@ -89,7 +100,7 @@ export async function reviseDraft(
     }
   }
 
-  const postMarkdown = buildDraftMarkdown(draft, coverImage);
+  const postMarkdown = buildDraftMarkdown(draft, coverImage, sourceUrl);
   const { branch, url } = await deps.github.commitDraftBranch({
     slug,
     postMarkdown,
@@ -102,6 +113,7 @@ export async function reviseDraft(
     title: draft.title,
     excerpt: draft.excerpt,
     coverImage,
+    sourceUrl,
   });
 
   return { status: "committed", slug, title: draft.title, branch, url };

@@ -1,5 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
-import { createDiscordNotifier, updateInteractionMessage } from "../discordNotifier";
+
+import {
+  buildActualiteProposalActionRow,
+  createDiscordNotifier,
+  updateInteractionMessage,
+} from "../discordNotifier";
 
 function makeFetch(status = 200) {
   return vi.fn().mockResolvedValue({
@@ -121,6 +126,143 @@ describe("createDiscordNotifier", () => {
         previewUrl: "https://elancestvous.fr/blog-review/mon-article?token=abc",
       })
     ).rejects.toThrow(/401/);
+  });
+
+  it("flags an actualité-derived draft with a reinforced-review field citing the source (mitigation #66)", async () => {
+    const fetchImpl = makeFetch();
+    const notifier = createDiscordNotifier({
+      botToken: "bot-token",
+      channelId: "channel-123",
+      fetchImpl,
+    });
+
+    await notifier.notifyDraftReady({
+      slug: "mon-article",
+      title: "Mon article",
+      excerpt: "Un extrait court.",
+      coverImage: null,
+      previewUrl: "https://elancestvous.fr/blog-review/mon-article?token=abc",
+      sourceUrl: "https://source.example/actu-1",
+    });
+
+    const payload = JSON.parse(fetchImpl.mock.calls[0][1].body as string);
+    expect(payload.embeds[0].fields).toEqual([
+      expect.objectContaining({
+        name: expect.stringMatching(/actualité/i),
+        value: expect.stringContaining("https://source.example/actu-1"),
+      }),
+    ]);
+  });
+
+  it("omits the actualité field on a regular pillar-rotation draft", async () => {
+    const fetchImpl = makeFetch();
+    const notifier = createDiscordNotifier({
+      botToken: "bot-token",
+      channelId: "channel-123",
+      fetchImpl,
+    });
+
+    await notifier.notifyDraftReady({
+      slug: "mon-article",
+      title: "Mon article",
+      excerpt: "Un extrait court.",
+      coverImage: null,
+      previewUrl: "https://elancestvous.fr/blog-review/mon-article?token=abc",
+    });
+
+    const payload = JSON.parse(fetchImpl.mock.calls[0][1].body as string);
+    expect(payload.embeds[0].fields).toBeUndefined();
+  });
+});
+
+describe("createDiscordNotifier.notifyActualiteProposal", () => {
+  it("posts an embed linking to the source with Approuver/Ignorer buttons, no auto-generation", async () => {
+    const fetchImpl = makeFetch();
+    const notifier = createDiscordNotifier({
+      botToken: "bot-token",
+      channelId: "channel-123",
+      fetchImpl,
+    });
+
+    const result = await notifier.notifyActualiteProposal({
+      id: "abc123def456",
+      title: "Nouvelle obligation QVCT",
+      summary: "Résumé factuel vérifiable.",
+      sourceUrl: "https://source.example/actu-1",
+      pillarLabel: "GAPP",
+    });
+
+    expect(result).toEqual({ messageId: "message-id-123" });
+    const [url, init] = fetchImpl.mock.calls[0];
+    expect(url).toBe("https://discord.com/api/v10/channels/channel-123/messages");
+    expect(init.headers.Authorization).toBe("Bot bot-token");
+    const payload = JSON.parse(init.body as string);
+
+    expect(payload.embeds[0].title).toBe("Nouvelle obligation QVCT");
+    expect(payload.embeds[0].description).toBe("Résumé factuel vérifiable.");
+    expect(payload.embeds[0].url).toBe("https://source.example/actu-1");
+    expect(payload.allowed_mentions).toEqual({ parse: [] });
+
+    const approveButton = payload.components[0].components[0];
+    const rejectButton = payload.components[0].components[1];
+    expect(approveButton.custom_id).toBe("actu_approve:abc123def456");
+    expect(rejectButton.custom_id).toBe("actu_reject:abc123def456");
+  });
+
+  it("truncates an oversized title/summary to Discord's embed limits", async () => {
+    const fetchImpl = makeFetch();
+    const notifier = createDiscordNotifier({
+      botToken: "bot-token",
+      channelId: "channel-123",
+      fetchImpl,
+    });
+
+    await notifier.notifyActualiteProposal({
+      id: "abc123def456",
+      title: "T".repeat(300),
+      summary: "S".repeat(5000),
+      sourceUrl: "https://source.example/actu-1",
+      pillarLabel: "GAPP",
+    });
+
+    const payload = JSON.parse(fetchImpl.mock.calls[0][1].body as string);
+    expect(payload.embeds[0].title.length).toBeLessThanOrEqual(256);
+    expect(payload.embeds[0].description.length).toBeLessThanOrEqual(4096);
+  });
+
+  it("throws with the response status when Discord rejects the request", async () => {
+    const fetchImpl = makeFetch(401);
+    const notifier = createDiscordNotifier({
+      botToken: "bad-token",
+      channelId: "channel-123",
+      fetchImpl,
+    });
+
+    await expect(
+      notifier.notifyActualiteProposal({
+        id: "abc123def456",
+        title: "Titre",
+        summary: "Résumé",
+        sourceUrl: "https://source.example/actu-1",
+        pillarLabel: "GAPP",
+      })
+    ).rejects.toThrow(/401/);
+  });
+});
+
+describe("buildActualiteProposalActionRow", () => {
+  it("builds one row with an Approuver and an Ignorer button carrying the proposal id", () => {
+    const row = buildActualiteProposalActionRow("abc123def456");
+
+    expect(row).toEqual([
+      {
+        type: 1,
+        components: [
+          expect.objectContaining({ custom_id: "actu_approve:abc123def456" }),
+          expect.objectContaining({ custom_id: "actu_reject:abc123def456" }),
+        ],
+      },
+    ]);
   });
 });
 

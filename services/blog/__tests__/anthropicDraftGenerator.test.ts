@@ -8,6 +8,7 @@ vi.mock("@anthropic-ai/sdk", () => ({
   },
 }));
 
+import { LEGAL_DISCLAIMER } from "../actualiteWatch";
 import { createAnthropicDraftGenerator } from "../anthropicDraftGenerator";
 import { PILLARS } from "../pillars";
 
@@ -15,6 +16,19 @@ const pillarC = PILLARS.find((p) => p.id === "C")!;
 
 function baseSuggestion() {
   return { pillar: pillarC, recentTags: [], injectLocalAngle: false };
+}
+
+function actualiteSuggestion() {
+  return {
+    pillar: pillarC,
+    recentTags: [],
+    injectLocalAngle: false,
+    actualite: {
+      title: "Nouvelle obligation QVCT",
+      summary: "Résumé factuel vérifiable fourni par la veille.",
+      sourceUrl: "https://source.example/actu-1",
+    },
+  };
 }
 
 function makeParseResponse() {
@@ -188,6 +202,80 @@ describe("createAnthropicDraftGenerator.parseDraft", () => {
     const call = messagesParse.mock.calls[0][0];
     const content = call.messages[0].content as string;
     expect(content).toMatch(/Toulouse|Occitanie/);
+  });
+
+  it("cites the actualité's title, summary and source URL instead of the generic pillar theme", async () => {
+    messagesParse.mockReset().mockResolvedValue(makeParseResponse());
+    const generator = createAnthropicDraftGenerator({ apiKey: "key" });
+
+    await generator.parseDraft([], actualiteSuggestion());
+
+    const call = messagesParse.mock.calls[0][0];
+    const content = call.messages[0].content as string;
+    expect(content).toContain("Nouvelle obligation QVCT");
+    expect(content).toContain("Résumé factuel vérifiable fourni par la veille.");
+    expect(content).toContain("https://source.example/actu-1");
+    expect(content).not.toContain(pillarC.theme);
+  });
+
+  it("instructs the model not to invent legal/factual details beyond the actualité summary", async () => {
+    messagesParse.mockReset().mockResolvedValue(makeParseResponse());
+    const generator = createAnthropicDraftGenerator({ apiKey: "key" });
+
+    await generator.parseDraft([], actualiteSuggestion());
+
+    const call = messagesParse.mock.calls[0][0];
+    const content = call.messages[0].content as string;
+    expect(content).toMatch(/n'invente|n'invent/i);
+  });
+
+  it("still requires attaching the actualité to the suggested pillar's target page (mandatory internal link)", async () => {
+    messagesParse.mockReset().mockResolvedValue(makeParseResponse());
+    const generator = createAnthropicDraftGenerator({ apiKey: "key" });
+
+    await generator.parseDraft([], actualiteSuggestion());
+
+    const call = messagesParse.mock.calls[0][0];
+    const content = call.messages[0].content as string;
+    expect(content).toContain(pillarC.targetPage);
+  });
+
+  it("delimits the actualité's title/summary as content to summarize, never as instructions (prompt-injection defense)", async () => {
+    messagesParse.mockReset().mockResolvedValue(makeParseResponse());
+    const generator = createAnthropicDraftGenerator({ apiKey: "key" });
+
+    await generator.parseDraft([], actualiteSuggestion());
+
+    const call = messagesParse.mock.calls[0][0];
+    const content = call.messages[0].content as string;
+    expect(content).toMatch(/jamais comme des instructions/i);
+  });
+
+  it("truncates an oversized actualité summary before sending it to the model", async () => {
+    messagesParse.mockReset().mockResolvedValue(makeParseResponse());
+    const generator = createAnthropicDraftGenerator({ apiKey: "key" });
+    const oversizedSuggestion = {
+      ...actualiteSuggestion(),
+      actualite: { ...actualiteSuggestion().actualite, summary: "A".repeat(5000) },
+    };
+
+    await generator.parseDraft([], oversizedSuggestion);
+
+    const call = messagesParse.mock.calls[0][0];
+    const content = call.messages[0].content as string;
+    expect(content).not.toContain("A".repeat(5000));
+    expect(content).toContain("A".repeat(2000));
+  });
+
+  it("requires the mandatory legal disclaimer verbatim for an actualité-derived article", async () => {
+    messagesParse.mockReset().mockResolvedValue(makeParseResponse());
+    const generator = createAnthropicDraftGenerator({ apiKey: "key" });
+
+    await generator.parseDraft([], actualiteSuggestion());
+
+    const call = messagesParse.mock.calls[0][0];
+    const content = call.messages[0].content as string;
+    expect(content).toContain(LEGAL_DISCLAIMER);
   });
 
   it("uses the Discord topic instead of the pillar suggestion when both would otherwise apply", async () => {

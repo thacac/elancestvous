@@ -1,5 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
+
 import {
+  getActualiteApprovalId,
+  getActualiteRejectionId,
   getApprovalSlug,
   getBlogSujetSubmission,
   getRevisionRequest,
@@ -91,6 +94,28 @@ describe("handleDiscordInteraction", () => {
 
     expect(result.type).toBe(4);
     expect(result.data?.flags).toBe(64);
+  });
+
+  it("disables the buttons immediately on actualité approval, before the real generation completes", () => {
+    const result = handleDiscordInteraction({
+      type: 3,
+      data: { custom_id: "actu_approve:abc123def456" },
+    });
+
+    expect(result.type).toBe(7);
+    expect(result.data?.components).toEqual([]);
+    expect(result.data?.allowed_mentions).toEqual({ parse: [] });
+  });
+
+  it("disables the buttons immediately on actualité rejection, before the fallback generation completes", () => {
+    const result = handleDiscordInteraction({
+      type: 3,
+      data: { custom_id: "actu_reject:abc123def456" },
+    });
+
+    expect(result.type).toBe(7);
+    expect(result.data?.components).toEqual([]);
+    expect(result.data?.allowed_mentions).toEqual({ parse: [] });
   });
 
   it("opens a topic-submission modal when the /blog-sujet command is invoked, without checking identity", () => {
@@ -282,5 +307,41 @@ describe("getRevisionRequest", () => {
 
   it("returns null for an unrelated modal submission", () => {
     expect(getRevisionRequest({ type: 5, data: { custom_id: "something_else" } })).toBeNull();
+  });
+});
+
+describe("getActualiteApprovalId", () => {
+  it("extracts the id from an actu_approve button interaction", () => {
+    expect(
+      getActualiteApprovalId({ type: 3, data: { custom_id: "actu_approve:abc123def456" } })
+    ).toBe("abc123def456");
+  });
+
+  it("returns null for an actu_reject interaction", () => {
+    expect(
+      getActualiteApprovalId({ type: 3, data: { custom_id: "actu_reject:abc123def456" } })
+    ).toBeNull();
+  });
+
+  it("returns null for a non-component interaction", () => {
+    expect(getActualiteApprovalId({ type: 1 })).toBeNull();
+  });
+});
+
+describe("getActualiteRejectionId", () => {
+  it("extracts the id from an actu_reject button interaction", () => {
+    expect(
+      getActualiteRejectionId({ type: 3, data: { custom_id: "actu_reject:abc123def456" } })
+    ).toBe("abc123def456");
+  });
+
+  it("returns null for an actu_approve interaction", () => {
+    expect(
+      getActualiteRejectionId({ type: 3, data: { custom_id: "actu_approve:abc123def456" } })
+    ).toBeNull();
+  });
+
+  it("returns null for a non-component interaction", () => {
+    expect(getActualiteRejectionId({ type: 1 })).toBeNull();
   });
 });

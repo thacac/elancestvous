@@ -1,11 +1,28 @@
+import { createHash } from "node:crypto";
+
 import { Octokit } from "@octokit/rest";
 import matter from "gray-matter";
 
 import { PILLARS, type PillarId } from "./pillars";
 
+import type { ActualiteCandidate } from "./actualiteWatch";
+
 const CONTENT_BLOG_PATH = "content/blog";
 const VALID_PILLAR_IDS = new Set<string>(PILLARS.map((p) => p.id));
+// Préfixe de branche pour une actualité proposée à validation humaine avant
+// génération (correction de #66 : un flux RSS/Atom externe n'est pas trié
+// par un humain ni par un agent, donc rien ne garantit sa pertinence pour
+// l'audience — la génération ne doit jamais démarrer sans un "OK" explicite).
+const ACTUALITE_PROPOSAL_BRANCH_PREFIX = "blog-actu-proposal/";
 const SUJETS_DISCORD_PATH = "content/blog/sujets-discord.json";
+
+// Exportée (pas seulement interne à queueActualiteProposal) : generateDraft.ts
+// doit pouvoir calculer le même id *avant* de committer quoi que ce soit, pour
+// notifier Discord d'abord et ne persister la proposition qu'une fois la
+// notification confirmée (cf. queueActualiteProposal, plus bas).
+export function deriveActualiteProposalId(sourceUrl: string): string {
+  return createHash("sha256").update(sourceUrl).digest("hex").slice(0, 12);
+}
 
 export type PublishedPost = {
   title: string;
@@ -16,6 +33,10 @@ export type PublishedPost = {
   // l'ignore simplement plutôt que d'échouer sur l'historique existant.
   pillar: PillarId | null;
   localAngle: boolean;
+  // URL de la source d'actualité citée (#66) — null pour un article de
+  // rotation classique. Sert à exclure les sources déjà traitées (mitigation
+  // "pas de dédoublonnage" de #66) via actualiteWatch.ts.
+  sourceUrl: string | null;
   tags: string[];
 };
 
@@ -79,6 +100,7 @@ export function createGithubBlogRepo(options: {
           publishedAt: typeof frontmatter.publishedAt === "string" ? frontmatter.publishedAt : "",
           pillar,
           localAngle: frontmatter.localAngle === true,
+          sourceUrl: typeof frontmatter.sourceUrl === "string" ? frontmatter.sourceUrl : null,
           tags: Array.isArray(frontmatter.tags) ? frontmatter.tags : [],
         });
       }
@@ -328,6 +350,106 @@ export function createGithubBlogRepo(options: {
         markdown: Buffer.from(postData.content, "base64").toString("utf8"),
         coverImage,
       };
+    },
+
+    // Id dérivé du sourceUrl (pas un aléa) : proposer deux fois la même
+    // actualité (deux exécutions du cron avant qu'une décision humaine soit
+    // prise) retombe sur la même branche/id plutôt que d'en créer une
+    // nouvelle à chaque fois.
+    async queueActualiteProposal(
+      candidate: ActualiteCandidate
+    ): Promise<{ id: string }> {
+      const id = deriveActualiteProposalId(candidate.sourceUrl);
+      const branchName = `${ACTUALITE_PROPOSAL_BRANCH_PREFIX}${id}`;
+      const path = `content/_actu-proposals/${id}.json`;
+
+      const { data: baseRef } = await octokit.rest.git.getRef({
+        owner,
+        repo,
+        ref: `heads/${baseBranch}`,
+      });
+
+      try {
+        await octokit.rest.git.createRef({
+          owner,
+          repo,
+          ref: `refs/heads/${branchName}`,
+          sha: baseRef.object.sha,
+        });
+      } catch (err) {
+        if (!isUnprocessable(err)) throw err;
+        // Cette actualité a déjà été proposée (même id, dérivé du même
+        // sourceUrl) : on réécrit le même contenu sur la branche existante
+        // plutôt que d'échouer, idempotent comme commitDraftBranch().
+      }
+
+      let sha: string | undefined;
+      try {
+        const { data } = await octokit.rest.repos.getContent({ owner, repo, path, ref: branchName });
+        if (!Array.isArray(data) && data.type === "file") sha = data.sha;
+      } catch (err) {
+        if (!isNotFound(err)) throw err;
+      }
+
+      await octokit.rest.repos.createOrUpdateFileContents({
+        owner,
+        repo,
+        branch: branchName,
+        path,
+        message: `blog: actualité proposée "${candidate.title}"`,
+        content: Buffer.from(JSON.stringify(candidate), "utf8").toString("base64"),
+        ...(sha ? { sha } : {}),
+      });
+
+      return { id };
+    },
+
+    async getActualiteProposal(id: string): Promise<ActualiteCandidate | null> {
+      const branchName = `${ACTUALITE_PROPOSAL_BRANCH_PREFIX}${id}`;
+      const path = `content/_actu-proposals/${id}.json`;
+      try {
+        const { data } = await octokit.rest.repos.getContent({ owner, repo, path, ref: branchName });
+        if (Array.isArray(data) || data.type !== "file" || !data.content) return null;
+        return JSON.parse(Buffer.from(data.content, "base64").toString("utf8"));
+      } catch (err) {
+        if (isNotFound(err)) return null;
+        throw err;
+      }
+    },
+
+    // Une actualité déjà proposée à validation humaine ne doit plus jamais
+    // être re-proposée, qu'elle ait été approuvée, ignorée, ou qu'elle
+    // attende encore une décision — la branche de proposition sert donc de
+    // registre permanent, sans fichier de suivi séparé à maintenir en plus.
+    async listProposedActualiteSourceUrls(): Promise<string[]> {
+      const { data: refs } = await octokit.rest.git.listMatchingRefs({
+        owner,
+        repo,
+        ref: `heads/${ACTUALITE_PROPOSAL_BRANCH_PREFIX}`,
+      });
+
+      // En parallèle (pas séquentiel) et tolérant à l'échec d'une branche
+      // isolée (réseau, 5xx transitoire) : cette liste grandit avec chaque
+      // actualité jamais proposée (aucun nettoyage des branches décidées
+      // pour l'instant, accepté vu le volume attendu d'un blog hebdomadaire)
+      // — la lire séquentiellement ajouterait une latence croissante à
+      // chaque génération, et une seule branche en échec ne doit pas priver
+      // les autres candidats déjà lus de leur exclusion.
+      const results = await Promise.allSettled(
+        refs.map(async (ref) => {
+          const branchName = ref.ref.replace("refs/heads/", "");
+          const id = branchName.slice(ACTUALITE_PROPOSAL_BRANCH_PREFIX.length);
+          const path = `content/_actu-proposals/${id}.json`;
+          const { data } = await octokit.rest.repos.getContent({ owner, repo, path, ref: branchName });
+          if (Array.isArray(data) || data.type !== "file" || !data.content) return null;
+          const parsed = JSON.parse(Buffer.from(data.content, "base64").toString("utf8"));
+          return typeof parsed.sourceUrl === "string" ? parsed.sourceUrl : null;
+        })
+      );
+
+      return results.flatMap((result) =>
+        result.status === "fulfilled" && result.value !== null ? [result.value] : []
+      );
     },
 
     // Écrit directement sur baseBranch (master), pas de branche de brouillon

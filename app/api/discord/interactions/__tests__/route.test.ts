@@ -6,6 +6,8 @@ vi.mock("@/services/blog/discordInteractionHandler", () => ({
   handleDiscordInteraction: vi.fn(),
   getApprovalSlug: vi.fn(),
   getRevisionRequest: vi.fn(),
+  getActualiteApprovalId: vi.fn(),
+  getActualiteRejectionId: vi.fn(),
   getBlogSujetSubmission: vi.fn(),
   submitBlogSujet: vi.fn(),
 }));
@@ -15,8 +17,13 @@ vi.mock("@/services/blog/publishDraft", () => ({
 vi.mock("@/services/blog/reviseDraft", () => ({
   reviseDraft: vi.fn(),
 }));
+vi.mock("@/services/blog/generateDraft", () => ({
+  generateDraft: vi.fn(),
+  generateApprovedActualite: vi.fn(),
+}));
 vi.mock("@/services/blog/createBlogDraftDeps", () => ({
   createReviseDraftDeps: vi.fn().mockReturnValue({}),
+  createBlogDraftDeps: vi.fn().mockReturnValue({}),
 }));
 vi.mock("@/services/blog/githubBlogRepo", () => ({
   createGithubBlogRepo: vi.fn().mockReturnValue({}),
@@ -25,18 +32,27 @@ vi.mock("@/services/blog/githubBlogRepo", () => ({
 vi.mock("@/services/blog/discordNotifier", () => ({
   updateInteractionMessage: vi.fn().mockResolvedValue(undefined),
   buildDraftActionRow: vi.fn((slug: string) => [{ type: 1, marker: `row-for-${slug}` }]),
+  buildActualiteProposalActionRow: vi.fn((id: string) => [{ type: 1, marker: `actu-row-for-${id}` }]),
 }));
 
 import {
+  getActualiteApprovalId,
+  getActualiteRejectionId,
   getApprovalSlug,
   getBlogSujetSubmission,
   getRevisionRequest,
   handleDiscordInteraction,
   submitBlogSujet,
 } from "@/services/blog/discordInteractionHandler";
-import { buildDraftActionRow, updateInteractionMessage } from "@/services/blog/discordNotifier";
+import {
+  buildActualiteProposalActionRow,
+  buildDraftActionRow,
+  updateInteractionMessage,
+} from "@/services/blog/discordNotifier";
+import { generateApprovedActualite, generateDraft } from "@/services/blog/generateDraft";
 import { publishDraft } from "@/services/blog/publishDraft";
 import { reviseDraft } from "@/services/blog/reviseDraft";
+
 import { POST } from "../route";
 
 const keyPair = nacl.sign.keyPair();
@@ -71,12 +87,17 @@ describe("POST /api/discord/interactions", () => {
     vi.mocked(handleDiscordInteraction).mockReset();
     vi.mocked(getApprovalSlug).mockReset().mockReturnValue(null);
     vi.mocked(getRevisionRequest).mockReset().mockReturnValue(null);
+    vi.mocked(getActualiteApprovalId).mockReset().mockReturnValue(null);
+    vi.mocked(getActualiteRejectionId).mockReset().mockReturnValue(null);
     vi.mocked(getBlogSujetSubmission).mockReset().mockReturnValue(null);
     vi.mocked(submitBlogSujet).mockReset();
     vi.mocked(publishDraft).mockReset();
     vi.mocked(reviseDraft).mockReset();
+    vi.mocked(generateDraft).mockReset();
+    vi.mocked(generateApprovedActualite).mockReset();
     vi.mocked(updateInteractionMessage).mockReset().mockResolvedValue(undefined);
     vi.mocked(buildDraftActionRow).mockClear();
+    vi.mocked(buildActualiteProposalActionRow).mockClear();
   });
 
   afterEach(() => {
@@ -564,6 +585,212 @@ describe("POST /api/discord/interactions", () => {
       expect(updateInteractionMessage).toHaveBeenCalled();
     });
     expect(buildDraftActionRow).not.toHaveBeenCalled();
+  });
+
+  it("does not act on an actualité decision for a non-actu interaction", async () => {
+    const body = JSON.stringify({ type: 1 });
+    vi.mocked(handleDiscordInteraction).mockReturnValue({ type: 1 });
+    vi.mocked(getActualiteApprovalId).mockReturnValue(null);
+    vi.mocked(getActualiteRejectionId).mockReturnValue(null);
+
+    await POST(makeRequest(body));
+
+    expect(generateApprovedActualite).not.toHaveBeenCalled();
+    expect(generateDraft).not.toHaveBeenCalled();
+  });
+
+  it("generates the article and updates the message when an actualité proposal is approved", async () => {
+    const body = JSON.stringify({
+      type: 3,
+      data: { custom_id: "actu_approve:abc123def456" },
+      application_id: "app-123",
+      token: "interaction-token-abc",
+    });
+    vi.mocked(handleDiscordInteraction).mockReturnValue({ type: 7 });
+    vi.mocked(getActualiteApprovalId).mockReturnValue("abc123def456");
+    vi.mocked(generateApprovedActualite).mockResolvedValue({
+      status: "committed",
+      slug: "nouvelle-obligation-qvct",
+      title: "Nouvelle obligation QVCT",
+      branch: "blog-draft/nouvelle-obligation-qvct",
+      url: "https://github.com/thacac/elancestvous/tree/blog-draft/nouvelle-obligation-qvct",
+    });
+
+    const response = await POST(makeRequest(body));
+
+    expect(response.status).toBe(200);
+    expect(generateApprovedActualite).toHaveBeenCalledWith("abc123def456", expect.anything());
+
+    await vi.waitFor(() => {
+      expect(updateInteractionMessage).toHaveBeenCalledWith(
+        "app-123",
+        "interaction-token-abc",
+        expect.objectContaining({ content: expect.stringContaining("généré") })
+      );
+    });
+  });
+
+  it("re-attaches the Approuver/Ignorer buttons when the approved generation fails", async () => {
+    const body = JSON.stringify({
+      type: 3,
+      data: { custom_id: "actu_approve:abc123def456" },
+      application_id: "app-123",
+      token: "tok",
+    });
+    vi.mocked(handleDiscordInteraction).mockReturnValue({ type: 7 });
+    vi.mocked(getActualiteApprovalId).mockReturnValue("abc123def456");
+    vi.mocked(generateApprovedActualite).mockResolvedValue({
+      status: "generation_failed",
+      reason: "sortie structurée invalide",
+    });
+
+    await POST(makeRequest(body));
+
+    await vi.waitFor(() => {
+      expect(updateInteractionMessage).toHaveBeenCalledWith(
+        "app-123",
+        "tok",
+        expect.objectContaining({
+          content: expect.stringContaining("sortie structurée invalide"),
+          components: [{ type: 1, marker: "actu-row-for-abc123def456" }],
+        })
+      );
+    });
+  });
+
+  it("reports when the approved proposal can no longer be found", async () => {
+    const body = JSON.stringify({
+      type: 3,
+      data: { custom_id: "actu_approve:disparu" },
+      application_id: "app-123",
+      token: "tok",
+    });
+    vi.mocked(handleDiscordInteraction).mockReturnValue({ type: 7 });
+    vi.mocked(getActualiteApprovalId).mockReturnValue("disparu");
+    vi.mocked(generateApprovedActualite).mockResolvedValue({ status: "proposal_not_found" });
+
+    await POST(makeRequest(body));
+
+    await vi.waitFor(() => {
+      expect(updateInteractionMessage).toHaveBeenCalledWith(
+        "app-123",
+        "tok",
+        expect.objectContaining({ content: expect.stringContaining("introuvable") })
+      );
+    });
+  });
+
+  it("re-invokes generateDraft (not generateApprovedActualite) when an actualité proposal is rejected", async () => {
+    const body = JSON.stringify({
+      type: 3,
+      data: { custom_id: "actu_reject:abc123def456" },
+      application_id: "app-123",
+      token: "interaction-token-abc",
+    });
+    vi.mocked(handleDiscordInteraction).mockReturnValue({ type: 7 });
+    vi.mocked(getActualiteRejectionId).mockReturnValue("abc123def456");
+    vi.mocked(generateDraft).mockResolvedValue({
+      status: "committed",
+      slug: "un-titre-valide",
+      title: "Un titre valide",
+      branch: "blog-draft/un-titre-valide",
+      url: "https://github.com/thacac/elancestvous/tree/blog-draft/un-titre-valide",
+    });
+
+    await POST(makeRequest(body));
+
+    expect(generateDraft).toHaveBeenCalledWith(expect.anything());
+    expect(generateApprovedActualite).not.toHaveBeenCalled();
+
+    await vi.waitFor(() => {
+      expect(updateInteractionMessage).toHaveBeenCalledWith(
+        "app-123",
+        "interaction-token-abc",
+        expect.objectContaining({ content: expect.stringContaining("rotation de piliers") })
+      );
+    });
+  });
+
+  it("reports that a follow-up actualité was proposed when rejecting cascades to a new candidate", async () => {
+    const body = JSON.stringify({
+      type: 3,
+      data: { custom_id: "actu_reject:abc123def456" },
+      application_id: "app-123",
+      token: "tok",
+    });
+    vi.mocked(handleDiscordInteraction).mockReturnValue({ type: 7 });
+    vi.mocked(getActualiteRejectionId).mockReturnValue("abc123def456");
+    vi.mocked(generateDraft).mockResolvedValue({
+      status: "pending_actualite_approval",
+      proposalId: "def456abc123",
+      title: "Autre actualité",
+    });
+
+    await POST(makeRequest(body));
+
+    await vi.waitFor(() => {
+      expect(updateInteractionMessage).toHaveBeenCalledWith(
+        "app-123",
+        "tok",
+        expect.objectContaining({ content: expect.stringContaining("actualité suivante") })
+      );
+    });
+  });
+
+  it("logs (without leaking the interaction token) when the actualité message update itself fails", async () => {
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    const body = JSON.stringify({
+      type: 3,
+      data: { custom_id: "actu_approve:abc123def456" },
+      application_id: "app-123",
+      token: "super-secret-interaction-token",
+    });
+    vi.mocked(handleDiscordInteraction).mockReturnValue({ type: 7 });
+    vi.mocked(getActualiteApprovalId).mockReturnValue("abc123def456");
+    vi.mocked(generateApprovedActualite).mockResolvedValue({
+      status: "committed",
+      slug: "mon-article",
+      title: "Mon article",
+      branch: "blog-draft/mon-article",
+      url: "https://github.com/thacac/elancestvous/tree/blog-draft/mon-article",
+    });
+    vi.mocked(updateInteractionMessage).mockRejectedValue(new Error("Unknown Webhook"));
+
+    await POST(makeRequest(body));
+
+    await vi.waitFor(() => {
+      expect(consoleError).toHaveBeenCalled();
+    });
+    const loggedText = consoleError.mock.calls.flat().join(" ");
+    expect(loggedText).toContain("Unknown Webhook");
+    expect(loggedText).not.toContain("super-secret-interaction-token");
+
+    consoleError.mockRestore();
+  });
+
+  it("updates the message with the error when the actualité decision throws unexpectedly", async () => {
+    const body = JSON.stringify({
+      type: 3,
+      data: { custom_id: "actu_approve:abc123def456" },
+      application_id: "app-123",
+      token: "tok",
+    });
+    vi.mocked(handleDiscordInteraction).mockReturnValue({ type: 7 });
+    vi.mocked(getActualiteApprovalId).mockReturnValue("abc123def456");
+    vi.mocked(generateApprovedActualite).mockRejectedValue(new Error("Anthropic API down"));
+
+    await POST(makeRequest(body));
+
+    await vi.waitFor(() => {
+      expect(updateInteractionMessage).toHaveBeenCalledWith(
+        "app-123",
+        "tok",
+        expect.objectContaining({
+          content: expect.stringContaining("Anthropic API down"),
+          components: [{ type: 1, marker: "actu-row-for-abc123def456" }],
+        })
+      );
+    });
   });
 
   it("responds synchronously with the submission result for a /blog-sujet modal submission, without going through handleDiscordInteraction", async () => {
