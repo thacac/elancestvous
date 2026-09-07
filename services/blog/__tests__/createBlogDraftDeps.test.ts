@@ -15,11 +15,12 @@ vi.mock("../githubBlogRepo", async () => {
     createGithubBlogRepo: vi.fn().mockReturnValue({}),
   };
 });
-const { notifyDraftReady } = vi.hoisted(() => ({
+const { notifyDraftReady, notifyActualiteProposal } = vi.hoisted(() => ({
   notifyDraftReady: vi.fn().mockResolvedValue({ messageId: "id" }),
+  notifyActualiteProposal: vi.fn().mockResolvedValue({ messageId: "id-2" }),
 }));
 vi.mock("../discordNotifier", () => ({
-  createDiscordNotifier: vi.fn().mockReturnValue({ notifyDraftReady }),
+  createDiscordNotifier: vi.fn().mockReturnValue({ notifyDraftReady, notifyActualiteProposal }),
 }));
 const { findActualite } = vi.hoisted(() => ({ findActualite: vi.fn() }));
 vi.mock("../actualiteWatch", () => ({
@@ -50,10 +51,32 @@ describe("createBlogDraftDeps", () => {
     vi.mocked(createOpenAiImageGenerator).mockClear();
     vi.mocked(createActualiteWatch).mockClear();
     notifyDraftReady.mockClear();
+    notifyActualiteProposal.mockClear();
   });
 
   afterEach(() => {
     process.env = { ...envBackup };
+  });
+
+  it("delegates notifyActualiteProposal directly to the real notifier (no signed preview URL needed)", async () => {
+    process.env.GITHUB_REPO = "thacac/elancestvous";
+
+    const deps = createBlogDraftDeps();
+    await deps.discord.notifyActualiteProposal({
+      id: "abc123def456",
+      title: "Nouvelle obligation QVCT",
+      summary: "Résumé",
+      sourceUrl: "https://source.example/actu-1",
+      pillarLabel: "GAPP",
+    });
+
+    expect(notifyActualiteProposal).toHaveBeenCalledWith({
+      id: "abc123def456",
+      title: "Nouvelle obligation QVCT",
+      summary: "Résumé",
+      sourceUrl: "https://source.example/actu-1",
+      pillarLabel: "GAPP",
+    });
   });
 
   it("parses BLOG_VEILLE_SOURCES into the actualité watch's sources list", () => {

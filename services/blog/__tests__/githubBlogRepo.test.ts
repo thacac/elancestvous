@@ -9,19 +9,33 @@ const getTree = vi.fn();
 const createTree = vi.fn();
 const createCommit = vi.fn();
 const updateRef = vi.fn();
+const listMatchingRefs = vi.fn();
 
 vi.mock("@octokit/rest", () => ({
   Octokit: function Octokit() {
     return {
       rest: {
         repos: { getContent, createOrUpdateFileContents },
-        git: { getRef, createRef, getCommit, getTree, createTree, createCommit, updateRef },
+        git: {
+          getRef,
+          createRef,
+          getCommit,
+          getTree,
+          createTree,
+          createCommit,
+          updateRef,
+          listMatchingRefs,
+        },
       },
     };
   },
 }));
 
 import { createGithubBlogRepo } from "../githubBlogRepo";
+import { PILLARS } from "../pillars";
+
+
+const pillarD = PILLARS.find((p) => p.id === "D")!;
 
 describe("createGithubBlogRepo.listPublishedPosts", () => {
   it("reads content/blog on baseBranch rather than the repo's default branch", async () => {
@@ -628,5 +642,222 @@ describe("createGithubBlogRepo.getDraftContent", () => {
       markdown: "---\ntitle: Brouillon sans image\n---\nCorps.",
       coverImage: null,
     });
+  });
+});
+
+describe("createGithubBlogRepo.queueActualiteProposal / getActualiteProposal / listProposedActualiteSourceUrls", () => {
+  function resetProposalMocks() {
+    getRef.mockReset();
+    createRef.mockReset();
+    getContent.mockReset();
+    createOrUpdateFileContents.mockReset();
+    listMatchingRefs.mockReset();
+  }
+
+  const candidate = {
+    title: "Nouvelle obligation QVCT",
+    summary: "Résumé factuel vérifiable.",
+    sourceUrl: "https://source.example/actu-1",
+    pillar: pillarD,
+  };
+
+  it("commits the candidate as JSON on a dedicated branch derived from the source URL", async () => {
+    resetProposalMocks();
+    getRef.mockResolvedValue({ data: { object: { sha: "base-sha" } } });
+    createRef.mockResolvedValue({});
+    getContent.mockRejectedValue({ status: 404 });
+    createOrUpdateFileContents.mockResolvedValue({});
+
+    const github = createGithubBlogRepo({
+      auth: "token",
+      owner: "thacac",
+      repo: "elancestvous",
+      baseBranch: "master",
+    });
+
+    const { id } = await github.queueActualiteProposal(candidate);
+
+    expect(id).toMatch(/^[0-9a-f]{12}$/);
+    expect(createRef).toHaveBeenCalledWith(
+      expect.objectContaining({ ref: `refs/heads/blog-actu-proposal/${id}` })
+    );
+    expect(createOrUpdateFileContents).toHaveBeenCalledWith(
+      expect.objectContaining({
+        branch: `blog-actu-proposal/${id}`,
+        path: `content/_actu-proposals/${id}.json`,
+        content: Buffer.from(JSON.stringify(candidate), "utf8").toString("base64"),
+      })
+    );
+  });
+
+  it("derives the same id for the same source URL, so proposing it again is idempotent", async () => {
+    resetProposalMocks();
+    getRef.mockResolvedValue({ data: { object: { sha: "base-sha" } } });
+    createRef.mockResolvedValue({});
+    getContent.mockRejectedValue({ status: 404 });
+    createOrUpdateFileContents.mockResolvedValue({});
+
+    const github = createGithubBlogRepo({
+      auth: "token",
+      owner: "thacac",
+      repo: "elancestvous",
+      baseBranch: "master",
+    });
+
+    const first = await github.queueActualiteProposal(candidate);
+    const second = await github.queueActualiteProposal(candidate);
+
+    expect(second.id).toBe(first.id);
+  });
+
+  it("does not throw when the proposal branch already exists (422)", async () => {
+    resetProposalMocks();
+    getRef.mockResolvedValue({ data: { object: { sha: "base-sha" } } });
+    createRef.mockRejectedValueOnce({ status: 422 });
+    getContent.mockResolvedValueOnce({ data: { type: "file", sha: "existing-sha" } });
+    createOrUpdateFileContents.mockResolvedValue({});
+
+    const github = createGithubBlogRepo({
+      auth: "token",
+      owner: "thacac",
+      repo: "elancestvous",
+      baseBranch: "master",
+    });
+
+    await expect(github.queueActualiteProposal(candidate)).resolves.toEqual(
+      expect.objectContaining({ id: expect.any(String) })
+    );
+    expect(createOrUpdateFileContents).toHaveBeenCalledWith(
+      expect.objectContaining({ sha: "existing-sha" })
+    );
+  });
+
+  it("reads back a queued proposal by id", async () => {
+    resetProposalMocks();
+    getContent.mockResolvedValueOnce({
+      data: { type: "file", content: Buffer.from(JSON.stringify(candidate), "utf8").toString("base64") },
+    });
+
+    const github = createGithubBlogRepo({
+      auth: "token",
+      owner: "thacac",
+      repo: "elancestvous",
+      baseBranch: "master",
+    });
+
+    const result = await github.getActualiteProposal("abc123def456");
+
+    expect(getContent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        path: "content/_actu-proposals/abc123def456.json",
+        ref: "blog-actu-proposal/abc123def456",
+      })
+    );
+    expect(result).toEqual(candidate);
+  });
+
+  it("returns null for an unknown proposal id (branch or file deleted)", async () => {
+    resetProposalMocks();
+    getContent.mockRejectedValue({ status: 404 });
+
+    const github = createGithubBlogRepo({
+      auth: "token",
+      owner: "thacac",
+      repo: "elancestvous",
+      baseBranch: "master",
+    });
+
+    const result = await github.getActualiteProposal("disparu");
+
+    expect(result).toBeNull();
+  });
+
+  it("lists the sourceUrl of every proposal branch, whether pending, approved or rejected", async () => {
+    resetProposalMocks();
+    listMatchingRefs.mockResolvedValue({
+      data: [
+        { ref: "refs/heads/blog-actu-proposal/aaa111" },
+        { ref: "refs/heads/blog-actu-proposal/bbb222" },
+      ],
+    });
+    getContent
+      .mockResolvedValueOnce({
+        data: {
+          type: "file",
+          content: Buffer.from(JSON.stringify({ ...candidate, sourceUrl: "https://a.example/1" })).toString(
+            "base64"
+          ),
+        },
+      })
+      .mockResolvedValueOnce({
+        data: {
+          type: "file",
+          content: Buffer.from(JSON.stringify({ ...candidate, sourceUrl: "https://b.example/2" })).toString(
+            "base64"
+          ),
+        },
+      });
+
+    const github = createGithubBlogRepo({
+      auth: "token",
+      owner: "thacac",
+      repo: "elancestvous",
+      baseBranch: "master",
+    });
+
+    const urls = await github.listProposedActualiteSourceUrls();
+
+    expect(listMatchingRefs).toHaveBeenCalledWith(
+      expect.objectContaining({ ref: "heads/blog-actu-proposal/" })
+    );
+    expect(urls).toEqual(["https://a.example/1", "https://b.example/2"]);
+  });
+
+  it("still returns the other branches' sourceUrl when one branch's read fails unexpectedly", async () => {
+    resetProposalMocks();
+    listMatchingRefs.mockResolvedValue({
+      data: [
+        { ref: "refs/heads/blog-actu-proposal/aaa111" },
+        { ref: "refs/heads/blog-actu-proposal/bbb222" },
+      ],
+    });
+    getContent
+      .mockRejectedValueOnce({ status: 500 })
+      .mockResolvedValueOnce({
+        data: {
+          type: "file",
+          content: Buffer.from(JSON.stringify({ ...candidate, sourceUrl: "https://b.example/2" })).toString(
+            "base64"
+          ),
+        },
+      });
+
+    const github = createGithubBlogRepo({
+      auth: "token",
+      owner: "thacac",
+      repo: "elancestvous",
+      baseBranch: "master",
+    });
+
+    const urls = await github.listProposedActualiteSourceUrls();
+
+    expect(urls).toEqual(["https://b.example/2"]);
+  });
+
+  it("returns an empty array when no proposal branch exists yet", async () => {
+    resetProposalMocks();
+    listMatchingRefs.mockResolvedValue({ data: [] });
+
+    const github = createGithubBlogRepo({
+      auth: "token",
+      owner: "thacac",
+      repo: "elancestvous",
+      baseBranch: "master",
+    });
+
+    const urls = await github.listProposedActualiteSourceUrls();
+
+    expect(urls).toEqual([]);
+    expect(getContent).not.toHaveBeenCalled();
   });
 });

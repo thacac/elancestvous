@@ -2,10 +2,13 @@ import { describe, expect, it, vi } from "vitest";
 
 import {
   buildDraftMarkdown,
+  generateApprovedActualite,
   generateDraft,
   type GenerateDraftDeps,
 } from "../generateDraft";
+import { deriveActualiteProposalId } from "../githubBlogRepo";
 
+import type { ActualiteCandidate } from "../actualiteWatch";
 import type { BlogDraft } from "../draftSchema";
 import type { PublishedPost } from "../githubBlogRepo";
 
@@ -22,6 +25,18 @@ const validDraft: BlogDraft = {
   pillar: "C",
   localAngle: false,
 };
+
+const pillarD = { id: "D" as const, label: "GAPP", targetPage: "/gapp", theme: "theme", weight: 3 };
+
+function makeActualiteCandidate(overrides: Partial<ActualiteCandidate> = {}): ActualiteCandidate {
+  return {
+    title: "Nouvelle obligation QVCT",
+    summary: "Résumé factuel vérifiable.",
+    sourceUrl: "https://source.example/actu-1",
+    pillar: pillarD,
+    ...overrides,
+  };
+}
 
 function makePublishedPost(overrides: Partial<PublishedPost> = {}): PublishedPost {
   return {
@@ -52,9 +67,13 @@ function makeDeps(overrides: Partial<GenerateDraftDeps> = {}): GenerateDraftDeps
         branch: "blog-draft/un-titre-valide",
         url: "https://github.com/thacac/elancestvous/tree/blog-draft/un-titre-valide",
       }),
+      queueActualiteProposal: vi.fn().mockResolvedValue({ id: "abc123def456" }),
+      getActualiteProposal: vi.fn().mockResolvedValue(null),
+      listProposedActualiteSourceUrls: vi.fn().mockResolvedValue([]),
     },
     discord: {
       notifyDraftReady: vi.fn().mockResolvedValue({ messageId: "message-id-123" }),
+      notifyActualiteProposal: vi.fn().mockResolvedValue({ messageId: "message-id-456" }),
     },
     ...overrides,
   };
@@ -141,6 +160,7 @@ describe("generateDraft", () => {
   it("passes a pillar suggestion computed from publication history to parseDraft", async () => {
     const deps = makeDeps({
       github: {
+        ...makeDeps().github,
         listPublishedPosts: vi.fn().mockResolvedValue([
           makePublishedPost({
             title: "Article C1",
@@ -157,10 +177,6 @@ describe("generateDraft", () => {
             tags: ["GAPP"],
           }),
         ]),
-        commitDraftBranch: vi.fn().mockResolvedValue({
-          branch: "blog-draft/un-titre-valide",
-          url: "https://github.com/thacac/elancestvous/tree/blog-draft/un-titre-valide",
-        }),
       },
     });
 
@@ -178,13 +194,8 @@ describe("generateDraft", () => {
   it("suggests injecting the local angle when no recent article carried it", async () => {
     const deps = makeDeps({
       github: {
-        listPublishedPosts: vi
-          .fn()
-          .mockResolvedValue([makePublishedPost({ localAngle: false })]),
-        commitDraftBranch: vi.fn().mockResolvedValue({
-          branch: "blog-draft/un-titre-valide",
-          url: "https://github.com/thacac/elancestvous/tree/blog-draft/un-titre-valide",
-        }),
+        ...makeDeps().github,
+        listPublishedPosts: vi.fn().mockResolvedValue([makePublishedPost({ localAngle: false })]),
       },
     });
 
@@ -196,65 +207,95 @@ describe("generateDraft", () => {
     );
   });
 
-  it("uses the actualité watch's candidate (pillar, source) ahead of the pillar rotation when one is found", async () => {
-    const findActualite = vi.fn().mockResolvedValue({
-      title: "Nouvelle obligation QVCT",
-      summary: "Résumé factuel vérifiable.",
-      sourceUrl: "https://source.example/actu-1",
-      pillar: { id: "D", label: "GAPP", targetPage: "/gapp", theme: "theme", weight: 3 },
-    });
+  it("queues the actualité watch's candidate for human approval instead of generating it directly", async () => {
+    const findActualite = vi.fn().mockResolvedValue(makeActualiteCandidate());
     const deps = makeDeps({
       actualiteWatch: { findActualite },
       github: {
+        ...makeDeps().github,
         listPublishedPosts: vi.fn().mockResolvedValue([
           makePublishedPost({ sourceUrl: "https://source.example/deja-cite" }),
         ]),
-        commitDraftBranch: vi.fn().mockResolvedValue({
-          branch: "blog-draft/un-titre-valide",
-          url: "https://github.com/thacac/elancestvous/tree/blog-draft/un-titre-valide",
+        listProposedActualiteSourceUrls: vi.fn().mockResolvedValue(["https://source.example/deja-propose"]),
+      },
+    });
+
+    const result = await generateDraft(deps);
+    const expectedId = deriveActualiteProposalId("https://source.example/actu-1");
+
+    expect(findActualite).toHaveBeenCalledWith(
+      ["https://source.example/deja-cite", "https://source.example/deja-propose"],
+      ["C"]
+    );
+    expect(deps.github.queueActualiteProposal).toHaveBeenCalledWith(makeActualiteCandidate());
+    expect(deps.discord.notifyActualiteProposal).toHaveBeenCalledWith({
+      id: expectedId,
+      title: "Nouvelle obligation QVCT",
+      summary: "Résumé factuel vérifiable.",
+      sourceUrl: "https://source.example/actu-1",
+      pillarLabel: "GAPP",
+    });
+    expect(result).toEqual({
+      status: "pending_actualite_approval",
+      proposalId: expectedId,
+      title: "Nouvelle obligation QVCT",
+    });
+    // Pas de génération tant qu'un humain n'a pas approuvé le sujet.
+    expect(deps.anthropic.parseDraft).not.toHaveBeenCalled();
+    expect(deps.github.commitDraftBranch).not.toHaveBeenCalled();
+    expect(deps.discord.notifyDraftReady).not.toHaveBeenCalled();
+  });
+
+  it("notifies Discord before persisting the proposal, so a failed notification never orphans the candidate", async () => {
+    const findActualite = vi.fn().mockResolvedValue(makeActualiteCandidate());
+    const callOrder: string[] = [];
+    const deps = makeDeps({
+      actualiteWatch: { findActualite },
+      discord: {
+        ...makeDeps().discord,
+        notifyActualiteProposal: vi.fn().mockImplementation(async () => {
+          callOrder.push("notify");
+          return { messageId: "message-id-456" };
+        }),
+      },
+      github: {
+        ...makeDeps().github,
+        queueActualiteProposal: vi.fn().mockImplementation(async () => {
+          callOrder.push("queue");
+          return { id: "abc123def456" };
         }),
       },
     });
 
     await generateDraft(deps);
 
-    expect(findActualite).toHaveBeenCalledWith(["https://source.example/deja-cite"], ["C"]);
-    const suggestion = (deps.anthropic.parseDraft as ReturnType<typeof vi.fn>).mock.calls[0][1];
-    expect(suggestion.pillar.id).toBe("D");
-    expect(suggestion.actualite).toEqual({
-      title: "Nouvelle obligation QVCT",
-      summary: "Résumé factuel vérifiable.",
-      sourceUrl: "https://source.example/actu-1",
+    expect(callOrder).toEqual(["notify", "queue"]);
+  });
+
+  it("never persists the proposal (so the candidate stays rediscoverable) when notifying Discord fails", async () => {
+    const findActualite = vi.fn().mockResolvedValue(makeActualiteCandidate());
+    const deps = makeDeps({
+      actualiteWatch: { findActualite },
+      discord: {
+        ...makeDeps().discord,
+        notifyActualiteProposal: vi.fn().mockRejectedValue(new Error("Discord indisponible")),
+      },
     });
+
+    await expect(generateDraft(deps)).rejects.toThrow("Discord indisponible");
+
+    expect(deps.github.queueActualiteProposal).not.toHaveBeenCalled();
   });
 
   it("falls back to the weighted pillar rotation when the actualité watch finds nothing", async () => {
     const findActualite = vi.fn().mockResolvedValue(null);
     const deps = makeDeps({ actualiteWatch: { findActualite } });
 
-    await generateDraft(deps);
+    const result = await generateDraft(deps);
 
     const suggestion = (deps.anthropic.parseDraft as ReturnType<typeof vi.fn>).mock.calls[0][1];
     expect(suggestion.actualite).toBeUndefined();
-  });
-
-  it("writes the actualité candidate's sourceUrl to the committed frontmatter and the Discord notification", async () => {
-    const findActualite = vi.fn().mockResolvedValue({
-      title: "Nouvelle obligation QVCT",
-      summary: "Résumé factuel vérifiable.",
-      sourceUrl: "https://source.example/actu-1",
-      pillar: { id: "D", label: "GAPP", targetPage: "/gapp", theme: "theme", weight: 3 },
-    });
-    const deps = makeDeps({ actualiteWatch: { findActualite } });
-
-    await generateDraft(deps);
-
-    expect(deps.github.commitDraftBranch).toHaveBeenCalledWith(
-      expect.objectContaining({ postMarkdown: expect.stringContaining("sourceUrl: 'https://source.example/actu-1'") })
-    );
-    expect(deps.discord.notifyDraftReady).toHaveBeenCalledWith(
-      expect.objectContaining({ sourceUrl: "https://source.example/actu-1" })
-    );
+    expect(result.status).toBe("committed");
   });
 
   it("returns generation_failed and does not commit when image generation fails", async () => {
@@ -272,6 +313,61 @@ describe("generateDraft", () => {
     });
     expect(deps.github.commitDraftBranch).not.toHaveBeenCalled();
     expect(deps.discord.notifyDraftReady).not.toHaveBeenCalled();
+  });
+});
+
+describe("generateApprovedActualite", () => {
+  it("generates and commits the article for a previously approved actualité proposal", async () => {
+    const candidate = makeActualiteCandidate();
+    const deps = makeDeps({
+      github: {
+        ...makeDeps().github,
+        getActualiteProposal: vi.fn().mockResolvedValue(candidate),
+      },
+    });
+
+    const result = await generateApprovedActualite("abc123def456", deps);
+
+    expect(deps.github.getActualiteProposal).toHaveBeenCalledWith("abc123def456");
+    const suggestion = (deps.anthropic.parseDraft as ReturnType<typeof vi.fn>).mock.calls[0][1];
+    expect(suggestion.pillar.id).toBe("D");
+    expect(suggestion.actualite).toEqual({
+      title: candidate.title,
+      summary: candidate.summary,
+      sourceUrl: candidate.sourceUrl,
+    });
+    expect(deps.github.commitDraftBranch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        postMarkdown: expect.stringContaining("sourceUrl: 'https://source.example/actu-1'"),
+      })
+    );
+    expect(deps.discord.notifyDraftReady).toHaveBeenCalledWith(
+      expect.objectContaining({ sourceUrl: "https://source.example/actu-1" })
+    );
+    expect(result).toEqual({
+      status: "committed",
+      slug: "un-titre-valide",
+      title: "Un titre valide",
+      branch: "blog-draft/un-titre-valide",
+      url: "https://github.com/thacac/elancestvous/tree/blog-draft/un-titre-valide",
+    });
+    // Ne consulte jamais la veille elle-même : le sujet a déjà été décidé.
+    expect(deps.github.queueActualiteProposal).not.toHaveBeenCalled();
+  });
+
+  it("returns proposal_not_found without generating anything when the proposal is gone", async () => {
+    const deps = makeDeps({
+      github: {
+        ...makeDeps().github,
+        getActualiteProposal: vi.fn().mockResolvedValue(null),
+      },
+    });
+
+    const result = await generateApprovedActualite("disparu", deps);
+
+    expect(result).toEqual({ status: "proposal_not_found" });
+    expect(deps.anthropic.parseDraft).not.toHaveBeenCalled();
+    expect(deps.github.commitDraftBranch).not.toHaveBeenCalled();
   });
 });
 

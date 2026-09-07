@@ -1,12 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { verifyDiscordSignature } from "@/lib/discordSignature";
-import { createReviseDraftDeps } from "@/services/blog/createBlogDraftDeps";
+import { createBlogDraftDeps, createReviseDraftDeps } from "@/services/blog/createBlogDraftDeps";
 import {
+  getActualiteApprovalId,
+  getActualiteRejectionId,
   getApprovalSlug,
   getRevisionRequest,
   handleDiscordInteraction,
 } from "@/services/blog/discordInteractionHandler";
-import { buildDraftActionRow, updateInteractionMessage } from "@/services/blog/discordNotifier";
+import {
+  buildActualiteProposalActionRow,
+  buildDraftActionRow,
+  updateInteractionMessage,
+} from "@/services/blog/discordNotifier";
+import { generateApprovedActualite, generateDraft } from "@/services/blog/generateDraft";
 import { createGithubBlogRepo, parseGithubRepoEnv } from "@/services/blog/githubBlogRepo";
 import { publishDraft } from "@/services/blog/publishDraft";
 import { reviseDraft } from "@/services/blog/reviseDraft";
@@ -157,6 +165,78 @@ async function completeRevision(
   }
 }
 
+// Correction de #66 : "Approuver le sujet" ne fait que déclencher ici la
+// génération d'un article déjà mis en attente (aucun sujet d'actualité ne
+// génère plus jamais directement) ; "Ignorer" relance generateDraft(), qui
+// exclut désormais cette actualité (githubBlogRepo.ts::listProposedActualiteSourceUrls)
+// et proposera la suivante s'il y en a une, sinon retombera sur la rotation
+// de piliers. Les deux dépassent souvent les ~3s accordés par Discord, d'où
+// la réponse immédiate déjà envoyée par discordInteractionHandler.ts.
+async function completeActualiteDecision(
+  applicationId: string,
+  interactionToken: string,
+  decision: "approved" | "rejected",
+  id: string
+): Promise<void> {
+  let content: string;
+  // Même raisonnement que completeApproval()/completeRevision() : réattacher
+  // les boutons Approuver/Ignorer sur échec pour permettre de réessayer
+  // depuis Discord.
+  let retryable = false;
+  try {
+    const deps = createBlogDraftDeps();
+    const result =
+      decision === "approved" ? await generateApprovedActualite(id, deps) : await generateDraft(deps);
+
+    switch (result.status) {
+      case "committed":
+        content =
+          decision === "approved"
+            ? "✅ Article généré à partir de l'actualité approuvée : nouvelle version postée ci-dessous."
+            : "🚫 Actualité ignorée. Un article a été généré via la rotation de piliers : nouvelle version postée ci-dessous.";
+        break;
+      case "pending_actualite_approval":
+        // Ne peut arriver que pour "rejected" : generateApprovedActualite()
+        // ne reconsulte jamais la veille elle-même.
+        content =
+          "🚫 Actualité ignorée. Une actualité suivante a été proposée ci-dessous — merci de la valider.";
+        break;
+      case "refused":
+        content = `⚠️ Claude a refusé de générer l'article (catégorie : ${
+          result.category ?? "inconnue"
+        }).`;
+        retryable = true;
+        break;
+      case "generation_failed":
+        content = `⚠️ Échec de la génération : ${result.reason}`;
+        retryable = true;
+        break;
+      case "proposal_not_found":
+        content = "⚠️ Actualité introuvable (branche supprimée ?).";
+        break;
+    }
+  } catch (err) {
+    // Même garde-fou que completeApproval()/completeRevision() : ne jamais
+    // laisser Discord bloqué sur l'état différé en cas d'échec inattendu.
+    content = `⚠️ Échec : ${err instanceof Error ? err.message : String(err)}`;
+    retryable = true;
+  }
+
+  try {
+    await updateInteractionMessage(applicationId, interactionToken, {
+      content,
+      ...(retryable ? { components: buildActualiteProposalActionRow(id) } : {}),
+    });
+  } catch (err) {
+    // Jamais le token lui-même dans le log (secret de courte durée mais un
+    // secret quand même).
+    console.error(
+      `[discord/interactions] échec de la mise à jour finale du message d'actualité pour "${id}" :`,
+      err instanceof Error ? err.message : String(err)
+    );
+  }
+}
+
 export async function POST(request: NextRequest) {
   // Corps brut obligatoire pour la vérification de signature — jamais
   // request.json() puis re-sérialisation, ça invaliderait silencieusement
@@ -186,6 +266,16 @@ export async function POST(request: NextRequest) {
       revisionRequest.slug,
       revisionRequest.feedback
     );
+  }
+
+  const actualiteApprovalId = getActualiteApprovalId(payload);
+  if (actualiteApprovalId) {
+    void completeActualiteDecision(payload.application_id, payload.token, "approved", actualiteApprovalId);
+  }
+
+  const actualiteRejectionId = getActualiteRejectionId(payload);
+  if (actualiteRejectionId) {
+    void completeActualiteDecision(payload.application_id, payload.token, "rejected", actualiteRejectionId);
   }
 
   return NextResponse.json(result);

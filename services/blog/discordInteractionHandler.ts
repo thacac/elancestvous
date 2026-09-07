@@ -30,6 +30,12 @@ const NO_MENTIONS: { parse: string[] } = { parse: [] };
 const APPROVE_PREFIX = "blog_approve:";
 const REVISE_PREFIX = "blog_revise:";
 const REVISE_FEEDBACK_PREFIX = "revise_feedback:";
+// Correction de #66 : une actualité trouvée par la veille est soumise à
+// validation humaine avant génération (aucun tri par un humain ni par un
+// agent en amont) — ces deux boutons remplacent le déclenchement direct de
+// generateDraft() sur un candidat "actualité".
+const ACTU_APPROVE_PREFIX = "actu_approve:";
+const ACTU_REJECT_PREFIX = "actu_reject:";
 
 /**
  * Vérifie/route les interactions Discord. "Approuver" déclenche une vraie
@@ -110,6 +116,34 @@ export function handleDiscordInteraction(
     };
   }
 
+  if (payload.type === 3 && customId.startsWith(ACTU_APPROVE_PREFIX)) {
+    // Même raisonnement que pour "Approuver" un brouillon : générer
+    // l'article (appel Claude + éventuelle image + commit) dépasse souvent
+    // les ~3s accordés par Discord.
+    return {
+      type: 7,
+      data: {
+        content: "⏳ Génération de l'article à partir de l'actualité approuvée...",
+        components: [],
+        allowed_mentions: NO_MENTIONS,
+      },
+    };
+  }
+
+  if (payload.type === 3 && customId.startsWith(ACTU_REJECT_PREFIX)) {
+    // Ignorer relance la même cascade de priorité (generateDraft.ts) : elle
+    // proposera l'actualité suivante si une autre existe, sinon retombera
+    // sur la rotation de piliers — les deux prennent plus que ~3s.
+    return {
+      type: 7,
+      data: {
+        content: "🚫 Actualité ignorée — recherche du sujet suivant...",
+        components: [],
+        allowed_mentions: NO_MENTIONS,
+      },
+    };
+  }
+
   return { type: 4, data: { content: "Interaction non reconnue.", flags: 64 } };
 }
 
@@ -136,4 +170,22 @@ export function getRevisionRequest(
   const slug = customId.slice(REVISE_FEEDBACK_PREFIX.length);
   const feedback = payload.data?.components?.[0]?.components?.[0]?.value ?? "";
   return { slug, feedback };
+}
+
+// Même rôle que getApprovalSlug() ci-dessus, pour le bouton "Approuver le
+// sujet" d'une actualité proposée : route.ts en a besoin pour lancer la
+// génération de l'article de façon asynchrone.
+export function getActualiteApprovalId(payload: DiscordInteractionPayload): string | null {
+  if (payload.type !== 3) return null;
+  const customId = payload.data?.custom_id ?? "";
+  if (!customId.startsWith(ACTU_APPROVE_PREFIX)) return null;
+  return customId.slice(ACTU_APPROVE_PREFIX.length);
+}
+
+// Même rôle que getActualiteApprovalId() ci-dessus, pour le bouton "Ignorer".
+export function getActualiteRejectionId(payload: DiscordInteractionPayload): string | null {
+  if (payload.type !== 3) return null;
+  const customId = payload.data?.custom_id ?? "";
+  if (!customId.startsWith(ACTU_REJECT_PREFIX)) return null;
+  return customId.slice(ACTU_REJECT_PREFIX.length);
 }

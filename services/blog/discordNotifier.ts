@@ -52,6 +52,32 @@ export function buildDraftActionRow(slug: string): unknown[] {
   ];
 }
 
+// Correction de #66 : un sujet trouvé par la veille actualité n'est trié ni
+// par un humain (source scopée ou non) ni par un agent — il doit donc être
+// soumis à validation explicite avant que génération/coût/publication ne
+// démarrent, plutôt que d'être traité comme le sujet de la semaine.
+export function buildActualiteProposalActionRow(id: string): unknown[] {
+  return [
+    {
+      type: 1,
+      components: [
+        {
+          type: 2,
+          style: 3,
+          label: "Approuver le sujet",
+          custom_id: `actu_approve:${id}`,
+        },
+        {
+          type: 2,
+          style: 2,
+          label: "Ignorer",
+          custom_id: `actu_reject:${id}`,
+        },
+      ],
+    },
+  ];
+}
+
 function buildMultipartBody(payload: unknown, coverImage: Buffer): FormData {
   const body = new FormData();
   body.set("payload_json", JSON.stringify(payload));
@@ -114,6 +140,56 @@ export function createDiscordNotifier(options: {
               },
               body: JSON.stringify(payload),
             }
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          `Discord a refusé l'envoi du message (${response.status}) : ${await response.text()}`
+        );
+      }
+
+      const data = (await response.json()) as { id: string };
+      return { messageId: data.id };
+    },
+
+    // Point de validation humaine ajouté en correction de #66 : une
+    // actualité trouvée par la veille est proposée ici, jamais générée
+    // directement — generateDraft.ts n'écrit l'article qu'après un clic
+    // explicite sur "Approuver le sujet" (cf. discordInteractionHandler.ts).
+    async notifyActualiteProposal(args: {
+      id: string;
+      title: string;
+      summary: string;
+      sourceUrl: string;
+      pillarLabel: string;
+    }): Promise<{ messageId: string }> {
+      const payload = {
+        allowed_mentions: { parse: [] },
+        embeds: [
+          {
+            title: truncate(args.title, EMBED_TITLE_MAX),
+            description: truncate(args.summary, EMBED_DESCRIPTION_MAX),
+            url: args.sourceUrl,
+            color: BRAND_COLOR,
+            fields: [
+              { name: "Pilier suggéré", value: args.pillarLabel },
+              { name: "Source", value: args.sourceUrl },
+            ],
+          },
+        ],
+        components: buildActualiteProposalActionRow(args.id),
+      };
+
+      const response = await fetchImpl(
+        `https://discord.com/api/v10/channels/${options.channelId}/messages`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bot ${options.botToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
       );
 
       if (!response.ok) {

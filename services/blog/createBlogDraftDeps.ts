@@ -57,6 +57,10 @@ function buildSharedDeps() {
           sourceUrl: args.sourceUrl ?? null,
         });
       },
+      // Pas de previewUrl signée nécessaire ici : le lien de l'embed pointe
+      // directement sur sourceUrl (la source de l'actualité elle-même),
+      // rien à prévisualiser sur le site tant que l'article n'existe pas.
+      notifyActualiteProposal: discordNotifier.notifyActualiteProposal,
     },
   };
 }
