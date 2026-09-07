@@ -101,7 +101,33 @@ describe("reviseDraft", () => {
       title: "Titre révisé",
       excerpt: "Extrait révisé",
       coverImage: Buffer.from("fake-image"),
+      sourceUrl: null,
     });
+  });
+
+  it("preserves the original draft's sourceUrl frontmatter across a revision instead of dropping it", async () => {
+    const deps = makeDeps({
+      github: {
+        ...makeDeps().github,
+        getDraftContent: vi.fn().mockResolvedValue({
+          markdown:
+            "---\ntitle: Ancien titre\nslug: mon-article\nsourceUrl: 'https://source.example/actu-1'\n---\nAncien corps.",
+          coverImage: Buffer.from("old-image"),
+        }),
+      },
+    });
+
+    const result = await reviseDraft("mon-article", "feedback", deps);
+
+    expect(result.status).toBe("committed");
+    expect(deps.github.commitDraftBranch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        postMarkdown: expect.stringContaining("sourceUrl: 'https://source.example/actu-1'"),
+      })
+    );
+    expect(deps.discord.notifyDraftReady).toHaveBeenCalledWith(
+      expect.objectContaining({ sourceUrl: "https://source.example/actu-1" })
+    );
   });
 
   it("returns refused without committing anything when Claude refuses", async () => {

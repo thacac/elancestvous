@@ -52,6 +52,16 @@ export type PillarSuggestion = {
   pillar: Pillar;
   recentTags: string[];
   injectLocalAngle: boolean;
+  // Présent uniquement quand le sujet de la semaine vient de la veille
+  // actualité (#66) plutôt que de la rotation pondérée — anthropicDraftGenerator.ts
+  // injecte alors les faits vérifiables (résumé + source) à la place du thème
+  // générique du pilier, et generateDraft.ts reporte sourceUrl dans le
+  // frontmatter publié pour le dédoublonnage des sources déjà citées.
+  actualite?: {
+    title: string;
+    summary: string;
+    sourceUrl: string;
+  };
 };
 
 const TOTAL_WEIGHT = PILLARS.reduce((sum, p) => sum + p.weight, 0);

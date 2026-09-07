@@ -1,10 +1,13 @@
 import { createReviewToken } from "@/lib/reviewToken";
 import { SITE } from "@/lib/siteIdentifiers";
 
+import { createActualiteWatch } from "./actualiteWatch";
 import { createAnthropicDraftGenerator } from "./anthropicDraftGenerator";
 import { createDiscordNotifier } from "./discordNotifier";
 import { createGithubBlogRepo, parseGithubRepoEnv } from "./githubBlogRepo";
 import { createOpenAiImageGenerator } from "./openaiImageGenerator";
+import { createRssFeedFetcher } from "./rssFeedFetcher";
+import { parseVeilleSources } from "./veilleSources";
 
 import type { GenerateDraftDeps } from "./generateDraft";
 import type { ReviseDraftDeps } from "./reviseDraft";
@@ -44,10 +47,15 @@ function buildSharedDeps() {
         title: string;
         excerpt: string;
         coverImage: Buffer | null;
+        sourceUrl?: string | null;
       }) {
         const token = createReviewToken(args.slug, reviewSecret);
         const previewUrl = `${SITE}/blog-review/${args.slug}?token=${token}`;
-        return discordNotifier.notifyDraftReady({ ...args, previewUrl });
+        return discordNotifier.notifyDraftReady({
+          ...args,
+          previewUrl,
+          sourceUrl: args.sourceUrl ?? null,
+        });
       },
     },
   };
@@ -62,6 +70,14 @@ export function createBlogDraftDeps(): GenerateDraftDeps {
   return {
     anthropic: createAnthropicDraftGenerator({
       apiKey: requireEnv("ANTHROPIC_API_KEY"),
+    }),
+    // Sources vides tant qu'aucune n'a été choisie/configurée
+    // (BLOG_VEILLE_SOURCES) : findActualite() renvoie alors toujours null et
+    // generateDraft.ts retombe directement sur la rotation pondérée de
+    // piliers (#52) — aucun branchement conditionnel nécessaire ici.
+    actualiteWatch: createActualiteWatch({
+      sources: parseVeilleSources(process.env.BLOG_VEILLE_SOURCES),
+      fetchFeedItems: createRssFeedFetcher(),
     }),
     ...buildSharedDeps(),
   };

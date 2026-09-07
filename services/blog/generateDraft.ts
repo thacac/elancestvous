@@ -1,7 +1,7 @@
 import matter from "gray-matter";
 
 import { BlogDraftSchema, type BlogDraft } from "./draftSchema";
-import { pickNextPillar, shouldInjectLocalAngle, type PillarId, type PillarSuggestion } from "./pillars";
+import { pickNextPillar, shouldInjectLocalAngle, type Pillar, type PillarId, type PillarSuggestion } from "./pillars";
 
 import type { PublishedPost } from "./githubBlogRepo";
 
@@ -70,11 +70,29 @@ export type GenerateDraftDeps = {
       title: string;
       excerpt: string;
       coverImage: Buffer | null;
+      // null pour un article de rotation classique ; l'URL de la source
+      // vérifiable pour un article dérivé de la veille actualité (#66,
+      // mitigation 4 : revue humaine renforcée).
+      sourceUrl: string | null;
     }): Promise<{ messageId: string }>;
+  };
+  // Optionnel : tant qu'aucune source de veille n'est configurée
+  // (BLOG_VEILLE_SOURCES vide), findActualite() renvoie toujours null et la
+  // génération retombe directement sur la rotation pondérée de piliers (#52)
+  // — cascade de priorité définie dans #66.
+  actualiteWatch?: {
+    findActualite(
+      alreadyCitedUrls: string[],
+      recentPillars: PillarId[]
+    ): Promise<{ title: string; summary: string; sourceUrl: string; pillar: Pillar } | null>;
   };
 };
 
-export function buildDraftMarkdown(draft: BlogDraft, coverImage: Buffer | null): string {
+export function buildDraftMarkdown(
+  draft: BlogDraft,
+  coverImage: Buffer | null,
+  sourceUrl?: string | null
+): string {
   const publishedAt = new Date().toISOString().slice(0, 10);
   return matter.stringify(draft.bodyMarkdown.trim(), {
     title: draft.title,
@@ -95,6 +113,10 @@ export function buildDraftMarkdown(draft: BlogDraft, coverImage: Buffer | null):
     tags: draft.tags,
     pillar: draft.pillar,
     localAngle: draft.localAngle,
+    // Absent pour un article de rotation classique : un champ vide/null
+    // casserait la validation "chaîne non vide" côté dédoublonnage des
+    // sources de veille (githubBlogRepo.ts::listPublishedPosts).
+    ...(sourceUrl ? { sourceUrl } : {}),
   });
 }
 
@@ -103,7 +125,10 @@ export function buildDraftMarkdown(draft: BlogDraft, coverImage: Buffer | null):
 // entière de tags depuis le premier article du blog.
 const RECENT_TAGS_WINDOW = 6;
 
-function buildPillarSuggestion(publishedPosts: PublishedPost[]): PillarSuggestion {
+async function buildSuggestion(
+  publishedPosts: PublishedPost[],
+  actualiteWatch: GenerateDraftDeps["actualiteWatch"]
+): Promise<PillarSuggestion> {
   const recentPillars = publishedPosts
     .map((p) => p.pillar)
     .filter((p): p is PillarId => p !== null);
@@ -111,11 +136,34 @@ function buildPillarSuggestion(publishedPosts: PublishedPost[]): PillarSuggestio
   const recentTags = publishedPosts
     .flatMap((p) => p.tags)
     .slice(-RECENT_TAGS_WINDOW);
+  const injectLocalAngle = shouldInjectLocalAngle(recentLocalAngleFlags);
+
+  // Cascade de priorité du sujet de la semaine (#66) : une actualité
+  // pertinente et pas déjà citée passe avant la rotation pondérée de piliers,
+  // qui reste le seul niveau toujours disponible (fallback de #52).
+  if (actualiteWatch) {
+    const alreadyCitedUrls = publishedPosts
+      .map((p) => p.sourceUrl)
+      .filter((url): url is string => url !== null);
+    const actualite = await actualiteWatch.findActualite(alreadyCitedUrls, recentPillars);
+    if (actualite) {
+      return {
+        pillar: actualite.pillar,
+        recentTags,
+        injectLocalAngle,
+        actualite: {
+          title: actualite.title,
+          summary: actualite.summary,
+          sourceUrl: actualite.sourceUrl,
+        },
+      };
+    }
+  }
 
   return {
     pillar: pickNextPillar(recentPillars),
     recentTags,
-    injectLocalAngle: shouldInjectLocalAngle(recentLocalAngleFlags),
+    injectLocalAngle,
   };
 }
 
@@ -124,7 +172,7 @@ export async function generateDraft(
 ): Promise<GenerateDraftResult> {
   const publishedPosts = await deps.github.listPublishedPosts();
   const existingTitles = publishedPosts.map((p) => p.title);
-  const suggestion = buildPillarSuggestion(publishedPosts);
+  const suggestion = await buildSuggestion(publishedPosts, deps.actualiteWatch);
 
   const response = await deps.anthropic.parseDraft(existingTitles, suggestion);
 
@@ -157,7 +205,8 @@ export async function generateDraft(
     }
   }
 
-  const postMarkdown = buildDraftMarkdown(draft, coverImage);
+  const sourceUrl = suggestion.actualite?.sourceUrl ?? null;
+  const postMarkdown = buildDraftMarkdown(draft, coverImage, sourceUrl);
   const { branch, url } = await deps.github.commitDraftBranch({
     slug: draft.slug,
     postMarkdown,
@@ -174,6 +223,7 @@ export async function generateDraft(
     title: draft.title,
     excerpt: draft.excerpt,
     coverImage,
+    sourceUrl,
   });
 
   return { status: "committed", slug: draft.slug, title: draft.title, branch, url };

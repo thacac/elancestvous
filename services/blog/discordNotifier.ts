@@ -4,6 +4,10 @@ type NotifyDraftReadyArgs = {
   excerpt: string;
   coverImage: Buffer | null;
   previewUrl: string;
+  // Présent pour un article dérivé de la veille actualité (#66) : déclenche
+  // un champ d'avertissement dédié dans l'embed (mitigation 4 — revue
+  // humaine renforcée sur un contenu à caractère réglementaire).
+  sourceUrl?: string | null;
 };
 
 const BRAND_COLOR = 0x29b5ad;
@@ -79,6 +83,16 @@ export function createDiscordNotifier(options: {
             // configurée (ex. clé OpenAI absente) : le message part sans
             // pièce jointe plutôt que d'échouer.
             ...(args.coverImage ? { image: { url: "attachment://cover.jpg" } } : {}),
+            ...(args.sourceUrl
+              ? {
+                  fields: [
+                    {
+                      name: "⚠️ Article basé sur une actualité",
+                      value: `Relecture renforcée requise — source citée : ${args.sourceUrl}`,
+                    },
+                  ],
+                }
+              : {}),
           },
         ],
         components: buildDraftActionRow(args.slug),

@@ -15,6 +15,10 @@ export type PublishedPost = {
   // l'ignore simplement plutôt que d'échouer sur l'historique existant.
   pillar: PillarId | null;
   localAngle: boolean;
+  // URL de la source d'actualité citée (#66) — null pour un article de
+  // rotation classique. Sert à exclure les sources déjà traitées (mitigation
+  // "pas de dédoublonnage" de #66) via actualiteWatch.ts.
+  sourceUrl: string | null;
   tags: string[];
 };
 
@@ -67,6 +71,7 @@ export function createGithubBlogRepo(options: {
           publishedAt: typeof frontmatter.publishedAt === "string" ? frontmatter.publishedAt : "",
           pillar,
           localAngle: frontmatter.localAngle === true,
+          sourceUrl: typeof frontmatter.sourceUrl === "string" ? frontmatter.sourceUrl : null,
           tags: Array.isArray(frontmatter.tags) ? frontmatter.tags : [],
         });
       }

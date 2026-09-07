@@ -55,7 +55,7 @@ describe("createGithubBlogRepo.listPublishedPosts", () => {
     );
   });
 
-  it("extracts pillar, localAngle, tags and publishedAt from each post's frontmatter", async () => {
+  it("extracts pillar, localAngle, tags, sourceUrl and publishedAt from each post's frontmatter", async () => {
     getContent
       .mockResolvedValueOnce({
         data: [{ type: "file", name: "post.md", path: "content/blog/post.md" }],
@@ -64,7 +64,7 @@ describe("createGithubBlogRepo.listPublishedPosts", () => {
         data: {
           type: "file",
           content: Buffer.from(
-            "---\ntitle: Un article\npublishedAt: '2026-06-01'\npillar: C\nlocalAngle: true\ntags:\n  - QVCT\n  - RPS\n---\n"
+            "---\ntitle: Un article\npublishedAt: '2026-06-01'\npillar: C\nlocalAngle: true\nsourceUrl: https://source.example/actu\ntags:\n  - QVCT\n  - RPS\n---\n"
           ).toString("base64"),
         },
       });
@@ -84,12 +84,13 @@ describe("createGithubBlogRepo.listPublishedPosts", () => {
         publishedAt: "2026-06-01",
         pillar: "C",
         localAngle: true,
+        sourceUrl: "https://source.example/actu",
         tags: ["QVCT", "RPS"],
       },
     ]);
   });
 
-  it("defaults gracefully when a post predates the pillar/localAngle/tags fields", async () => {
+  it("defaults gracefully when a post predates the pillar/localAngle/sourceUrl/tags fields", async () => {
     getContent
       .mockResolvedValueOnce({
         data: [{ type: "file", name: "post.md", path: "content/blog/post.md" }],
@@ -118,6 +119,7 @@ describe("createGithubBlogRepo.listPublishedPosts", () => {
         publishedAt: "2026-01-01",
         pillar: null,
         localAngle: false,
+        sourceUrl: null,
         tags: [],
       },
     ]);
@@ -147,6 +149,32 @@ describe("createGithubBlogRepo.listPublishedPosts", () => {
     const posts = await github.listPublishedPosts();
 
     expect(posts[0].pillar).toBeNull();
+  });
+
+  it("ignores a non-string sourceUrl value instead of trusting it blindly", async () => {
+    getContent
+      .mockResolvedValueOnce({
+        data: [{ type: "file", name: "post.md", path: "content/blog/post.md" }],
+      })
+      .mockResolvedValueOnce({
+        data: {
+          type: "file",
+          content: Buffer.from(
+            "---\ntitle: Article corrompu\npublishedAt: '2026-01-01'\nsourceUrl: 42\n---\n"
+          ).toString("base64"),
+        },
+      });
+
+    const github = createGithubBlogRepo({
+      auth: "token",
+      owner: "thacac",
+      repo: "elancestvous",
+      baseBranch: "master",
+    });
+
+    const posts = await github.listPublishedPosts();
+
+    expect(posts[0].sourceUrl).toBeNull();
   });
 
   it("returns posts sorted chronologically by publishedAt regardless of directory-listing order", async () => {

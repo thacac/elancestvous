@@ -29,6 +29,7 @@ function makePublishedPost(overrides: Partial<PublishedPost> = {}): PublishedPos
     publishedAt: "2026-01-01",
     pillar: "C",
     localAngle: false,
+    sourceUrl: null,
     tags: ["QVCT"],
     ...overrides,
   };
@@ -83,6 +84,7 @@ describe("generateDraft", () => {
       title: "Un titre valide",
       excerpt: "Extrait",
       coverImage: Buffer.from("fake-image"),
+      sourceUrl: null,
     });
   });
 
@@ -194,6 +196,67 @@ describe("generateDraft", () => {
     );
   });
 
+  it("uses the actualité watch's candidate (pillar, source) ahead of the pillar rotation when one is found", async () => {
+    const findActualite = vi.fn().mockResolvedValue({
+      title: "Nouvelle obligation QVCT",
+      summary: "Résumé factuel vérifiable.",
+      sourceUrl: "https://source.example/actu-1",
+      pillar: { id: "D", label: "GAPP", targetPage: "/gapp", theme: "theme", weight: 3 },
+    });
+    const deps = makeDeps({
+      actualiteWatch: { findActualite },
+      github: {
+        listPublishedPosts: vi.fn().mockResolvedValue([
+          makePublishedPost({ sourceUrl: "https://source.example/deja-cite" }),
+        ]),
+        commitDraftBranch: vi.fn().mockResolvedValue({
+          branch: "blog-draft/un-titre-valide",
+          url: "https://github.com/thacac/elancestvous/tree/blog-draft/un-titre-valide",
+        }),
+      },
+    });
+
+    await generateDraft(deps);
+
+    expect(findActualite).toHaveBeenCalledWith(["https://source.example/deja-cite"], ["C"]);
+    const suggestion = (deps.anthropic.parseDraft as ReturnType<typeof vi.fn>).mock.calls[0][1];
+    expect(suggestion.pillar.id).toBe("D");
+    expect(suggestion.actualite).toEqual({
+      title: "Nouvelle obligation QVCT",
+      summary: "Résumé factuel vérifiable.",
+      sourceUrl: "https://source.example/actu-1",
+    });
+  });
+
+  it("falls back to the weighted pillar rotation when the actualité watch finds nothing", async () => {
+    const findActualite = vi.fn().mockResolvedValue(null);
+    const deps = makeDeps({ actualiteWatch: { findActualite } });
+
+    await generateDraft(deps);
+
+    const suggestion = (deps.anthropic.parseDraft as ReturnType<typeof vi.fn>).mock.calls[0][1];
+    expect(suggestion.actualite).toBeUndefined();
+  });
+
+  it("writes the actualité candidate's sourceUrl to the committed frontmatter and the Discord notification", async () => {
+    const findActualite = vi.fn().mockResolvedValue({
+      title: "Nouvelle obligation QVCT",
+      summary: "Résumé factuel vérifiable.",
+      sourceUrl: "https://source.example/actu-1",
+      pillar: { id: "D", label: "GAPP", targetPage: "/gapp", theme: "theme", weight: 3 },
+    });
+    const deps = makeDeps({ actualiteWatch: { findActualite } });
+
+    await generateDraft(deps);
+
+    expect(deps.github.commitDraftBranch).toHaveBeenCalledWith(
+      expect.objectContaining({ postMarkdown: expect.stringContaining("sourceUrl: 'https://source.example/actu-1'") })
+    );
+    expect(deps.discord.notifyDraftReady).toHaveBeenCalledWith(
+      expect.objectContaining({ sourceUrl: "https://source.example/actu-1" })
+    );
+  });
+
   it("returns generation_failed and does not commit when image generation fails", async () => {
     const deps = makeDeps({
       imageGenerator: {
@@ -230,5 +293,17 @@ describe("buildDraftMarkdown", () => {
     expect(markdown).not.toContain("coverImage:");
     expect(markdown).not.toContain("coverImageAlt:");
     expect(markdown).toContain("Contenu de l'article.");
+  });
+
+  it("includes sourceUrl in the frontmatter when the draft comes from the actualité watch", () => {
+    const markdown = buildDraftMarkdown(validDraft, null, "https://source.example/actu-1");
+
+    expect(markdown).toContain("sourceUrl: 'https://source.example/actu-1'");
+  });
+
+  it("omits sourceUrl from the frontmatter for a regular pillar-rotation draft", () => {
+    const markdown = buildDraftMarkdown(validDraft, null);
+
+    expect(markdown).not.toContain("sourceUrl:");
   });
 });

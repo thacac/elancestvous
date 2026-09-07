@@ -21,7 +21,15 @@ const { notifyDraftReady } = vi.hoisted(() => ({
 vi.mock("../discordNotifier", () => ({
   createDiscordNotifier: vi.fn().mockReturnValue({ notifyDraftReady }),
 }));
+const { findActualite } = vi.hoisted(() => ({ findActualite: vi.fn() }));
+vi.mock("../actualiteWatch", () => ({
+  createActualiteWatch: vi.fn().mockReturnValue({ findActualite }),
+}));
+vi.mock("../rssFeedFetcher", () => ({
+  createRssFeedFetcher: vi.fn().mockReturnValue(vi.fn()),
+}));
 
+import { createActualiteWatch } from "../actualiteWatch";
 import { createBlogDraftDeps, createReviseDraftDeps } from "../createBlogDraftDeps";
 import { createDiscordNotifier } from "../discordNotifier";
 import { createGithubBlogRepo } from "../githubBlogRepo";
@@ -40,11 +48,38 @@ describe("createBlogDraftDeps", () => {
     vi.mocked(createGithubBlogRepo).mockClear();
     vi.mocked(createDiscordNotifier).mockClear();
     vi.mocked(createOpenAiImageGenerator).mockClear();
+    vi.mocked(createActualiteWatch).mockClear();
     notifyDraftReady.mockClear();
   });
 
   afterEach(() => {
     process.env = { ...envBackup };
+  });
+
+  it("parses BLOG_VEILLE_SOURCES into the actualité watch's sources list", () => {
+    process.env.GITHUB_REPO = "thacac/elancestvous";
+    process.env.BLOG_VEILLE_SOURCES = "https://a.example/rss.xml, https://b.example/rss.xml";
+
+    const deps = createBlogDraftDeps();
+
+    expect(createActualiteWatch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        sources: ["https://a.example/rss.xml", "https://b.example/rss.xml"],
+        fetchFeedItems: expect.any(Function),
+      })
+    );
+    expect(deps.actualiteWatch?.findActualite).toBe(findActualite);
+  });
+
+  it("wires an actualité watch with an empty sources list when BLOG_VEILLE_SOURCES is unset", () => {
+    process.env.GITHUB_REPO = "thacac/elancestvous";
+    delete process.env.BLOG_VEILLE_SOURCES;
+
+    createBlogDraftDeps();
+
+    expect(createActualiteWatch).toHaveBeenCalledWith(
+      expect.objectContaining({ sources: [] })
+    );
   });
 
   it("parses a well-formed owner/repo", () => {
@@ -98,6 +133,7 @@ describe("createBlogDraftDeps", () => {
       title: "Mon article",
       excerpt: "Extrait",
       coverImage: Buffer.from("img"),
+      sourceUrl: null,
     });
 
     expect(notifyDraftReady).toHaveBeenCalledWith(
@@ -152,6 +188,7 @@ describe("createReviseDraftDeps", () => {
       title: "Mon article",
       excerpt: "Extrait",
       coverImage: Buffer.from("img"),
+      sourceUrl: null,
     });
 
     expect(notifyDraftReady).toHaveBeenCalledWith(

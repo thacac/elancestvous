@@ -122,6 +122,52 @@ describe("createDiscordNotifier", () => {
       })
     ).rejects.toThrow(/401/);
   });
+
+  it("flags an actualité-derived draft with a reinforced-review field citing the source (mitigation #66)", async () => {
+    const fetchImpl = makeFetch();
+    const notifier = createDiscordNotifier({
+      botToken: "bot-token",
+      channelId: "channel-123",
+      fetchImpl,
+    });
+
+    await notifier.notifyDraftReady({
+      slug: "mon-article",
+      title: "Mon article",
+      excerpt: "Un extrait court.",
+      coverImage: null,
+      previewUrl: "https://elancestvous.fr/blog-review/mon-article?token=abc",
+      sourceUrl: "https://source.example/actu-1",
+    });
+
+    const payload = JSON.parse(fetchImpl.mock.calls[0][1].body as string);
+    expect(payload.embeds[0].fields).toEqual([
+      expect.objectContaining({
+        name: expect.stringMatching(/actualité/i),
+        value: expect.stringContaining("https://source.example/actu-1"),
+      }),
+    ]);
+  });
+
+  it("omits the actualité field on a regular pillar-rotation draft", async () => {
+    const fetchImpl = makeFetch();
+    const notifier = createDiscordNotifier({
+      botToken: "bot-token",
+      channelId: "channel-123",
+      fetchImpl,
+    });
+
+    await notifier.notifyDraftReady({
+      slug: "mon-article",
+      title: "Mon article",
+      excerpt: "Un extrait court.",
+      coverImage: null,
+      previewUrl: "https://elancestvous.fr/blog-review/mon-article?token=abc",
+    });
+
+    const payload = JSON.parse(fetchImpl.mock.calls[0][1].body as string);
+    expect(payload.embeds[0].fields).toBeUndefined();
+  });
 });
 
 describe("createDiscordNotifier.notifyGenerationFailed", () => {
