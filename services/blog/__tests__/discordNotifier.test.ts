@@ -154,6 +154,74 @@ describe("createDiscordNotifier", () => {
     ]);
   });
 
+  it("flags a draft with no service-page link with a dedicated warning field (#74)", async () => {
+    const fetchImpl = makeFetch();
+    const notifier = createDiscordNotifier({
+      botToken: "bot-token",
+      channelId: "channel-123",
+      fetchImpl,
+    });
+
+    await notifier.notifyDraftReady({
+      slug: "mon-article",
+      title: "Mon article",
+      excerpt: "Un extrait court.",
+      coverImage: null,
+      previewUrl: "https://elancestvous.fr/blog-review/mon-article?token=abc",
+      missingServiceLink: true,
+    });
+
+    const payload = JSON.parse(fetchImpl.mock.calls[0][1].body as string);
+    expect(payload.embeds[0].fields).toEqual([
+      expect.objectContaining({
+        name: expect.stringMatching(/maillage|service/i),
+      }),
+    ]);
+  });
+
+  it("omits the maillage-warning field when a service-page link was found (#74)", async () => {
+    const fetchImpl = makeFetch();
+    const notifier = createDiscordNotifier({
+      botToken: "bot-token",
+      channelId: "channel-123",
+      fetchImpl,
+    });
+
+    await notifier.notifyDraftReady({
+      slug: "mon-article",
+      title: "Mon article",
+      excerpt: "Un extrait court.",
+      coverImage: null,
+      previewUrl: "https://elancestvous.fr/blog-review/mon-article?token=abc",
+      missingServiceLink: false,
+    });
+
+    const payload = JSON.parse(fetchImpl.mock.calls[0][1].body as string);
+    expect(payload.embeds[0].fields).toBeUndefined();
+  });
+
+  it("combines the actualité field and the maillage-warning field when both apply (#74)", async () => {
+    const fetchImpl = makeFetch();
+    const notifier = createDiscordNotifier({
+      botToken: "bot-token",
+      channelId: "channel-123",
+      fetchImpl,
+    });
+
+    await notifier.notifyDraftReady({
+      slug: "mon-article",
+      title: "Mon article",
+      excerpt: "Un extrait court.",
+      coverImage: null,
+      previewUrl: "https://elancestvous.fr/blog-review/mon-article?token=abc",
+      sourceUrl: "https://source.example/actu-1",
+      missingServiceLink: true,
+    });
+
+    const payload = JSON.parse(fetchImpl.mock.calls[0][1].body as string);
+    expect(payload.embeds[0].fields).toHaveLength(2);
+  });
+
   it("omits the actualité field on a regular pillar-rotation draft", async () => {
     const fetchImpl = makeFetch();
     const notifier = createDiscordNotifier({

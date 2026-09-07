@@ -1,6 +1,7 @@
 import matter from "gray-matter";
 
 import { BlogDraftSchema } from "./draftSchema";
+import { hasServiceLink } from "./editorialChecks";
 import { buildDraftMarkdown, type AnthropicParseResult } from "./generateDraft";
 
 export type ReviseDraftResult =
@@ -37,6 +38,7 @@ export type ReviseDraftDeps = {
       excerpt: string;
       coverImage: Buffer | null;
       sourceUrl: string | null;
+      missingServiceLink: boolean;
     }): Promise<{ messageId: string }>;
   };
 };
@@ -114,6 +116,7 @@ export async function reviseDraft(
     excerpt: draft.excerpt,
     coverImage,
     sourceUrl,
+    missingServiceLink: !hasServiceLink(draft.bodyMarkdown),
   });
 
   return { status: "committed", slug, title: draft.title, branch, url };

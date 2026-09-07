@@ -48,6 +48,7 @@ function buildSharedDeps() {
         excerpt: string;
         coverImage: Buffer | null;
         sourceUrl?: string | null;
+        missingServiceLink: boolean;
       }) {
         const token = createReviewToken(args.slug, reviewSecret);
         const previewUrl = `${SITE}/blog-review/${args.slug}?token=${token}`;
