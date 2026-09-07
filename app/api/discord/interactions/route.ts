@@ -3,8 +3,10 @@ import { verifyDiscordSignature } from "@/lib/discordSignature";
 import { createReviseDraftDeps } from "@/services/blog/createBlogDraftDeps";
 import {
   getApprovalSlug,
+  getBlogSujetSubmission,
   getRevisionRequest,
   handleDiscordInteraction,
+  submitBlogSujet,
 } from "@/services/blog/discordInteractionHandler";
 import { buildDraftActionRow, updateInteractionMessage } from "@/services/blog/discordNotifier";
 import { createGithubBlogRepo, parseGithubRepoEnv } from "@/services/blog/githubBlogRepo";
@@ -171,6 +173,37 @@ export async function POST(request: NextRequest) {
   }
 
   const payload = JSON.parse(rawBody);
+
+  // Soumission de la modale /blog-sujet : contrairement à Approuver/Retoucher,
+  // l'écriture de la file (API Contents GitHub) reste largement sous les ~3s
+  // accordés par Discord pour répondre — pas besoin du schéma différé type 7,
+  // on répond directement avec le résultat (type 4), cf. submitBlogSujet.
+  const blogSujetSubmission = getBlogSujetSubmission(payload);
+  if (blogSujetSubmission) {
+    try {
+      const { owner, repo } = parseGithubRepoEnv(requireEnv("GITHUB_REPO"));
+      const github = createGithubBlogRepo({ auth: requireEnv("GH_PAT_TOKEN"), owner, repo });
+      const result = await submitBlogSujet(blogSujetSubmission, { github });
+      return NextResponse.json(result);
+    } catch (err) {
+      // Contrairement à Approuver/Retoucher, il n'y a pas de second message à
+      // mettre à jour plus tard (pas de type 7 différé ici, cf. commentaire
+      // ci-dessus) : un échec doit donc être répondu directement en type 4,
+      // plutôt que de laisser Discord afficher "Cette interaction a échoué"
+      // sans aucun diagnostic pour un secret manquant ou une API GitHub en
+      // erreur transitoire.
+      return NextResponse.json({
+        type: 4,
+        data: {
+          content: `⚠️ Échec de l'ajout du sujet à la file : ${
+            err instanceof Error ? err.message : String(err)
+          }`,
+          flags: 64,
+        },
+      });
+    }
+  }
+
   const result = handleDiscordInteraction(payload);
 
   const approvalSlug = getApprovalSlug(payload);

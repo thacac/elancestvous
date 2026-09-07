@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint .",
     "test": "vitest",
-    "blog:compare-models": "tsx scripts/compareDraftModels.ts"
+    "blog:compare-models": "tsx scripts/compareDraftModels.ts",
+    "blog:register-discord-command": "tsx scripts/registerDiscordCommand.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.123.0",

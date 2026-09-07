@@ -56,6 +56,19 @@ jour du message Discord. Voir `docs/blog-architecture.md`.
 **Non implémenté** : le plafond de 3 allers-retours de retouche évoqué dans le plan
 initial — chaque clic "Retoucher" relance Claude sans limite de tentatives.
 
+## Commande /blog-sujet (issue #67)
+
+| Variable | Rôle | Où l'obtenir |
+|---|---|---|
+| `DISCORD_APPLICATION_ID` | Enregistrement de la commande slash `/blog-sujet` (`yarn blog:register-discord-command`, `scripts/registerDiscordCommand.ts`) — pas requis par le runtime de l'app, seulement pour ce script manuel ponctuel | Discord Developer Portal → application → onglet **General Information** → Application ID |
+
+Aucun autre secret : la lecture/écriture de `content/blog/sujets-discord.json`
+réutilise `GH_PAT_TOKEN`, la réponse à la modale réutilise `DISCORD_PUBLIC_KEY`
+(vérification de signature déjà en place sur `/api/discord/interactions`).
+`/blog-sujet` est ouverte à tout le salon Discord, sans vérification d'identité
+(décision assumée, cf. issue #67) — `SYSTEM_PROMPT` reste la seule protection
+en aval contre une tentative d'injection de prompt via le champ "sujet"/"notes".
+
 ## Optionnel — réglage coût/modèle (`services/blog/anthropicDraftGenerator.ts`)
 
 | Variable | Rôle | Défaut si absente |
