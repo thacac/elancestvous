@@ -50,3 +50,31 @@ prochaine étape) sert surtout à juger ce qu'un prompt ne peut pas garantir :
 
 C'est précisément pour ce dernier point qu'aucune version de ce prompt, aussi
 détaillée soit-elle, ne remplace la validation humaine avant publication.
+
+## Cocons sémantiques (issue #73)
+
+Les 4 piliers de rotation (`services/blog/pillars.ts`, voir aussi #52) servent
+aussi de cocons sémantiques SEO : chaque article publié déclare le pilier
+qu'il couvre réellement (champ `pillar` du frontmatter, dérivé du champ
+structuré du même nom déjà imposé par `BlogDraftSchema`), et
+`app/blog/[slug]/page.tsx` affiche automatiquement, en bas de chaque article,
+des liens vers les autres articles publiés du même pilier
+(`lib/blog.ts::getRelatedPosts`). Pas de notion de regroupement distincte des
+tags/piliers existants : le pilier, déjà obligatoire côté génération et déjà
+choisi pour refléter les grandes offres du site, est directement le
+regroupement le plus structurant disponible.
+
+| Pilier | Cocon | Thème |
+|---|---|---|
+| A | Coaching individuel (particuliers) | Stress personnel, charge émotionnelle, transitions de vie/carrière |
+| B | Coaching en établissement | Dynamiques d'équipe, posture managériale, cadres de santé |
+| C | Formations QVCT / RPS | Prévention des RPS, QVCT, usure professionnelle |
+| D | GAPP | Groupe d'analyse des pratiques professionnelles |
+
+Le champ `pillar` étant déjà contraint à ces 4 valeurs par
+`BlogDraftSchema` (`services/blog/draftSchema.ts`), Claude ne peut pas
+déclarer un cocon hors de cette liste — aucun enrichissement du prompt
+système n'était nécessaire pour éviter les sujets hors thématiques établies.
+Un article publié avant cette issue n'a pas de `pillar` déclaré : il reste
+valide (le champ est optionnel, `null` par défaut) mais n'affiche aucun lien
+de cocon tant qu'il n'en reçoit pas un.

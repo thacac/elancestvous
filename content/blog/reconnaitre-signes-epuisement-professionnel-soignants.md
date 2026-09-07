@@ -7,6 +7,7 @@ publishedAt: "2026-09-01"
 coverImage: "/og-banner.jpg"
 coverImageAlt: "Illustration provisoire — sera remplacée par une image générée une fois le pipeline d'illustration branché"
 tags: ["RPS", "burnout", "soignants"]
+pillar: "C"
 ---
 
 Dans les métiers du soin, l'épuisement professionnel s'installe rarement du jour au lendemain. Il progresse par étapes, souvent masquées par l'engagement même qui pousse à « tenir » pour l'équipe et pour les patients.
