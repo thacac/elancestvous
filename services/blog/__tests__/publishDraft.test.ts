@@ -1,6 +1,9 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+
 import { describe, expect, it, vi } from "vitest";
 
-import { publishDraft, type PublishDraftDeps } from "../publishDraft";
+import { BLOG_AUTO_DEPLOY_TAG, publishDraft, type PublishDraftDeps } from "../publishDraft";
 
 function makeDeps(overrides: Partial<PublishDraftDeps["github"]> = {}): PublishDraftDeps {
   return {
@@ -174,5 +177,33 @@ describe("publishDraft", () => {
       slug: "un-article",
       commitMessage: expect.stringContaining("Un article"),
     });
+  });
+
+  it("tags the commit message with BLOG_AUTO_DEPLOY_TAG (lu par deploy.yml pour déployer automatiquement)", async () => {
+    const deps = makeDeps();
+
+    await publishDraft("un-article", deps);
+
+    expect(deps.github.publishDraft).toHaveBeenCalledWith(
+      expect.objectContaining({
+        commitMessage: expect.stringContaining(BLOG_AUTO_DEPLOY_TAG),
+      })
+    );
+  });
+
+  it("keeps deploy.yml's contains(...) check in sync with BLOG_AUTO_DEPLOY_TAG (garde-fou anti-dérive)", () => {
+    // .github/workflows/deploy.yml ne peut pas importer cette constante (YAML,
+    // pas de build step) : il porte le même littéral en dur dans son `if:`
+    // (job "deploy", contains(github.event.head_commit.message, ...)). Ce
+    // test échoue si l'un des deux change sans l'autre — sans lui, changer
+    // BLOG_AUTO_DEPLOY_TAG casserait silencieusement le déploiement
+    // automatique d'un article approuvé sur Discord (yarn test/tsc/lint
+    // resteraient tous verts).
+    const deployYml = readFileSync(
+      resolve(process.cwd(), ".github/workflows/deploy.yml"),
+      "utf8"
+    );
+
+    expect(deployYml).toContain(BLOG_AUTO_DEPLOY_TAG);
   });
 });

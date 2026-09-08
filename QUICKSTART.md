@@ -10,12 +10,16 @@ yarn dev
 
 ## Déployer
 
-Le déploiement est entièrement automatisé : un push sur `master` build l'image
-Docker, la publie sur `ghcr.io` et redéploie le VPS via Traefik.
+Un push sur `master` build l'image Docker et la publie sur `ghcr.io`, mais ne
+redéploie plus le VPS automatiquement (sauf publication de blog approuvée sur
+Discord, voir `docs/blog-architecture.md`) :
 
 ```bash
 git push origin master
 ```
+
+Puis déclencher le déploiement final à la main : GitHub → onglet **Actions** →
+**Build and Deploy** → **Run workflow** (branche `master`).
 
 Secrets GitHub requis, prérequis serveur, dépannage, rollback : voir
 **`DEPLOYMENT.md`**.

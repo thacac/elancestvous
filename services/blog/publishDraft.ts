@@ -1,5 +1,13 @@
 import { parseDraftContent } from "@/lib/blog";
 
+// Repéré par .github/workflows/deploy.yml (job "deploy") pour distinguer une
+// publication d'article (doit se déployer seule, sans repasser par un humain
+// sur GitHub Actions) d'un push "de développement" ordinaire sur master (PR
+// mergée, commit direct) — celui-ci attend désormais un déclenchement manuel
+// (workflow_dispatch). Toucher ce littéral impose de mettre à jour le
+// `contains(...)` correspondant dans deploy.yml.
+export const BLOG_AUTO_DEPLOY_TAG = "[blog-auto-deploy]";
+
 export type PublishDraftResult =
   | { status: "published"; slug: string; title: string; commitUrl: string }
   | { status: "missing_cover_image"; slug: string }
@@ -61,7 +69,7 @@ export async function publishDraft(
 
   const { commitUrl } = await deps.github.publishDraft({
     slug,
-    commitMessage: `blog: publication "${frontmatter.title}" (approuvé via Discord)`,
+    commitMessage: `blog: publication "${frontmatter.title}" (approuvé via Discord) ${BLOG_AUTO_DEPLOY_TAG}`,
   });
 
   return { status: "published", slug, title: frontmatter.title, commitUrl };

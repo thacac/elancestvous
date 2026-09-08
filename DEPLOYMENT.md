@@ -2,8 +2,15 @@
 
 ## Vue d'ensemble du pipeline réel
 
-Le déploiement est piloté par `.github/workflows/deploy.yml`, déclenché sur push
-vers la branche **`master`** (pas `main`) ou manuellement (`workflow_dispatch`).
+Le déploiement est piloté par `.github/workflows/deploy.yml`. Le job `build`
+tourne sur tout push/PR vers **`master`** (pas `main`), mais le job `deploy` (celui
+qui touche le VPS) ne se déclenche automatiquement **que** pour une publication de
+blog approuvée sur Discord (commit tagué `[blog-auto-deploy]`, voir
+`docs/blog-architecture.md`) — un push "de développement" ordinaire (merge de PR,
+commit direct) construit l'image mais **n'écrase pas le VPS tout seul**. Le
+déploiement final se déclenche donc manuellement (`workflow_dispatch`, onglet
+Actions → Build and Deploy → Run workflow), pour garder la main sur le moment de
+la mise en ligne.
 
 1. **Job `build`** : build de l'image Docker (multi-stage, `output: 'standalone'`),
    push sur GitHub Container Registry avec deux tags
