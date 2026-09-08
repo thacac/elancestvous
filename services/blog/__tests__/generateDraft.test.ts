@@ -4,6 +4,7 @@ import {
   buildDraftMarkdown,
   generateDraft,
   queueApprovedActualite,
+  runVeilleScan,
   SYSTEM_PROMPT,
   type GenerateDraftDeps,
 } from "../generateDraft";
@@ -550,6 +551,58 @@ describe("queueApprovedActualite", () => {
       status: "generation_failed",
       reason: expect.stringContaining("GitHub indisponible"),
     });
+  });
+});
+
+describe("runVeilleScan", () => {
+  it("scans for a new actualité candidate and reports proposed:true on success", async () => {
+    const findActualite = vi.fn().mockResolvedValue(makeActualiteCandidate());
+    const deps = makeDeps({ actualiteWatch: { findActualite } });
+
+    const result = await runVeilleScan(deps);
+
+    expect(deps.github.listPublishedPosts).toHaveBeenCalled();
+    expect(findActualite).toHaveBeenCalled();
+    expect(deps.discord.notifyActualiteProposal).toHaveBeenCalled();
+    expect(deps.github.queueActualiteProposal).toHaveBeenCalled();
+    expect(result).toEqual({ proposed: true });
+  });
+
+  it("reports proposed:false without touching the queue/generation when nothing is found", async () => {
+    const findActualite = vi.fn().mockResolvedValue(null);
+    const deps = makeDeps({ actualiteWatch: { findActualite } });
+
+    const result = await runVeilleScan(deps);
+
+    expect(result).toEqual({ proposed: false });
+    expect(deps.anthropic.parseDraft).not.toHaveBeenCalled();
+    expect(deps.github.commitDraftBranch).not.toHaveBeenCalled();
+  });
+
+  it("reports proposed:false (never throws) when the scan fails", async () => {
+    const findActualite = vi.fn().mockRejectedValue(new Error("Claude indisponible"));
+    const deps = makeDeps({ actualiteWatch: { findActualite } });
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const result = await runVeilleScan(deps);
+
+    expect(result).toEqual({ proposed: false });
+    consoleError.mockRestore();
+  });
+
+  it("reports proposed:false (never throws) when listPublishedPosts itself fails", async () => {
+    const deps = makeDeps({
+      github: {
+        ...makeDeps().github,
+        listPublishedPosts: vi.fn().mockRejectedValue(new Error("GitHub indisponible")),
+      },
+    });
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const result = await runVeilleScan(deps);
+
+    expect(result).toEqual({ proposed: false });
+    consoleError.mockRestore();
   });
 });
 

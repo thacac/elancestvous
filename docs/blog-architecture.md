@@ -205,7 +205,7 @@ file chargée peut faire remonter un sujet devenu entre-temps moins pertinent).
 
 | Fichier | Rôle |
 |---|---|
-| `services/blog/actualiteWatch.ts` | Cherche, parmi les flux RSS/Atom configurés (`BLOG_VEILLE_SOURCES`), le candidat le plus récent pas déjà cité ni déjà proposé |
+| `services/blog/actualiteWatch.ts` | Fait chercher Claude lui-même (outil `web_search`, sur le thème du pilier tourniqueté) une actualité récente et vérifiable, jamais déjà citée/proposée — remplace l'ancien mécanisme à base de flux RSS/Atom (`BLOG_VEILLE_SOURCES`), abandonné : les flux ANACT ciblés testés étaient protégés par une vérification anti-bot (ALTCHA), inutilisables par un fetch serveur simple |
 | `services/blog/generateDraft.ts` (`proposeNextActualiteBestEffort`) | Effet de bord **non bloquant** à chaque appel de `generateDraft()` : notifie Discord d'un nouveau candidat s'il y en a un, sans jamais retarder ni remplacer la génération de la semaine (toute erreur ici est journalisée puis avalée) |
 | `services/blog/discordNotifier.ts` (`notifyActualiteProposal`) | Embed **minimal** (titre + lien uniquement) avec boutons "Approuver le sujet"/"Ignorer" |
 | `services/blog/generateDraft.ts` (`queueApprovedActualite`) | Sur "Approuver" : récupère le texte intégral de la page source (best-effort, `services/blog/articleTextFetcher.ts`, repli sur le résumé RSS si le fetch échoue), puis ajoute l'actualité à la file partagée avec `/blog-sujet` (`queueActualiteTopic`) — **ne génère jamais rien directement** |

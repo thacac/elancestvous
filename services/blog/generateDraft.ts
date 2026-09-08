@@ -123,10 +123,10 @@ export type GenerateDraftDeps = {
       sourceUrl: string;
     }): Promise<{ messageId: string }>;
   };
-  // Optionnel : tant qu'aucune source de veille n'est configurée
-  // (BLOG_VEILLE_SOURCES vide), findActualite() renvoie toujours null et la
-  // génération retombe directement sur la rotation pondérée de piliers (#52)
-  // — cascade de priorité définie dans #66.
+  // Optionnel — voir imageGenerator ci-dessus pour le même raisonnement :
+  // en pratique toujours construit (services/blog/actualiteWatch.ts ne
+  // dépend que d'ANTHROPIC_API_KEY, déjà obligatoire pour tout le reste du
+  // pipeline), gardé optionnel côté type surtout pour les tests.
   actualiteWatch?: {
     findActualite(
       alreadyCitedUrls: string[],
@@ -317,14 +317,16 @@ function suggestionFromQueuedActualite(
 // (#66), mais ne remplace ni ne retarde plus jamais la génération de
 // l'article de cette semaine (correction du comportement bloquant d'origine
 // — la veille "prenait le pas" sur la génération, cf. retour d'usage réel).
-// Toute erreur ici (flux RSS en panne, Discord indisponible...) est
+// Toute erreur ici (recherche Claude en échec, Discord indisponible...) est
 // journalisée puis avalée : le pire cas est "pas de nouvelle proposition
-// cette fois", jamais un échec de la génération elle-même.
+// cette fois", jamais un échec de la génération elle-même. Valeur de retour
+// utilisée par runVeilleScan() ci-dessous (scan quotidien indépendant),
+// ignorée par generateDraft() qui n'en a pas besoin.
 async function proposeNextActualiteBestEffort(
   publishedPosts: PublishedPost[],
   deps: GenerateDraftDeps
-): Promise<void> {
-  if (!deps.actualiteWatch) return;
+): Promise<{ proposed: boolean }> {
+  if (!deps.actualiteWatch) return { proposed: false };
 
   try {
     const recentPillars = publishedPosts
@@ -340,7 +342,7 @@ async function proposeNextActualiteBestEffort(
     const alreadyCitedUrls = [...citedByPublishedPosts, ...alreadyProposedUrls];
 
     const candidate = await deps.actualiteWatch.findActualite(alreadyCitedUrls, recentPillars);
-    if (!candidate) return;
+    if (!candidate) return { proposed: false };
 
     // Notifier *avant* de persister (pas l'inverse) : une fois committée,
     // une proposition exclut définitivement ce sourceUrl des recherches
@@ -354,11 +356,35 @@ async function proposeNextActualiteBestEffort(
       sourceUrl: candidate.sourceUrl,
     });
     await deps.github.queueActualiteProposal(candidate);
+    return { proposed: true };
   } catch (err) {
     console.error(
       "[blog/generateDraft] proposition de veille échouée (ignorée, la génération continue) :",
       err instanceof Error ? err.message : String(err)
     );
+    return { proposed: false };
+  }
+}
+
+// Point d'entrée du scan quotidien (app/api/blog/veille/route.ts), indépendant
+// du cron hebdomadaire de génération : proposeNextActualiteBestEffort()
+// tourne aussi à chaque generateDraft(), mais seulement une fois par semaine
+// jusqu'ici — l'appeler séparément, plus souvent, comble une file vide plus
+// vite sans jamais toucher à la génération elle-même.
+export async function runVeilleScan(deps: GenerateDraftDeps): Promise<{ proposed: boolean }> {
+  try {
+    const publishedPosts = await deps.github.listPublishedPosts();
+    return await proposeNextActualiteBestEffort(publishedPosts, deps);
+  } catch (err) {
+    // Best-effort de bout en bout, y compris un échec de listPublishedPosts()
+    // (en dehors du try/catch interne de proposeNextActualiteBestEffort) :
+    // ce scan quotidien est appelé seul, sans génération à protéger derrière
+    // — jamais de raison de le laisser lever.
+    console.error(
+      "[blog/generateDraft] scan de veille échoué :",
+      err instanceof Error ? err.message : String(err)
+    );
+    return { proposed: false };
   }
 }
 
@@ -369,7 +395,7 @@ export async function generateDraft(
   const existingTitles = publishedPosts.map((p) => p.title);
 
   // Les deux sont indépendants (l'effet de bord ne lit ni n'écrit la file
-  // JSON, getNextQueuedTopic ne touche ni au flux RSS ni à Discord) : lancés
+  // JSON, getNextQueuedTopic ne touche ni à la recherche Claude ni à Discord) : lancés
   // en parallèle plutôt que séquentiellement pour rester sous le
   // --max-time généreux mais fini accordé côté cron (cf. commentaire de
   // non-idempotence sur .github/workflows/blog-weekly-trigger.yml).

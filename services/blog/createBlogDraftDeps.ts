@@ -7,8 +7,6 @@ import { fetchArticleText } from "./articleTextFetcher";
 import { createDiscordNotifier } from "./discordNotifier";
 import { createGithubBlogRepo, parseGithubRepoEnv } from "./githubBlogRepo";
 import { createOpenAiImageGenerator } from "./openaiImageGenerator";
-import { createRssFeedFetcher } from "./rssFeedFetcher";
-import { parseVeilleSources } from "./veilleSources";
 
 import type { GenerateDraftDeps } from "./generateDraft";
 import type { ReviseDraftDeps } from "./reviseDraft";
@@ -77,13 +75,10 @@ export function createBlogDraftDeps(): GenerateDraftDeps {
     anthropic: createAnthropicDraftGenerator({
       apiKey: requireEnv("ANTHROPIC_API_KEY"),
     }),
-    // Sources vides tant qu'aucune n'a été choisie/configurée
-    // (BLOG_VEILLE_SOURCES) : findActualite() renvoie alors toujours null et
-    // generateDraft.ts retombe directement sur la rotation pondérée de
-    // piliers (#52) — aucun branchement conditionnel nécessaire ici.
+    // Recherche via Claude (web_search), pas de flux RSS/Atom à configurer —
+    // seul ANTHROPIC_API_KEY est nécessaire, déjà obligatoire ci-dessus.
     actualiteWatch: createActualiteWatch({
-      sources: parseVeilleSources(process.env.BLOG_VEILLE_SOURCES),
-      fetchFeedItems: createRssFeedFetcher(),
+      apiKey: requireEnv("ANTHROPIC_API_KEY"),
     }),
     // Utilisé par queueApprovedActualite() (generateDraft.ts) au clic
     // "Approuver le sujet" sur Discord — best-effort, jamais requis.
