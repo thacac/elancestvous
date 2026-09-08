@@ -1,3 +1,4 @@
+import ArticlesBlogLiesBloc from "@/components/ArticlesBlogLiesBloc";
 import BadgesBloc from "@/components/BadgesBloc";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import CartesContrastBloc from "@/components/CartesContrastBloc";
@@ -207,6 +208,9 @@ export default function ParticuliersPage() {
         <p className="text-center text-stone-500 text-sm mb-20">
           Un premier échange permet de vérifier ensemble si le coaching individuel est adapté à votre situation.
         </p>
+
+        {/* --- 6b. Articles du blog en lien (issue #72 : maillage retour) --- */}
+        <ArticlesBlogLiesBloc targetPage="/particuliers/coaching-individuel" />
 
         {/* --- 7. CTA FINAL --- */}
         <CtaElan />

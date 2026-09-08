@@ -1,4 +1,5 @@
 
+import ArticlesBlogLiesBloc from "@/components/ArticlesBlogLiesBloc";
 import ArticulationBloc from "@/components/ArticulationBloc";
 import BadgesBloc from "@/components/BadgesBloc";
 import Breadcrumbs from "@/components/Breadcrumbs";
@@ -202,6 +203,9 @@ export default function GappPage() {
             },
           ]}
         />
+
+        {/* --- 5b. Articles du blog en lien (issue #72 : maillage retour) --- */}
+        <ArticlesBlogLiesBloc targetPage="/professionnels-etablissements-de-soins/gapp-groupe-analyse-pratiques-professionnelles" />
         {/* --- 6. CTA FINAL --- */}
         <CtaElan />
       </main>

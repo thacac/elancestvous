@@ -7,6 +7,7 @@ publishedAt: "2026-01-15"
 coverImage: "/blog/xss/cover.jpg"
 coverImageAlt: "Illustration"
 tags: []
+pillar: "A"
 ---
 
 Un paragraphe normal.

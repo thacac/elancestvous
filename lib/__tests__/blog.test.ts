@@ -136,6 +136,7 @@ description: "Description"
 excerpt: "Extrait"
 publishedAt: "2026-01-01"
 tags: []
+pillar: "A"
 ---
 Corps du brouillon.
 `;

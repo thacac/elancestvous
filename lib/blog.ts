@@ -32,7 +32,8 @@ const frontmatterSchema = z.object({
   coverImageAlt: z.string().min(1),
   tags: z.array(z.string()).default([]),
   // null pour un article publié avant l'introduction de ce champ (#73) —
-  // jamais bloquant, cf. getRelatedPosts qui l'ignore simplement.
+  // jamais bloquant, cf. getRelatedPosts et lib/relatedArticles.ts qui
+  // l'ignorent simplement (pas de pilier déclaré ⇒ pas de maillage).
   pillar: z.enum(PILLAR_IDS).nullable().default(null),
 });
 
