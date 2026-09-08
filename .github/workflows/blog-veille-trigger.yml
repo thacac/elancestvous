@@ -27,7 +27,20 @@ jobs:
             echo "BLOG_CRON_SECRET n'est pas configuré — rien à faire."
             exit 0
           fi
+          # --max-time 60 était trop court : findActualite() (actualiteWatch.ts)
+          # boucle sur des appels web_search en pensée adaptative (relance tant
+          # que stop_reason vaut "pause_turn", plusieurs recherches chaînées
+          # possibles) avant l'appel de mise en forme — constaté en prod, un
+          # échec systématique "curl: (28) ... 0 bytes received" alors que le
+          # scan est bien plus léger qu'une génération complète mais pas pour
+          # autant borné à 60s. Toujours pas de --retry : ce scan est
+          # idempotent (aucune génération déclenchée) mais une actualité
+          # trouvée est immédiatement mise en file et exclue des recherches
+          # futures (cf. commentaire sur alreadyProposedUrls dans
+          # generateDraft.ts) — un retry pendant que le premier appel tourne
+          # encore doublerait juste l'appel Claude pour rien, sans risque de
+          # double proposition.
           curl --fail-with-body -sS -X POST \
-            --max-time 60 \
+            --max-time 180 \
             "https://elancestvous.fr/api/blog/veille" \
             -H "Authorization: Bearer $BLOG_CRON_SECRET"
