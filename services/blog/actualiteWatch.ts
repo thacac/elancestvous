@@ -31,6 +31,17 @@ const SEARCH_MODEL_DEFAULT = "claude-sonnet-5";
 // sortie structurée (client.messages.parse) suffit très largement.
 const STRUCTURE_MODEL_DEFAULT = "claude-haiku-4-5";
 
+// Incident du 2026-09-08 : sans plafond, un modèle qui enchaîne les
+// web_search sans jamais atteindre end_turn fait tourner la boucle de
+// relance indéfiniment (chaque relance renvoie tout l'historique accumulé) —
+// constaté en prod à ~1M tokens consommés pour un scan censé rester bien
+// plus léger qu'une génération d'article. max_uses borne le nombre de
+// web_search sous-jacents, MAX_SEARCH_CONTINUATIONS borne le nombre de
+// relances sur pause_turn : les deux plafonds sont indépendants (l'un limite
+// l'outil, l'autre la boucle cliente qui le relance).
+const MAX_SEARCH_CONTINUATIONS = 3;
+const WEB_SEARCH_MAX_USES = 6;
+
 type Effort = "low" | "medium" | "high" | "xhigh" | "max";
 
 // Sortie structurée de l'étape 2 (mise en forme) ci-dessous — discriminée
@@ -86,7 +97,11 @@ export function createActualiteWatch(options?: {
 }) {
   const client = new Anthropic({ apiKey: options?.apiKey });
   const model = options?.model ?? SEARCH_MODEL_DEFAULT;
-  const effort = options?.effort;
+  // "low" par défaut (jamais "high", contrairement à un output_config.effort
+  // omis) : ce scan tourne quotidiennement sur une tâche de recherche
+  // simple, pas la génération d'article. Pas d'équivalent d'ANTHROPIC_BLOG_EFFORT
+  // ici — seul un options.effort explicite (passé par l'appelant) demande plus.
+  const effort = options?.effort ?? "low";
 
   return {
     async findActualite(
@@ -101,27 +116,36 @@ export function createActualiteWatch(options?: {
       // Étape 1 — recherche : boucle jusqu'à end_turn (server-tool, pas de
       // tool_result à construire nous-mêmes) ; pause_turn peut survenir sur
       // une recherche longue (plusieurs requêtes web_search chaînées).
+      // Plafonnée à MAX_SEARCH_CONTINUATIONS relances : au-delà, on part du
+      // texte déjà rassemblé plutôt que de continuer indéfiniment (étape 2
+      // traite un résultat inconclusif comme "rien trouvé", jamais une
+      // erreur).
       const messages: Anthropic.MessageParam[] = [
         { role: "user", content: buildSearchPrompt(pillar.theme, alreadyCitedUrls) },
+      ];
+      const searchTools: Anthropic.MessageCreateParams["tools"] = [
+        { type: "web_search_20260209", name: "web_search", max_uses: WEB_SEARCH_MAX_USES },
       ];
       let response = await client.messages.create({
         model,
         max_tokens: 8000,
         thinking: { type: "adaptive" },
-        ...(effort ? { output_config: { effort } } : {}),
-        tools: [{ type: "web_search_20260209", name: "web_search" }],
+        output_config: { effort },
+        tools: searchTools,
         messages,
       });
-      while (response.stop_reason === "pause_turn") {
+      let continuations = 0;
+      while (response.stop_reason === "pause_turn" && continuations < MAX_SEARCH_CONTINUATIONS) {
         messages.push({ role: "assistant", content: response.content });
         response = await client.messages.create({
           model,
           max_tokens: 8000,
           thinking: { type: "adaptive" },
-          ...(effort ? { output_config: { effort } } : {}),
-          tools: [{ type: "web_search_20260209", name: "web_search" }],
+          output_config: { effort },
+          tools: searchTools,
           messages,
         });
+        continuations++;
       }
       const findings = extractText(response.content);
 
