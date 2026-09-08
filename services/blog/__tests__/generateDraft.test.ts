@@ -574,23 +574,30 @@ describe("runVeilleScan", () => {
 
     const result = await runVeilleScan(deps);
 
-    expect(result).toEqual({ proposed: false });
+    // Incident du 08/09 : sans distinction entre "rien trouvé" et "une
+    // erreur a été avalée", {"proposed":false} dans les logs du cron
+    // (seule trace disponible côté GitHub Actions, pas d'accès SSH au VPS)
+    // ne permettait pas de savoir si le scan avait vraiment cherché ou
+    // échoué silencieusement (Discord, GitHub...) — `reason` distingue les
+    // deux cas désormais, y compris quand tout se passe bien côté recherche
+    // mais qu'aucun candidat n'a été retenu.
+    expect(result).toEqual({ proposed: false, reason: expect.stringContaining("aucune actualité") });
     expect(deps.anthropic.parseDraft).not.toHaveBeenCalled();
     expect(deps.github.commitDraftBranch).not.toHaveBeenCalled();
   });
 
-  it("reports proposed:false (never throws) when the scan fails", async () => {
+  it("reports proposed:false with the underlying error in `reason` (never throws) when the scan fails", async () => {
     const findActualite = vi.fn().mockRejectedValue(new Error("Claude indisponible"));
     const deps = makeDeps({ actualiteWatch: { findActualite } });
     const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
 
     const result = await runVeilleScan(deps);
 
-    expect(result).toEqual({ proposed: false });
+    expect(result).toEqual({ proposed: false, reason: expect.stringContaining("Claude indisponible") });
     consoleError.mockRestore();
   });
 
-  it("reports proposed:false (never throws) when listPublishedPosts itself fails", async () => {
+  it("reports proposed:false with the underlying error in `reason` (never throws) when listPublishedPosts itself fails", async () => {
     const deps = makeDeps({
       github: {
         ...makeDeps().github,
@@ -601,7 +608,7 @@ describe("runVeilleScan", () => {
 
     const result = await runVeilleScan(deps);
 
-    expect(result).toEqual({ proposed: false });
+    expect(result).toEqual({ proposed: false, reason: expect.stringContaining("GitHub indisponible") });
     consoleError.mockRestore();
   });
 });
