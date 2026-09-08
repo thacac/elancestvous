@@ -277,6 +277,27 @@ describe("createDiscordNotifier.notifyActualiteProposal", () => {
     expect(rejectButton.custom_id).toBe("actu_reject:abc123def456");
   });
 
+  it("posts to veilleChannelId instead of channelId when configured", async () => {
+    const fetchImpl = makeFetch();
+    const notifier = createDiscordNotifier({
+      botToken: "bot-token",
+      channelId: "channel-123",
+      veilleChannelId: "channel-veille-456",
+      fetchImpl,
+    });
+
+    await notifier.notifyActualiteProposal({
+      id: "abc123def456",
+      title: "Nouvelle obligation QVCT",
+      summary: "Résumé factuel vérifiable.",
+      sourceUrl: "https://source.example/actu-1",
+      pillarLabel: "GAPP",
+    });
+
+    const [url] = fetchImpl.mock.calls[0];
+    expect(url).toBe("https://discord.com/api/v10/channels/channel-veille-456/messages");
+  });
+
   it("truncates an oversized title/summary to Discord's embed limits", async () => {
     const fetchImpl = makeFetch();
     const notifier = createDiscordNotifier({
