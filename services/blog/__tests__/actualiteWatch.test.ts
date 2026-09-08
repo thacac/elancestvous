@@ -163,6 +163,47 @@ describe("createActualiteWatch", () => {
     expect(result?.sourceUrl).toBe("https://source.example/actu-1");
   });
 
+  it("caps pause_turn resumes instead of looping forever on a model that never reaches end_turn", async () => {
+    // Incident du 2026-09-08 : sans plafond, un modèle qui enchaîne les
+    // web_search sans jamais atteindre end_turn fait tourner la boucle
+    // indéfiniment — chaque relance renvoie tout l'historique (adaptive
+    // thinking + effort par défaut "high"), constaté à ~1M tokens consommés
+    // pour un scan censé être bien plus léger qu'une génération d'article.
+    messagesCreate.mockResolvedValue(pauseTurnSearchResponse("recherche en cours..."));
+    messagesParse.mockResolvedValue({ parsed_output: { found: false } });
+    const watch = createActualiteWatch({ apiKey: "key" });
+
+    const result = await watch.findActualite([], []);
+
+    expect(messagesCreate.mock.calls.length).toBeLessThanOrEqual(4);
+    expect(result).toBeNull();
+  });
+
+  it("defaults to a low search effort — this scan runs daily and must stay cheap", async () => {
+    messagesCreate.mockResolvedValue(endTurnSearchResponse("rien"));
+    messagesParse.mockResolvedValue({ parsed_output: { found: false } });
+    const watch = createActualiteWatch({ apiKey: "key" });
+
+    await watch.findActualite([], []);
+
+    expect(messagesCreate.mock.calls[0][0].output_config).toEqual({ effort: "low" });
+  });
+
+  it("caps the number of underlying web_search calls via max_uses", async () => {
+    messagesCreate.mockResolvedValue(endTurnSearchResponse("rien"));
+    messagesParse.mockResolvedValue({ parsed_output: { found: false } });
+    const watch = createActualiteWatch({ apiKey: "key" });
+
+    await watch.findActualite([], []);
+
+    const call = messagesCreate.mock.calls[0][0];
+    expect(call.tools).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ type: "web_search_20260209", name: "web_search", max_uses: expect.any(Number) }),
+      ])
+    );
+  });
+
   it("returns null (never throws) when the structuring step yields no parsed_output (e.g. refusal)", async () => {
     messagesCreate.mockResolvedValue(endTurnSearchResponse("trouvé quelque chose"));
     messagesParse.mockResolvedValue({ parsed_output: null });
