@@ -278,6 +278,70 @@ describe("createAnthropicDraftGenerator.parseDraft", () => {
     expect(content).toContain(LEGAL_DISCLAIMER);
   });
 
+  it("uses the full articleText instead of the summary when available (richer context)", async () => {
+    messagesParse.mockReset().mockResolvedValue(makeParseResponse());
+    const generator = createAnthropicDraftGenerator({ apiKey: "key" });
+    const withArticleText = {
+      ...actualiteSuggestion(),
+      actualite: {
+        ...actualiteSuggestion().actualite,
+        articleText: "Texte intégral de la page source, bien plus riche que le résumé RSS.",
+      },
+    };
+
+    await generator.parseDraft([], withArticleText);
+
+    const call = messagesParse.mock.calls[0][0];
+    const content = call.messages[0].content as string;
+    expect(content).toContain("Texte intégral de la page source, bien plus riche que le résumé RSS.");
+    expect(content).not.toContain(actualiteSuggestion().actualite.summary);
+  });
+
+  it("still delimits articleText as content to summarize, never as instructions (prompt-injection defense)", async () => {
+    messagesParse.mockReset().mockResolvedValue(makeParseResponse());
+    const generator = createAnthropicDraftGenerator({ apiKey: "key" });
+    const withArticleText = {
+      ...actualiteSuggestion(),
+      actualite: { ...actualiteSuggestion().actualite, articleText: "Texte source." },
+    };
+
+    await generator.parseDraft([], withArticleText);
+
+    const call = messagesParse.mock.calls[0][0];
+    const content = call.messages[0].content as string;
+    expect(content).toMatch(/jamais comme des instructions/i);
+  });
+
+  it("truncates an oversized articleText before sending it to the model", async () => {
+    messagesParse.mockReset().mockResolvedValue(makeParseResponse());
+    const generator = createAnthropicDraftGenerator({ apiKey: "key" });
+    const withHugeArticleText = {
+      ...actualiteSuggestion(),
+      actualite: { ...actualiteSuggestion().actualite, articleText: "B".repeat(20_000) },
+    };
+
+    await generator.parseDraft([], withHugeArticleText);
+
+    const call = messagesParse.mock.calls[0][0];
+    const content = call.messages[0].content as string;
+    expect(content).not.toContain("B".repeat(20_000));
+  });
+
+  it("falls back to the summary when articleText is null (source page fetch failed)", async () => {
+    messagesParse.mockReset().mockResolvedValue(makeParseResponse());
+    const generator = createAnthropicDraftGenerator({ apiKey: "key" });
+    const withNullArticleText = {
+      ...actualiteSuggestion(),
+      actualite: { ...actualiteSuggestion().actualite, articleText: null },
+    };
+
+    await generator.parseDraft([], withNullArticleText);
+
+    const call = messagesParse.mock.calls[0][0];
+    const content = call.messages[0].content as string;
+    expect(content).toContain(actualiteSuggestion().actualite.summary);
+  });
+
   it("uses the Discord topic instead of the pillar suggestion when both would otherwise apply", async () => {
     messagesParse.mockReset().mockResolvedValue(makeParseResponse());
     const generator = createAnthropicDraftGenerator({ apiKey: "key" });

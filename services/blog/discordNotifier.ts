@@ -176,27 +176,24 @@ export function createDiscordNotifier(options: {
 
     // Point de validation humaine ajouté en correction de #66 : une
     // actualité trouvée par la veille est proposée ici, jamais générée
-    // directement — generateDraft.ts n'écrit l'article qu'après un clic
-    // explicite sur "Approuver le sujet" (cf. discordInteractionHandler.ts).
+    // directement — un clic "Approuver le sujet" la met en file plutôt que
+    // de générer directement (cf. generateDraft.ts::queueApprovedActualite,
+    // discordInteractionHandler.ts). Embed volontairement minimal (titre +
+    // lien seulement, pas de résumé ni de pilier suggéré) : retour d'usage
+    // réel — plusieurs candidats par jour à trier vite, un embed chargé
+    // ralentissait la décision Approuver/Ignorer plus qu'il n'aidait.
     async notifyActualiteProposal(args: {
       id: string;
       title: string;
-      summary: string;
       sourceUrl: string;
-      pillarLabel: string;
     }): Promise<{ messageId: string }> {
       const payload = {
         allowed_mentions: { parse: [] },
         embeds: [
           {
             title: truncate(args.title, EMBED_TITLE_MAX),
-            description: truncate(args.summary, EMBED_DESCRIPTION_MAX),
             url: args.sourceUrl,
             color: BRAND_COLOR,
-            fields: [
-              { name: "Pilier suggéré", value: args.pillarLabel },
-              { name: "Source", value: args.sourceUrl },
-            ],
           },
         ],
         components: buildActualiteProposalActionRow(args.id),

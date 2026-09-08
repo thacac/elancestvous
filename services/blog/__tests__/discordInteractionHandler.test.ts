@@ -2,7 +2,6 @@ import { describe, expect, it, vi } from "vitest";
 
 import {
   getActualiteApprovalId,
-  getActualiteRejectionId,
   getApprovalSlug,
   getBlogSujetSubmission,
   getRevisionRequest,
@@ -107,7 +106,7 @@ describe("handleDiscordInteraction", () => {
     expect(result.data?.allowed_mentions).toEqual({ parse: [] });
   });
 
-  it("disables the buttons immediately on actualité rejection, before the fallback generation completes", () => {
+  it("disables the buttons immediately on actualité rejection", () => {
     const result = handleDiscordInteraction({
       type: 3,
       data: { custom_id: "actu_reject:abc123def456" },
@@ -328,20 +327,3 @@ describe("getActualiteApprovalId", () => {
   });
 });
 
-describe("getActualiteRejectionId", () => {
-  it("extracts the id from an actu_reject button interaction", () => {
-    expect(
-      getActualiteRejectionId({ type: 3, data: { custom_id: "actu_reject:abc123def456" } })
-    ).toBe("abc123def456");
-  });
-
-  it("returns null for an actu_approve interaction", () => {
-    expect(
-      getActualiteRejectionId({ type: 3, data: { custom_id: "actu_approve:abc123def456" } })
-    ).toBeNull();
-  });
-
-  it("returns null for a non-component interaction", () => {
-    expect(getActualiteRejectionId({ type: 1 })).toBeNull();
-  });
-});

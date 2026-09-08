@@ -6,7 +6,7 @@ import { deriveActualiteProposalId } from "./githubBlogRepo";
 import { PILLARS, pickNextPillar, shouldInjectLocalAngle, type PillarId, type PillarSuggestion } from "./pillars";
 
 import type { ActualiteCandidate } from "./actualiteWatch";
-import type { PublishedPost } from "./githubBlogRepo";
+import type { ActualiteQueueEntry, PublishedPost, QueuedTopicEntry } from "./githubBlogRepo";
 
 // Liste des pages de service dérivée de PILLARS (seule source de vérité,
 // services/blog/pillars.ts) : SYSTEM_PROMPT fournit ces URLs exactes plutôt
@@ -51,13 +51,7 @@ export type GenerateDraftResult =
       url: string;
     }
   | { status: "refused"; category?: string }
-  | { status: "generation_failed"; reason: string }
-  // Correction de #66 : un sujet d'actualité trouvé par la veille n'est trié
-  // ni par un humain (source scopée ou non) ni par un agent — la génération
-  // ne démarre donc jamais directement dessus. generateDraft() s'arrête ici
-  // et attend un clic explicite sur "Approuver le sujet" côté Discord
-  // (cf. discordInteractionHandler.ts, generateApprovedActualite() ci-dessous).
-  | { status: "pending_actualite_approval"; proposalId: string; title: string };
+  | { status: "generation_failed"; reason: string };
 
 export type AnthropicParseResult = {
   stop_reason: string | null;
@@ -81,11 +75,12 @@ export type GenerateDraftDeps = {
   };
   github: {
     listPublishedPosts(): Promise<PublishedPost[]>;
-    // File d'attente des sujets soumis via /blog-sujet (issue #67),
+    // File d'attente unique (sujets /blog-sujet prio 1, actualités
+    // approuvées prio 2 — voir githubBlogRepo.ts::getNextQueuedTopic),
     // prioritaire sur la rotation pondérée de piliers quand elle contient
     // une entrée "a_publier" — voir la cascade de priorité en tête de
     // generateDraft() ci-dessous.
-    getNextDiscordTopic(): Promise<{ topic: string; notes: string | null } | null>;
+    getNextQueuedTopic(): Promise<QueuedTopicEntry | null>;
     commitDraftBranch(args: {
       slug: string;
       postMarkdown: string;
@@ -93,6 +88,16 @@ export type GenerateDraftDeps = {
       commitMessage: string;
     }): Promise<{ branch: string; url: string }>;
     queueActualiteProposal(candidate: ActualiteCandidate): Promise<{ id: string }>;
+    // Utilisé par queueApprovedActualite() ci-dessous (clic "Approuver le
+    // sujet" sur Discord) : ajoute l'actualité à la même file que
+    // /blog-sujet plutôt que de générer directement.
+    queueActualiteTopic(entry: {
+      title: string;
+      summary: string;
+      sourceUrl: string;
+      articleText: string | null;
+      pillarId: PillarId;
+    }): Promise<void>;
     getActualiteProposal(id: string): Promise<ActualiteCandidate | null>;
     listProposedActualiteSourceUrls(): Promise<string[]>;
   };
@@ -115,9 +120,7 @@ export type GenerateDraftDeps = {
     notifyActualiteProposal(args: {
       id: string;
       title: string;
-      summary: string;
       sourceUrl: string;
-      pillarLabel: string;
     }): Promise<{ messageId: string }>;
   };
   // Optionnel : tant qu'aucune source de veille n'est configurée
@@ -129,6 +132,13 @@ export type GenerateDraftDeps = {
       alreadyCitedUrls: string[],
       recentPillars: PillarId[]
     ): Promise<ActualiteCandidate | null>;
+  };
+  // Optionnel, comme imageGenerator ci-dessus : tant qu'il n'est pas
+  // configuré, queueApprovedActualite() met simplement en file un
+  // articleText null (repli sur le résumé RSS/Atom à la génération, cf.
+  // anthropicDraftGenerator.ts) plutôt que d'échouer.
+  articleTextFetcher?: {
+    fetchArticleText(url: string): Promise<string | null>;
   };
 };
 
@@ -279,19 +289,44 @@ async function generateDraftFromDiscordTopic(
   return generateDraftFromResponse(response, null, "sujet soumis via Discord", deps);
 }
 
-export async function generateDraft(
-  deps: GenerateDraftDeps
-): Promise<GenerateDraftResult> {
-  const publishedPosts = await deps.github.listPublishedPosts();
-  const existingTitles = publishedPosts.map((p) => p.title);
+// Retrouve le Pillar complet (label, targetPage, theme...) déclaré au
+// moment de la mise en file (githubBlogRepo.ts::ActualiteQueueEntry ne
+// garde que le pillarId, seule donnée stable — un Pillar entier dupliqué
+// dans la file gèlerait un label/targetPage périmé si PILLARS change avant
+// que l'entrée ne soit consommée).
+function suggestionFromQueuedActualite(
+  entry: ActualiteQueueEntry,
+  publishedPosts: PublishedPost[]
+): PillarSuggestion | null {
+  const pillar = PILLARS.find((p) => p.id === entry.pillarId);
+  if (!pillar) return null;
+  return {
+    pillar,
+    ...computeRecentContentSignals(publishedPosts),
+    actualite: {
+      title: entry.title,
+      summary: entry.summary,
+      sourceUrl: entry.sourceUrl,
+      articleText: entry.articleText,
+    },
+  };
+}
 
-  // Cascade de priorité du sujet de la semaine (#66 > #67 > #52).
-  //
-  // 1. Veille actualité (#66) : une actualité pas déjà citée ni déjà
-  // proposée passe avant tout le reste. Elle n'est cependant jamais générée
-  // directement (cf. GenerateDraftResult ci-dessus) : elle est d'abord
-  // soumise à validation humaine sur Discord.
-  if (deps.actualiteWatch) {
+// Effet de bord best-effort, jamais bloquant : une actualité pas encore
+// citée ni déjà proposée est signalée sur Discord pour validation humaine
+// (#66), mais ne remplace ni ne retarde plus jamais la génération de
+// l'article de cette semaine (correction du comportement bloquant d'origine
+// — la veille "prenait le pas" sur la génération, cf. retour d'usage réel).
+// Toute erreur ici (flux RSS en panne, Discord indisponible...) est
+// journalisée puis avalée : le pire cas est "pas de nouvelle proposition
+// cette fois", jamais un échec de la génération elle-même.
+async function proposeNextActualiteBestEffort(
+  publishedPosts: PublishedPost[],
+  deps: GenerateDraftDeps
+): Promise<void> {
+  if (!deps.actualiteWatch) return;
+
+  try {
     const recentPillars = publishedPosts
       .map((p) => p.pillar)
       .filter((p): p is PillarId => p !== null);
@@ -305,38 +340,75 @@ export async function generateDraft(
     const alreadyCitedUrls = [...citedByPublishedPosts, ...alreadyProposedUrls];
 
     const candidate = await deps.actualiteWatch.findActualite(alreadyCitedUrls, recentPillars);
-    if (candidate) {
-      // Notifier *avant* de persister (pas l'inverse) : une fois committée,
-      // une proposition exclut définitivement ce sourceUrl des recherches
-      // futures (ci-dessus). Committer d'abord puis échouer sur la
-      // notification Discord orphelinerait silencieusement le candidat —
-      // plus jamais vu par personne, mais plus jamais reproposé non plus.
-      // En cas d'échec ici, l'exception remonte telle quelle (best-effort
-      // notifyFailureBestEffort côté route) et rien n'est committé : le même
-      // candidat reste trouvable au prochain essai.
-      const id = deriveActualiteProposalId(candidate.sourceUrl);
-      await deps.discord.notifyActualiteProposal({
-        id,
-        title: candidate.title,
-        summary: candidate.summary,
-        sourceUrl: candidate.sourceUrl,
-        pillarLabel: candidate.pillar.label,
-      });
-      await deps.github.queueActualiteProposal(candidate);
-      return { status: "pending_actualite_approval", proposalId: id, title: candidate.title };
-    }
-  }
+    if (!candidate) return;
 
-  // 2. Sujet soumis via la commande Discord /blog-sujet (#67) : s'il existe
-  // une entrée "a_publier", elle remplace entièrement la suggestion de
-  // pilier issue de la rotation pondérée. Le champ "pillar" reste
-  // obligatoire (BlogDraftSchema), donc le crédit du pilier réellement
-  // déclaré par Claude est automatiquement décrémenté la prochaine fois que
-  // pickNextPillar() rejoue l'historique publié (mitigation 2 de #67) — pas
-  // besoin d'un mécanisme de crédit séparé pour la file Discord.
-  const discordTopic = await deps.github.getNextDiscordTopic();
-  if (discordTopic) {
-    return generateDraftFromDiscordTopic(discordTopic, existingTitles, deps);
+    // Notifier *avant* de persister (pas l'inverse) : une fois committée,
+    // une proposition exclut définitivement ce sourceUrl des recherches
+    // futures (ci-dessus). Committer d'abord puis échouer sur la
+    // notification Discord orphelinerait silencieusement le candidat —
+    // plus jamais vu par personne, mais plus jamais reproposé non plus.
+    const id = deriveActualiteProposalId(candidate.sourceUrl);
+    await deps.discord.notifyActualiteProposal({
+      id,
+      title: candidate.title,
+      sourceUrl: candidate.sourceUrl,
+    });
+    await deps.github.queueActualiteProposal(candidate);
+  } catch (err) {
+    console.error(
+      "[blog/generateDraft] proposition de veille échouée (ignorée, la génération continue) :",
+      err instanceof Error ? err.message : String(err)
+    );
+  }
+}
+
+export async function generateDraft(
+  deps: GenerateDraftDeps
+): Promise<GenerateDraftResult> {
+  const publishedPosts = await deps.github.listPublishedPosts();
+  const existingTitles = publishedPosts.map((p) => p.title);
+
+  // Les deux sont indépendants (l'effet de bord ne lit ni n'écrit la file
+  // JSON, getNextQueuedTopic ne touche ni au flux RSS ni à Discord) : lancés
+  // en parallèle plutôt que séquentiellement pour rester sous le
+  // --max-time généreux mais fini accordé côté cron (cf. commentaire de
+  // non-idempotence sur .github/workflows/blog-weekly-trigger.yml).
+  const [, queuedTopic] = await Promise.all([
+    proposeNextActualiteBestEffort(publishedPosts, deps),
+    deps.github.getNextQueuedTopic(),
+  ]);
+
+  // Cascade de priorité du sujet de la semaine (#67 > #66 approuvée > #52),
+  // toutes deux logées dans la même file (githubBlogRepo.ts::getNextQueuedTopic).
+  //
+  // 1-2. File d'attente : sujet Discord (#67, prio 1) ou actualité approuvée
+  // (#66, prio 2). Le champ "pillar" reste obligatoire (BlogDraftSchema),
+  // donc le crédit du pilier réellement déclaré par Claude est
+  // automatiquement décrémenté la prochaine fois que pickNextPillar()
+  // rejoue l'historique publié (mitigation 2 de #67) — pas besoin d'un
+  // mécanisme de crédit séparé pour la file.
+  if (queuedTopic) {
+    if (queuedTopic.type === "discord_topic") {
+      return generateDraftFromDiscordTopic(
+        { topic: queuedTopic.topic, notes: queuedTopic.notes },
+        existingTitles,
+        deps
+      );
+    }
+    const suggestion = suggestionFromQueuedActualite(queuedTopic, publishedPosts);
+    // Un pilier de la file introuvable dans PILLARS (édition manuelle de la
+    // file, ou PILLARS modifié entre la mise en file et sa consommation) ne
+    // doit jamais bloquer toute la génération hebdomadaire indéfiniment (la
+    // file n'avance qu'au clic "Approuver"/à la modification manuelle du
+    // statut, cf. plus haut) — repli sur la rotation de piliers pour cette
+    // entrée plutôt qu'un generation_failed qui se répéterait à chaque essai
+    // tant que personne n'a corrigé la file à la main.
+    if (suggestion) {
+      return generateDraftFromSuggestion(suggestion, existingTitles, deps);
+    }
+    console.error(
+      `[blog/generateDraft] pilier inconnu dans la file d'attente ("${queuedTopic.pillarId}") — repli sur la rotation de piliers pour cette exécution.`
+    );
   }
 
   // 3. Rotation pondérée de piliers (#52) : le seul niveau toujours
@@ -345,31 +417,48 @@ export async function generateDraft(
   return generateDraftFromSuggestion(suggestion, existingTitles, deps);
 }
 
+export type QueueApprovedActualiteResult =
+  | { status: "queued"; title: string }
+  | { status: "proposal_not_found" }
+  | { status: "generation_failed"; reason: string };
+
 // Appelé après le clic "Approuver le sujet" sur Discord (jamais depuis le
-// cron hebdomadaire) : reprend l'actualité mise en attente par
-// generateDraft() ci-dessus et lance la génération, seulement maintenant
-// qu'un humain a confirmé sa pertinence.
-export async function generateApprovedActualite(
+// cron hebdomadaire) : ne génère plus jamais l'article directement (la
+// veille ne doit plus prendre le pas sur la génération de la semaine) — elle
+// rejoint simplement la même file que /blog-sujet, avec le texte intégral de
+// la page source en plus (best-effort, cf. articleTextFetcher.ts) pour
+// donner à Claude un contexte bien plus riche que le seul résumé RSS/Atom.
+export async function queueApprovedActualite(
   proposalId: string,
   deps: GenerateDraftDeps
-): Promise<GenerateDraftResult | { status: "proposal_not_found" }> {
+): Promise<QueueApprovedActualiteResult> {
   const candidate = await deps.github.getActualiteProposal(proposalId);
   if (!candidate) return { status: "proposal_not_found" };
 
-  const publishedPosts = await deps.github.listPublishedPosts();
-  const existingTitles = publishedPosts.map((p) => p.title);
+  // fetchArticleText() (services/blog/articleTextFetcher.ts) n'échoue déjà
+  // jamais elle-même (best-effort interne) — deps.articleTextFetcher reste
+  // optionnel ici uniquement pour le cas où il n'est pas configuré du tout
+  // (comme imageGenerator), pas pour rattraper une exception.
+  const articleText = deps.articleTextFetcher
+    ? await deps.articleTextFetcher.fetchArticleText(candidate.sourceUrl)
+    : null;
 
-  const suggestion: PillarSuggestion = {
-    pillar: candidate.pillar,
-    ...computeRecentContentSignals(publishedPosts),
-    actualite: {
+  try {
+    await deps.github.queueActualiteTopic({
       title: candidate.title,
       summary: candidate.summary,
       sourceUrl: candidate.sourceUrl,
-    },
-  };
+      articleText,
+      pillarId: candidate.pillar.id,
+    });
+  } catch (err) {
+    return {
+      status: "generation_failed",
+      reason: err instanceof Error ? err.message : String(err),
+    };
+  }
 
-  return generateDraftFromSuggestion(suggestion, existingTitles, deps);
+  return { status: "queued", title: candidate.title };
 }
 
 export { SYSTEM_PROMPT };

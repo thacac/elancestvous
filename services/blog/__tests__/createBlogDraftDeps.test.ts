@@ -29,6 +29,8 @@ vi.mock("../actualiteWatch", () => ({
 vi.mock("../rssFeedFetcher", () => ({
   createRssFeedFetcher: vi.fn().mockReturnValue(vi.fn()),
 }));
+const { fetchArticleText } = vi.hoisted(() => ({ fetchArticleText: vi.fn() }));
+vi.mock("../articleTextFetcher", () => ({ fetchArticleText }));
 
 import { createActualiteWatch } from "../actualiteWatch";
 import { createBlogDraftDeps, createReviseDraftDeps } from "../createBlogDraftDeps";
@@ -65,18 +67,22 @@ describe("createBlogDraftDeps", () => {
     await deps.discord.notifyActualiteProposal({
       id: "abc123def456",
       title: "Nouvelle obligation QVCT",
-      summary: "Résumé",
       sourceUrl: "https://source.example/actu-1",
-      pillarLabel: "GAPP",
     });
 
     expect(notifyActualiteProposal).toHaveBeenCalledWith({
       id: "abc123def456",
       title: "Nouvelle obligation QVCT",
-      summary: "Résumé",
       sourceUrl: "https://source.example/actu-1",
-      pillarLabel: "GAPP",
     });
+  });
+
+  it("wires the real fetchArticleText as articleTextFetcher (used by queueApprovedActualite)", () => {
+    process.env.GITHUB_REPO = "thacac/elancestvous";
+
+    const deps = createBlogDraftDeps();
+
+    expect(deps.articleTextFetcher?.fetchArticleText).toBe(fetchArticleText);
   });
 
   it("parses BLOG_VEILLE_SOURCES into the actualité watch's sources list", () => {

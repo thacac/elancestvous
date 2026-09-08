@@ -3,6 +3,7 @@ import { SITE } from "@/lib/siteIdentifiers";
 
 import { createActualiteWatch } from "./actualiteWatch";
 import { createAnthropicDraftGenerator } from "./anthropicDraftGenerator";
+import { fetchArticleText } from "./articleTextFetcher";
 import { createDiscordNotifier } from "./discordNotifier";
 import { createGithubBlogRepo, parseGithubRepoEnv } from "./githubBlogRepo";
 import { createOpenAiImageGenerator } from "./openaiImageGenerator";
@@ -84,6 +85,9 @@ export function createBlogDraftDeps(): GenerateDraftDeps {
       sources: parseVeilleSources(process.env.BLOG_VEILLE_SOURCES),
       fetchFeedItems: createRssFeedFetcher(),
     }),
+    // Utilisé par queueApprovedActualite() (generateDraft.ts) au clic
+    // "Approuver le sujet" sur Discord — best-effort, jamais requis.
+    articleTextFetcher: { fetchArticleText },
     ...buildSharedDeps(),
   };
 }

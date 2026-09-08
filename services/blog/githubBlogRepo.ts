@@ -40,16 +40,41 @@ export type PublishedPost = {
   tags: string[];
 };
 
-// File d'attente des sujets soumis via la commande Discord /blog-sujet
-// (issue #67) — statut mis à jour manuellement après publication (pas de
-// synchronisation automatique, pour éviter une logique fragile en cas de
-// retry, cf. la non-idempotence documentée de /api/blog/generate).
+// File d'attente unique des sujets à traiter en priorité sur la rotation
+// pondérée de piliers (#52) : sujets soumis via /blog-sujet (issue #67,
+// prio 1) et actualités approuvées sur Discord (issue #66, prio 2, cf.
+// getNextQueuedTopic ci-dessous) — statut mis à jour manuellement après
+// publication (pas de synchronisation automatique, pour éviter une logique
+// fragile en cas de retry, cf. la non-idempotence documentée de
+// /api/blog/generate).
 export type DiscordTopicEntry = {
+  type: "discord_topic";
   topic: string;
   notes: string | null;
   submittedAt: string;
   status: "a_publier" | "publie";
 };
+
+// Actualité approuvée sur Discord (bouton "Approuver le sujet") : ne
+// génère plus jamais directement (correction du comportement bloquant de
+// #66 — la veille ne doit plus prendre le pas sur la génération de la
+// semaine) — elle rejoint simplement cette file, au même titre qu'un sujet
+// Discord. articleText est le texte intégral de la page source (best-effort,
+// services/blog/articleTextFetcher.ts, récupéré au moment du clic
+// "Approuver"), null si le fetch a échoué — anthropicDraftGenerator.ts
+// retombe alors sur summary (le résumé RSS/Atom d'origine).
+export type ActualiteQueueEntry = {
+  type: "actualite";
+  title: string;
+  summary: string;
+  sourceUrl: string;
+  articleText: string | null;
+  pillarId: PillarId;
+  submittedAt: string;
+  status: "a_publier" | "publie";
+};
+
+export type QueuedTopicEntry = DiscordTopicEntry | ActualiteQueueEntry;
 
 export function createGithubBlogRepo(options: {
   auth: string;
@@ -60,6 +85,41 @@ export function createGithubBlogRepo(options: {
   const octokit = new Octokit({ auth: options.auth });
   const { owner, repo } = options;
   const baseBranch = options.baseBranch ?? "master";
+
+  // Partagée par queueDiscordTopic et queueActualiteTopic ci-dessous : les
+  // deux ajoutent une entrée à la même file (content/blog/sujets-discord.json),
+  // seule la forme de l'entrée diffère.
+  async function appendToQueue(entry: QueuedTopicEntry, commitMessage: string): Promise<void> {
+    let sha: string | undefined;
+    let existing: QueuedTopicEntry[] = [];
+    try {
+      const { data } = await octokit.rest.repos.getContent({
+        owner,
+        repo,
+        path: SUJETS_DISCORD_PATH,
+        ref: baseBranch,
+      });
+      if (!Array.isArray(data) && data.type === "file" && data.content) {
+        sha = data.sha;
+        const parsed: unknown = JSON.parse(Buffer.from(data.content, "base64").toString("utf8"));
+        if (Array.isArray(parsed)) existing = parsed;
+      }
+    } catch (err) {
+      if (!isNotFound(err)) throw err;
+    }
+
+    const updated: QueuedTopicEntry[] = [...existing, entry];
+
+    await octokit.rest.repos.createOrUpdateFileContents({
+      owner,
+      repo,
+      branch: baseBranch,
+      path: SUJETS_DISCORD_PATH,
+      message: commitMessage,
+      content: Buffer.from(JSON.stringify(updated, null, 2) + "\n", "utf8").toString("base64"),
+      ...(sha ? { sha } : {}),
+    });
+  }
 
   return {
     async listPublishedPosts(): Promise<PublishedPost[]> {
@@ -458,50 +518,51 @@ export function createGithubBlogRepo(options: {
     // gestion de conflit d'écriture concurrente (lecture-puis-écriture) : le
     // salon reste à faible trafic, un vrai souci si ça change un jour.
     async queueDiscordTopic(entry: { topic: string; notes: string | null }): Promise<void> {
-      let sha: string | undefined;
-      let existing: DiscordTopicEntry[] = [];
-      try {
-        const { data } = await octokit.rest.repos.getContent({
-          owner,
-          repo,
-          path: SUJETS_DISCORD_PATH,
-          ref: baseBranch,
-        });
-        if (!Array.isArray(data) && data.type === "file" && data.content) {
-          sha = data.sha;
-          const parsed: unknown = JSON.parse(Buffer.from(data.content, "base64").toString("utf8"));
-          if (Array.isArray(parsed)) existing = parsed;
-        }
-      } catch (err) {
-        if (!isNotFound(err)) throw err;
-      }
-
-      const updated: DiscordTopicEntry[] = [
-        ...existing,
+      await appendToQueue(
         {
+          type: "discord_topic",
           topic: entry.topic,
           notes: entry.notes,
           submittedAt: new Date().toISOString(),
           status: "a_publier",
         },
-      ];
-
-      await octokit.rest.repos.createOrUpdateFileContents({
-        owner,
-        repo,
-        branch: baseBranch,
-        path: SUJETS_DISCORD_PATH,
-        message: `blog: sujet Discord ajouté à la file ("${entry.topic}")`,
-        content: Buffer.from(JSON.stringify(updated, null, 2) + "\n", "utf8").toString("base64"),
-        ...(sha ? { sha } : {}),
-      });
+        `blog: sujet Discord ajouté à la file ("${entry.topic}")`
+      );
     },
 
-    // Premier sujet "a_publier" de la file, dans l'ordre où il a été soumis
-    // — generateDraft.ts le priorise sur la rotation pondérée de piliers
-    // (#52) quand il existe. null si le fichier n'existe pas encore, est
-    // vide, ou ne contient plus que des sujets déjà "publie".
-    async getNextDiscordTopic(): Promise<DiscordTopicEntry | null> {
+    // Même file que queueDiscordTopic ci-dessus, appelée depuis
+    // completeActualiteDecision (app/api/discord/interactions/route.ts) sur
+    // un clic "Approuver le sujet" — une actualité de la veille (#66) ne
+    // déclenche donc plus jamais Claude directement, elle attend son tour
+    // comme un sujet Discord.
+    async queueActualiteTopic(entry: {
+      title: string;
+      summary: string;
+      sourceUrl: string;
+      articleText: string | null;
+      pillarId: PillarId;
+    }): Promise<void> {
+      await appendToQueue(
+        {
+          type: "actualite",
+          title: entry.title,
+          summary: entry.summary,
+          sourceUrl: entry.sourceUrl,
+          articleText: entry.articleText,
+          pillarId: entry.pillarId,
+          submittedAt: new Date().toISOString(),
+          status: "a_publier",
+        },
+        `blog: actualité ajoutée à la file ("${entry.title}")`
+      );
+    },
+
+    // Priorité : premier sujet Discord "a_publier" (#67), sinon première
+    // actualité approuvée "a_publier" (#66) — dans chaque cas l'ordre de
+    // soumission. generateDraft.ts le priorise sur la rotation pondérée de
+    // piliers (#52) quand il existe. null si le fichier n'existe pas encore,
+    // est vide, ou ne contient plus que des entrées déjà "publie".
+    async getNextQueuedTopic(): Promise<QueuedTopicEntry | null> {
       let data;
       try {
         ({ data } = await octokit.rest.repos.getContent({
@@ -524,11 +585,15 @@ export function createGithubBlogRepo(options: {
       }
       if (!Array.isArray(entries)) return null;
 
+      const pending = (entries as unknown[]).filter(
+        (entry): entry is QueuedTopicEntry =>
+          typeof entry === "object" && entry !== null && (entry as { status?: unknown }).status === "a_publier"
+      );
+
       return (
-        entries.find(
-          (entry): entry is DiscordTopicEntry =>
-            typeof entry === "object" && entry !== null && entry.status === "a_publier"
-        ) ?? null
+        pending.find((entry) => entry.type === "discord_topic") ??
+        pending.find((entry) => entry.type === "actualite") ??
+        null
       );
     },
   };

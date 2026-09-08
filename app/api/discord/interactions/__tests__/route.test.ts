@@ -7,7 +7,6 @@ vi.mock("@/services/blog/discordInteractionHandler", () => ({
   getApprovalSlug: vi.fn(),
   getRevisionRequest: vi.fn(),
   getActualiteApprovalId: vi.fn(),
-  getActualiteRejectionId: vi.fn(),
   getBlogSujetSubmission: vi.fn(),
   submitBlogSujet: vi.fn(),
 }));
@@ -19,7 +18,7 @@ vi.mock("@/services/blog/reviseDraft", () => ({
 }));
 vi.mock("@/services/blog/generateDraft", () => ({
   generateDraft: vi.fn(),
-  generateApprovedActualite: vi.fn(),
+  queueApprovedActualite: vi.fn(),
 }));
 vi.mock("@/services/blog/createBlogDraftDeps", () => ({
   createReviseDraftDeps: vi.fn().mockReturnValue({}),
@@ -37,7 +36,6 @@ vi.mock("@/services/blog/discordNotifier", () => ({
 
 import {
   getActualiteApprovalId,
-  getActualiteRejectionId,
   getApprovalSlug,
   getBlogSujetSubmission,
   getRevisionRequest,
@@ -49,7 +47,7 @@ import {
   buildDraftActionRow,
   updateInteractionMessage,
 } from "@/services/blog/discordNotifier";
-import { generateApprovedActualite, generateDraft } from "@/services/blog/generateDraft";
+import { generateDraft, queueApprovedActualite } from "@/services/blog/generateDraft";
 import { publishDraft } from "@/services/blog/publishDraft";
 import { reviseDraft } from "@/services/blog/reviseDraft";
 
@@ -88,13 +86,12 @@ describe("POST /api/discord/interactions", () => {
     vi.mocked(getApprovalSlug).mockReset().mockReturnValue(null);
     vi.mocked(getRevisionRequest).mockReset().mockReturnValue(null);
     vi.mocked(getActualiteApprovalId).mockReset().mockReturnValue(null);
-    vi.mocked(getActualiteRejectionId).mockReset().mockReturnValue(null);
     vi.mocked(getBlogSujetSubmission).mockReset().mockReturnValue(null);
     vi.mocked(submitBlogSujet).mockReset();
     vi.mocked(publishDraft).mockReset();
     vi.mocked(reviseDraft).mockReset();
     vi.mocked(generateDraft).mockReset();
-    vi.mocked(generateApprovedActualite).mockReset();
+    vi.mocked(queueApprovedActualite).mockReset();
     vi.mocked(updateInteractionMessage).mockReset().mockResolvedValue(undefined);
     vi.mocked(buildDraftActionRow).mockClear();
     vi.mocked(buildActualiteProposalActionRow).mockClear();
@@ -591,15 +588,36 @@ describe("POST /api/discord/interactions", () => {
     const body = JSON.stringify({ type: 1 });
     vi.mocked(handleDiscordInteraction).mockReturnValue({ type: 1 });
     vi.mocked(getActualiteApprovalId).mockReturnValue(null);
-    vi.mocked(getActualiteRejectionId).mockReturnValue(null);
 
     await POST(makeRequest(body));
 
-    expect(generateApprovedActualite).not.toHaveBeenCalled();
+    expect(queueApprovedActualite).not.toHaveBeenCalled();
     expect(generateDraft).not.toHaveBeenCalled();
   });
 
-  it("generates the article and updates the message when an actualité proposal is approved", async () => {
+  it("does nothing asynchronous when an actualité proposal is rejected (no more work than the immediate ack)", async () => {
+    const body = JSON.stringify({
+      type: 3,
+      data: { custom_id: "actu_reject:abc123def456" },
+      application_id: "app-123",
+      token: "tok",
+    });
+    vi.mocked(handleDiscordInteraction).mockReturnValue({
+      type: 7,
+      data: { content: "🚫 Actualité ignorée.", components: [], allowed_mentions: { parse: [] } },
+    });
+    vi.mocked(getActualiteApprovalId).mockReturnValue(null);
+
+    const response = await POST(makeRequest(body));
+    const json = await response.json();
+
+    expect(json.data.content).toBe("🚫 Actualité ignorée.");
+    expect(queueApprovedActualite).not.toHaveBeenCalled();
+    expect(generateDraft).not.toHaveBeenCalled();
+    expect(updateInteractionMessage).not.toHaveBeenCalled();
+  });
+
+  it("queues the actualité and updates the message when a proposal is approved", async () => {
     const body = JSON.stringify({
       type: 3,
       data: { custom_id: "actu_approve:abc123def456" },
@@ -608,29 +626,26 @@ describe("POST /api/discord/interactions", () => {
     });
     vi.mocked(handleDiscordInteraction).mockReturnValue({ type: 7 });
     vi.mocked(getActualiteApprovalId).mockReturnValue("abc123def456");
-    vi.mocked(generateApprovedActualite).mockResolvedValue({
-      status: "committed",
-      slug: "nouvelle-obligation-qvct",
+    vi.mocked(queueApprovedActualite).mockResolvedValue({
+      status: "queued",
       title: "Nouvelle obligation QVCT",
-      branch: "blog-draft/nouvelle-obligation-qvct",
-      url: "https://github.com/thacac/elancestvous/tree/blog-draft/nouvelle-obligation-qvct",
     });
 
     const response = await POST(makeRequest(body));
 
     expect(response.status).toBe(200);
-    expect(generateApprovedActualite).toHaveBeenCalledWith("abc123def456", expect.anything());
+    expect(queueApprovedActualite).toHaveBeenCalledWith("abc123def456", expect.anything());
 
     await vi.waitFor(() => {
       expect(updateInteractionMessage).toHaveBeenCalledWith(
         "app-123",
         "interaction-token-abc",
-        expect.objectContaining({ content: expect.stringContaining("généré") })
+        expect.objectContaining({ content: expect.stringContaining("file d'attente") })
       );
     });
   });
 
-  it("re-attaches the Approuver/Ignorer buttons when the approved generation fails", async () => {
+  it("re-attaches the Approuver/Ignorer buttons when queueing the approved actualité fails", async () => {
     const body = JSON.stringify({
       type: 3,
       data: { custom_id: "actu_approve:abc123def456" },
@@ -639,9 +654,9 @@ describe("POST /api/discord/interactions", () => {
     });
     vi.mocked(handleDiscordInteraction).mockReturnValue({ type: 7 });
     vi.mocked(getActualiteApprovalId).mockReturnValue("abc123def456");
-    vi.mocked(generateApprovedActualite).mockResolvedValue({
+    vi.mocked(queueApprovedActualite).mockResolvedValue({
       status: "generation_failed",
-      reason: "sortie structurée invalide",
+      reason: "GitHub indisponible",
     });
 
     await POST(makeRequest(body));
@@ -651,7 +666,7 @@ describe("POST /api/discord/interactions", () => {
         "app-123",
         "tok",
         expect.objectContaining({
-          content: expect.stringContaining("sortie structurée invalide"),
+          content: expect.stringContaining("GitHub indisponible"),
           components: [{ type: 1, marker: "actu-row-for-abc123def456" }],
         })
       );
@@ -667,7 +682,7 @@ describe("POST /api/discord/interactions", () => {
     });
     vi.mocked(handleDiscordInteraction).mockReturnValue({ type: 7 });
     vi.mocked(getActualiteApprovalId).mockReturnValue("disparu");
-    vi.mocked(generateApprovedActualite).mockResolvedValue({ status: "proposal_not_found" });
+    vi.mocked(queueApprovedActualite).mockResolvedValue({ status: "proposal_not_found" });
 
     await POST(makeRequest(body));
 
@@ -676,63 +691,6 @@ describe("POST /api/discord/interactions", () => {
         "app-123",
         "tok",
         expect.objectContaining({ content: expect.stringContaining("introuvable") })
-      );
-    });
-  });
-
-  it("re-invokes generateDraft (not generateApprovedActualite) when an actualité proposal is rejected", async () => {
-    const body = JSON.stringify({
-      type: 3,
-      data: { custom_id: "actu_reject:abc123def456" },
-      application_id: "app-123",
-      token: "interaction-token-abc",
-    });
-    vi.mocked(handleDiscordInteraction).mockReturnValue({ type: 7 });
-    vi.mocked(getActualiteRejectionId).mockReturnValue("abc123def456");
-    vi.mocked(generateDraft).mockResolvedValue({
-      status: "committed",
-      slug: "un-titre-valide",
-      title: "Un titre valide",
-      branch: "blog-draft/un-titre-valide",
-      url: "https://github.com/thacac/elancestvous/tree/blog-draft/un-titre-valide",
-    });
-
-    await POST(makeRequest(body));
-
-    expect(generateDraft).toHaveBeenCalledWith(expect.anything());
-    expect(generateApprovedActualite).not.toHaveBeenCalled();
-
-    await vi.waitFor(() => {
-      expect(updateInteractionMessage).toHaveBeenCalledWith(
-        "app-123",
-        "interaction-token-abc",
-        expect.objectContaining({ content: expect.stringContaining("rotation de piliers") })
-      );
-    });
-  });
-
-  it("reports that a follow-up actualité was proposed when rejecting cascades to a new candidate", async () => {
-    const body = JSON.stringify({
-      type: 3,
-      data: { custom_id: "actu_reject:abc123def456" },
-      application_id: "app-123",
-      token: "tok",
-    });
-    vi.mocked(handleDiscordInteraction).mockReturnValue({ type: 7 });
-    vi.mocked(getActualiteRejectionId).mockReturnValue("abc123def456");
-    vi.mocked(generateDraft).mockResolvedValue({
-      status: "pending_actualite_approval",
-      proposalId: "def456abc123",
-      title: "Autre actualité",
-    });
-
-    await POST(makeRequest(body));
-
-    await vi.waitFor(() => {
-      expect(updateInteractionMessage).toHaveBeenCalledWith(
-        "app-123",
-        "tok",
-        expect.objectContaining({ content: expect.stringContaining("actualité suivante") })
       );
     });
   });
@@ -747,12 +705,9 @@ describe("POST /api/discord/interactions", () => {
     });
     vi.mocked(handleDiscordInteraction).mockReturnValue({ type: 7 });
     vi.mocked(getActualiteApprovalId).mockReturnValue("abc123def456");
-    vi.mocked(generateApprovedActualite).mockResolvedValue({
-      status: "committed",
-      slug: "mon-article",
-      title: "Mon article",
-      branch: "blog-draft/mon-article",
-      url: "https://github.com/thacac/elancestvous/tree/blog-draft/mon-article",
+    vi.mocked(queueApprovedActualite).mockResolvedValue({
+      status: "queued",
+      title: "Mon actualité",
     });
     vi.mocked(updateInteractionMessage).mockRejectedValue(new Error("Unknown Webhook"));
 
@@ -777,7 +732,7 @@ describe("POST /api/discord/interactions", () => {
     });
     vi.mocked(handleDiscordInteraction).mockReturnValue({ type: 7 });
     vi.mocked(getActualiteApprovalId).mockReturnValue("abc123def456");
-    vi.mocked(generateApprovedActualite).mockRejectedValue(new Error("Anthropic API down"));
+    vi.mocked(queueApprovedActualite).mockRejectedValue(new Error("Anthropic API down"));
 
     await POST(makeRequest(body));
 
