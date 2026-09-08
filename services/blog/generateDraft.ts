@@ -322,11 +322,16 @@ function suggestionFromQueuedActualite(
 // cette fois", jamais un échec de la génération elle-même. Valeur de retour
 // utilisée par runVeilleScan() ci-dessous (scan quotidien indépendant),
 // ignorée par generateDraft() qui n'en a pas besoin.
+//
+// `reason` (incident du 08/09) : sans lui, {"proposed":false} dans les logs
+// du cron GitHub Actions — seule trace disponible, pas d'accès SSH au VPS —
+// ne permet pas de distinguer "recherche faite, rien de pertinent trouvé" de
+// "une erreur (Discord, GitHub...) a été avalée silencieusement".
 async function proposeNextActualiteBestEffort(
   publishedPosts: PublishedPost[],
   deps: GenerateDraftDeps
-): Promise<{ proposed: boolean }> {
-  if (!deps.actualiteWatch) return { proposed: false };
+): Promise<{ proposed: boolean; reason?: string }> {
+  if (!deps.actualiteWatch) return { proposed: false, reason: "veille désactivée (actualiteWatch absent)" };
 
   try {
     const recentPillars = publishedPosts
@@ -342,7 +347,7 @@ async function proposeNextActualiteBestEffort(
     const alreadyCitedUrls = [...citedByPublishedPosts, ...alreadyProposedUrls];
 
     const candidate = await deps.actualiteWatch.findActualite(alreadyCitedUrls, recentPillars);
-    if (!candidate) return { proposed: false };
+    if (!candidate) return { proposed: false, reason: "aucune actualité pertinente trouvée" };
 
     // Notifier *avant* de persister (pas l'inverse) : une fois committée,
     // une proposition exclut définitivement ce sourceUrl des recherches
@@ -358,11 +363,12 @@ async function proposeNextActualiteBestEffort(
     await deps.github.queueActualiteProposal(candidate);
     return { proposed: true };
   } catch (err) {
+    const reason = err instanceof Error ? err.message : String(err);
     console.error(
       "[blog/generateDraft] proposition de veille échouée (ignorée, la génération continue) :",
-      err instanceof Error ? err.message : String(err)
+      reason
     );
-    return { proposed: false };
+    return { proposed: false, reason };
   }
 }
 
@@ -371,7 +377,7 @@ async function proposeNextActualiteBestEffort(
 // tourne aussi à chaque generateDraft(), mais seulement une fois par semaine
 // jusqu'ici — l'appeler séparément, plus souvent, comble une file vide plus
 // vite sans jamais toucher à la génération elle-même.
-export async function runVeilleScan(deps: GenerateDraftDeps): Promise<{ proposed: boolean }> {
+export async function runVeilleScan(deps: GenerateDraftDeps): Promise<{ proposed: boolean; reason?: string }> {
   try {
     const publishedPosts = await deps.github.listPublishedPosts();
     return await proposeNextActualiteBestEffort(publishedPosts, deps);
@@ -380,11 +386,9 @@ export async function runVeilleScan(deps: GenerateDraftDeps): Promise<{ proposed
     // (en dehors du try/catch interne de proposeNextActualiteBestEffort) :
     // ce scan quotidien est appelé seul, sans génération à protéger derrière
     // — jamais de raison de le laisser lever.
-    console.error(
-      "[blog/generateDraft] scan de veille échoué :",
-      err instanceof Error ? err.message : String(err)
-    );
-    return { proposed: false };
+    const reason = err instanceof Error ? err.message : String(err);
+    console.error("[blog/generateDraft] scan de veille échoué :", reason);
+    return { proposed: false, reason };
   }
 }
 
