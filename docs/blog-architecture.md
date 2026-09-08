@@ -190,20 +190,37 @@ pipeline où le caching a un effet réel.
 |---|---|
 | `scripts/registerDiscordCommand.ts` | Enregistre la commande slash `/blog-sujet` auprès de Discord (`PUT /applications/{id}/commands`) — appel manuel ponctuel, pas dans le runtime de l'app |
 | `services/blog/discordInteractionHandler.ts` | Route l'invocation (ouvre une modale sujet/notes) et la soumission (`getBlogSujetSubmission`, `submitBlogSujet`) — réponse immédiate en **type 4** (pas de type 7 différé : écrire une entrée JSON via l'API Contents reste sous les ~3s accordés par Discord), sans aucune vérification d'identité (décision assumée) |
-| `services/blog/githubBlogRepo.ts` (`queueDiscordTopic`/`getNextDiscordTopic`) | Lit/écrit `content/blog/sujets-discord.json` directement sur `master` (comme un fichier de contenu classique, pas de branche de brouillon) |
-| `services/blog/generateDraft.ts` | Priorise le premier sujet `"a_publier"` de la file sur la rotation pondérée de piliers (#52) quand il existe ; le champ `pillar` reste obligatoire dans les deux cas |
+| `services/blog/githubBlogRepo.ts` (`queueDiscordTopic`/`getNextQueuedTopic`) | Lit/écrit `content/blog/sujets-discord.json` directement sur `master` (comme un fichier de contenu classique, pas de branche de brouillon) — file **partagée** avec la veille actualité (#66, voir ci-dessous) |
+| `services/blog/generateDraft.ts` | Priorise la première entrée `"a_publier"` de la file sur la rotation pondérée de piliers (#52) quand elle existe ; le champ `pillar` reste obligatoire dans les deux cas |
+| `scripts/registerDiscordCommand.ts` (commande `/blog-file`) / `services/blog/discordInteractionHandler.ts` (`getBlogFileRequest`, `listBlogFile`, `removeBlogFileEntry`) / `githubBlogRepo.ts` (`listQueuedTopics`, `removeQueuedTopic`) | Lister la file (`/blog-file`) ou en supprimer une entrée a posteriori (`/blog-file supprimer:<id>`), avant qu'elle ne soit consommée par `generateDraft()` — réponse **type 4** ephemeral (visible seulement par la personne qui tape la commande), même raisonnement de rapidité que `/blog-sujet` |
 
 Cascade de priorité du sujet de la semaine, telle qu'implémentée aujourd'hui :
-veille actualité (#66, `services/blog/actualiteWatch.ts`) **>** sujet Discord
-(`sujets-discord.json`, ce ticket) **>** rotation pondérée de piliers (#52, seul
-niveau qui s'applique toujours). Le niveau #66 ne génère cependant jamais
-directement : un candidat trouvé est d'abord soumis à validation humaine sur
-Discord (boutons "Approuver le sujet"/"Ignorer") avant que la génération ne
-démarre — voir la section dédiée à #66 plus bas pour le détail de ce mécanisme.
-Le statut d'une entrée Discord (`"a_publier"` → `"publie"`) est mis à jour
-**manuellement** après publication, pas de synchronisation automatique — limite
-connue documentée plutôt que corrigée dans cette PR (une file chargée peut faire
-remonter un sujet devenu entre-temps moins pertinent).
+file d'attente unique (sujet Discord `/blog-sujet` **>** actualité approuvée,
+voir #66 ci-dessous) **>** rotation pondérée de piliers (#52, seul niveau qui
+s'applique toujours). Le statut d'une entrée (`"a_publier"` → `"publie"`) est
+mis à jour **manuellement** après publication, pas de synchronisation
+automatique — limite connue documentée plutôt que corrigée dans cette PR (une
+file chargée peut faire remonter un sujet devenu entre-temps moins pertinent).
+
+## Composants livrés (issue #66 — veille actualité, révisé)
+
+| Fichier | Rôle |
+|---|---|
+| `services/blog/actualiteWatch.ts` | Fait chercher Claude lui-même (outil `web_search`, sur le thème du pilier tourniqueté) une actualité récente et vérifiable, jamais déjà citée/proposée — remplace l'ancien mécanisme à base de flux RSS/Atom (`BLOG_VEILLE_SOURCES`), abandonné : les flux ANACT ciblés testés étaient protégés par une vérification anti-bot (ALTCHA), inutilisables par un fetch serveur simple |
+| `services/blog/generateDraft.ts` (`proposeNextActualiteBestEffort`) | Effet de bord **non bloquant** à chaque appel de `generateDraft()` : notifie Discord d'un nouveau candidat s'il y en a un, sans jamais retarder ni remplacer la génération de la semaine (toute erreur ici est journalisée puis avalée) |
+| `services/blog/discordNotifier.ts` (`notifyActualiteProposal`) | Embed **minimal** (titre + lien uniquement) avec boutons "Approuver le sujet"/"Ignorer" |
+| `services/blog/generateDraft.ts` (`queueApprovedActualite`) | Sur "Approuver" : récupère le texte intégral de la page source (best-effort, `services/blog/articleTextFetcher.ts`, repli sur le résumé RSS si le fetch échoue), puis ajoute l'actualité à la file partagée avec `/blog-sujet` (`queueActualiteTopic`) — **ne génère jamais rien directement** |
+
+Historique : la première version (livrée initialement) faisait de la veille le
+niveau le plus prioritaire de la cascade et **bloquait** la génération de la
+semaine tant qu'une actualité candidate n'avait pas été explicitement décidée
+sur Discord — en usage réel, un flux source correct mais peu pertinent
+proposait un nouveau candidat à chaque exécution, sans jamais laisser la
+génération hebdomadaire aboutir. Corrigé en découplant complètement la
+proposition (effet de bord best-effort ci-dessus) de la génération (la veille
+approuvée rejoint simplement la file comme un sujet Discord) — "Ignorer" ne
+déclenche donc plus non plus aucune recherche de candidat suivant, juste un
+accusé de réception immédiat.
 
 Voir aussi `docs/blog-secrets.md` (secrets requis), `docs/blog-charte-editoriale.md`
 (voix/contraintes du prompt système) et `docs/blog-guide-validation-discord.md`

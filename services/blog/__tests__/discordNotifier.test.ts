@@ -244,7 +244,7 @@ describe("createDiscordNotifier", () => {
 });
 
 describe("createDiscordNotifier.notifyActualiteProposal", () => {
-  it("posts an embed linking to the source with Approuver/Ignorer buttons, no auto-generation", async () => {
+  it("posts a minimal embed (title + link only) with Approuver/Ignorer buttons, no auto-generation", async () => {
     const fetchImpl = makeFetch();
     const notifier = createDiscordNotifier({
       botToken: "bot-token",
@@ -255,9 +255,7 @@ describe("createDiscordNotifier.notifyActualiteProposal", () => {
     const result = await notifier.notifyActualiteProposal({
       id: "abc123def456",
       title: "Nouvelle obligation QVCT",
-      summary: "Résumé factuel vérifiable.",
       sourceUrl: "https://source.example/actu-1",
-      pillarLabel: "GAPP",
     });
 
     expect(result).toEqual({ messageId: "message-id-123" });
@@ -266,9 +264,13 @@ describe("createDiscordNotifier.notifyActualiteProposal", () => {
     expect(init.headers.Authorization).toBe("Bot bot-token");
     const payload = JSON.parse(init.body as string);
 
+    // Volontairement minimal (retour d'usage réel : trop de bruit pour
+    // trier vite plusieurs candidats par jour) — juste de quoi décider de
+    // cliquer ou d'ouvrir le lien, pas de résumé ni de pilier suggéré.
     expect(payload.embeds[0].title).toBe("Nouvelle obligation QVCT");
-    expect(payload.embeds[0].description).toBe("Résumé factuel vérifiable.");
     expect(payload.embeds[0].url).toBe("https://source.example/actu-1");
+    expect(payload.embeds[0].description).toBeUndefined();
+    expect(payload.embeds[0].fields).toBeUndefined();
     expect(payload.allowed_mentions).toEqual({ parse: [] });
 
     const approveButton = payload.components[0].components[0];
@@ -289,16 +291,14 @@ describe("createDiscordNotifier.notifyActualiteProposal", () => {
     await notifier.notifyActualiteProposal({
       id: "abc123def456",
       title: "Nouvelle obligation QVCT",
-      summary: "Résumé factuel vérifiable.",
       sourceUrl: "https://source.example/actu-1",
-      pillarLabel: "GAPP",
     });
 
     const [url] = fetchImpl.mock.calls[0];
     expect(url).toBe("https://discord.com/api/v10/channels/channel-veille-456/messages");
   });
 
-  it("truncates an oversized title/summary to Discord's embed limits", async () => {
+  it("truncates an oversized title to Discord's embed limit", async () => {
     const fetchImpl = makeFetch();
     const notifier = createDiscordNotifier({
       botToken: "bot-token",
@@ -309,14 +309,11 @@ describe("createDiscordNotifier.notifyActualiteProposal", () => {
     await notifier.notifyActualiteProposal({
       id: "abc123def456",
       title: "T".repeat(300),
-      summary: "S".repeat(5000),
       sourceUrl: "https://source.example/actu-1",
-      pillarLabel: "GAPP",
     });
 
     const payload = JSON.parse(fetchImpl.mock.calls[0][1].body as string);
     expect(payload.embeds[0].title.length).toBeLessThanOrEqual(256);
-    expect(payload.embeds[0].description.length).toBeLessThanOrEqual(4096);
   });
 
   it("throws with the response status when Discord rejects the request", async () => {
@@ -331,9 +328,7 @@ describe("createDiscordNotifier.notifyActualiteProposal", () => {
       notifier.notifyActualiteProposal({
         id: "abc123def456",
         title: "Titre",
-        summary: "Résumé",
         sourceUrl: "https://source.example/actu-1",
-        pillarLabel: "GAPP",
       })
     ).rejects.toThrow(/401/);
   });

@@ -1,118 +1,172 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+const messagesCreate = vi.fn();
+const messagesParse = vi.fn();
+
+vi.mock("@anthropic-ai/sdk", () => ({
+  default: function Anthropic() {
+    return { messages: { create: messagesCreate, parse: messagesParse } };
+  },
+}));
 
 import { createActualiteWatch, LEGAL_DISCLAIMER } from "../actualiteWatch";
 
-import type { FeedItem } from "../rssFeedFetcher";
+function endTurnSearchResponse(text: string) {
+  return { stop_reason: "end_turn", content: [{ type: "text", text }] };
+}
 
-function item(overrides: Partial<FeedItem> = {}): FeedItem {
-  return {
-    title: "Nouvelle obligation QVCT",
-    summary: "Résumé factuel.",
-    url: "https://source.example/actu-1",
-    publishedAt: "2026-09-01T08:00:00Z",
-    ...overrides,
-  };
+function pauseTurnSearchResponse(text: string) {
+  return { stop_reason: "pause_turn", content: [{ type: "text", text }] };
 }
 
 describe("createActualiteWatch", () => {
-  it("returns null without fetching anything when no source is configured", async () => {
-    const fetchFeedItems = vi.fn();
-    const watch = createActualiteWatch({ sources: [], fetchFeedItems });
+  afterEach(() => {
+    messagesCreate.mockReset();
+    messagesParse.mockReset();
+  });
+
+  it("returns null when the search step finds nothing relevant (found: false)", async () => {
+    messagesCreate.mockResolvedValue(endTurnSearchResponse("Rien de pertinent trouvé."));
+    messagesParse.mockResolvedValue({ parsed_output: { found: false } });
+    const watch = createActualiteWatch({ apiKey: "key" });
 
     const result = await watch.findActualite([], []);
 
     expect(result).toBeNull();
-    expect(fetchFeedItems).not.toHaveBeenCalled();
   });
 
-  it("returns the most recent eligible item across all configured sources", async () => {
-    const fetchFeedItems = vi.fn(async (source: string) => {
-      if (source === "https://source-a.example/rss.xml") {
-        return [item({ url: "https://source-a.example/older", publishedAt: "2026-08-01T08:00:00Z" })];
-      }
-      return [item({ url: "https://source-b.example/newer", publishedAt: "2026-09-01T08:00:00Z" })];
+  it("returns a candidate combining the search findings with the rotated pillar", async () => {
+    messagesCreate.mockResolvedValue(
+      endTurnSearchResponse(
+        "Titre : Nouvelle obligation QVCT — URL : https://source.example/actu-1 — résumé : une obligation vient d'entrer en vigueur."
+      )
+    );
+    messagesParse.mockResolvedValue({
+      parsed_output: {
+        found: true,
+        title: "Nouvelle obligation QVCT",
+        summary: "Une obligation vient d'entrer en vigueur.",
+        sourceUrl: "https://source.example/actu-1",
+      },
     });
-    const watch = createActualiteWatch({
-      sources: ["https://source-a.example/rss.xml", "https://source-b.example/rss.xml"],
-      fetchFeedItems,
+    const watch = createActualiteWatch({ apiKey: "key" });
+
+    const result = await watch.findActualite([], ["D"]);
+
+    expect(result).toEqual({
+      title: "Nouvelle obligation QVCT",
+      summary: "Une obligation vient d'entrer en vigueur.",
+      sourceUrl: "https://source.example/actu-1",
+      pillar: expect.objectContaining({ id: expect.not.stringMatching(/^D$/) }),
     });
-
-    const result = await watch.findActualite([], []);
-
-    expect(result?.sourceUrl).toBe("https://source-b.example/newer");
-  });
-
-  it("excludes items whose URL has already been cited in a published article", async () => {
-    const fetchFeedItems = vi.fn().mockResolvedValue([
-      item({ url: "https://source.example/already-cited", publishedAt: "2026-09-02T08:00:00Z" }),
-      item({ url: "https://source.example/fresh", publishedAt: "2026-09-01T08:00:00Z" }),
-    ]);
-    const watch = createActualiteWatch({ sources: ["https://source.example/rss.xml"], fetchFeedItems });
-
-    const result = await watch.findActualite(["https://source.example/already-cited"], []);
-
-    expect(result?.sourceUrl).toBe("https://source.example/fresh");
-  });
-
-  it("returns null when every candidate has already been cited", async () => {
-    const fetchFeedItems = vi.fn().mockResolvedValue([item({ url: "https://source.example/actu-1" })]);
-    const watch = createActualiteWatch({ sources: ["https://source.example/rss.xml"], fetchFeedItems });
-
-    const result = await watch.findActualite(["https://source.example/actu-1"], []);
-
-    expect(result).toBeNull();
   });
 
   it("attaches a pillar via the shared weighted rotation, never repeating the last published pillar", async () => {
-    const fetchFeedItems = vi.fn().mockResolvedValue([item()]);
-    const watch = createActualiteWatch({ sources: ["https://source.example/rss.xml"], fetchFeedItems });
+    messagesCreate.mockResolvedValue(endTurnSearchResponse("trouvé"));
+    messagesParse.mockResolvedValue({
+      parsed_output: {
+        found: true,
+        title: "Titre",
+        summary: "Résumé",
+        sourceUrl: "https://source.example/actu-1",
+      },
+    });
+    const watch = createActualiteWatch({ apiKey: "key" });
 
     const result = await watch.findActualite([], ["D"]);
 
     expect(result?.pillar.id).not.toBe("D");
   });
 
-  it("carries the title, summary and sourceUrl through onto the candidate", async () => {
-    const fetchFeedItems = vi.fn().mockResolvedValue([
-      item({
-        title: "Nouvelle aide QVCT",
-        summary: "Une aide publique vient d'être annoncée.",
-        url: "https://source.example/actu-9",
-      }),
-    ]);
-    const watch = createActualiteWatch({ sources: ["https://source.example/rss.xml"], fetchFeedItems });
+  it("passes the already-cited/excluded URLs into the search prompt", async () => {
+    messagesCreate.mockResolvedValue(endTurnSearchResponse("rien"));
+    messagesParse.mockResolvedValue({ parsed_output: { found: false } });
+    const watch = createActualiteWatch({ apiKey: "key" });
 
-    const result = await watch.findActualite([], []);
+    await watch.findActualite(["https://deja-cite.example/a", "https://deja-cite.example/b"], []);
 
-    expect(result).toEqual(
-      expect.objectContaining({
-        title: "Nouvelle aide QVCT",
-        summary: "Une aide publique vient d'être annoncée.",
-        sourceUrl: "https://source.example/actu-9",
-      })
+    const call = messagesCreate.mock.calls[0][0];
+    const prompt = call.messages[0].content as string;
+    expect(prompt).toContain("https://deja-cite.example/a");
+    expect(prompt).toContain("https://deja-cite.example/b");
+  });
+
+  it("defaults to cheap models (sonnet for search, haiku for structuring) — this runs daily, not opus", async () => {
+    messagesCreate.mockResolvedValue(endTurnSearchResponse("trouvé : https://source.example/actu-1"));
+    messagesParse.mockResolvedValue({
+      parsed_output: {
+        found: true,
+        title: "Titre",
+        summary: "Résumé",
+        sourceUrl: "https://source.example/actu-1",
+      },
+    });
+    const watch = createActualiteWatch({ apiKey: "key" });
+
+    await watch.findActualite([], []);
+
+    expect(messagesCreate.mock.calls[0][0].model).toBe("claude-sonnet-5");
+    expect(messagesParse.mock.calls[0][0].model).toBe("claude-haiku-4-5");
+  });
+
+  it("uses the web_search tool", async () => {
+    messagesCreate.mockResolvedValue(endTurnSearchResponse("rien"));
+    messagesParse.mockResolvedValue({ parsed_output: { found: false } });
+    const watch = createActualiteWatch({ apiKey: "key" });
+
+    await watch.findActualite([], []);
+
+    const call = messagesCreate.mock.calls[0][0];
+    expect(call.tools).toEqual(
+      expect.arrayContaining([expect.objectContaining({ type: "web_search_20260209", name: "web_search" })])
     );
   });
 
-  it("skips a source that fails to fetch instead of failing the whole lookup", async () => {
-    const fetchFeedItems = vi.fn(async (source: string) => {
-      if (source === "https://broken.example/rss.xml") {
-        throw new Error("réseau indisponible");
-      }
-      return [item({ url: "https://ok.example/actu-1" })];
+  it("instructs the model to treat search results as data, never as instructions (prompt-injection defense)", async () => {
+    messagesCreate.mockResolvedValue(endTurnSearchResponse("rien"));
+    messagesParse.mockResolvedValue({ parsed_output: { found: false } });
+    const watch = createActualiteWatch({ apiKey: "key" });
+
+    await watch.findActualite([], []);
+
+    const call = messagesCreate.mock.calls[0][0];
+    const prompt = call.messages[0].content as string;
+    expect(prompt).toMatch(/jamais comme des instructions/i);
+  });
+
+  it("resumes on stop_reason pause_turn by pushing the assistant turn back and continuing the search", async () => {
+    messagesCreate
+      .mockResolvedValueOnce(pauseTurnSearchResponse("recherche en cours..."))
+      .mockResolvedValueOnce(endTurnSearchResponse("trouvé : https://source.example/actu-1"));
+    messagesParse.mockResolvedValue({
+      parsed_output: {
+        found: true,
+        title: "Titre",
+        summary: "Résumé",
+        sourceUrl: "https://source.example/actu-1",
+      },
     });
-    const watch = createActualiteWatch({
-      sources: ["https://broken.example/rss.xml", "https://ok.example/rss.xml"],
-      fetchFeedItems,
-    });
+    const watch = createActualiteWatch({ apiKey: "key" });
 
     const result = await watch.findActualite([], []);
 
-    expect(result?.sourceUrl).toBe("https://ok.example/actu-1");
+    expect(messagesCreate).toHaveBeenCalledTimes(2);
+    const secondCall = messagesCreate.mock.calls[1][0];
+    expect(secondCall.messages).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          role: "assistant",
+          content: [{ type: "text", text: "recherche en cours..." }],
+        }),
+      ])
+    );
+    expect(result?.sourceUrl).toBe("https://source.example/actu-1");
   });
 
-  it("returns null when every configured source fails", async () => {
-    const fetchFeedItems = vi.fn().mockRejectedValue(new Error("réseau indisponible"));
-    const watch = createActualiteWatch({ sources: ["https://broken.example/rss.xml"], fetchFeedItems });
+  it("returns null (never throws) when the structuring step yields no parsed_output (e.g. refusal)", async () => {
+    messagesCreate.mockResolvedValue(endTurnSearchResponse("trouvé quelque chose"));
+    messagesParse.mockResolvedValue({ parsed_output: null });
+    const watch = createActualiteWatch({ apiKey: "key" });
 
     const result = await watch.findActualite([], []);
 

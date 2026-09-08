@@ -1,5 +1,6 @@
 type DiscordComponentValue = { custom_id: string; value?: string };
 type DiscordComponentRow = { components?: DiscordComponentValue[] };
+type DiscordCommandOption = { name: string; value?: string };
 
 type DiscordInteractionPayload = {
   type: number;
@@ -7,6 +8,7 @@ type DiscordInteractionPayload = {
     name?: string;
     custom_id?: string;
     components?: DiscordComponentRow[];
+    options?: DiscordCommandOption[];
   };
 };
 
@@ -47,6 +49,14 @@ const BLOG_SUJET_COMMAND_NAME = "blog-sujet";
 const BLOG_SUJET_MODAL_ID = "blog_sujet_submit";
 const BLOG_SUJET_TOPIC_FIELD = "topic";
 const BLOG_SUJET_NOTES_FIELD = "notes";
+
+// Commande slash /blog-file — permet de lister la file d'attente
+// (sujets Discord + actualités approuvées, cf. githubBlogRepo.ts) et d'en
+// supprimer une entrée a posteriori (avant qu'elle ne soit consommée par
+// generateDraft()). Même décision d'ouverture que /blog-sujet ci-dessus :
+// pas de vérification d'identité.
+const BLOG_FILE_COMMAND_NAME = "blog-file";
+const BLOG_FILE_REMOVE_OPTION = "supprimer";
 
 /**
  * Vérifie/route les interactions Discord. "Approuver" déclenche une vraie
@@ -168,13 +178,14 @@ export function handleDiscordInteraction(
   }
 
   if (payload.type === 3 && customId.startsWith(ACTU_APPROVE_PREFIX)) {
-    // Même raisonnement que pour "Approuver" un brouillon : générer
-    // l'article (appel Claude + éventuelle image + commit) dépasse souvent
-    // les ~3s accordés par Discord.
+    // La veille ne prend plus le pas sur la génération de la semaine :
+    // "Approuver" met l'actualité en file (fetch du texte source + écriture
+    // GitHub) plutôt que de générer directement, mais ça dépasse quand même
+    // souvent les ~3s accordés par Discord.
     return {
       type: 7,
       data: {
-        content: "⏳ Génération de l'article à partir de l'actualité approuvée...",
+        content: "⏳ Mise en file de l'actualité approuvée...",
         components: [],
         allowed_mentions: NO_MENTIONS,
       },
@@ -182,13 +193,15 @@ export function handleDiscordInteraction(
   }
 
   if (payload.type === 3 && customId.startsWith(ACTU_REJECT_PREFIX)) {
-    // Ignorer relance la même cascade de priorité (generateDraft.ts) : elle
-    // proposera l'actualité suivante si une autre existe, sinon retombera
-    // sur la rotation de piliers — les deux prennent plus que ~3s.
+    // Ignorer ne déclenche plus aucune génération ni recherche du sujet
+    // suivant (la veille tourne indépendamment, cf. generateDraft.ts) — une
+    // simple confirmation, largement sous les ~3s accordés par Discord.
+    // Type 7 quand même, pour rester cohérent avec Approuver et désactiver
+    // les boutons immédiatement.
     return {
       type: 7,
       data: {
-        content: "🚫 Actualité ignorée — recherche du sujet suivant...",
+        content: "🚫 Actualité ignorée.",
         components: [],
         allowed_mentions: NO_MENTIONS,
       },
@@ -224,21 +237,15 @@ export function getRevisionRequest(
 }
 
 // Même rôle que getApprovalSlug() ci-dessus, pour le bouton "Approuver le
-// sujet" d'une actualité proposée : route.ts en a besoin pour lancer la
-// génération de l'article de façon asynchrone.
+// sujet" d'une actualité proposée : route.ts en a besoin pour lancer la mise
+// en file de l'actualité de façon asynchrone. Pas d'équivalent pour
+// "Ignorer" (ACTU_REJECT_PREFIX) : ce bouton ne déclenche plus aucun travail
+// différé, la réponse immédiate ci-dessus lui suffit.
 export function getActualiteApprovalId(payload: DiscordInteractionPayload): string | null {
   if (payload.type !== 3) return null;
   const customId = payload.data?.custom_id ?? "";
   if (!customId.startsWith(ACTU_APPROVE_PREFIX)) return null;
   return customId.slice(ACTU_APPROVE_PREFIX.length);
-}
-
-// Même rôle que getActualiteApprovalId() ci-dessus, pour le bouton "Ignorer".
-export function getActualiteRejectionId(payload: DiscordInteractionPayload): string | null {
-  if (payload.type !== 3) return null;
-  const customId = payload.data?.custom_id ?? "";
-  if (!customId.startsWith(ACTU_REJECT_PREFIX)) return null;
-  return customId.slice(ACTU_REJECT_PREFIX.length);
 }
 
 // Extrait le sujet/les notes de la soumission de la modale /blog-sujet.
@@ -312,4 +319,71 @@ export async function submitBlogSujet(
       allowed_mentions: NO_MENTIONS,
     },
   };
+}
+
+// Détecte l'invocation de /blog-file. Contrairement à /blog-sujet (ouvre une
+// modale, pur/synchrone, géré par handleDiscordInteraction ci-dessus),
+// lister ou supprimer une entrée nécessite une lecture/écriture GitHub —
+// donc toujours interceptée par route.ts avant handleDiscordInteraction,
+// comme submitBlogSujet. removeId est présent si l'option "supprimer" a été
+// renseignée (une valeur vide/blanche vaut "non renseignée", pas un id
+// littéralement vide) ; sinon la requête est un simple listage.
+export function getBlogFileRequest(
+  payload: DiscordInteractionPayload
+): { removeId: string | null } | null {
+  if (payload.type !== 2 || payload.data?.name !== BLOG_FILE_COMMAND_NAME) return null;
+  const option = payload.data.options?.find((o) => o.name === BLOG_FILE_REMOVE_OPTION);
+  const value = option?.value?.trim();
+  return { removeId: value ? value : null };
+}
+
+type QueueEntrySummary =
+  | { id: string; type: "discord_topic"; topic: string }
+  | { id: string; type: "actualite"; title: string };
+
+export type BlogFileDeps = {
+  github: {
+    listQueuedTopics(): Promise<QueueEntrySummary[]>;
+    removeQueuedTopic(id: string): Promise<{ removed: boolean; label: string | null }>;
+  };
+};
+
+function labelOf(entry: QueueEntrySummary): string {
+  return entry.type === "discord_topic" ? entry.topic : entry.title;
+}
+
+// Réponse ephemeral (flags 64, visible seulement par la personne qui tape la
+// commande) : un utilitaire de gestion de file, pas un contenu à laisser
+// dans le salon pour tout le monde comme les propositions/brouillons.
+export async function listBlogFile(deps: BlogFileDeps): Promise<DiscordInteractionResponse> {
+  const entries = await deps.github.listQueuedTopics();
+  if (entries.length === 0) {
+    return { type: 4, data: { content: "File vide.", flags: 64, allowed_mentions: NO_MENTIONS } };
+  }
+
+  const lines = entries.map(
+    (entry) =>
+      `- **${labelOf(entry)}** (${entry.type === "discord_topic" ? "sujet Discord" : "actualité"}) — id : \`${entry.id}\``
+  );
+
+  return {
+    type: 4,
+    data: {
+      content: `File d'attente (${entries.length}) :\n${lines.join("\n")}\n\nPour supprimer une entrée : \`/blog-file supprimer:<id>\`.`,
+      flags: 64,
+      allowed_mentions: NO_MENTIONS,
+    },
+  };
+}
+
+export async function removeBlogFileEntry(
+  id: string,
+  deps: BlogFileDeps
+): Promise<DiscordInteractionResponse> {
+  const { removed, label } = await deps.github.removeQueuedTopic(id);
+  const content = removed
+    ? `🗑️ Retiré de la file : **${label}**.`
+    : `⚠️ Aucune entrée en attente avec l'id \`${id}\` (déjà retirée, déjà publiée, ou id incorrect — voir \`/blog-file\` pour la liste à jour).`;
+
+  return { type: 4, data: { content, flags: 64, allowed_mentions: NO_MENTIONS } };
 }

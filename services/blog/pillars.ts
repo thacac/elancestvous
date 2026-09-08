@@ -67,6 +67,11 @@ export type PillarSuggestion = {
     title: string;
     summary: string;
     sourceUrl: string;
+    // Texte intégral de la page source (best-effort, récupéré au clic
+    // "Approuver" sur Discord — cf. services/blog/articleTextFetcher.ts),
+    // pour un contexte bien plus riche que le seul résumé RSS/Atom.
+    // Optionnel/null : anthropicDraftGenerator.ts retombe alors sur summary.
+    articleText?: string | null;
   };
 };
 

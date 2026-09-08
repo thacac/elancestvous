@@ -14,7 +14,7 @@ de plus dans l'étape "Create .env file from GitHub Secrets" de `deploy.yml` suf
 | `IMAGE_GEN_API_KEY` | Génération de l'illustration de couverture via `gpt-image-1` (`services/blog/openaiImageGenerator.ts`) | platform.openai.com — **clé API**, distincte de l'abonnement ChatGPT (facturation séparée, voir note ci-dessous) |
 | `GH_PAT_TOKEN` | Commit des brouillons sur `blog-draft/<slug>` (`services/blog/githubBlogRepo.ts`) | PAT *fine-grained*, limité au dépôt `elancestvous`, permission `Contents` en lecture/écriture uniquement (principe du moindre privilège — le code actuel lit/écrit du contenu et crée des branches, sans jamais toucher aux pull requests), avec expiration |
 | `GITHUB_REPO` | Dépôt cible au format `owner/repo` (ex. `thacac/elancestvous`) | fixe |
-| `BLOG_CRON_SECRET` | Authentifie l'appel `POST /api/blog/generate` envoyé par le cron GitHub Actions | à générer soi-même (chaîne aléatoire longue) |
+| `BLOG_CRON_SECRET` | Authentifie les appels `POST /api/blog/generate` (cron hebdomadaire) et `POST /api/blog/veille` (cron quotidien, `.github/workflows/blog-veille-trigger.yml`) envoyés par GitHub Actions — un seul secret pour les deux | à générer soi-même (chaîne aléatoire longue) |
 
 ### Note sur `IMAGE_GEN_API_KEY`
 

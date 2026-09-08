@@ -4,11 +4,13 @@ import { verifyDiscordSignature } from "@/lib/discordSignature";
 import { createBlogDraftDeps, createReviseDraftDeps } from "@/services/blog/createBlogDraftDeps";
 import {
   getActualiteApprovalId,
-  getActualiteRejectionId,
   getApprovalSlug,
+  getBlogFileRequest,
   getBlogSujetSubmission,
   getRevisionRequest,
   handleDiscordInteraction,
+  listBlogFile,
+  removeBlogFileEntry,
   submitBlogSujet,
 } from "@/services/blog/discordInteractionHandler";
 import {
@@ -16,7 +18,7 @@ import {
   buildDraftActionRow,
   updateInteractionMessage,
 } from "@/services/blog/discordNotifier";
-import { generateApprovedActualite, generateDraft } from "@/services/blog/generateDraft";
+import { queueApprovedActualite } from "@/services/blog/generateDraft";
 import { createGithubBlogRepo, parseGithubRepoEnv } from "@/services/blog/githubBlogRepo";
 import { publishDraft } from "@/services/blog/publishDraft";
 import { reviseDraft } from "@/services/blog/reviseDraft";
@@ -28,6 +30,14 @@ function requireEnv(name: string): string {
   const value = process.env[name];
   if (!value) throw new Error(`Variable d'environnement manquante : ${name}`);
   return value;
+}
+
+// Partagé par tous les points d'entrée ci-dessous qui n'ont besoin que du
+// client GitHub (pas du reste de GenerateDraftDeps construit par
+// createBlogDraftDeps) : publication, /blog-sujet, /blog-file.
+function createGithubClient(): ReturnType<typeof createGithubBlogRepo> {
+  const { owner, repo } = parseGithubRepoEnv(requireEnv("GITHUB_REPO"));
+  return createGithubBlogRepo({ auth: requireEnv("GH_PAT_TOKEN"), owner, repo });
 }
 
 // Le clic "Approuver" reçoit une réponse immédiate (type 7, cf.
@@ -50,8 +60,7 @@ async function completeApproval(
   // publication réussie n'a plus besoin d'être réessayée.
   let retryable = false;
   try {
-    const { owner, repo } = parseGithubRepoEnv(requireEnv("GITHUB_REPO"));
-    const github = createGithubBlogRepo({ auth: requireEnv("GH_PAT_TOKEN"), owner, repo });
+    const github = createGithubClient();
     const result = await publishDraft(slug, { github });
 
     switch (result.status) {
@@ -167,54 +176,39 @@ async function completeRevision(
   }
 }
 
-// Correction de #66 : "Approuver le sujet" ne fait que déclencher ici la
-// génération d'un article déjà mis en attente (aucun sujet d'actualité ne
-// génère plus jamais directement) ; "Ignorer" relance generateDraft(), qui
-// exclut désormais cette actualité (githubBlogRepo.ts::listProposedActualiteSourceUrls)
-// et proposera la suivante s'il y en a une, sinon retombera sur la rotation
-// de piliers. Les deux dépassent souvent les ~3s accordés par Discord, d'où
-// la réponse immédiate déjà envoyée par discordInteractionHandler.ts.
-async function completeActualiteDecision(
+// Correction du comportement bloquant de #66 (retour d'usage réel : la
+// veille "prenait le pas" sur la génération de la semaine) : "Approuver le
+// sujet" ne génère plus jamais l'article directement, il le met en file
+// (githubBlogRepo.ts::queueActualiteTopic, même file que /blog-sujet) — sa
+// génération se fera au prochain passage de generateDraft(), planifié ou
+// déclenché manuellement. "Ignorer" ne déclenche plus aucun travail
+// asynchrone : la réponse immédiate de discordInteractionHandler.ts
+// (désactivation des boutons + confirmation) est déjà tout ce qu'il y a à
+// faire, donc pas de fonction de complétion différée pour ce cas.
+async function completeActualiteApproval(
   applicationId: string,
   interactionToken: string,
-  decision: "approved" | "rejected",
   id: string
 ): Promise<void> {
   let content: string;
   // Même raisonnement que completeApproval()/completeRevision() : réattacher
-  // les boutons Approuver/Ignorer sur échec pour permettre de réessayer
-  // depuis Discord.
+  // le bouton Approuver sur échec pour permettre de réessayer depuis
+  // Discord.
   let retryable = false;
   try {
     const deps = createBlogDraftDeps();
-    const result =
-      decision === "approved" ? await generateApprovedActualite(id, deps) : await generateDraft(deps);
+    const result = await queueApprovedActualite(id, deps);
 
     switch (result.status) {
-      case "committed":
-        content =
-          decision === "approved"
-            ? "✅ Article généré à partir de l'actualité approuvée : nouvelle version postée ci-dessous."
-            : "🚫 Actualité ignorée. Un article a été généré via la rotation de piliers : nouvelle version postée ci-dessous.";
-        break;
-      case "pending_actualite_approval":
-        // Ne peut arriver que pour "rejected" : generateApprovedActualite()
-        // ne reconsulte jamais la veille elle-même.
-        content =
-          "🚫 Actualité ignorée. Une actualité suivante a été proposée ci-dessous — merci de la valider.";
-        break;
-      case "refused":
-        content = `⚠️ Claude a refusé de générer l'article (catégorie : ${
-          result.category ?? "inconnue"
-        }).`;
-        retryable = true;
-        break;
-      case "generation_failed":
-        content = `⚠️ Échec de la génération : ${result.reason}`;
-        retryable = true;
+      case "queued":
+        content = `🕒 Actualité mise en file d'attente : **${result.title}** — traitée à la prochaine génération (planifiée le lundi, ou déclenchée manuellement).`;
         break;
       case "proposal_not_found":
         content = "⚠️ Actualité introuvable (branche supprimée ?).";
+        break;
+      case "generation_failed":
+        content = `⚠️ Échec de la mise en file : ${result.reason}`;
+        retryable = true;
         break;
     }
   } catch (err) {
@@ -261,8 +255,7 @@ export async function POST(request: NextRequest) {
   const blogSujetSubmission = getBlogSujetSubmission(payload);
   if (blogSujetSubmission) {
     try {
-      const { owner, repo } = parseGithubRepoEnv(requireEnv("GITHUB_REPO"));
-      const github = createGithubBlogRepo({ auth: requireEnv("GH_PAT_TOKEN"), owner, repo });
+      const github = createGithubClient();
       const result = await submitBlogSujet(blogSujetSubmission, { github });
       return NextResponse.json(result);
     } catch (err) {
@@ -278,6 +271,29 @@ export async function POST(request: NextRequest) {
           content: `⚠️ Échec de l'ajout du sujet à la file : ${
             err instanceof Error ? err.message : String(err)
           }`,
+          flags: 64,
+        },
+      });
+    }
+  }
+
+  // Commande /blog-file (lister/supprimer la file) : même raisonnement que
+  // /blog-sujet ci-dessus — une lecture/écriture d'un seul fichier JSON via
+  // l'API Contents reste largement sous les ~3s accordés, pas besoin du
+  // schéma différé type 7.
+  const blogFileRequest = getBlogFileRequest(payload);
+  if (blogFileRequest) {
+    try {
+      const github = createGithubClient();
+      const result = blogFileRequest.removeId
+        ? await removeBlogFileEntry(blogFileRequest.removeId, { github })
+        : await listBlogFile({ github });
+      return NextResponse.json(result);
+    } catch (err) {
+      return NextResponse.json({
+        type: 4,
+        data: {
+          content: `⚠️ Échec sur /blog-file : ${err instanceof Error ? err.message : String(err)}`,
           flags: 64,
         },
       });
@@ -303,13 +319,12 @@ export async function POST(request: NextRequest) {
 
   const actualiteApprovalId = getActualiteApprovalId(payload);
   if (actualiteApprovalId) {
-    void completeActualiteDecision(payload.application_id, payload.token, "approved", actualiteApprovalId);
+    void completeActualiteApproval(payload.application_id, payload.token, actualiteApprovalId);
   }
 
-  const actualiteRejectionId = getActualiteRejectionId(payload);
-  if (actualiteRejectionId) {
-    void completeActualiteDecision(payload.application_id, payload.token, "rejected", actualiteRejectionId);
-  }
+  // "Ignorer" (actu_reject) n'a besoin d'aucun travail différé : la réponse
+  // immédiate ci-dessus (type 7, cf. discordInteractionHandler.ts) est déjà
+  // la confirmation finale.
 
   return NextResponse.json(result);
 }

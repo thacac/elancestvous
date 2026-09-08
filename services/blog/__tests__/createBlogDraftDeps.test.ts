@@ -26,9 +26,8 @@ const { findActualite } = vi.hoisted(() => ({ findActualite: vi.fn() }));
 vi.mock("../actualiteWatch", () => ({
   createActualiteWatch: vi.fn().mockReturnValue({ findActualite }),
 }));
-vi.mock("../rssFeedFetcher", () => ({
-  createRssFeedFetcher: vi.fn().mockReturnValue(vi.fn()),
-}));
+const { fetchArticleText } = vi.hoisted(() => ({ fetchArticleText: vi.fn() }));
+vi.mock("../articleTextFetcher", () => ({ fetchArticleText }));
 
 import { createActualiteWatch } from "../actualiteWatch";
 import { createBlogDraftDeps, createReviseDraftDeps } from "../createBlogDraftDeps";
@@ -65,44 +64,33 @@ describe("createBlogDraftDeps", () => {
     await deps.discord.notifyActualiteProposal({
       id: "abc123def456",
       title: "Nouvelle obligation QVCT",
-      summary: "Résumé",
       sourceUrl: "https://source.example/actu-1",
-      pillarLabel: "GAPP",
     });
 
     expect(notifyActualiteProposal).toHaveBeenCalledWith({
       id: "abc123def456",
       title: "Nouvelle obligation QVCT",
-      summary: "Résumé",
       sourceUrl: "https://source.example/actu-1",
-      pillarLabel: "GAPP",
     });
   });
 
-  it("parses BLOG_VEILLE_SOURCES into the actualité watch's sources list", () => {
+  it("wires the real fetchArticleText as articleTextFetcher (used by queueApprovedActualite)", () => {
     process.env.GITHUB_REPO = "thacac/elancestvous";
-    process.env.BLOG_VEILLE_SOURCES = "https://a.example/rss.xml, https://b.example/rss.xml";
+
+    const deps = createBlogDraftDeps();
+
+    expect(deps.articleTextFetcher?.fetchArticleText).toBe(fetchArticleText);
+  });
+
+  it("wires the actualité watch with the Anthropic API key (Claude web_search, no RSS sources needed)", () => {
+    process.env.GITHUB_REPO = "thacac/elancestvous";
 
     const deps = createBlogDraftDeps();
 
     expect(createActualiteWatch).toHaveBeenCalledWith(
-      expect.objectContaining({
-        sources: ["https://a.example/rss.xml", "https://b.example/rss.xml"],
-        fetchFeedItems: expect.any(Function),
-      })
+      expect.objectContaining({ apiKey: "anthropic-key" })
     );
     expect(deps.actualiteWatch?.findActualite).toBe(findActualite);
-  });
-
-  it("wires an actualité watch with an empty sources list when BLOG_VEILLE_SOURCES is unset", () => {
-    process.env.GITHUB_REPO = "thacac/elancestvous";
-    delete process.env.BLOG_VEILLE_SOURCES;
-
-    createBlogDraftDeps();
-
-    expect(createActualiteWatch).toHaveBeenCalledWith(
-      expect.objectContaining({ sources: [] })
-    );
   });
 
   it("parses a well-formed owner/repo", () => {

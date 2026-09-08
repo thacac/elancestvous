@@ -1,18 +1,18 @@
 /**
  * Outil manuel, à exécuter une seule fois (ou à chaque changement de la
- * définition de la commande) — enregistre la commande slash /blog-sujet
- * auprès de l'API Discord (PUT /applications/{id}/commands). Volontairement
- * hors du runtime de l'app (services/blog/) : l'enregistrement d'une
- * commande n'a rien à faire dans le process qui tourne en continu sur le
- * VPS, cf. issue #67.
+ * définition des commandes) — enregistre les commandes slash /blog-sujet et
+ * /blog-file auprès de l'API Discord (PUT /applications/{id}/commands).
+ * Volontairement hors du runtime de l'app (services/blog/) : l'enregistrement
+ * d'une commande n'a rien à faire dans le process qui tourne en continu sur
+ * le VPS, cf. issue #67.
  *
  * Usage : yarn blog:register-discord-command
  * Requiert DISCORD_APPLICATION_ID et DISCORD_BOT_TOKEN dans l'environnement.
  *
  * Ce PUT remplace l'intégralité des commandes globales de l'application par
- * le tableau fourni — sans risque ici, /blog-sujet est la seule commande
- * slash de l'app (Approuver/Retoucher sont des boutons de message, pas des
- * commandes).
+ * le tableau fourni — les deux doivent donc toujours être enregistrées
+ * ensemble ici (Approuver/Retoucher/Ignorer sont des boutons de message, pas
+ * des commandes, non concernés).
  */
 async function main() {
   const applicationId = process.env.DISCORD_APPLICATION_ID;
@@ -29,6 +29,19 @@ async function main() {
       name: "blog-sujet",
       description: "Proposer un sujet pour le prochain article du blog",
       type: 1,
+    },
+    {
+      name: "blog-file",
+      description: "Lister la file d'attente du blog, ou en supprimer une entrée",
+      type: 1,
+      options: [
+        {
+          name: "supprimer",
+          description: "Id de l'entrée à supprimer (laisser vide pour lister la file)",
+          type: 3, // STRING
+          required: false,
+        },
+      ],
     },
   ];
 
@@ -50,7 +63,7 @@ async function main() {
     );
   }
 
-  console.log("Commande /blog-sujet enregistrée.");
+  console.log("Commandes /blog-sujet et /blog-file enregistrées.");
 }
 
 main().catch((err) => {

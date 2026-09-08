@@ -2,12 +2,14 @@ import { describe, expect, it, vi } from "vitest";
 
 import {
   getActualiteApprovalId,
-  getActualiteRejectionId,
   getApprovalSlug,
+  getBlogFileRequest,
   getBlogSujetSubmission,
   getRevisionRequest,
   handleDiscordInteraction,
   hasTagOverlap,
+  listBlogFile,
+  removeBlogFileEntry,
   submitBlogSujet,
 } from "../discordInteractionHandler";
 
@@ -109,7 +111,7 @@ describe("handleDiscordInteraction", () => {
     expect(result.data?.allowed_mentions).toEqual({ parse: [] });
   });
 
-  it("disables the buttons immediately on actualité rejection, before the fallback generation completes", () => {
+  it("disables the buttons immediately on actualité rejection", () => {
     const result = handleDiscordInteraction({
       type: 3,
       data: { custom_id: "actu_reject:abc123def456" },
@@ -330,20 +332,106 @@ describe("getActualiteApprovalId", () => {
   });
 });
 
-describe("getActualiteRejectionId", () => {
-  it("extracts the id from an actu_reject button interaction", () => {
+describe("getBlogFileRequest", () => {
+  it("detects a /blog-file invocation without the supprimer option as a listing request", () => {
     expect(
-      getActualiteRejectionId({ type: 3, data: { custom_id: "actu_reject:abc123def456" } })
-    ).toBe("abc123def456");
+      getBlogFileRequest({ type: 2, data: { name: "blog-file" } })
+    ).toEqual({ removeId: null });
   });
 
-  it("returns null for an actu_approve interaction", () => {
+  it("detects a /blog-file invocation with the supprimer option as a removal request", () => {
     expect(
-      getActualiteRejectionId({ type: 3, data: { custom_id: "actu_approve:abc123def456" } })
-    ).toBeNull();
+      getBlogFileRequest({
+        type: 2,
+        data: { name: "blog-file", options: [{ name: "supprimer", value: "abc123" }] },
+      })
+    ).toEqual({ removeId: "abc123" });
   });
 
-  it("returns null for a non-component interaction", () => {
-    expect(getActualiteRejectionId({ type: 1 })).toBeNull();
+  it("treats a blank supprimer value as a listing request", () => {
+    expect(
+      getBlogFileRequest({
+        type: 2,
+        data: { name: "blog-file", options: [{ name: "supprimer", value: "   " }] },
+      })
+    ).toEqual({ removeId: null });
+  });
+
+  it("returns null for an unrelated command", () => {
+    expect(getBlogFileRequest({ type: 2, data: { name: "blog-sujet" } })).toBeNull();
+  });
+
+  it("returns null for a non-command interaction", () => {
+    expect(getBlogFileRequest({ type: 3, data: { custom_id: "actu_approve:abc" } })).toBeNull();
   });
 });
+
+describe("listBlogFile", () => {
+  it("lists pending entries (both types) with their id, ephemeral", async () => {
+    const deps = {
+      github: {
+        listQueuedTopics: vi.fn().mockResolvedValue([
+          { id: "id-1", type: "discord_topic" as const, topic: "Un sujet Discord" },
+          { id: "id-2", type: "actualite" as const, title: "Une actualité approuvée" },
+        ]),
+        removeQueuedTopic: vi.fn(),
+      },
+    };
+
+    const result = await listBlogFile(deps);
+
+    expect(result.type).toBe(4);
+    expect(result.data?.flags).toBe(64);
+    expect(result.data?.content).toContain("Un sujet Discord");
+    expect(result.data?.content).toContain("id-1");
+    expect(result.data?.content).toContain("Une actualité approuvée");
+    expect(result.data?.content).toContain("id-2");
+  });
+
+  it("reports an empty queue clearly", async () => {
+    const deps = {
+      github: {
+        listQueuedTopics: vi.fn().mockResolvedValue([]),
+        removeQueuedTopic: vi.fn(),
+      },
+    };
+
+    const result = await listBlogFile(deps);
+
+    expect(result.data?.content).toMatch(/vide/i);
+    expect(result.data?.flags).toBe(64);
+  });
+});
+
+describe("removeBlogFileEntry", () => {
+  it("confirms removal with the entry's label, ephemeral", async () => {
+    const deps = {
+      github: {
+        listQueuedTopics: vi.fn(),
+        removeQueuedTopic: vi.fn().mockResolvedValue({ removed: true, label: "Un sujet" }),
+      },
+    };
+
+    const result = await removeBlogFileEntry("id-1", deps);
+
+    expect(deps.github.removeQueuedTopic).toHaveBeenCalledWith("id-1");
+    expect(result.type).toBe(4);
+    expect(result.data?.flags).toBe(64);
+    expect(result.data?.content).toContain("Un sujet");
+  });
+
+  it("reports when no pending entry matches the id", async () => {
+    const deps = {
+      github: {
+        listQueuedTopics: vi.fn(),
+        removeQueuedTopic: vi.fn().mockResolvedValue({ removed: false, label: null }),
+      },
+    };
+
+    const result = await removeBlogFileEntry("inconnu", deps);
+
+    expect(result.data?.content).toMatch(/aucune entrée/i);
+    expect(result.data?.flags).toBe(64);
+  });
+});
+
