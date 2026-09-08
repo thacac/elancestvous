@@ -7,7 +7,7 @@ déclenchement et le dépannage, voir `DEPLOYMENT.md` (source de vérité).
 |---|---|
 | `Dockerfile` | Build multi-stage Next.js (`output: 'standalone'`), utilisateur non-root en runtime |
 | `.dockerignore` | Exclut `node_modules`, `.git`, `.next`, etc. du contexte de build |
-| `.github/workflows/deploy.yml` | Build + push GHCR + déploiement SSH sur push `master` |
+| `.github/workflows/deploy.yml` | Build + push GHCR sur tout push/PR `master` ; déploiement SSH sur le VPS déclenché manuellement (`workflow_dispatch`), sauf pour une publication de blog approuvée sur Discord (commit tagué `[blog-auto-deploy]`, seule exception auto — voir `docs/blog-architecture.md`) |
 | `docker-compose.yaml` | Service de production, labels Traefik (routing + TLS) |
 | `docker-compose.dev.yaml` | MailHog pour tester les emails en local |
 | `infra/deploy.sh` | Script de déploiement alternatif (login GHCR + pull + up), copié sur le VPS mais non appelé par `deploy.yml` (qui exécute directement `docker compose up -d --pull always`) |

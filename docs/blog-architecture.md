@@ -89,9 +89,9 @@ lancement" qui empêcherait l'indexation une fois le blog réellement public).
           └──────────┬─────────────┘   │  commit sur la même branche)│
                      │                 └──────────┬─────────────────┘
                      ▼                             ▼
-          push sur master → .github/workflows/deploy.yml     nouveau message Discord
-          (inchangé) → build Docker → GHCR → VPS/Traefik      (Approuver / Retoucher)
-          → site en ligne
+          push sur master (tag [blog-auto-deploy])           nouveau message Discord
+          → .github/workflows/deploy.yml → build Docker      (Approuver / Retoucher)
+          → GHCR → VPS/Traefik → site en ligne
 ```
 
 ## Composants livrés (Phases 1-2)
@@ -152,9 +152,17 @@ pipeline où le caching a un effet réel.
   production ne contient que `.next/standalone` et `public/` (voir `Dockerfile`) — pas
   `content/`. Tout ce qui n'est pas encore sur `master` doit vivre sur une branche
   GitHub, jamais sur le disque du conteneur.
-- **La publication reste un simple `push` sur `master`** : `.github/workflows/deploy.yml`
-  n'a besoin d'aucune modification — il se déclenche exactement comme pour un commit
-  humain.
+- **La publication reste un simple `push` sur `master`**, mais un push "de
+  développement" ordinaire (merge de PR, commit direct) ne déclenche plus le
+  déploiement automatiquement — le déploiement final se fait désormais à la main
+  (`workflow_dispatch`), pour garder la main sur le moment de la mise en ligne. Seule
+  la publication d'un article approuvé reste bout-en-bout automatique côté humain :
+  `publishDraft.ts` tague le message du commit avec `BLOG_AUTO_DEPLOY_TAG`
+  (`[blog-auto-deploy]`), que le job `deploy` de `.github/workflows/deploy.yml`
+  reconnaît via `contains(github.event.head_commit.message, ...)` pour se
+  déclencher malgré tout — sans ce tag, cliquer "Approuver" sur Discord aurait
+  publié l'article sur `master` sans jamais le mettre en ligne, contradiction avec
+  l'attente d'un clic = article publié.
 - **Contents API plutôt que Git Data API pour committer un brouillon** : un article +
   une image à la fois ne justifie pas la plomberie blob/tree/commit — deux appels
   `createOrUpdateFileContents` suffisent. Contrepartie acceptée : deux commits
