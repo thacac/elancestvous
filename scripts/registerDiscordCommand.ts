@@ -1,3 +1,5 @@
+import { fileURLToPath } from "node:url";
+
 /**
  * Outil manuel, à exécuter une seule fois (ou à chaque changement de la
  * définition des commandes) — enregistre les commandes slash /blog-sujet et
@@ -14,26 +16,27 @@
  * ensemble ici (Approuver/Retoucher/Ignorer sont des boutons de message, pas
  * des commandes, non concernés).
  */
-async function main() {
-  const applicationId = process.env.DISCORD_APPLICATION_ID;
-  const botToken = process.env.DISCORD_BOT_TOKEN;
-  if (!applicationId) {
-    throw new Error("Variable d'environnement manquante : DISCORD_APPLICATION_ID");
-  }
-  if (!botToken) {
-    throw new Error("Variable d'environnement manquante : DISCORD_BOT_TOKEN");
-  }
-
-  const commands = [
+// integration_types/contexts explicites (0 = GUILD_INSTALL / GUILD) plutôt
+// que de dépendre des réglages "Install Types" par défaut du portail
+// développeur Discord : ces commandes ne servent que dans un salon de
+// serveur (jamais en DM, jamais en app installée par un utilisateur), et
+// laisser Discord retomber sur un défaut différent peut faire échouer
+// silencieusement leur apparition dans le salon malgré un PUT accepté.
+export function buildCommandDefinitions() {
+  return [
     {
       name: "blog-sujet",
       description: "Proposer un sujet pour le prochain article du blog",
       type: 1,
+      integration_types: [0],
+      contexts: [0],
     },
     {
       name: "blog-file",
       description: "Lister la file d'attente du blog, ou en supprimer une entrée",
       type: 1,
+      integration_types: [0],
+      contexts: [0],
       options: [
         {
           name: "supprimer",
@@ -44,6 +47,19 @@ async function main() {
       ],
     },
   ];
+}
+
+async function main() {
+  const applicationId = process.env.DISCORD_APPLICATION_ID;
+  const botToken = process.env.DISCORD_BOT_TOKEN;
+  if (!applicationId) {
+    throw new Error("Variable d'environnement manquante : DISCORD_APPLICATION_ID");
+  }
+  if (!botToken) {
+    throw new Error("Variable d'environnement manquante : DISCORD_BOT_TOKEN");
+  }
+
+  const commands = buildCommandDefinitions();
 
   const response = await fetch(
     `https://discord.com/api/v10/applications/${applicationId}/commands`,
@@ -66,7 +82,13 @@ async function main() {
   console.log("Commandes /blog-sujet et /blog-file enregistrées.");
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+// Ne lance main() que si le fichier est exécuté directement (`yarn
+// blog:register-discord-command`), pas quand il est importé — sinon un test
+// qui importe buildCommandDefinitions() déclencherait un vrai appel réseau
+// (et process.exit(1) sur un env de test sans les secrets, tuant le runner).
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  main().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}
