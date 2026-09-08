@@ -3,8 +3,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import PostJsonLd from "@/components/PostJsonLd";
+import ShareButtons from "@/components/ShareButtons";
 import { getAllPostsMeta, getPostBySlug, getPostSlugs } from "@/lib/blog";
 import { isBlogPublic } from "@/lib/featureFlags";
+import { SITE } from "@/lib/siteIdentifiers";
 import { PILLARS } from "@/services/blog/pillars";
 
 import type { Metadata } from "next";
@@ -76,6 +78,11 @@ export default async function BlogPost({
           {post.readingTime}
         </p>
         <h1 className="mb-6">{post.title}</h1>
+        <ShareButtons
+          url={`${SITE}/blog/${post.slug}`}
+          title={post.title}
+          className="mb-8"
+        />
         <div className="relative aspect-[16/9] mb-8 rounded-xl overflow-hidden">
           <Image
             src={post.coverImage}

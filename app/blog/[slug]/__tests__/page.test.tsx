@@ -78,3 +78,18 @@ describe("BlogPost — liens du cocon sémantique (issue #73)", () => {
     expect(screen.queryByText(/à lire aussi/i)).not.toBeInTheDocument();
   });
 });
+
+describe("BlogPost — boutons de partage", () => {
+  it("affiche des boutons de partage pointant vers l'URL canonique de l'article", async () => {
+    vi.mocked(getPostBySlug).mockResolvedValue(post({ slug: "article-courant" }));
+
+    const jsx = await BlogPost({ params: Promise.resolve({ slug: "article-courant" }) });
+    render(jsx);
+
+    const canonicalUrl = "https://elancestvous.fr/blog/article-courant";
+    expect(screen.getByRole("link", { name: /linkedin/i })).toHaveAttribute(
+      "href",
+      `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(canonicalUrl)}`
+    );
+  });
+});
