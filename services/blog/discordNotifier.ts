@@ -95,6 +95,12 @@ function buildMultipartBody(payload: unknown, coverImage: Buffer): FormData {
 export function createDiscordNotifier(options: {
   botToken: string;
   channelId: string;
+  // Salon dédié aux propositions de la veille actualité (#66), distinctes des
+  // brouillons prêts à valider (notifyDraftReady) — deux flux au rythme très
+  // différent (une actualité peut sortir plusieurs fois par semaine) qui
+  // noient chacun le message de l'autre dans le même salon. Optionnel :
+  // retombe sur channelId tant que ce salon n'est pas configuré séparément.
+  veilleChannelId?: string;
   fetchImpl?: typeof fetch;
 }) {
   const fetchImpl = options.fetchImpl ?? fetch;
@@ -200,7 +206,7 @@ export function createDiscordNotifier(options: {
       };
 
       const response = await fetchImpl(
-        `https://discord.com/api/v10/channels/${options.channelId}/messages`,
+        `https://discord.com/api/v10/channels/${options.veilleChannelId ?? options.channelId}/messages`,
         {
           method: "POST",
           headers: {

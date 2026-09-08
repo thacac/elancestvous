@@ -135,6 +135,39 @@ describe("createBlogDraftDeps", () => {
     );
   });
 
+  it("wires DISCORD_VEILLE_CHANNEL_ID into the notifier when set", () => {
+    process.env.GITHUB_REPO = "thacac/elancestvous";
+    process.env.DISCORD_VEILLE_CHANNEL_ID = "channel-veille-456";
+
+    createBlogDraftDeps();
+
+    expect(createDiscordNotifier).toHaveBeenCalledWith(
+      expect.objectContaining({ veilleChannelId: "channel-veille-456" })
+    );
+  });
+
+  it("omits veilleChannelId when DISCORD_VEILLE_CHANNEL_ID is not set (repli sur le salon principal)", () => {
+    process.env.GITHUB_REPO = "thacac/elancestvous";
+    delete process.env.DISCORD_VEILLE_CHANNEL_ID;
+
+    createBlogDraftDeps();
+
+    expect(createDiscordNotifier).toHaveBeenCalledWith(
+      expect.objectContaining({ veilleChannelId: undefined })
+    );
+  });
+
+  it("treats an empty DISCORD_VEILLE_CHANNEL_ID (secret non configuré dans deploy.yml) as unset", () => {
+    process.env.GITHUB_REPO = "thacac/elancestvous";
+    process.env.DISCORD_VEILLE_CHANNEL_ID = "";
+
+    createBlogDraftDeps();
+
+    expect(createDiscordNotifier).toHaveBeenCalledWith(
+      expect.objectContaining({ veilleChannelId: undefined })
+    );
+  });
+
   it("builds a signed preview URL and delegates to the real notifier", async () => {
     process.env.GITHUB_REPO = "thacac/elancestvous";
 

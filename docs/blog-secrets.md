@@ -43,6 +43,7 @@ ses propres variables.
 | `DISCORD_BOT_TOKEN` | Poster le message hebdomadaire (`services/blog/discordNotifier.ts`) | Discord Developer Portal → application → onglet **Bot** → Reset Token |
 | `DISCORD_PUBLIC_KEY` | Vérifier la signature Ed25519 des interactions entrantes (`lib/discordSignature.ts`) — pas un secret au sens strict, sert à vérifier, pas à s'authentifier | Onglet **General Information** → Public Key |
 | `DISCORD_CHANNEL_ID` | Salon Discord privé cible pour la notification hebdomadaire | Mode développeur activé → clic droit sur le salon → Copier l'identifiant |
+| `DISCORD_VEILLE_CHANNEL_ID` | *Optionnel* — salon dédié aux propositions de la veille actualité (`services/blog/discordNotifier.ts::notifyActualiteProposal`, issue #66), pour ne pas les noyer parmi les brouillons prêts à valider. Laisser vide pour tout poster dans `DISCORD_CHANNEL_ID` (comportement actuel) | Même méthode que `DISCORD_CHANNEL_ID`, sur un second salon |
 | `BLOG_REVIEW_SECRET` | Signe les tokens de prévisualisation (`lib/reviewToken.ts`, `/blog-review/[slug]`) | À générer soi-même (`openssl rand -hex 32`) |
 
 Le clic sur "Approuver" publie réellement l'article (greffe des blobs déjà commités

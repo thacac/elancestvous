@@ -24,6 +24,10 @@ function buildSharedDeps() {
   const discordNotifier = createDiscordNotifier({
     botToken: requireEnv("DISCORD_BOT_TOKEN"),
     channelId: requireEnv("DISCORD_CHANNEL_ID"),
+    // Optionnel : les propositions de la veille actualité partent sur un
+    // salon dédié tant que celui-ci est configuré, pour ne pas noyer les
+    // brouillons prêts à valider (rythme différent des deux flux).
+    veilleChannelId: process.env.DISCORD_VEILLE_CHANNEL_ID || undefined,
   });
 
   // Optionnelle : tant que l'accès à l'API OpenAI n'est pas configuré, le
