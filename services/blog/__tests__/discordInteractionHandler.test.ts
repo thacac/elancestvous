@@ -14,7 +14,9 @@ import {
 // components est typé unknown[] côté DiscordInteractionResponse (payload
 // externe) — ce helper évite de dupliquer un cast à chaque accès dans les
 // tests ci-dessous, sans changer le type public.
-type ModalRow = { components?: Array<{ custom_id: string; required?: boolean; value?: string }> };
+type ModalRow = {
+  components?: Array<{ custom_id: string; type?: number; required?: boolean; value?: string }>;
+};
 function modalField(rows: unknown[] | undefined, rowIndex: number) {
   const row = rows?.[rowIndex] as ModalRow | undefined;
   return row?.components?.[0];
@@ -46,7 +48,7 @@ describe("handleDiscordInteraction", () => {
 
     expect(result.type).toBe(9);
     expect(result.data?.custom_id).toBe("revise_feedback:mon-article");
-    const textInput = result.data?.components?.[0]?.components?.[0];
+    const textInput = modalField(result.data?.components, 0);
     expect(textInput?.custom_id).toBe("feedback");
     expect(textInput?.type).toBe(4);
   });
