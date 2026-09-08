@@ -24,6 +24,16 @@ COPY . .
 # Uncomment the following line in case you want to disable telemetry during the build.
 # ENV NEXT_TELEMETRY_DISABLED=1
 
+# BLOG_ENABLED n'est autrement écrit que dans .env sur le VPS (chargé par
+# docker-compose au démarrage du conteneur, jamais vu par `next build`) — or
+# /blog (page statique, sans segment dynamique) est pré-rendue une seule fois
+# ici, figeant isBlogPublic() (lib/featureFlags.ts) dans le HTML généré.
+# Sans ce build-arg, /blog restait 404 en permanence quel que soit .env,
+# aucun redéploiement ne pouvant corriger un HTML déjà figé (incident du
+# premier article publié, 08/09).
+ARG BLOG_ENABLED
+ENV BLOG_ENABLED=$BLOG_ENABLED
+
 RUN yarn build
 
 # Production image, copy all the files and run next

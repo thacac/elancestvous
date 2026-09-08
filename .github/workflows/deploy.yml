@@ -51,6 +51,13 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          # BLOG_ENABLED n'est autrement écrit que dans .env sur le VPS (job
+          # "deploy" ci-dessous), jamais vu par `next build` — /blog (page
+          # statique) figeait donc un notFound() dans le HTML généré au
+          # build, quel que soit .env ensuite (incident du premier article
+          # publié, 08/09 — cf. Dockerfile et lib/featureFlags.ts).
+          build-args: |
+            BLOG_ENABLED=${{ secrets.BLOG_ENABLED }}
   
   deploy:
     needs: build
