@@ -7,6 +7,8 @@ import { fetchArticleText } from "./articleTextFetcher";
 import { createDiscordNotifier } from "./discordNotifier";
 import { createGithubBlogRepo, parseGithubRepoEnv } from "./githubBlogRepo";
 import { createOpenAiImageGenerator } from "./openaiImageGenerator";
+import { createRssFeedFetcher } from "./rssFeedFetcher";
+import { parseVeilleSources } from "./veilleSources";
 
 import type { GenerateDraftDeps } from "./generateDraft";
 import type { ReviseDraftDeps } from "./reviseDraft";
@@ -79,9 +81,13 @@ export function createBlogDraftDeps(): GenerateDraftDeps {
     anthropic: createAnthropicDraftGenerator({
       apiKey: requireEnv("ANTHROPIC_API_KEY"),
     }),
-    // Recherche via Claude (web_search), pas de flux RSS/Atom à configurer —
-    // seul ANTHROPIC_API_KEY est nécessaire, déjà obligatoire ci-dessus.
+    // Mix RSS + tri IA (remplace l'ancien mécanisme web_search, cf.
+    // docs/blog-architecture.md) : BLOG_VEILLE_SOURCES liste les flux
+    // RSS/Atom à interroger, ANTHROPIC_API_KEY sert uniquement à l'étape de
+    // tri (aucune recherche web, déjà obligatoire ci-dessus).
     actualiteWatch: createActualiteWatch({
+      sources: parseVeilleSources(process.env.BLOG_VEILLE_SOURCES),
+      fetchFeedItems: createRssFeedFetcher(),
       apiKey: requireEnv("ANTHROPIC_API_KEY"),
     }),
     // Utilisé par queueApprovedActualite() (generateDraft.ts) au clic

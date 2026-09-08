@@ -253,8 +253,8 @@ describe("generateDraft", () => {
     );
   });
 
-  it("proposes the actualité watch's candidate on Discord without blocking this run's generation", async () => {
-    const findActualite = vi.fn().mockResolvedValue(makeActualiteCandidate());
+  it("proposes each of the actualité watch's candidates on Discord without blocking this run's generation", async () => {
+    const findActualite = vi.fn().mockResolvedValue([makeActualiteCandidate()]);
     const deps = makeDeps({
       actualiteWatch: { findActualite },
       github: {
@@ -269,10 +269,10 @@ describe("generateDraft", () => {
     const result = await generateDraft(deps);
     const expectedId = deriveActualiteProposalId("https://source.example/actu-1");
 
-    expect(findActualite).toHaveBeenCalledWith(
-      ["https://source.example/deja-cite", "https://source.example/deja-propose"],
-      ["C"]
-    );
+    expect(findActualite).toHaveBeenCalledWith([
+      "https://source.example/deja-cite",
+      "https://source.example/deja-propose",
+    ]);
     expect(deps.github.queueActualiteProposal).toHaveBeenCalledWith(makeActualiteCandidate());
     expect(deps.discord.notifyActualiteProposal).toHaveBeenCalledWith({
       id: expectedId,
@@ -286,8 +286,29 @@ describe("generateDraft", () => {
     expect(result.status).toBe("committed");
   });
 
-  it("notifies Discord before persisting the proposal, so a failed notification never orphans the candidate", async () => {
-    const findActualite = vi.fn().mockResolvedValue(makeActualiteCandidate());
+  it("notifies each candidate as an independent Discord message (one per pillar, cf. runVeilleScan)", async () => {
+    const candidateA = makeActualiteCandidate({
+      title: "Candidat A",
+      sourceUrl: "https://source.example/a",
+      pillar: { id: "A", label: "Pilier A", targetPage: "/a", theme: "theme", weight: 2 },
+    });
+    const candidateB = makeActualiteCandidate({
+      title: "Candidat B",
+      sourceUrl: "https://source.example/b",
+      pillar: { id: "B", label: "Pilier B", targetPage: "/b", theme: "theme", weight: 2 },
+    });
+    const findActualite = vi.fn().mockResolvedValue([candidateA, candidateB]);
+    const deps = makeDeps({ actualiteWatch: { findActualite } });
+
+    await generateDraft(deps);
+
+    expect(deps.discord.notifyActualiteProposal).toHaveBeenCalledTimes(2);
+    expect(deps.github.queueActualiteProposal).toHaveBeenCalledWith(candidateA);
+    expect(deps.github.queueActualiteProposal).toHaveBeenCalledWith(candidateB);
+  });
+
+  it("notifies Discord before persisting each proposal, so a failed notification never orphans that candidate", async () => {
+    const findActualite = vi.fn().mockResolvedValue([makeActualiteCandidate()]);
     const callOrder: string[] = [];
     const deps = makeDeps({
       actualiteWatch: { findActualite },
@@ -312,8 +333,8 @@ describe("generateDraft", () => {
     expect(callOrder).toEqual(["notify", "queue"]);
   });
 
-  it("never persists the proposal (so the candidate stays rediscoverable) when notifying Discord fails, but still generates this run's article (best-effort)", async () => {
-    const findActualite = vi.fn().mockResolvedValue(makeActualiteCandidate());
+  it("never persists a candidate (so it stays rediscoverable) when notifying Discord fails for it, but still generates this run's article (best-effort)", async () => {
+    const findActualite = vi.fn().mockResolvedValue([makeActualiteCandidate()]);
     const deps = makeDeps({
       actualiteWatch: { findActualite },
       discord: {
@@ -328,8 +349,31 @@ describe("generateDraft", () => {
     expect(result.status).toBe("committed");
   });
 
+  it("keeps proposing the remaining candidates when one candidate's notification fails (best-effort per candidate)", async () => {
+    const candidateA = makeActualiteCandidate({ title: "Candidat A", sourceUrl: "https://source.example/a" });
+    const candidateB = makeActualiteCandidate({ title: "Candidat B", sourceUrl: "https://source.example/b" });
+    const findActualite = vi.fn().mockResolvedValue([candidateA, candidateB]);
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    const deps = makeDeps({
+      actualiteWatch: { findActualite },
+      discord: {
+        ...makeDeps().discord,
+        notifyActualiteProposal: vi
+          .fn()
+          .mockRejectedValueOnce(new Error("Discord indisponible"))
+          .mockResolvedValueOnce({ messageId: "message-id-456" }),
+      },
+    });
+
+    await generateDraft(deps);
+
+    expect(deps.github.queueActualiteProposal).toHaveBeenCalledTimes(1);
+    expect(deps.github.queueActualiteProposal).toHaveBeenCalledWith(candidateB);
+    consoleError.mockRestore();
+  });
+
   it("falls back to the weighted pillar rotation when the actualité watch finds nothing", async () => {
-    const findActualite = vi.fn().mockResolvedValue(null);
+    const findActualite = vi.fn().mockResolvedValue([]);
     const deps = makeDeps({ actualiteWatch: { findActualite } });
 
     const result = await generateDraft(deps);
@@ -555,8 +599,8 @@ describe("queueApprovedActualite", () => {
 });
 
 describe("runVeilleScan", () => {
-  it("scans for a new actualité candidate and reports proposed:true on success", async () => {
-    const findActualite = vi.fn().mockResolvedValue(makeActualiteCandidate());
+  it("scans for new actualité candidates and reports proposed:true with their count on success", async () => {
+    const findActualite = vi.fn().mockResolvedValue([makeActualiteCandidate()]);
     const deps = makeDeps({ actualiteWatch: { findActualite } });
 
     const result = await runVeilleScan(deps);
@@ -565,11 +609,22 @@ describe("runVeilleScan", () => {
     expect(findActualite).toHaveBeenCalled();
     expect(deps.discord.notifyActualiteProposal).toHaveBeenCalled();
     expect(deps.github.queueActualiteProposal).toHaveBeenCalled();
-    expect(result).toEqual({ proposed: true });
+    expect(result).toEqual({ proposed: true, count: 1 });
+  });
+
+  it("reports the exact number of candidates proposed when more than one pillar matched", async () => {
+    const candidateA = makeActualiteCandidate({ sourceUrl: "https://source.example/a" });
+    const candidateB = makeActualiteCandidate({ sourceUrl: "https://source.example/b" });
+    const findActualite = vi.fn().mockResolvedValue([candidateA, candidateB]);
+    const deps = makeDeps({ actualiteWatch: { findActualite } });
+
+    const result = await runVeilleScan(deps);
+
+    expect(result).toEqual({ proposed: true, count: 2 });
   });
 
   it("reports proposed:false without touching the queue/generation when nothing is found", async () => {
-    const findActualite = vi.fn().mockResolvedValue(null);
+    const findActualite = vi.fn().mockResolvedValue([]);
     const deps = makeDeps({ actualiteWatch: { findActualite } });
 
     const result = await runVeilleScan(deps);
@@ -581,9 +636,34 @@ describe("runVeilleScan", () => {
     // échoué silencieusement (Discord, GitHub...) — `reason` distingue les
     // deux cas désormais, y compris quand tout se passe bien côté recherche
     // mais qu'aucun candidat n'a été retenu.
-    expect(result).toEqual({ proposed: false, reason: expect.stringContaining("aucune actualité") });
+    expect(result).toEqual({
+      proposed: false,
+      count: 0,
+      reason: expect.stringContaining("aucune actualité"),
+    });
     expect(deps.anthropic.parseDraft).not.toHaveBeenCalled();
     expect(deps.github.commitDraftBranch).not.toHaveBeenCalled();
+  });
+
+  it("reports proposed:false when every candidate failed to be notified/persisted", async () => {
+    const findActualite = vi.fn().mockResolvedValue([makeActualiteCandidate()]);
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    const deps = makeDeps({
+      actualiteWatch: { findActualite },
+      discord: {
+        ...makeDeps().discord,
+        notifyActualiteProposal: vi.fn().mockRejectedValue(new Error("Discord indisponible")),
+      },
+    });
+
+    const result = await runVeilleScan(deps);
+
+    expect(result).toEqual({
+      proposed: false,
+      count: 0,
+      reason: expect.stringContaining("Discord indisponible"),
+    });
+    consoleError.mockRestore();
   });
 
   it("reports proposed:false with the underlying error in `reason` (never throws) when the scan fails", async () => {
@@ -593,7 +673,11 @@ describe("runVeilleScan", () => {
 
     const result = await runVeilleScan(deps);
 
-    expect(result).toEqual({ proposed: false, reason: expect.stringContaining("Claude indisponible") });
+    expect(result).toEqual({
+      proposed: false,
+      count: 0,
+      reason: expect.stringContaining("Claude indisponible"),
+    });
     consoleError.mockRestore();
   });
 
@@ -608,7 +692,11 @@ describe("runVeilleScan", () => {
 
     const result = await runVeilleScan(deps);
 
-    expect(result).toEqual({ proposed: false, reason: expect.stringContaining("GitHub indisponible") });
+    expect(result).toEqual({
+      proposed: false,
+      count: 0,
+      reason: expect.stringContaining("GitHub indisponible"),
+    });
     consoleError.mockRestore();
   });
 });
