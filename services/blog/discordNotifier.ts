@@ -8,6 +8,13 @@ type NotifyDraftReadyArgs = {
   // un champ d'avertissement dédié dans l'embed (mitigation 4 — revue
   // humaine renforcée sur un contenu à caractère réglementaire).
   sourceUrl?: string | null;
+  // Calculé par editorialChecks.ts::hasServiceLink() (#74) : true quand
+  // aucun lien vers une page de service n'a été détecté dans le corps de
+  // l'article — déclenche un champ d'avertissement dédié pour la revue
+  // Discord, faute de pouvoir garantir que le modèle a suivi la consigne de
+  // SYSTEM_PROMPT à 100 %. Optionnel pour ne pas casser un appelant qui ne
+  // le calcule pas (ex. tests existants) : traité comme "non signalé".
+  missingServiceLink?: boolean;
 };
 
 const BRAND_COLOR = 0x29b5ad;
@@ -94,6 +101,30 @@ export function createDiscordNotifier(options: {
 
   return {
     async notifyDraftReady(args: NotifyDraftReadyArgs): Promise<{ messageId: string }> {
+      // Deux avertissements indépendants, tous deux optionnels et cumulables
+      // (une actualité peut manquer de lien service, et inversement) : un
+      // tableau construit dynamiquement plutôt que deux `...(cond ? {fields:
+      // [...]} : {})` qui s'écraseraient l'un l'autre.
+      const warningFields = [
+        ...(args.sourceUrl
+          ? [
+              {
+                name: "⚠️ Article basé sur une actualité",
+                value: `Relecture renforcée requise — source citée : ${args.sourceUrl}`,
+              },
+            ]
+          : []),
+        ...(args.missingServiceLink
+          ? [
+              {
+                name: "⚠️ Maillage interne manquant",
+                value:
+                  "Aucun lien vers une page de service détecté dans le corps de l'article — vérifier avant d'approuver.",
+              },
+            ]
+          : []),
+      ];
+
       const payload = {
         // Le titre/extrait vivent uniquement dans l'embed, jamais dans
         // `content` (Discord ne parse les mentions @everyone/@here que dans
@@ -109,16 +140,7 @@ export function createDiscordNotifier(options: {
             // configurée (ex. clé OpenAI absente) : le message part sans
             // pièce jointe plutôt que d'échouer.
             ...(args.coverImage ? { image: { url: "attachment://cover.jpg" } } : {}),
-            ...(args.sourceUrl
-              ? {
-                  fields: [
-                    {
-                      name: "⚠️ Article basé sur une actualité",
-                      value: `Relecture renforcée requise — source citée : ${args.sourceUrl}`,
-                    },
-                  ],
-                }
-              : {}),
+            ...(warningFields.length > 0 ? { fields: warningFields } : {}),
           },
         ],
         components: buildDraftActionRow(args.slug),

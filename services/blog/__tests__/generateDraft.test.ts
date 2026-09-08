@@ -4,9 +4,11 @@ import {
   buildDraftMarkdown,
   generateApprovedActualite,
   generateDraft,
+  SYSTEM_PROMPT,
   type GenerateDraftDeps,
 } from "../generateDraft";
 import { deriveActualiteProposalId } from "../githubBlogRepo";
+import { PILLARS } from "../pillars";
 
 import type { ActualiteCandidate } from "../actualiteWatch";
 import type { BlogDraft } from "../draftSchema";
@@ -80,6 +82,15 @@ function makeDeps(overrides: Partial<GenerateDraftDeps> = {}): GenerateDraftDeps
   };
 }
 
+describe("SYSTEM_PROMPT", () => {
+  it("lists every service page's exact URL and requires a Markdown link to one of them (#74)", () => {
+    for (const pillar of PILLARS) {
+      expect(SYSTEM_PROMPT).toContain(pillar.targetPage);
+    }
+    expect(SYSTEM_PROMPT).toMatch(/lien\s+markdown/i);
+  });
+});
+
 describe("generateDraft", () => {
   it("commits a draft branch on the nominal path", async () => {
     const deps = makeDeps();
@@ -105,7 +116,39 @@ describe("generateDraft", () => {
       excerpt: "Extrait",
       coverImage: Buffer.from("fake-image"),
       sourceUrl: null,
+      missingServiceLink: true,
     });
+  });
+
+  it("flags missingServiceLink when the draft's body has no link to a service page (#74)", async () => {
+    const deps = makeDeps();
+
+    await generateDraft(deps);
+
+    expect(deps.discord.notifyDraftReady).toHaveBeenCalledWith(
+      expect.objectContaining({ missingServiceLink: true })
+    );
+  });
+
+  it("does not flag missingServiceLink when the draft's body links to a known service page (#74)", async () => {
+    const deps = makeDeps({
+      anthropic: {
+        parseDraft: vi.fn().mockResolvedValue({
+          stop_reason: "end_turn",
+          parsed_output: {
+            ...validDraft,
+            bodyMarkdown:
+              "## Section\n\nDécouvrez nos [formations QVCT/RPS](/professionnels-etablissements-de-soins/formations-rps-qvct).",
+          },
+        }),
+      },
+    });
+
+    await generateDraft(deps);
+
+    expect(deps.discord.notifyDraftReady).toHaveBeenCalledWith(
+      expect.objectContaining({ missingServiceLink: false })
+    );
   });
 
   it("returns a refused status without calling image generation or committing anything", async () => {

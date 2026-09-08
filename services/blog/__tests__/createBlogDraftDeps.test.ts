@@ -157,6 +157,7 @@ describe("createBlogDraftDeps", () => {
       excerpt: "Extrait",
       coverImage: Buffer.from("img"),
       sourceUrl: null,
+      missingServiceLink: true,
     });
 
     expect(notifyDraftReady).toHaveBeenCalledWith(
@@ -164,6 +165,7 @@ describe("createBlogDraftDeps", () => {
         slug: "mon-article",
         title: "Mon article",
         excerpt: "Extrait",
+        missingServiceLink: true,
         previewUrl: expect.stringMatching(
           /^https:\/\/elancestvous\.fr\/blog-review\/mon-article\?token=[0-9a-f]{64}$/
         ),
@@ -212,6 +214,7 @@ describe("createReviseDraftDeps", () => {
       excerpt: "Extrait",
       coverImage: Buffer.from("img"),
       sourceUrl: null,
+      missingServiceLink: false,
     });
 
     expect(notifyDraftReady).toHaveBeenCalledWith(

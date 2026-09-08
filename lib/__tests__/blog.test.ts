@@ -8,6 +8,7 @@ import {
   getPostSlugs,
   getRelatedPosts,
   parseDraftContent,
+  renderMarkdownToSafeHtml,
 } from "../blog";
 
 const FIXTURES = path.join(__dirname, "fixtures", "blog");
@@ -111,6 +112,19 @@ describe("getPostBySlug — relatedPosts (cocon sémantique, issue #73)", () => 
   it("is empty when the post has no pillar declared", async () => {
     const post = await getPostBySlug("sans-pillar", PILLARS_DIR);
     expect(post.relatedPosts).toEqual([]);
+  });
+});
+
+describe("renderMarkdownToSafeHtml", () => {
+  // Régression #74 : le maillage interne article → service repose sur des
+  // liens Markdown relatifs (/particuliers/...) insérés par la génération
+  // IA — rehype-sanitize (schéma GitHub par défaut) doit les laisser passer
+  // comme n'importe quel lien relatif, pas seulement les liens http(s).
+  it("keeps a relative internal link to a service page", async () => {
+    const html = await renderMarkdownToSafeHtml(
+      "Découvrez notre [accompagnement individuel](/particuliers/coaching-individuel)."
+    );
+    expect(html).toContain('href="/particuliers/coaching-individuel"');
   });
 });
 

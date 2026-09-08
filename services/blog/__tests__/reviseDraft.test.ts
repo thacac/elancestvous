@@ -102,7 +102,39 @@ describe("reviseDraft", () => {
       excerpt: "Extrait révisé",
       coverImage: Buffer.from("fake-image"),
       sourceUrl: null,
+      missingServiceLink: true,
     });
+  });
+
+  it("flags missingServiceLink when the revised body still has no link to a service page (#74)", async () => {
+    const deps = makeDeps();
+
+    await reviseDraft("mon-article", "feedback", deps);
+
+    expect(deps.discord.notifyDraftReady).toHaveBeenCalledWith(
+      expect.objectContaining({ missingServiceLink: true })
+    );
+  });
+
+  it("does not flag missingServiceLink when the revised body links to a known service page (#74)", async () => {
+    const deps = makeDeps({
+      anthropic: {
+        reviseDraft: vi.fn().mockResolvedValue({
+          stop_reason: "end_turn",
+          parsed_output: {
+            ...revisedDraft,
+            bodyMarkdown:
+              "## Section\n\nDécouvrez notre [accompagnement individuel](/particuliers/coaching-individuel).",
+          },
+        }),
+      },
+    });
+
+    await reviseDraft("mon-article", "feedback", deps);
+
+    expect(deps.discord.notifyDraftReady).toHaveBeenCalledWith(
+      expect.objectContaining({ missingServiceLink: false })
+    );
   });
 
   it("preserves the original draft's sourceUrl frontmatter across a revision instead of dropping it", async () => {
