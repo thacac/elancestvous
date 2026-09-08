@@ -141,16 +141,23 @@ export function createActualiteWatch(options: {
       // aveuglément à la sortie structurée.
       const validUrls = new Set(eligible.map((item) => item.url));
       const seenPillars = new Set<string>();
+      // deriveActualiteProposalId (githubBlogRepo.ts) est dérivé du seul
+      // sourceUrl : deux candidats partageant la même URL sous deux piliers
+      // différents écraseraient silencieusement la même branche/proposition
+      // GitHub, malgré deux messages Discord distincts déjà envoyés.
+      const seenUrls = new Set<string>();
       const candidates: ActualiteCandidate[] = [];
 
       for (const candidate of parsed.candidates) {
         if (candidates.length >= MAX_CANDIDATES) break;
         if (!validUrls.has(candidate.sourceUrl)) continue;
         if (seenPillars.has(candidate.pillarId)) continue;
+        if (seenUrls.has(candidate.sourceUrl)) continue;
         const pillar = PILLARS.find((p) => p.id === candidate.pillarId);
         if (!pillar) continue;
 
         seenPillars.add(candidate.pillarId);
+        seenUrls.add(candidate.sourceUrl);
         candidates.push({
           title: candidate.title,
           summary: candidate.summary,

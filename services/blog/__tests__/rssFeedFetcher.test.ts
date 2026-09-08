@@ -123,6 +123,21 @@ describe("parseFeedXml", () => {
     ]);
   });
 
+  it("drops an Atom entry whose only link is rel=self (never treats the feed's own URL as the article URL)", () => {
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Légifrance</title>
+  <entry>
+    <title>Réforme du travail en établissement de santé</title>
+    <link rel="self" href="https://www.legifrance.gouv.fr/feed.atom" />
+    <summary>Résumé Atom 1.</summary>
+    <updated>2026-09-04T08:00:00Z</updated>
+  </entry>
+</feed>`;
+
+    expect(parseFeedXml(xml)).toEqual([]);
+  });
+
   it("returns an empty array for a feed with no items", () => {
     expect(parseFeedXml(EMPTY_RSS_XML)).toEqual([]);
   });

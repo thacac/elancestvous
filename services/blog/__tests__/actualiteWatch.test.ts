@@ -180,6 +180,25 @@ describe("createActualiteWatch", () => {
     expect(result[0].sourceUrl).toBe("https://a.example/1");
   });
 
+  it("drops a second candidate sharing the same sourceUrl as an earlier one, even under a different pillarId", async () => {
+    // deriveActualiteProposalId (githubBlogRepo.ts) est dérivé du seul
+    // sourceUrl : deux candidats de piliers différents partageant la même
+    // URL écraseraient silencieusement la même branche/proposition GitHub.
+    const fetchFeedItems = vi.fn().mockResolvedValue([makeItem({ url: "https://a.example/1" })]);
+    messagesParse.mockResolvedValue(
+      triageResponse([
+        { sourceUrl: "https://a.example/1", title: "Titre A", summary: "Résumé A", pillarId: "A" },
+        { sourceUrl: "https://a.example/1", title: "Titre B", summary: "Résumé B", pillarId: "B" },
+      ])
+    );
+    const watch = createActualiteWatch({ sources: ["https://a.example/rss.xml"], fetchFeedItems, apiKey: "key" });
+
+    const result = await watch.findActualite([]);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].pillar.id).toBe("A");
+  });
+
   it("caps candidates to at most 3, even if the model returns more", async () => {
     const items = ["1", "2", "3", "4"].map((n) => makeItem({ url: `https://a.example/${n}` }));
     const fetchFeedItems = vi.fn().mockResolvedValue(items);
