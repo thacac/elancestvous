@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 
 import { Octokit } from "@octokit/rest";
 import matter from "gray-matter";
@@ -22,6 +22,16 @@ const SUJETS_DISCORD_PATH = "content/blog/sujets-discord.json";
 // notification confirmée (cf. queueActualiteProposal, plus bas).
 export function deriveActualiteProposalId(sourceUrl: string): string {
   return createHash("sha256").update(sourceUrl).digest("hex").slice(0, 12);
+}
+
+// Identifie une entrée de la file (content/blog/sujets-discord.json) pour
+// pouvoir la cibler individuellement — suppression a posteriori (issue "je
+// dois pouvoir supprimer des entrées de la queue"), commande Discord
+// /blog-file. Aléatoire plutôt que dérivé (contrairement à
+// deriveActualiteProposalId ci-dessus) : une file n'a pas d'équivalent
+// stable au sourceUrl d'une proposition (un sujet Discord n'a pas d'URL).
+function randomQueueEntryId(): string {
+  return randomBytes(6).toString("hex");
 }
 
 export type PublishedPost = {
@@ -48,6 +58,9 @@ export type PublishedPost = {
 // fragile en cas de retry, cf. la non-idempotence documentée de
 // /api/blog/generate).
 export type DiscordTopicEntry = {
+  // Id aléatoire (randomQueueEntryId ci-dessus) — cible removeQueuedTopic()
+  // et la commande Discord /blog-file, indépendant du contenu de l'entrée.
+  id: string;
   type: "discord_topic";
   topic: string;
   notes: string | null;
@@ -64,6 +77,7 @@ export type DiscordTopicEntry = {
 // "Approuver"), null si le fetch a échoué — anthropicDraftGenerator.ts
 // retombe alors sur summary (le résumé RSS/Atom d'origine).
 export type ActualiteQueueEntry = {
+  id: string;
   type: "actualite";
   title: string;
   summary: string;
@@ -86,12 +100,16 @@ export function createGithubBlogRepo(options: {
   const { owner, repo } = options;
   const baseBranch = options.baseBranch ?? "master";
 
-  // Partagée par queueDiscordTopic et queueActualiteTopic ci-dessous : les
-  // deux ajoutent une entrée à la même file (content/blog/sujets-discord.json),
-  // seule la forme de l'entrée diffère.
-  async function appendToQueue(entry: QueuedTopicEntry, commitMessage: string): Promise<void> {
-    let sha: string | undefined;
-    let existing: QueuedTopicEntry[] = [];
+  // Partagée par toutes les méthodes ci-dessous qui touchent à la file
+  // (content/blog/sujets-discord.json) : un seul point de lecture/parsing,
+  // sha inclus (nécessaire pour toute écriture ultérieure sur ce fichier).
+  // Lève sur un JSON malformé plutôt que de renvoyer une file vide — un
+  // appelant en écriture (appendToQueue, removeQueuedTopic) qui traiterait
+  // silencieusement "malformé" comme "vide" écraserait toutes les entrées
+  // existantes avec la nouvelle liste tronquée. Les appelants en lecture
+  // seule (getNextQueuedTopic, listQueuedTopics) restent tolérants : ils
+  // attrapent l'erreur eux-mêmes, rien à perdre côté lecture.
+  async function readQueue(): Promise<{ entries: QueuedTopicEntry[]; sha: string | undefined }> {
     try {
       const { data } = await octokit.rest.repos.getContent({
         owner,
@@ -99,26 +117,39 @@ export function createGithubBlogRepo(options: {
         path: SUJETS_DISCORD_PATH,
         ref: baseBranch,
       });
-      if (!Array.isArray(data) && data.type === "file" && data.content) {
-        sha = data.sha;
-        const parsed: unknown = JSON.parse(Buffer.from(data.content, "base64").toString("utf8"));
-        if (Array.isArray(parsed)) existing = parsed;
+      if (Array.isArray(data) || data.type !== "file" || !data.content) {
+        return { entries: [], sha: undefined };
       }
+      const parsed: unknown = JSON.parse(Buffer.from(data.content, "base64").toString("utf8"));
+      return { entries: Array.isArray(parsed) ? (parsed as QueuedTopicEntry[]) : [], sha: data.sha };
     } catch (err) {
-      if (!isNotFound(err)) throw err;
+      if (isNotFound(err)) return { entries: [], sha: undefined };
+      throw err;
     }
+  }
 
-    const updated: QueuedTopicEntry[] = [...existing, entry];
-
+  async function writeQueue(
+    entries: QueuedTopicEntry[],
+    sha: string | undefined,
+    commitMessage: string
+  ): Promise<void> {
     await octokit.rest.repos.createOrUpdateFileContents({
       owner,
       repo,
       branch: baseBranch,
       path: SUJETS_DISCORD_PATH,
       message: commitMessage,
-      content: Buffer.from(JSON.stringify(updated, null, 2) + "\n", "utf8").toString("base64"),
+      content: Buffer.from(JSON.stringify(entries, null, 2) + "\n", "utf8").toString("base64"),
       ...(sha ? { sha } : {}),
     });
+  }
+
+  // Partagée par queueDiscordTopic et queueActualiteTopic ci-dessous : les
+  // deux ajoutent une entrée à la même file, seule la forme de l'entrée
+  // diffère.
+  async function appendToQueue(entry: QueuedTopicEntry, commitMessage: string): Promise<void> {
+    const { entries, sha } = await readQueue();
+    await writeQueue([...entries, entry], sha, commitMessage);
   }
 
   return {
@@ -520,6 +551,7 @@ export function createGithubBlogRepo(options: {
     async queueDiscordTopic(entry: { topic: string; notes: string | null }): Promise<void> {
       await appendToQueue(
         {
+          id: randomQueueEntryId(),
           type: "discord_topic",
           topic: entry.topic,
           notes: entry.notes,
@@ -544,6 +576,7 @@ export function createGithubBlogRepo(options: {
     }): Promise<void> {
       await appendToQueue(
         {
+          id: randomQueueEntryId(),
           type: "actualite",
           title: entry.title,
           summary: entry.summary,
@@ -563,38 +596,55 @@ export function createGithubBlogRepo(options: {
     // piliers (#52) quand il existe. null si le fichier n'existe pas encore,
     // est vide, ou ne contient plus que des entrées déjà "publie".
     async getNextQueuedTopic(): Promise<QueuedTopicEntry | null> {
-      let data;
+      // Tolérant à un JSON malformé (contrairement à readQueue, qui lève
+      // pour protéger les appelants en écriture) : une lecture n'a rien à
+      // perdre à retomber sur "rien en file" plutôt que de faire échouer
+      // toute la génération hebdomadaire pour un fichier corrompu.
+      let entries: QueuedTopicEntry[];
       try {
-        ({ data } = await octokit.rest.repos.getContent({
-          owner,
-          repo,
-          path: SUJETS_DISCORD_PATH,
-          ref: baseBranch,
-        }));
-      } catch (err) {
-        if (isNotFound(err)) return null;
-        throw err;
-      }
-      if (Array.isArray(data) || data.type !== "file" || !data.content) return null;
-
-      let entries: unknown;
-      try {
-        entries = JSON.parse(Buffer.from(data.content, "base64").toString("utf8"));
+        ({ entries } = await readQueue());
       } catch {
         return null;
       }
-      if (!Array.isArray(entries)) return null;
-
-      const pending = (entries as unknown[]).filter(
-        (entry): entry is QueuedTopicEntry =>
-          typeof entry === "object" && entry !== null && (entry as { status?: unknown }).status === "a_publier"
-      );
+      const pending = entries.filter((entry) => entry.status === "a_publier");
 
       return (
         pending.find((entry) => entry.type === "discord_topic") ??
         pending.find((entry) => entry.type === "actualite") ??
         null
       );
+    },
+
+    // Liste les entrées actionnables de la file — utilisée par la commande
+    // Discord /blog-file pour afficher ce qu'il est possible de supprimer.
+    // Ne renvoie que les entrées "a_publier" : une entrée déjà "publie" n'a
+    // plus d'intérêt à être montrée pour suppression. Même tolérance qu'à
+    // getNextQueuedTopic ci-dessus sur un JSON malformé.
+    async listQueuedTopics(): Promise<QueuedTopicEntry[]> {
+      try {
+        const { entries } = await readQueue();
+        return entries.filter((entry) => entry.status === "a_publier");
+      } catch {
+        return [];
+      }
+    },
+
+    // Supprime une entrée a posteriori (id retourné par listQueuedTopics),
+    // qu'elle vienne de /blog-sujet ou d'une actualité approuvée — utilisée
+    // par la commande Discord /blog-file. Ne cible que les entrées encore
+    // "a_publier" : une entrée déjà "publie" fait partie de l'historique,
+    // pas de la file active.
+    async removeQueuedTopic(id: string): Promise<{ removed: boolean; label: string | null }> {
+      const { entries, sha } = await readQueue();
+      const index = entries.findIndex((entry) => entry.id === id && entry.status === "a_publier");
+      if (index === -1) return { removed: false, label: null };
+
+      const target = entries[index];
+      const label = target.type === "discord_topic" ? target.topic : target.title;
+      const updated = [...entries.slice(0, index), ...entries.slice(index + 1)];
+      await writeQueue(updated, sha, `blog: entrée retirée de la file ("${label}")`);
+
+      return { removed: true, label };
     },
   };
 }

@@ -5,9 +5,12 @@ import { createBlogDraftDeps, createReviseDraftDeps } from "@/services/blog/crea
 import {
   getActualiteApprovalId,
   getApprovalSlug,
+  getBlogFileRequest,
   getBlogSujetSubmission,
   getRevisionRequest,
   handleDiscordInteraction,
+  listBlogFile,
+  removeBlogFileEntry,
   submitBlogSujet,
 } from "@/services/blog/discordInteractionHandler";
 import {
@@ -27,6 +30,14 @@ function requireEnv(name: string): string {
   const value = process.env[name];
   if (!value) throw new Error(`Variable d'environnement manquante : ${name}`);
   return value;
+}
+
+// Partagé par tous les points d'entrée ci-dessous qui n'ont besoin que du
+// client GitHub (pas du reste de GenerateDraftDeps construit par
+// createBlogDraftDeps) : publication, /blog-sujet, /blog-file.
+function createGithubClient(): ReturnType<typeof createGithubBlogRepo> {
+  const { owner, repo } = parseGithubRepoEnv(requireEnv("GITHUB_REPO"));
+  return createGithubBlogRepo({ auth: requireEnv("GH_PAT_TOKEN"), owner, repo });
 }
 
 // Le clic "Approuver" reçoit une réponse immédiate (type 7, cf.
@@ -49,8 +60,7 @@ async function completeApproval(
   // publication réussie n'a plus besoin d'être réessayée.
   let retryable = false;
   try {
-    const { owner, repo } = parseGithubRepoEnv(requireEnv("GITHUB_REPO"));
-    const github = createGithubBlogRepo({ auth: requireEnv("GH_PAT_TOKEN"), owner, repo });
+    const github = createGithubClient();
     const result = await publishDraft(slug, { github });
 
     switch (result.status) {
@@ -245,8 +255,7 @@ export async function POST(request: NextRequest) {
   const blogSujetSubmission = getBlogSujetSubmission(payload);
   if (blogSujetSubmission) {
     try {
-      const { owner, repo } = parseGithubRepoEnv(requireEnv("GITHUB_REPO"));
-      const github = createGithubBlogRepo({ auth: requireEnv("GH_PAT_TOKEN"), owner, repo });
+      const github = createGithubClient();
       const result = await submitBlogSujet(blogSujetSubmission, { github });
       return NextResponse.json(result);
     } catch (err) {
@@ -262,6 +271,29 @@ export async function POST(request: NextRequest) {
           content: `⚠️ Échec de l'ajout du sujet à la file : ${
             err instanceof Error ? err.message : String(err)
           }`,
+          flags: 64,
+        },
+      });
+    }
+  }
+
+  // Commande /blog-file (lister/supprimer la file) : même raisonnement que
+  // /blog-sujet ci-dessus — une lecture/écriture d'un seul fichier JSON via
+  // l'API Contents reste largement sous les ~3s accordés, pas besoin du
+  // schéma différé type 7.
+  const blogFileRequest = getBlogFileRequest(payload);
+  if (blogFileRequest) {
+    try {
+      const github = createGithubClient();
+      const result = blogFileRequest.removeId
+        ? await removeBlogFileEntry(blogFileRequest.removeId, { github })
+        : await listBlogFile({ github });
+      return NextResponse.json(result);
+    } catch (err) {
+      return NextResponse.json({
+        type: 4,
+        data: {
+          content: `⚠️ Échec sur /blog-file : ${err instanceof Error ? err.message : String(err)}`,
           flags: 64,
         },
       });

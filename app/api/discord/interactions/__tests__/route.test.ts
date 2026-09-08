@@ -9,6 +9,9 @@ vi.mock("@/services/blog/discordInteractionHandler", () => ({
   getActualiteApprovalId: vi.fn(),
   getBlogSujetSubmission: vi.fn(),
   submitBlogSujet: vi.fn(),
+  getBlogFileRequest: vi.fn(),
+  listBlogFile: vi.fn(),
+  removeBlogFileEntry: vi.fn(),
 }));
 vi.mock("@/services/blog/publishDraft", () => ({
   publishDraft: vi.fn(),
@@ -37,9 +40,12 @@ vi.mock("@/services/blog/discordNotifier", () => ({
 import {
   getActualiteApprovalId,
   getApprovalSlug,
+  getBlogFileRequest,
   getBlogSujetSubmission,
   getRevisionRequest,
   handleDiscordInteraction,
+  listBlogFile,
+  removeBlogFileEntry,
   submitBlogSujet,
 } from "@/services/blog/discordInteractionHandler";
 import {
@@ -88,6 +94,9 @@ describe("POST /api/discord/interactions", () => {
     vi.mocked(getActualiteApprovalId).mockReset().mockReturnValue(null);
     vi.mocked(getBlogSujetSubmission).mockReset().mockReturnValue(null);
     vi.mocked(submitBlogSujet).mockReset();
+    vi.mocked(getBlogFileRequest).mockReset().mockReturnValue(null);
+    vi.mocked(listBlogFile).mockReset();
+    vi.mocked(removeBlogFileEntry).mockReset();
     vi.mocked(publishDraft).mockReset();
     vi.mocked(reviseDraft).mockReset();
     vi.mocked(generateDraft).mockReset();
@@ -803,6 +812,69 @@ describe("POST /api/discord/interactions", () => {
     await POST(makeRequest(body));
 
     expect(submitBlogSujet).not.toHaveBeenCalled();
+    expect(handleDiscordInteraction).toHaveBeenCalled();
+  });
+
+  it("responds synchronously with the listing for a /blog-file invocation without the supprimer option", async () => {
+    const body = JSON.stringify({ type: 2, data: { name: "blog-file" } });
+    vi.mocked(getBlogFileRequest).mockReturnValue({ removeId: null });
+    vi.mocked(listBlogFile).mockResolvedValue({
+      type: 4,
+      data: { content: "File d'attente (1) :\n- **Un sujet** — id : `abc`", flags: 64 },
+    });
+
+    const response = await POST(makeRequest(body));
+    const responseBody = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(responseBody.data.content).toContain("Un sujet");
+    expect(listBlogFile).toHaveBeenCalled();
+    expect(removeBlogFileEntry).not.toHaveBeenCalled();
+    expect(handleDiscordInteraction).not.toHaveBeenCalled();
+  });
+
+  it("responds synchronously with the removal result for a /blog-file invocation with the supprimer option", async () => {
+    const body = JSON.stringify({
+      type: 2,
+      data: { name: "blog-file", options: [{ name: "supprimer", value: "abc123" }] },
+    });
+    vi.mocked(getBlogFileRequest).mockReturnValue({ removeId: "abc123" });
+    vi.mocked(removeBlogFileEntry).mockResolvedValue({
+      type: 4,
+      data: { content: "🗑️ Retiré de la file : **Un sujet**.", flags: 64 },
+    });
+
+    const response = await POST(makeRequest(body));
+    const responseBody = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(responseBody.data.content).toContain("Retiré de la file");
+    expect(removeBlogFileEntry).toHaveBeenCalledWith("abc123", expect.anything());
+    expect(listBlogFile).not.toHaveBeenCalled();
+  });
+
+  it("responds gracefully (not a crash) when /blog-file fails unexpectedly", async () => {
+    const body = JSON.stringify({ type: 2, data: { name: "blog-file" } });
+    vi.mocked(getBlogFileRequest).mockReturnValue({ removeId: null });
+    vi.mocked(listBlogFile).mockRejectedValue(new Error("GitHub API down"));
+
+    const response = await POST(makeRequest(body));
+    const responseBody = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(responseBody.type).toBe(4);
+    expect(responseBody.data.content).toContain("GitHub API down");
+  });
+
+  it("does not treat an unrelated interaction as a /blog-file request", async () => {
+    const body = JSON.stringify({ type: 1 });
+    vi.mocked(handleDiscordInteraction).mockReturnValue({ type: 1 });
+    vi.mocked(getBlogFileRequest).mockReturnValue(null);
+
+    await POST(makeRequest(body));
+
+    expect(listBlogFile).not.toHaveBeenCalled();
+    expect(removeBlogFileEntry).not.toHaveBeenCalled();
     expect(handleDiscordInteraction).toHaveBeenCalled();
   });
 });

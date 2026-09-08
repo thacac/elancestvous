@@ -1,5 +1,6 @@
 type DiscordComponentValue = { custom_id: string; value?: string };
 type DiscordComponentRow = { components?: DiscordComponentValue[] };
+type DiscordCommandOption = { name: string; value?: string };
 
 type DiscordInteractionPayload = {
   type: number;
@@ -7,6 +8,7 @@ type DiscordInteractionPayload = {
     name?: string;
     custom_id?: string;
     components?: DiscordComponentRow[];
+    options?: DiscordCommandOption[];
   };
 };
 
@@ -47,6 +49,14 @@ const BLOG_SUJET_COMMAND_NAME = "blog-sujet";
 const BLOG_SUJET_MODAL_ID = "blog_sujet_submit";
 const BLOG_SUJET_TOPIC_FIELD = "topic";
 const BLOG_SUJET_NOTES_FIELD = "notes";
+
+// Commande slash /blog-file — permet de lister la file d'attente
+// (sujets Discord + actualités approuvées, cf. githubBlogRepo.ts) et d'en
+// supprimer une entrée a posteriori (avant qu'elle ne soit consommée par
+// generateDraft()). Même décision d'ouverture que /blog-sujet ci-dessus :
+// pas de vérification d'identité.
+const BLOG_FILE_COMMAND_NAME = "blog-file";
+const BLOG_FILE_REMOVE_OPTION = "supprimer";
 
 /**
  * Vérifie/route les interactions Discord. "Approuver" déclenche une vraie
@@ -309,4 +319,71 @@ export async function submitBlogSujet(
       allowed_mentions: NO_MENTIONS,
     },
   };
+}
+
+// Détecte l'invocation de /blog-file. Contrairement à /blog-sujet (ouvre une
+// modale, pur/synchrone, géré par handleDiscordInteraction ci-dessus),
+// lister ou supprimer une entrée nécessite une lecture/écriture GitHub —
+// donc toujours interceptée par route.ts avant handleDiscordInteraction,
+// comme submitBlogSujet. removeId est présent si l'option "supprimer" a été
+// renseignée (une valeur vide/blanche vaut "non renseignée", pas un id
+// littéralement vide) ; sinon la requête est un simple listage.
+export function getBlogFileRequest(
+  payload: DiscordInteractionPayload
+): { removeId: string | null } | null {
+  if (payload.type !== 2 || payload.data?.name !== BLOG_FILE_COMMAND_NAME) return null;
+  const option = payload.data.options?.find((o) => o.name === BLOG_FILE_REMOVE_OPTION);
+  const value = option?.value?.trim();
+  return { removeId: value ? value : null };
+}
+
+type QueueEntrySummary =
+  | { id: string; type: "discord_topic"; topic: string }
+  | { id: string; type: "actualite"; title: string };
+
+export type BlogFileDeps = {
+  github: {
+    listQueuedTopics(): Promise<QueueEntrySummary[]>;
+    removeQueuedTopic(id: string): Promise<{ removed: boolean; label: string | null }>;
+  };
+};
+
+function labelOf(entry: QueueEntrySummary): string {
+  return entry.type === "discord_topic" ? entry.topic : entry.title;
+}
+
+// Réponse ephemeral (flags 64, visible seulement par la personne qui tape la
+// commande) : un utilitaire de gestion de file, pas un contenu à laisser
+// dans le salon pour tout le monde comme les propositions/brouillons.
+export async function listBlogFile(deps: BlogFileDeps): Promise<DiscordInteractionResponse> {
+  const entries = await deps.github.listQueuedTopics();
+  if (entries.length === 0) {
+    return { type: 4, data: { content: "File vide.", flags: 64, allowed_mentions: NO_MENTIONS } };
+  }
+
+  const lines = entries.map(
+    (entry) =>
+      `- **${labelOf(entry)}** (${entry.type === "discord_topic" ? "sujet Discord" : "actualité"}) — id : \`${entry.id}\``
+  );
+
+  return {
+    type: 4,
+    data: {
+      content: `File d'attente (${entries.length}) :\n${lines.join("\n")}\n\nPour supprimer une entrée : \`/blog-file supprimer:<id>\`.`,
+      flags: 64,
+      allowed_mentions: NO_MENTIONS,
+    },
+  };
+}
+
+export async function removeBlogFileEntry(
+  id: string,
+  deps: BlogFileDeps
+): Promise<DiscordInteractionResponse> {
+  const { removed, label } = await deps.github.removeQueuedTopic(id);
+  const content = removed
+    ? `🗑️ Retiré de la file : **${label}**.`
+    : `⚠️ Aucune entrée en attente avec l'id \`${id}\` (déjà retirée, déjà publiée, ou id incorrect — voir \`/blog-file\` pour la liste à jour).`;
+
+  return { type: 4, data: { content, flags: 64, allowed_mentions: NO_MENTIONS } };
 }

@@ -944,6 +944,28 @@ describe("createGithubBlogRepo.queueDiscordTopic", () => {
       })
     );
   });
+
+  it("throws rather than silently overwriting the queue when the existing file is malformed JSON", async () => {
+    getContent.mockReset();
+    createOrUpdateFileContents.mockReset();
+    getContent.mockResolvedValue({
+      data: {
+        type: "file",
+        sha: "queue-sha",
+        content: Buffer.from("{not valid json").toString("base64"),
+      },
+    });
+
+    const github = createGithubBlogRepo({
+      auth: "token",
+      owner: "thacac",
+      repo: "elancestvous",
+      baseBranch: "master",
+    });
+
+    await expect(github.queueDiscordTopic({ topic: "Nouveau sujet", notes: null })).rejects.toThrow();
+    expect(createOrUpdateFileContents).not.toHaveBeenCalled();
+  });
 });
 
 describe("createGithubBlogRepo.queueActualiteTopic", () => {
@@ -1103,6 +1125,22 @@ describe("createGithubBlogRepo.getNextQueuedTopic", () => {
     expect(await github.getNextQueuedTopic()).toBeNull();
   });
 
+  it("returns null (tolerant) when the queue file is malformed JSON", async () => {
+    getContent.mockReset();
+    getContent.mockResolvedValue({
+      data: { type: "file", content: Buffer.from("{not valid json").toString("base64") },
+    });
+
+    const github = createGithubBlogRepo({
+      auth: "token",
+      owner: "thacac",
+      repo: "elancestvous",
+      baseBranch: "master",
+    });
+
+    expect(await github.getNextQueuedTopic()).toBeNull();
+  });
+
   it("returns null when every entry is already publie", async () => {
     getContent.mockReset();
     const entries = [
@@ -1142,5 +1180,249 @@ describe("createGithubBlogRepo.getNextQueuedTopic", () => {
     });
 
     expect(await github.getNextQueuedTopic()).toBeNull();
+  });
+});
+
+describe("createGithubBlogRepo — queue entries carry a stable id", () => {
+  it("assigns a random id to a new discord_topic entry", async () => {
+    getContent.mockReset();
+    createOrUpdateFileContents.mockReset();
+    getContent.mockRejectedValue({ status: 404 });
+    createOrUpdateFileContents.mockResolvedValue({});
+
+    const github = createGithubBlogRepo({
+      auth: "token",
+      owner: "thacac",
+      repo: "elancestvous",
+      baseBranch: "master",
+    });
+
+    await github.queueDiscordTopic({ topic: "Un sujet", notes: null });
+
+    const call = createOrUpdateFileContents.mock.calls[0][0];
+    const written = JSON.parse(Buffer.from(call.content, "base64").toString("utf8"));
+    expect(typeof written[0].id).toBe("string");
+    expect(written[0].id.length).toBeGreaterThan(0);
+  });
+
+  it("assigns a random id to a new actualite entry", async () => {
+    getContent.mockReset();
+    createOrUpdateFileContents.mockReset();
+    getContent.mockRejectedValue({ status: 404 });
+    createOrUpdateFileContents.mockResolvedValue({});
+
+    const github = createGithubBlogRepo({
+      auth: "token",
+      owner: "thacac",
+      repo: "elancestvous",
+      baseBranch: "master",
+    });
+
+    await github.queueActualiteTopic({
+      title: "Titre",
+      summary: "Résumé",
+      sourceUrl: "https://source.example/actu-1",
+      articleText: null,
+      pillarId: "A",
+    });
+
+    const call = createOrUpdateFileContents.mock.calls[0][0];
+    const written = JSON.parse(Buffer.from(call.content, "base64").toString("utf8"));
+    expect(typeof written[0].id).toBe("string");
+    expect(written[0].id.length).toBeGreaterThan(0);
+  });
+});
+
+describe("createGithubBlogRepo.listQueuedTopics", () => {
+  it("returns only the pending (a_publier) entries, both types", async () => {
+    getContent.mockReset();
+    const entries = [
+      { id: "id-1", type: "discord_topic", topic: "Publié", notes: null, submittedAt: "d", status: "publie" },
+      { id: "id-2", type: "discord_topic", topic: "En attente", notes: null, submittedAt: "d", status: "a_publier" },
+      {
+        id: "id-3",
+        type: "actualite",
+        title: "Actu en attente",
+        summary: "s",
+        sourceUrl: "https://source.example/a",
+        articleText: null,
+        pillarId: "A",
+        submittedAt: "d",
+        status: "a_publier",
+      },
+    ];
+    getContent.mockResolvedValue({
+      data: { type: "file", content: Buffer.from(JSON.stringify(entries)).toString("base64") },
+    });
+
+    const github = createGithubBlogRepo({
+      auth: "token",
+      owner: "thacac",
+      repo: "elancestvous",
+      baseBranch: "master",
+    });
+
+    const result = await github.listQueuedTopics();
+
+    expect(result).toEqual([entries[1], entries[2]]);
+  });
+
+  it("returns an empty array when the queue file doesn't exist", async () => {
+    getContent.mockReset();
+    getContent.mockRejectedValue({ status: 404 });
+
+    const github = createGithubBlogRepo({
+      auth: "token",
+      owner: "thacac",
+      repo: "elancestvous",
+      baseBranch: "master",
+    });
+
+    expect(await github.listQueuedTopics()).toEqual([]);
+  });
+
+  it("returns an empty array (tolerant) when the queue file is malformed JSON", async () => {
+    getContent.mockReset();
+    getContent.mockResolvedValue({
+      data: { type: "file", content: Buffer.from("{not valid json").toString("base64") },
+    });
+
+    const github = createGithubBlogRepo({
+      auth: "token",
+      owner: "thacac",
+      repo: "elancestvous",
+      baseBranch: "master",
+    });
+
+    expect(await github.listQueuedTopics()).toEqual([]);
+  });
+});
+
+describe("createGithubBlogRepo.removeQueuedTopic", () => {
+  it("removes the matching pending entry by id and reports its label", async () => {
+    getContent.mockReset();
+    createOrUpdateFileContents.mockReset();
+    const entries = [
+      { id: "id-1", type: "discord_topic", topic: "À garder", notes: null, submittedAt: "d", status: "a_publier" },
+      { id: "id-2", type: "discord_topic", topic: "À supprimer", notes: null, submittedAt: "d", status: "a_publier" },
+    ];
+    getContent.mockResolvedValue({
+      data: {
+        type: "file",
+        sha: "queue-sha",
+        content: Buffer.from(JSON.stringify(entries)).toString("base64"),
+      },
+    });
+    createOrUpdateFileContents.mockResolvedValue({});
+
+    const github = createGithubBlogRepo({
+      auth: "token",
+      owner: "thacac",
+      repo: "elancestvous",
+      baseBranch: "master",
+    });
+
+    const result = await github.removeQueuedTopic("id-2");
+
+    expect(result).toEqual({ removed: true, label: "À supprimer" });
+    expect(createOrUpdateFileContents).toHaveBeenCalledWith(
+      expect.objectContaining({ sha: "queue-sha" })
+    );
+    const call = createOrUpdateFileContents.mock.calls[0][0];
+    const written = JSON.parse(Buffer.from(call.content, "base64").toString("utf8"));
+    expect(written).toEqual([entries[0]]);
+  });
+
+  it("reports the title as the label for a removed actualite entry", async () => {
+    getContent.mockReset();
+    createOrUpdateFileContents.mockReset();
+    const entries = [
+      {
+        id: "id-1",
+        type: "actualite",
+        title: "Actualité à supprimer",
+        summary: "s",
+        sourceUrl: "https://source.example/a",
+        articleText: null,
+        pillarId: "A",
+        submittedAt: "d",
+        status: "a_publier",
+      },
+    ];
+    getContent.mockResolvedValue({
+      data: { type: "file", content: Buffer.from(JSON.stringify(entries)).toString("base64") },
+    });
+    createOrUpdateFileContents.mockResolvedValue({});
+
+    const github = createGithubBlogRepo({
+      auth: "token",
+      owner: "thacac",
+      repo: "elancestvous",
+      baseBranch: "master",
+    });
+
+    const result = await github.removeQueuedTopic("id-1");
+
+    expect(result).toEqual({ removed: true, label: "Actualité à supprimer" });
+  });
+
+  it("returns removed:false without writing anything when the id doesn't match a pending entry", async () => {
+    getContent.mockReset();
+    createOrUpdateFileContents.mockReset();
+    const entries = [
+      { id: "id-1", type: "discord_topic", topic: "Sujet", notes: null, submittedAt: "d", status: "a_publier" },
+    ];
+    getContent.mockResolvedValue({
+      data: { type: "file", content: Buffer.from(JSON.stringify(entries)).toString("base64") },
+    });
+
+    const github = createGithubBlogRepo({
+      auth: "token",
+      owner: "thacac",
+      repo: "elancestvous",
+      baseBranch: "master",
+    });
+
+    const result = await github.removeQueuedTopic("inconnu");
+
+    expect(result).toEqual({ removed: false, label: null });
+    expect(createOrUpdateFileContents).not.toHaveBeenCalled();
+  });
+
+  it("does not remove an already-publie entry sharing the same id space", async () => {
+    getContent.mockReset();
+    createOrUpdateFileContents.mockReset();
+    const entries = [
+      { id: "id-1", type: "discord_topic", topic: "Déjà publié", notes: null, submittedAt: "d", status: "publie" },
+    ];
+    getContent.mockResolvedValue({
+      data: { type: "file", content: Buffer.from(JSON.stringify(entries)).toString("base64") },
+    });
+
+    const github = createGithubBlogRepo({
+      auth: "token",
+      owner: "thacac",
+      repo: "elancestvous",
+      baseBranch: "master",
+    });
+
+    const result = await github.removeQueuedTopic("id-1");
+
+    expect(result).toEqual({ removed: false, label: null });
+    expect(createOrUpdateFileContents).not.toHaveBeenCalled();
+  });
+
+  it("returns removed:false when the queue file doesn't exist", async () => {
+    getContent.mockReset();
+    getContent.mockRejectedValue({ status: 404 });
+
+    const github = createGithubBlogRepo({
+      auth: "token",
+      owner: "thacac",
+      repo: "elancestvous",
+      baseBranch: "master",
+    });
+
+    expect(await github.removeQueuedTopic("id-1")).toEqual({ removed: false, label: null });
   });
 });
