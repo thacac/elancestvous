@@ -102,9 +102,11 @@ function textOf(value: unknown): string {
 function linkHrefOf(value: unknown): string {
   const links = Array.isArray(value) ? value : [value];
   const alternate = links.find((link) => hrefOf(link).length > 0 && isAlternateRel(link));
-  if (alternate) return hrefOf(alternate);
-  const firstWithHref = links.find((link) => hrefOf(link).length > 0);
-  return firstWithHref ? hrefOf(firstWithHref) : textOf(value);
+  // Pas de repli sur le premier href venu (ex. rel="self", rel="related") si
+  // aucun lien "alternate" n'existe : ce serait l'URL du flux lui-même, pas
+  // celle de l'article — mieux vaut perdre l'entrée (filtrée en aval par
+  // `.filter((item) => item.url.length > 0)`) qu'une URL trompeuse.
+  return alternate ? hrefOf(alternate) : textOf(value);
 }
 
 function hrefOf(link: unknown): string {
