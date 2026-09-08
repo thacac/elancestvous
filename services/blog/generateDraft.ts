@@ -128,10 +128,12 @@ export type GenerateDraftDeps = {
   // dépend que d'ANTHROPIC_API_KEY, déjà obligatoire pour tout le reste du
   // pipeline), gardé optionnel côté type surtout pour les tests.
   actualiteWatch?: {
-    findActualite(
-      alreadyCitedUrls: string[],
-      recentPillars: PillarId[]
-    ): Promise<ActualiteCandidate | null>;
+    // Jusqu'à 3 candidats, chacun rattaché à un pilier différent (mix RSS +
+    // tri IA, cf. actualiteWatch.ts) — le pilier n'est plus imposé en amont
+    // par le tourniquet pondéré (contrairement à l'ancien mécanisme
+    // web_search) : chaque candidat est notifié/mis en file indépendamment
+    // par proposeNextActualiteBestEffort() ci-dessous.
+    findActualite(alreadyCitedUrls: string[]): Promise<ActualiteCandidate[]>;
   };
   // Optionnel, comme imageGenerator ci-dessus : tant qu'il n'est pas
   // configuré, queueApprovedActualite() met simplement en file un
@@ -327,16 +329,19 @@ function suggestionFromQueuedActualite(
 // du cron GitHub Actions — seule trace disponible, pas d'accès SSH au VPS —
 // ne permet pas de distinguer "recherche faite, rien de pertinent trouvé" de
 // "une erreur (Discord, GitHub...) a été avalée silencieusement".
+//
+// Chaque candidat (jusqu'à 3, un par pilier — cf. actualiteWatch.ts) est
+// notifié/mis en file indépendamment des autres : un candidat dont la
+// notification Discord échoue ne doit jamais empêcher les autres d'être
+// proposés (best-effort par candidat, pas seulement au niveau du scan).
 async function proposeNextActualiteBestEffort(
   publishedPosts: PublishedPost[],
   deps: GenerateDraftDeps
-): Promise<{ proposed: boolean; reason?: string }> {
-  if (!deps.actualiteWatch) return { proposed: false, reason: "veille désactivée (actualiteWatch absent)" };
+): Promise<{ proposed: boolean; count: number; reason?: string }> {
+  if (!deps.actualiteWatch)
+    return { proposed: false, count: 0, reason: "veille désactivée (actualiteWatch absent)" };
 
   try {
-    const recentPillars = publishedPosts
-      .map((p) => p.pillar)
-      .filter((p): p is PillarId => p !== null);
     const citedByPublishedPosts = publishedPosts
       .map((p) => p.sourceUrl)
       .filter((u): u is string => u !== null);
@@ -346,29 +351,45 @@ async function proposeNextActualiteBestEffort(
     const alreadyProposedUrls = await deps.github.listProposedActualiteSourceUrls();
     const alreadyCitedUrls = [...citedByPublishedPosts, ...alreadyProposedUrls];
 
-    const candidate = await deps.actualiteWatch.findActualite(alreadyCitedUrls, recentPillars);
-    if (!candidate) return { proposed: false, reason: "aucune actualité pertinente trouvée" };
+    const candidates = await deps.actualiteWatch.findActualite(alreadyCitedUrls);
+    if (candidates.length === 0) return { proposed: false, count: 0, reason: "aucune actualité pertinente trouvée" };
 
-    // Notifier *avant* de persister (pas l'inverse) : une fois committée,
-    // une proposition exclut définitivement ce sourceUrl des recherches
-    // futures (ci-dessus). Committer d'abord puis échouer sur la
-    // notification Discord orphelinerait silencieusement le candidat —
-    // plus jamais vu par personne, mais plus jamais reproposé non plus.
-    const id = deriveActualiteProposalId(candidate.sourceUrl);
-    await deps.discord.notifyActualiteProposal({
-      id,
-      title: candidate.title,
-      sourceUrl: candidate.sourceUrl,
-    });
-    await deps.github.queueActualiteProposal(candidate);
-    return { proposed: true };
+    let proposedCount = 0;
+    let lastFailureReason: string | undefined;
+    for (const candidate of candidates) {
+      try {
+        // Notifier *avant* de persister (pas l'inverse) : une fois committée,
+        // une proposition exclut définitivement ce sourceUrl des recherches
+        // futures (ci-dessus). Committer d'abord puis échouer sur la
+        // notification Discord orphelinerait silencieusement le candidat —
+        // plus jamais vu par personne, mais plus jamais reproposé non plus.
+        const id = deriveActualiteProposalId(candidate.sourceUrl);
+        await deps.discord.notifyActualiteProposal({
+          id,
+          title: candidate.title,
+          sourceUrl: candidate.sourceUrl,
+        });
+        await deps.github.queueActualiteProposal(candidate);
+        proposedCount++;
+      } catch (err) {
+        lastFailureReason = err instanceof Error ? err.message : String(err);
+        console.error(
+          "[blog/generateDraft] proposition individuelle de veille échouée (ignorée, les autres candidats continuent) :",
+          lastFailureReason
+        );
+      }
+    }
+
+    return proposedCount > 0
+      ? { proposed: true, count: proposedCount }
+      : { proposed: false, count: 0, reason: lastFailureReason };
   } catch (err) {
     const reason = err instanceof Error ? err.message : String(err);
     console.error(
-      "[blog/generateDraft] proposition de veille échouée (ignorée, la génération continue) :",
+      "[blog/generateDraft] scan de veille échoué (ignoré, la génération continue) :",
       reason
     );
-    return { proposed: false, reason };
+    return { proposed: false, count: 0, reason };
   }
 }
 
@@ -377,7 +398,9 @@ async function proposeNextActualiteBestEffort(
 // tourne aussi à chaque generateDraft(), mais seulement une fois par semaine
 // jusqu'ici — l'appeler séparément, plus souvent, comble une file vide plus
 // vite sans jamais toucher à la génération elle-même.
-export async function runVeilleScan(deps: GenerateDraftDeps): Promise<{ proposed: boolean; reason?: string }> {
+export async function runVeilleScan(
+  deps: GenerateDraftDeps
+): Promise<{ proposed: boolean; count: number; reason?: string }> {
   try {
     const publishedPosts = await deps.github.listPublishedPosts();
     return await proposeNextActualiteBestEffort(publishedPosts, deps);
@@ -388,7 +411,7 @@ export async function runVeilleScan(deps: GenerateDraftDeps): Promise<{ proposed
     // — jamais de raison de le laisser lever.
     const reason = err instanceof Error ? err.message : String(err);
     console.error("[blog/generateDraft] scan de veille échoué :", reason);
-    return { proposed: false, reason };
+    return { proposed: false, count: 0, reason };
   }
 }
 

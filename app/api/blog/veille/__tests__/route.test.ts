@@ -48,25 +48,25 @@ describe("POST /api/blog/veille", () => {
     expect(runVeilleScan).not.toHaveBeenCalled();
   });
 
-  it("returns 200 with proposed:true when the scan finds a candidate", async () => {
-    vi.mocked(runVeilleScan).mockResolvedValue({ proposed: true });
+  it("returns 200 with proposed:true and the candidate count when the scan finds candidates", async () => {
+    vi.mocked(runVeilleScan).mockResolvedValue({ proposed: true, count: 2 });
 
     const response = await POST(makeRequest({ authorization: "Bearer test-secret" }));
     const body = await response.json();
 
     expect(response.status).toBe(200);
-    expect(body).toEqual({ proposed: true });
+    expect(body).toEqual({ proposed: true, count: 2 });
     expect(runVeilleScan).toHaveBeenCalled();
   });
 
   it("returns 200 with proposed:false when the scan finds nothing (not an error)", async () => {
-    vi.mocked(runVeilleScan).mockResolvedValue({ proposed: false });
+    vi.mocked(runVeilleScan).mockResolvedValue({ proposed: false, count: 0 });
 
     const response = await POST(makeRequest({ authorization: "Bearer test-secret" }));
     const body = await response.json();
 
     expect(response.status).toBe(200);
-    expect(body).toEqual({ proposed: false });
+    expect(body).toEqual({ proposed: false, count: 0 });
   });
 
   it("returns 500 when createBlogDraftDeps fails (missing configuration)", async () => {

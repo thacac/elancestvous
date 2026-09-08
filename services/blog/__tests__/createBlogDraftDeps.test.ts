@@ -82,15 +82,29 @@ describe("createBlogDraftDeps", () => {
     expect(deps.articleTextFetcher?.fetchArticleText).toBe(fetchArticleText);
   });
 
-  it("wires the actualité watch with the Anthropic API key (Claude web_search, no RSS sources needed)", () => {
+  it("wires the actualité watch with the Anthropic API key and the RSS sources parsed from BLOG_VEILLE_SOURCES", () => {
     process.env.GITHUB_REPO = "thacac/elancestvous";
+    process.env.BLOG_VEILLE_SOURCES = "https://a.example/rss.xml, https://b.example/rss.xml";
 
     const deps = createBlogDraftDeps();
 
     expect(createActualiteWatch).toHaveBeenCalledWith(
-      expect.objectContaining({ apiKey: "anthropic-key" })
+      expect.objectContaining({
+        apiKey: "anthropic-key",
+        sources: ["https://a.example/rss.xml", "https://b.example/rss.xml"],
+        fetchFeedItems: expect.any(Function),
+      })
     );
     expect(deps.actualiteWatch?.findActualite).toBe(findActualite);
+  });
+
+  it("wires the actualité watch with an empty source list when BLOG_VEILLE_SOURCES is unset", () => {
+    process.env.GITHUB_REPO = "thacac/elancestvous";
+    delete process.env.BLOG_VEILLE_SOURCES;
+
+    createBlogDraftDeps();
+
+    expect(createActualiteWatch).toHaveBeenCalledWith(expect.objectContaining({ sources: [] }));
   });
 
   it("parses a well-formed owner/repo", () => {

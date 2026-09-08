@@ -86,3 +86,18 @@ sans avoir d'abord comparé la qualité obtenue : `yarn blog:compare-models`
 modèle/effort pour comparer coût et qualité avant de changer le réglage en
 production — appelle réellement l'API Anthropic et dépense de l'argent, réservé à
 un usage manuel ponctuel.
+
+## Optionnel — veille actualité (issue #66, révisée : mix RSS + tri IA)
+
+| Variable | Rôle | Défaut si absente |
+|---|---|---|
+| `BLOG_VEILLE_SOURCES` | Liste de flux RSS/Atom séparés par des virgules, interrogés puis triés par IA (`services/blog/actualiteWatch.ts`) — voir `.env.example` pour la liste vérifiée au moment de l'écriture | vide — veille désactivée, repli automatique sur la rotation de piliers (#52) |
+
+Pas de secret dédié pour l'étape de tri : elle réutilise `ANTHROPIC_API_KEY`
+ci-dessus (Haiku, sortie structurée, aucune recherche web). Historique :
+l'implémentation initiale de #66 ciblait des flux ANACT/DARES/Légifrance —
+tous bloqués par de l'anti-bot (ALTCHA/Cloudflare/F5), inutilisables par un
+fetch serveur simple, d'où le remplacement temporaire par l'outil `web_search`
+de Claude puis, ici, un retour au RSS avec une liste de sources revérifiée
+(service-public.fr, legisocial.fr, bulletins-officiels.social.gouv.fr,
+santepubliquefrance.fr).

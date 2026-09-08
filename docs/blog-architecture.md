@@ -210,13 +210,16 @@ mis à jour **manuellement** après publication, pas de synchronisation
 automatique — limite connue documentée plutôt que corrigée dans cette PR (une
 file chargée peut faire remonter un sujet devenu entre-temps moins pertinent).
 
-## Composants livrés (issue #66 — veille actualité, révisé)
+## Composants livrés (issue #66 — veille actualité, révisée : mix RSS + tri IA)
 
 | Fichier | Rôle |
 |---|---|
-| `services/blog/actualiteWatch.ts` | Fait chercher Claude lui-même (outil `web_search`, sur le thème du pilier tourniqueté) une actualité récente et vérifiable, jamais déjà citée/proposée — remplace l'ancien mécanisme à base de flux RSS/Atom (`BLOG_VEILLE_SOURCES`), abandonné : les flux ANACT ciblés testés étaient protégés par une vérification anti-bot (ALTCHA), inutilisables par un fetch serveur simple |
-| `services/blog/generateDraft.ts` (`proposeNextActualiteBestEffort`) | Effet de bord **non bloquant** à chaque appel de `generateDraft()` : notifie Discord d'un nouveau candidat s'il y en a un, sans jamais retarder ni remplacer la génération de la semaine (toute erreur ici est journalisée puis avalée) |
-| `services/blog/discordNotifier.ts` (`notifyActualiteProposal`) | Embed **minimal** (titre + lien uniquement) avec boutons "Approuver le sujet"/"Ignorer" |
+| `services/blog/rssFeedFetcher.ts` | Interroge un flux RSS/Atom (`fast-xml-parser`, timeout+abort) et le parse en `FeedItem[]` — tolérant : un flux hors service, mal formé, ou qui renvoie une page HTML (anti-bot) plutôt que du XML est traité comme "aucun article" plutôt que de faire échouer tout le scan |
+| `services/blog/veilleSources.ts` (`parseVeilleSources`) | Parse `BLOG_VEILLE_SOURCES` (liste d'URLs séparées par des virgules) — sources pilotables sans déploiement de code |
+| `services/blog/actualiteWatch.ts` (`filterRelevantItems`) | Pré-filtre mots-clés (QVCT, RPS, burn-out, TMS...), gratuit et déterministe, appliqué à tous les items agrégés avant le tri IA — les sources retenues sont généralistes/multi-thèmes, pas déjà filtrées par flux |
+| `services/blog/actualiteWatch.ts` (`findActualite`) | 1 seul appel Claude (Haiku, sortie structurée, **aucun outil**) sur les items déjà filtrés : sélectionne jusqu'à 3 candidats, un par pilier, jamais déjà cités — remplace l'ancien mécanisme `web_search` (coûteux, boucle `pause_turn` à plafonner, résultats non ancrés à des sources vérifiées à l'avance). Défense contre une hallucination du modèle : un `sourceUrl`/`pillarId` qui ne correspond à aucun item réellement récupéré est silencieusement écarté |
+| `services/blog/generateDraft.ts` (`proposeNextActualiteBestEffort`) | Effet de bord **non bloquant** à chaque appel de `generateDraft()` : notifie Discord de chaque candidat indépendamment (best-effort par candidat — l'échec de l'un n'empêche jamais les autres), sans jamais retarder ni remplacer la génération de la semaine |
+| `services/blog/discordNotifier.ts` (`notifyActualiteProposal`) | Un message Discord distinct par candidat (jusqu'à 3), embed **minimal** (titre + lien) avec boutons "Approuver le sujet"/"Ignorer" propres à ce candidat (`custom_id` dérivé de son `sourceUrl`) |
 | `services/blog/generateDraft.ts` (`queueApprovedActualite`) | Sur "Approuver" : récupère le texte intégral de la page source (best-effort, `services/blog/articleTextFetcher.ts`, repli sur le résumé RSS si le fetch échoue), puis ajoute l'actualité à la file partagée avec `/blog-sujet` (`queueActualiteTopic`) — **ne génère jamais rien directement** |
 
 Historique : la première version (livrée initialement) faisait de la veille le
@@ -229,6 +232,22 @@ proposition (effet de bord best-effort ci-dessus) de la génération (la veille
 approuvée rejoint simplement la file comme un sujet Discord) — "Ignorer" ne
 déclenche donc plus non plus aucune recherche de candidat suivant, juste un
 accusé de réception immédiat.
+
+Le mécanisme RSS/Atom d'origine (`BLOG_VEILLE_SOURCES`) avait ensuite été
+abandonné au profit de l'outil `web_search` de Claude : les flux ANACT ciblés
+à l'époque étaient protégés par une vérification anti-bot (ALTCHA),
+inutilisables par un fetch serveur simple. Le mécanisme RSS lui-même
+(parseur, tolérance aux pannes) n'était pas en cause — revérifié à la
+révision de #66 ci-dessus : ANACT reste bloqué (retesté sur 5 flux
+thématiques différents, avec cookies/Referer), tout comme DARES et
+Légifrance (anti-bot Cloudflare/F5). D'autres sources officielles françaises
+s'avèrent en revanche directement exploitables sans aucun contournement
+(service-public.fr, legisocial.fr, bulletins-officiels.social.gouv.fr,
+santepubliquefrance.fr — ce dernier exposant même des flux filtrés par région,
+dont Occitanie) — voir `docs/blog-secrets.md` et `.env.example` pour la liste
+vérifiée. Le retour au RSS remplace `web_search` par un pré-filtre mots-clés
+gratuit suivi d'un unique appel de tri (Haiku, sans outil), moins coûteux et
+sans le risque de boucle `pause_turn` de l'ancien mécanisme.
 
 Voir aussi `docs/blog-secrets.md` (secrets requis), `docs/blog-charte-editoriale.md`
 (voix/contraintes du prompt système) et `docs/blog-guide-validation-discord.md`
