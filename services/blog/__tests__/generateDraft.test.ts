@@ -8,7 +8,6 @@ import {
   SYSTEM_PROMPT,
   type GenerateDraftDeps,
 } from "../generateDraft";
-import { deriveActualiteProposalId } from "../githubBlogRepo";
 import { PILLARS } from "../pillars";
 
 import type { ActualiteCandidate } from "../actualiteWatch";
@@ -253,128 +252,27 @@ describe("generateDraft", () => {
     );
   });
 
-  it("proposes each of the actualité watch's candidates on Discord without blocking this run's generation", async () => {
+  // La proposition de veille (actualiteWatch) est désormais exclusivement
+  // pilotée par runVeilleScan() (scan dédié, tous les 3 jours, cf.
+  // .github/workflows/blog-veille-trigger.yml) — retiré de generateDraft()
+  // (génération hebdomadaire) le 2026-09-10 : les deux tournant en parallèle,
+  // le moindre déclenchement manuel de la génération hebdomadaire produisait
+  // un second lot de propositions Discord le même jour que le scan dédié,
+  // sans que ce soit jamais l'intention (retour d'usage réel).
+  it("never touches the actualité watch — that's runVeilleScan()'s job exclusively", async () => {
     const findActualite = vi.fn().mockResolvedValue([makeActualiteCandidate()]);
-    const deps = makeDeps({
-      actualiteWatch: { findActualite },
-      github: {
-        ...makeDeps().github,
-        listPublishedPosts: vi.fn().mockResolvedValue([
-          makePublishedPost({ sourceUrl: "https://source.example/deja-cite" }),
-        ]),
-        listProposedActualiteSourceUrls: vi.fn().mockResolvedValue(["https://source.example/deja-propose"]),
-      },
-    });
-
-    const result = await generateDraft(deps);
-    const expectedId = deriveActualiteProposalId("https://source.example/actu-1");
-
-    expect(findActualite).toHaveBeenCalledWith([
-      "https://source.example/deja-cite",
-      "https://source.example/deja-propose",
-    ]);
-    expect(deps.github.queueActualiteProposal).toHaveBeenCalledWith(makeActualiteCandidate());
-    expect(deps.discord.notifyActualiteProposal).toHaveBeenCalledWith({
-      id: expectedId,
-      title: "Nouvelle obligation QVCT",
-      sourceUrl: "https://source.example/actu-1",
-    });
-    // La veille ne doit plus prendre le pas sur la génération de la semaine
-    // (#66 bis) : la proposition est un effet de bord, la file étant vide,
-    // generateDraft() retombe sur la rotation de piliers dans le même appel.
-    expect(deps.anthropic.parseDraft).toHaveBeenCalled();
-    expect(result.status).toBe("committed");
-  });
-
-  it("notifies each candidate as an independent Discord message (one per pillar, cf. runVeilleScan)", async () => {
-    const candidateA = makeActualiteCandidate({
-      title: "Candidat A",
-      sourceUrl: "https://source.example/a",
-      pillar: { id: "A", label: "Pilier A", targetPage: "/a", theme: "theme", weight: 2 },
-    });
-    const candidateB = makeActualiteCandidate({
-      title: "Candidat B",
-      sourceUrl: "https://source.example/b",
-      pillar: { id: "B", label: "Pilier B", targetPage: "/b", theme: "theme", weight: 2 },
-    });
-    const findActualite = vi.fn().mockResolvedValue([candidateA, candidateB]);
     const deps = makeDeps({ actualiteWatch: { findActualite } });
 
-    await generateDraft(deps);
-
-    expect(deps.discord.notifyActualiteProposal).toHaveBeenCalledTimes(2);
-    expect(deps.github.queueActualiteProposal).toHaveBeenCalledWith(candidateA);
-    expect(deps.github.queueActualiteProposal).toHaveBeenCalledWith(candidateB);
-  });
-
-  it("notifies Discord before persisting each proposal, so a failed notification never orphans that candidate", async () => {
-    const findActualite = vi.fn().mockResolvedValue([makeActualiteCandidate()]);
-    const callOrder: string[] = [];
-    const deps = makeDeps({
-      actualiteWatch: { findActualite },
-      discord: {
-        ...makeDeps().discord,
-        notifyActualiteProposal: vi.fn().mockImplementation(async () => {
-          callOrder.push("notify");
-          return { messageId: "message-id-456" };
-        }),
-      },
-      github: {
-        ...makeDeps().github,
-        queueActualiteProposal: vi.fn().mockImplementation(async () => {
-          callOrder.push("queue");
-          return { id: "abc123def456" };
-        }),
-      },
-    });
-
-    await generateDraft(deps);
-
-    expect(callOrder).toEqual(["notify", "queue"]);
-  });
-
-  it("never persists a candidate (so it stays rediscoverable) when notifying Discord fails for it, but still generates this run's article (best-effort)", async () => {
-    const findActualite = vi.fn().mockResolvedValue([makeActualiteCandidate()]);
-    const deps = makeDeps({
-      actualiteWatch: { findActualite },
-      discord: {
-        ...makeDeps().discord,
-        notifyActualiteProposal: vi.fn().mockRejectedValue(new Error("Discord indisponible")),
-      },
-    });
-
     const result = await generateDraft(deps);
 
+    expect(findActualite).not.toHaveBeenCalled();
+    expect(deps.discord.notifyActualiteProposal).not.toHaveBeenCalled();
     expect(deps.github.queueActualiteProposal).not.toHaveBeenCalled();
     expect(result.status).toBe("committed");
   });
 
-  it("keeps proposing the remaining candidates when one candidate's notification fails (best-effort per candidate)", async () => {
-    const candidateA = makeActualiteCandidate({ title: "Candidat A", sourceUrl: "https://source.example/a" });
-    const candidateB = makeActualiteCandidate({ title: "Candidat B", sourceUrl: "https://source.example/b" });
-    const findActualite = vi.fn().mockResolvedValue([candidateA, candidateB]);
-    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
-    const deps = makeDeps({
-      actualiteWatch: { findActualite },
-      discord: {
-        ...makeDeps().discord,
-        notifyActualiteProposal: vi
-          .fn()
-          .mockRejectedValueOnce(new Error("Discord indisponible"))
-          .mockResolvedValueOnce({ messageId: "message-id-456" }),
-      },
-    });
-
-    await generateDraft(deps);
-
-    expect(deps.github.queueActualiteProposal).toHaveBeenCalledTimes(1);
-    expect(deps.github.queueActualiteProposal).toHaveBeenCalledWith(candidateB);
-    consoleError.mockRestore();
-  });
-
-  it("falls back to the weighted pillar rotation when the actualité watch finds nothing", async () => {
-    const findActualite = vi.fn().mockResolvedValue([]);
-    const deps = makeDeps({ actualiteWatch: { findActualite } });
+  it("falls back to the weighted pillar rotation when the shared queue is empty", async () => {
+    const deps = makeDeps();
 
     const result = await generateDraft(deps);
 
