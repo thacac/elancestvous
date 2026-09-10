@@ -101,6 +101,11 @@ export function createDiscordNotifier(options: {
   // noient chacun le message de l'autre dans le même salon. Optionnel :
   // retombe sur channelId tant que ce salon n'est pas configuré séparément.
   veilleChannelId?: string;
+  // Optionnel : le rapport Search Console (#57) part sur un salon dédié tant
+  // que celui-ci est configuré, pour ne pas noyer les brouillons/propositions
+  // — rythme encore différent des deux autres flux (une exécution manuelle
+  // ponctuelle plutôt qu'un événement par article). Retombe sur channelId.
+  seoReportChannelId?: string;
   fetchImpl?: typeof fetch;
 }) {
   const fetchImpl = options.fetchImpl ?? fetch;
@@ -256,6 +261,32 @@ export function createDiscordNotifier(options: {
           `Discord a refusé l'envoi du message (${response.status}) : ${await response.text()}`
         );
       }
+    },
+
+    // Reçoit l'embed déjà construit (searchConsoleReportEmbed.ts) plutôt que
+    // le report brut : ce module ne connaît que le transport Discord, pas la
+    // mise en forme du rapport (#57).
+    async notifySearchConsoleReport(embeds: unknown[]): Promise<{ messageId: string }> {
+      const response = await fetchImpl(
+        `https://discord.com/api/v10/channels/${options.seoReportChannelId ?? options.channelId}/messages`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bot ${options.botToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ embeds, allowed_mentions: { parse: [] } }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          `Discord a refusé l'envoi du message (${response.status}) : ${await response.text()}`
+        );
+      }
+
+      const data = (await response.json()) as { id: string };
+      return { messageId: data.id };
     },
   };
 }

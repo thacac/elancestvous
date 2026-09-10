@@ -334,6 +334,56 @@ describe("createDiscordNotifier.notifyActualiteProposal", () => {
   });
 });
 
+describe("createDiscordNotifier.notifySearchConsoleReport", () => {
+  it("posts the given embed array to the dedicated report channel", async () => {
+    const fetchImpl = makeFetch();
+    const notifier = createDiscordNotifier({
+      botToken: "bot-token",
+      channelId: "channel-123",
+      seoReportChannelId: "channel-seo-789",
+      fetchImpl,
+    });
+
+    const embeds = [{ title: "📊 Rapport" }];
+    const result = await notifier.notifySearchConsoleReport(embeds);
+
+    expect(result).toEqual({ messageId: "message-id-123" });
+    const [url, init] = fetchImpl.mock.calls[0];
+    expect(url).toBe("https://discord.com/api/v10/channels/channel-seo-789/messages");
+    expect(init.headers.Authorization).toBe("Bot bot-token");
+    const payload = JSON.parse(init.body as string);
+    expect(payload.embeds).toEqual(embeds);
+    expect(payload.allowed_mentions).toEqual({ parse: [] });
+  });
+
+  it("falls back to channelId when seoReportChannelId isn't configured", async () => {
+    const fetchImpl = makeFetch();
+    const notifier = createDiscordNotifier({
+      botToken: "bot-token",
+      channelId: "channel-123",
+      fetchImpl,
+    });
+
+    await notifier.notifySearchConsoleReport([{ title: "📊 Rapport" }]);
+
+    const [url] = fetchImpl.mock.calls[0];
+    expect(url).toBe("https://discord.com/api/v10/channels/channel-123/messages");
+  });
+
+  it("throws with the response status when Discord rejects the request", async () => {
+    const fetchImpl = makeFetch(500);
+    const notifier = createDiscordNotifier({
+      botToken: "bot-token",
+      channelId: "channel-123",
+      fetchImpl,
+    });
+
+    await expect(
+      notifier.notifySearchConsoleReport([{ title: "📊 Rapport" }])
+    ).rejects.toThrow(/500/);
+  });
+});
+
 describe("buildActualiteProposalActionRow", () => {
   it("builds one row with an Approuver and an Ignorer button carrying the proposal id", () => {
     const row = buildActualiteProposalActionRow("abc123def456");
