@@ -101,8 +101,26 @@ export function createGoogleSearchConsoleClient(options: {
   };
 }
 
+// Le secret est stocké encodé en base64, jamais en JSON brut : la clé privée
+// RSA d'un compte de service contient des `\n` échappés sur une seule ligne
+// très longue, ce qu'un copier-coller (GitHub, éditeur, lecteur PDF...) peut
+// corrompre silencieusement (retours à la ligne réintroduits, espaces
+// injectés dans le base64 de la clé) — deux incidents réels rencontrés en
+// configurant ce secret. Le base64 traverse ces outils sans dommage.
+export function parseServiceAccountJson(base64: string): Record<string, unknown> {
+  const decoded = Buffer.from(base64, "base64").toString("utf8");
+  try {
+    return JSON.parse(decoded);
+  } catch (err) {
+    throw new Error(
+      `GSC_SERVICE_ACCOUNT_JSON invalide une fois décodé en base64 (${(err as Error).message}) — ` +
+        "vérifier qu'il contient bien le fichier JSON du compte de service encodé en base64, pas le JSON brut."
+    );
+  }
+}
+
 function defaultQueryImpl(serviceAccountJson: string): SearchAnalyticsQueryFn {
-  const credentials = JSON.parse(serviceAccountJson);
+  const credentials = parseServiceAccountJson(serviceAccountJson);
   const auth = new google.auth.GoogleAuth({
     credentials,
     scopes: ["https://www.googleapis.com/auth/webmasters.readonly"],
