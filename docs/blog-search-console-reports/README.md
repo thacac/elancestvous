@@ -40,16 +40,14 @@ base64 traverse ces outils sans dommage.
 
 **Ne jamais ouvrir, éditer ou coller le contenu du fichier JSON à la main.**
 Une fois le fichier téléchargé depuis Google Cloud (IAM et administration →
-Comptes de service → clé JSON), l'encoder directement en ligne de commande :
+Comptes de service → clé JSON), l'encoder avec :
 
 ```bash
-node -e "console.log(require('fs').readFileSync('/chemin/vers/le-fichier.json').toString('base64'))"
+yarn blog:encode-service-account /chemin/vers/le-fichier.json
 ```
 
-(fonctionne identiquement sur Linux/Mac/Windows avec Node installé — évite
-les différences d'options entre les `base64` CLI de chaque OS). Copier la
-sortie de cette commande (une seule ligne, sans retour à la ligne) comme
-valeur du secret GitHub `GSC_SERVICE_ACCOUNT_JSON`.
+Copier la sortie de cette commande (une seule ligne, sans retour à la ligne)
+comme valeur du secret GitHub `GSC_SERVICE_ACCOUNT_JSON`.
 
 Si un secret déjà configuré échoue avec une de ces deux erreurs : la clé a
 très probablement été vue/copiée manuellement à un moment donné et doit être

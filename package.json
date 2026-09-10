@@ -10,7 +10,8 @@
     "test": "vitest",
     "blog:compare-models": "tsx scripts/compareDraftModels.ts",
     "blog:register-discord-command": "tsx scripts/registerDiscordCommand.ts",
-    "blog:search-console-report": "tsx scripts/blogSearchConsoleReport.ts"
+    "blog:search-console-report": "tsx scripts/blogSearchConsoleReport.ts",
+    "blog:encode-service-account": "tsx scripts/encodeServiceAccountJson.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.123.0",
