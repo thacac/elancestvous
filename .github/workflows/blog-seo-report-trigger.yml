@@ -1,0 +1,66 @@
+name: Blog SEO Search Console report
+
+on:
+  schedule:
+    # Le 1er de chaque mois ~08:00 UTC — les métriques SEO bougent lentement
+    # sur un blog à 3 articles ; un rythme hebdomadaire (aligné sur
+    # blog-weekly-trigger.yml) produirait surtout des rapports quasi
+    # identiques et du bruit sur Discord (issue #57).
+    - cron: "0 8 1 * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Générer le rapport et le poster sur Discord
+        # Même garde que blog-weekly-trigger.yml/blog-veille-trigger.yml :
+        # secret testé en shell dans `run:`, jamais dans `if:` (une expression
+        # `if:` référençant `secrets` fait échouer le parsing de TOUT le
+        # workflow, sur chaque push du repo, pas seulement celui-ci).
+        env:
+          GSC_SERVICE_ACCOUNT_JSON: ${{ secrets.GSC_SERVICE_ACCOUNT_JSON }}
+          GSC_SITE_URL: ${{ secrets.GSC_SITE_URL }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_CHANNEL_ID: ${{ secrets.DISCORD_CHANNEL_ID }}
+          DISCORD_SEO_REPORT_CHANNEL_ID: ${{ secrets.DISCORD_SEO_REPORT_CHANNEL_ID }}
+        run: |
+          if [ -z "$GSC_SERVICE_ACCOUNT_JSON" ] || [ -z "$GSC_SITE_URL" ]; then
+            echo "GSC_SERVICE_ACCOUNT_JSON/GSC_SITE_URL non configurés — rien à faire (voir #57)."
+            exit 0
+          fi
+          yarn blog:search-console-report
+
+      - name: Committer le rapport généré
+        # Donnée générée (snapshot daté, jamais retouché à la main), pas du
+        # code écrit par un humain — même logique que les commits
+        # automatiques "blog: actualité ajoutée à la file" déjà présents dans
+        # l'historique (githubBlogRepo.ts). `git status --porcelain` reste
+        # vide quand GSC_SERVICE_ACCOUNT_JSON était absent (step précédente
+        # sortie en `exit 0` sans rien écrire) : rien à committer, pas une
+        # erreur.
+        run: |
+          if [ -z "$(git status --porcelain docs/blog-search-console-reports)" ]; then
+            echo "Rien de nouveau à committer."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/blog-search-console-reports
+          git commit -m "blog: rapport Search Console $(date -u +%Y-%m-%d)"
+          git push

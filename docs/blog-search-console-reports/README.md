@@ -16,3 +16,13 @@ Le jugement qualitatif (une requête dans `topQueries` correspond-elle vraiment
 au sujet de l'article ?) n'est pas automatisé dans le script — à faire en
 relisant le JSON, pas en codant une heuristique de correspondance de chaînes
 qui serait peu fiable.
+
+## Génération automatique
+
+`.github/workflows/blog-seo-report-trigger.yml` lance le script le 1er de
+chaque mois (`cron`) et sur demande (`workflow_dispatch`, bouton "Run
+workflow" dans l'onglet Actions de GitHub). Le fichier généré est committé
+directement sur `master` par le workflow (donnée générée, pas du code — même
+logique que les commits automatiques "blog: actualité ajoutée à la file").
+Tant que `GSC_SERVICE_ACCOUNT_JSON`/`GSC_SITE_URL` ne sont pas configurés en
+secrets GitHub Actions, le job ne fait rien (voir #57).
