@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import Breadcrumbs from "@/components/Breadcrumbs";
 import PostJsonLd from "@/components/PostJsonLd";
 import ShareButtons from "@/components/ShareButtons";
 import { getAllPostsMeta, getPostBySlug, getPostSlugs } from "@/lib/blog";
@@ -62,11 +63,22 @@ export default async function BlogPost({
     notFound();
   }
 
-  const pillarLabel = PILLARS.find((p) => p.id === post.pillar)?.label;
+  const pillar = PILLARS.find((p) => p.id === post.pillar);
+  const pillarLabel = pillar?.label;
 
   return (
     <article className="pt-20 mb-40">
       <PostJsonLd post={post} />
+      <Breadcrumbs
+        items={[
+          { label: "Blog", href: "/blog" },
+          // Un article publié avant #73 peut ne pas avoir de pilier connu
+          // (pillar: null, rétrocompatibilité, cf. lib/blog.ts) — dans ce
+          // cas, pas de niveau intermédiaire plutôt qu'un lien absent.
+          ...(pillar ? [{ label: pillar.label, href: pillar.targetPage }] : []),
+          { label: post.title },
+        ]}
+      />
       <div className="container max-w-3xl">
         <p className="text-xs text-stone-500 uppercase tracking-wide mb-2">
           {new Date(post.publishedAt).toLocaleDateString("fr-FR", {

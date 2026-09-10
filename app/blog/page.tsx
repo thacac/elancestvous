@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import Breadcrumbs from "@/components/Breadcrumbs";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui";
 import { getAllPostsMeta } from "@/lib/blog";
 import { isBlogPublic } from "@/lib/featureFlags";
@@ -32,6 +33,7 @@ export default function BlogIndex() {
 
   return (
     <section className="pt-20 mb-40">
+      <Breadcrumbs items={[{ label: "Blog" }]} />
       <div className="container text-center mb-16">
         <h1>Le blog</h1>
         <h2 className="h3-like">
