@@ -1,0 +1,80 @@
+{
+  "generatedAt": "2026-09-10T20:45:07.051Z",
+  "rangeDays": 90,
+  "siteUrl": "sc-domain:elancestvous.fr",
+  "articles": [
+    {
+      "slug": "gapp-supervision-debriefing-equipe-de-soin",
+      "pillar": "D",
+      "tags": [
+        "GAPP",
+        "analyse des pratiques",
+        "supervision",
+        "équipes de soin",
+        "Toulouse",
+        "cadres de santé"
+      ],
+      "publishedAt": "2026-09-08",
+      "clicks": 0,
+      "impressions": 0,
+      "position": 0,
+      "topQueries": [],
+      "diagnostics": [
+        "ZERO_IMPRESSIONS"
+      ],
+      "delta": null
+    },
+    {
+      "slug": "reconnaitre-signes-epuisement-professionnel-soignants",
+      "pillar": "C",
+      "tags": [
+        "RPS",
+        "burnout",
+        "soignants"
+      ],
+      "publishedAt": "2026-09-01",
+      "clicks": 0,
+      "impressions": 0,
+      "position": 0,
+      "topQueries": [],
+      "diagnostics": [
+        "ZERO_IMPRESSIONS"
+      ],
+      "delta": null
+    },
+    {
+      "slug": "qvct-par-ou-commencer-etablissement-sante",
+      "pillar": "C",
+      "tags": [
+        "QVCT",
+        "établissements",
+        "prévention"
+      ],
+      "publishedAt": "2026-08-25",
+      "clicks": 0,
+      "impressions": 0,
+      "position": 0,
+      "topQueries": [],
+      "diagnostics": [
+        "ZERO_IMPRESSIONS"
+      ],
+      "delta": null
+    }
+  ],
+  "byPillar": [
+    {
+      "pillar": "D",
+      "articleCount": 1,
+      "clicks": 0,
+      "impressions": 0,
+      "position": 0
+    },
+    {
+      "pillar": "C",
+      "articleCount": 2,
+      "clicks": 0,
+      "impressions": 0,
+      "position": 0
+    }
+  ]
+}
