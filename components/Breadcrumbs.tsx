@@ -15,12 +15,20 @@ export default function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
   // qu'être traité comme la page courante.
   const lastIndex = items.length > 0 ? trail.length - 1 : -1;
 
-  const itemListElement = trail.map((crumb, index) => ({
-    "@type": "ListItem",
-    position: index + 1,
-    name: crumb.label,
-    ...(crumb.href ? { item: `${SITE}${crumb.href}` } : {}),
-  }));
+  // Google exige un champ `item` (URL) sur chaque ListItem sauf le dernier
+  // (la page courante) — cf. la doc BreadcrumbList. Un maillon intermédiaire
+  // sans page dédiée (ex. "Professionnels & établissements de soins", simple
+  // catégorie visuelle) ne peut donc pas apparaître dans le JSON-LD sans
+  // `item` : on l'exclut plutôt que d'émettre un ListItem non conforme
+  // (Search Console : "Champ 'item' manquant (dans 'itemListElement')").
+  const itemListElement = trail
+    .filter((crumb, index) => crumb.href || index === lastIndex)
+    .map((crumb, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: crumb.label,
+      ...(crumb.href ? { item: `${SITE}${crumb.href}` } : {}),
+    }));
 
   const jsonLd = {
     "@context": "https://schema.org",
