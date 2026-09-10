@@ -2,14 +2,14 @@ name: Blog veille daily scan
 
 on:
   schedule:
-    # Chaque jour ~06:00 UTC, avant la génération hebdomadaire du lundi
-    # (blog-weekly-trigger.yml, ~07:00 UTC) — indépendant d'elle : ce scan ne
-    # fait que proposer une actualité sur Discord si la recherche Claude en
-    # trouve une, il ne génère jamais rien lui-même (cf.
-    # services/blog/generateDraft.ts::runVeilleScan). Contrairement au cron
-    # hebdomadaire, /api/blog/veille est idempotent (aucune génération
-    # déclenchée), donc pas besoin du même luxe de prudence sur les retries —
-    # on n'en ajoute simplement pas, faute de besoin, pas par prudence.
+    # Le trigger GitHub Actions reste quotidien à 06:00 UTC (avant la
+    # génération hebdomadaire du lundi, blog-weekly-trigger.yml ~07:00 UTC,
+    # indépendant d'elle) — un cron standard (5 champs) ne peut pas exprimer
+    # "tous les 3 jours calendaires" nativement : le champ jour-de-semaine
+    # est modulo 7, non divisible par 3 (une expression day-of-month */3
+    # dérive de façon irrégulière à chaque fin de mois). Le vrai filtrage
+    # "1 jour sur 3" se fait donc dans le step ci-dessous via un calcul de
+    # date, pas ici.
     - cron: "0 6 * * *"
   workflow_dispatch: {}
 
@@ -26,6 +26,22 @@ jobs:
           if [ -z "$BLOG_CRON_SECRET" ]; then
             echo "BLOG_CRON_SECRET n'est pas configuré — rien à faire."
             exit 0
+          fi
+          # Cadence voulue : 1 scan tous les 3 jours calendaires, premier
+          # jour dimanche 2026-09-13 (puis mercredi, samedi, mardi,
+          # vendredi, lundi, jeudi, dimanche... le cycle de 7 jours de la
+          # semaine se répète tous les 3 cycles de 3 jours, soit 21 jours).
+          # EPOCH doit rester un dimanche si jamais recalé plus tard.
+          # Un déclenchement manuel (workflow_dispatch) ignore ce filtre —
+          # il reste utile pour forcer un scan hors cycle sans attendre.
+          if [ "$GITHUB_EVENT_NAME" = "schedule" ]; then
+            EPOCH="2026-09-13"
+            DAYS_SINCE=$(( ( $(date -u -d "$(date -u +%Y-%m-%d)" +%s) - $(date -u -d "$EPOCH" +%s) ) / 86400 ))
+            REMAINDER=$(( ( (DAYS_SINCE % 3) + 3) % 3 ))
+            if [ "$REMAINDER" -ne 0 ]; then
+              echo "Pas un jour de veille (1 scan tous les 3 jours à partir du $EPOCH) — rien à faire."
+              exit 0
+            fi
           fi
           # --max-time 180 : hérité de l'ancien mécanisme web_search (pensée
           # adaptative, relances sur pause_turn), qui causait en prod un échec
