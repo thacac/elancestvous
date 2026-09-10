@@ -1,6 +1,26 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { createGoogleSearchConsoleClient } from "../googleSearchConsoleClient";
+import { createGoogleSearchConsoleClient, parseServiceAccountJson } from "../googleSearchConsoleClient";
+
+describe("parseServiceAccountJson", () => {
+  it("decodes a base64-encoded service account JSON", () => {
+    const original = {
+      client_email: "robot@example.iam.gserviceaccount.com",
+      // Un vrai fichier de compte de service contient des `\n` échappés
+      // dans private_key — le base64 les protège de toute corruption par un
+      // copier-coller qui les transformerait en vrais retours à la ligne
+      // (cause du bug initial : "Bad control character in string literal").
+      private_key: "-----BEGIN PRIVATE KEY-----\nABC\nDEF\n-----END PRIVATE KEY-----\n",
+    };
+    const encoded = Buffer.from(JSON.stringify(original)).toString("base64");
+    expect(parseServiceAccountJson(encoded)).toEqual(original);
+  });
+
+  it("throws a clear error naming the env var when the decoded content isn't valid JSON", () => {
+    const notJson = Buffer.from("ceci n'est pas du JSON").toString("base64");
+    expect(() => parseServiceAccountJson(notJson)).toThrow(/GSC_SERVICE_ACCOUNT_JSON/);
+  });
+});
 
 describe("createGoogleSearchConsoleClient", () => {
   it("queries page+query dimensions filtered to /blog/ and maps rows", async () => {

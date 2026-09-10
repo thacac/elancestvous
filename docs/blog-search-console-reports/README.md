@@ -26,3 +26,32 @@ directement sur `master` par le workflow (donnée générée, pas du code — m�
 logique que les commits automatiques "blog: actualité ajoutée à la file").
 Tant que `GSC_SERVICE_ACCOUNT_JSON`/`GSC_SITE_URL` ne sont pas configurés en
 secrets GitHub Actions, le job ne fait rien (voir #57).
+
+## Configurer GSC_SERVICE_ACCOUNT_JSON (base64 obligatoire)
+
+Le secret attend le fichier JSON du compte de service **encodé en base64**,
+jamais le JSON brut — deux incidents réels en configurant ce secret : le
+champ `private_key` (une clé RSA sur une seule très longue ligne, avec des
+`\n` échappés) a été corrompu par un copier-coller (retours à la ligne
+réintroduits, puis des espaces injectés au milieu du base64 de la clé),
+provoquant respectivement `SyntaxError: Bad control character in string
+literal` puis `error:1E08010C:DECODER routines::unsupported` côté script. Le
+base64 traverse ces outils sans dommage.
+
+**Ne jamais ouvrir, éditer ou coller le contenu du fichier JSON à la main.**
+Une fois le fichier téléchargé depuis Google Cloud (IAM et administration →
+Comptes de service → clé JSON), l'encoder directement en ligne de commande :
+
+```bash
+node -e "console.log(require('fs').readFileSync('/chemin/vers/le-fichier.json').toString('base64'))"
+```
+
+(fonctionne identiquement sur Linux/Mac/Windows avec Node installé — évite
+les différences d'options entre les `base64` CLI de chaque OS). Copier la
+sortie de cette commande (une seule ligne, sans retour à la ligne) comme
+valeur du secret GitHub `GSC_SERVICE_ACCOUNT_JSON`.
+
+Si un secret déjà configuré échoue avec une de ces deux erreurs : la clé a
+très probablement été vue/copiée manuellement à un moment donné et doit être
+considérée comme potentiellement corrompue — régénérer une nouvelle clé côté
+Google Cloud plutôt que de tenter de réparer l'existante à la main.
