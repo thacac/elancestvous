@@ -16,6 +16,9 @@ export const metadata: Metadata = {
     "Conseils, retours d'expérience et ressources sur la QVCT, la prévention des RPS et le coaching des professionnels de santé.",
   alternates: {
     canonical: "/blog",
+    types: {
+      "application/rss+xml": "/blog/feed.xml",
+    },
   },
   openGraph: {
     title: "Blog | Élan C'est Vous",
