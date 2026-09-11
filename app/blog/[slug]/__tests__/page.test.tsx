@@ -79,6 +79,39 @@ describe("BlogPost — liens du cocon sémantique (issue #73)", () => {
   });
 });
 
+describe("BlogPost — fil d'Ariane (cocon sémantique, #73)", () => {
+  it("insère le pilier de l'article entre Blog et le titre, lié à la page de service correspondante", async () => {
+    vi.mocked(getPostBySlug).mockResolvedValue(
+      post({ title: "Article courant", pillar: "C" })
+    );
+
+    const jsx = await BlogPost({ params: Promise.resolve({ slug: "article-courant" }) });
+    render(jsx);
+
+    expect(screen.getByRole("link", { name: "Blog" })).toHaveAttribute("href", "/blog");
+    expect(screen.getByRole("link", { name: "Formations QVCT / RPS" })).toHaveAttribute(
+      "href",
+      "/professionnels-etablissements-de-soins/formations-rps-qvct"
+    );
+    // Le titre de l'article est la page courante : jamais un lien.
+    expect(screen.queryByRole("link", { name: "Article courant" })).toBeNull();
+    expect(screen.getAllByText("Article courant").length).toBeGreaterThan(0);
+  });
+
+  it("omet le niveau pilier pour un article publié avant #73 (pillar: null, rétrocompatibilité)", async () => {
+    vi.mocked(getPostBySlug).mockResolvedValue(
+      post({ title: "Vieil article", pillar: null })
+    );
+
+    const jsx = await BlogPost({ params: Promise.resolve({ slug: "vieil-article" }) });
+    render(jsx);
+
+    expect(screen.getByRole("link", { name: "Blog" })).toHaveAttribute("href", "/blog");
+    // Aucun des 4 libellés de pilier ne doit apparaître comme lien de fil d'Ariane.
+    expect(screen.queryByRole("link", { name: "Formations QVCT / RPS" })).toBeNull();
+  });
+});
+
 describe("BlogPost — boutons de partage", () => {
   it("affiche des boutons de partage pointant vers l'URL canonique de l'article", async () => {
     vi.mocked(getPostBySlug).mockResolvedValue(post({ slug: "article-courant" }));
