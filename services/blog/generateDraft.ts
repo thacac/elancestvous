@@ -421,15 +421,14 @@ export async function generateDraft(
   const publishedPosts = await deps.github.listPublishedPosts();
   const existingTitles = publishedPosts.map((p) => p.title);
 
-  // Les deux sont indépendants (l'effet de bord ne lit ni n'écrit la file
-  // JSON, getNextQueuedTopic ne touche ni à la recherche Claude ni à Discord) : lancés
-  // en parallèle plutôt que séquentiellement pour rester sous le
-  // --max-time généreux mais fini accordé côté cron (cf. commentaire de
-  // non-idempotence sur .github/workflows/blog-weekly-trigger.yml).
-  const [, queuedTopic] = await Promise.all([
-    proposeNextActualiteBestEffort(publishedPosts, deps),
-    deps.github.getNextQueuedTopic(),
-  ]);
+  // La proposition de veille (proposeNextActualiteBestEffort) n'est plus
+  // déclenchée ici : retour d'usage réel du 10/09, un déclenchement manuel
+  // de cette génération hebdomadaire produisait un second lot de
+  // propositions Discord le même jour que le scan dédié (runVeilleScan(),
+  // désormais seul point d'entrée de la veille — cf. #66 bis). Aucun lien
+  // avec la génération elle-même : la veille ne fait que peupler la file
+  // partagée, lue juste en dessous comme n'importe quelle autre entrée.
+  const queuedTopic = await deps.github.getNextQueuedTopic();
 
   // Cascade de priorité du sujet de la semaine (#67 > #66 approuvée > #52),
   // toutes deux logées dans la même file (githubBlogRepo.ts::getNextQueuedTopic).
