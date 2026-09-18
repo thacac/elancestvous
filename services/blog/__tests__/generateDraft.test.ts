@@ -28,7 +28,14 @@ const validDraft: BlogDraft = {
   localAngle: false,
 };
 
-const pillarD = { id: "D" as const, label: "GAPP", targetPage: "/gapp", theme: "theme", weight: 3 };
+const pillarD = {
+  id: "D" as const,
+  label: "GAPP",
+  targetPage: "/gapp",
+  theme: "theme",
+  weight: 3,
+  imageScene: "scene",
+};
 
 function makeActualiteCandidate(overrides: Partial<ActualiteCandidate> = {}): ActualiteCandidate {
   return {
@@ -89,6 +96,24 @@ describe("SYSTEM_PROMPT", () => {
       expect(SYSTEM_PROMPT).toContain(pillar.targetPage);
     }
     expect(SYSTEM_PROMPT).toMatch(/lien\s+markdown/i);
+  });
+
+  it("no longer tells the model to exclude people from the cover illustration (root cause of empty-room images)", () => {
+    expect(SYSTEM_PROMPT).not.toMatch(/pas de visage reconnaissable/i);
+  });
+
+  it("explicitly allows/encourages people in situation in the cover illustration, framed so faces stay unidentifiable", () => {
+    expect(SYSTEM_PROMPT).toMatch(/personnes?\s+(visibles|en\s+situation)/i);
+    expect(SYSTEM_PROMPT).toMatch(/soignant/i);
+  });
+
+  it("forbids the previously-observed defaults (empty room, unoccupied chairs, object still life) as the only option", () => {
+    expect(SYSTEM_PROMPT).toMatch(/pi[eè]ce vide/i);
+    expect(SYSTEM_PROMPT).toMatch(/chaises inoccup[ée]es/i);
+  });
+
+  it("requires the cover scene to reflect the article's actual subject rather than a generic wellness mood", () => {
+    expect(SYSTEM_PROMPT).toMatch(/sujet trait[ée]|cet article/i);
   });
 });
 

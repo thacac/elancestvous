@@ -33,8 +33,15 @@ de santé en Occitanie.
    Claude à chaque génération (via l'API Contents GitHub), sur ce point l'automatisation
    se contrôle elle-même.
 4. **Toujours un prompt d'illustration de couverture**, en anglais, décrivant une
-   image éditoriale sobre et chaleureuse — pas de texte dans l'image, pas de visage
-   reconnaissable, cohérente avec la palette turquoise/marine de la marque
+   scène documentaire qui illustre concrètement le sujet de l'article — jamais une
+   ambiance santé générique interchangeable, et jamais, comme seule option, une pièce
+   vide, des chaises inoccupées ou une nature morte d'objets (défaut observé avant
+   correction du prompt). Des personnes en situation sont autorisées et même
+   souhaitées (soignant·e accompagné·e, cadre de santé et son équipe, séance de
+   coaching, groupe en formation ou en GAPP réellement en train d'échanger) : cadrage
+   candide (de dos, de profil, en action) plutôt que portrait posé, pour qu'aucun
+   visage ne soit identifiable sans exclure les personnes de l'image. Pas de texte
+   dans l'image, cohérente avec la palette turquoise/marine de la marque
    (`#29B5AD` / `#112E40`, voir `README.md`).
 
 ## Ce que la validation humaine doit vérifier (Phase 3)
@@ -75,6 +82,19 @@ Le champ `pillar` étant déjà contraint à ces 4 valeurs par
 `BlogDraftSchema` (`services/blog/draftSchema.ts`), Claude ne peut pas
 déclarer un cocon hors de cette liste — aucun enrichissement du prompt
 système n'était nécessaire pour éviter les sujets hors thématiques établies.
+
+Chaque pilier porte aussi une suggestion de scène pour l'illustration de
+couverture (champ `imageScene` de `services/blog/pillars.ts`, injectée par
+`anthropicDraftGenerator.ts` en plus de `theme`) — un correctif à la règle 4
+ci-dessus, pour que la variété de composition ne dépende plus uniquement de
+la consigne générale du prompt système :
+
+| Pilier | Scène suggérée |
+|---|---|
+| A | Séance de coaching individuel, deux personnes assises en échange |
+| B | Cadre de santé et son équipe, briefing ou couloir d'unité de soins |
+| C | Petit groupe de soignants en formation/atelier, engagés |
+| D | Groupe GAPP assis en cercle, chaises occupées, en échange |
 Un article publié avant cette issue n'a pas de `pillar` déclaré : il reste
 valide (le champ est optionnel, `null` par défaut) mais n'affiche aucun lien
 de cocon tant qu'il n'en reçoit pas un.

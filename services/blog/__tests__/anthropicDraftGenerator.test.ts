@@ -181,6 +181,28 @@ describe("createAnthropicDraftGenerator.parseDraft", () => {
     expect(content).toContain(pillarC.targetPage);
   });
 
+  it("includes the suggested pillar's image scene hint when a suggestion is given (rotation path)", async () => {
+    messagesParse.mockReset().mockResolvedValue(makeParseResponse());
+    const generator = createAnthropicDraftGenerator({ apiKey: "key" });
+
+    await generator.parseDraft([], baseSuggestion());
+
+    const call = messagesParse.mock.calls[0][0];
+    const content = call.messages[0].content as string;
+    expect(content).toContain(pillarC.imageScene);
+  });
+
+  it("also includes the suggested pillar's image scene hint on the actualité path", async () => {
+    messagesParse.mockReset().mockResolvedValue(makeParseResponse());
+    const generator = createAnthropicDraftGenerator({ apiKey: "key" });
+
+    await generator.parseDraft([], actualiteSuggestion());
+
+    const call = messagesParse.mock.calls[0][0];
+    const content = call.messages[0].content as string;
+    expect(content).toContain(pillarC.imageScene);
+  });
+
   it("lists recent tags to avoid re-targeting when the suggestion carries some", async () => {
     messagesParse.mockReset().mockResolvedValue(makeParseResponse());
     const generator = createAnthropicDraftGenerator({ apiKey: "key" });
