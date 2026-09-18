@@ -82,6 +82,9 @@ Le champ `pillar` étant déjà contraint à ces 4 valeurs par
 `BlogDraftSchema` (`services/blog/draftSchema.ts`), Claude ne peut pas
 déclarer un cocon hors de cette liste — aucun enrichissement du prompt
 système n'était nécessaire pour éviter les sujets hors thématiques établies.
+Un article publié avant cette issue n'a pas de `pillar` déclaré : il reste
+valide (le champ est optionnel, `null` par défaut) mais n'affiche aucun lien
+de cocon tant qu'il n'en reçoit pas un.
 
 Chaque pilier porte aussi une suggestion de scène pour l'illustration de
 couverture (champ `imageScene` de `services/blog/pillars.ts`, injectée par
@@ -95,6 +98,3 @@ la consigne générale du prompt système :
 | B | Cadre de santé et son équipe, briefing ou couloir d'unité de soins |
 | C | Petit groupe de soignants en formation/atelier, engagés |
 | D | Groupe GAPP assis en cercle, chaises occupées, en échange |
-Un article publié avant cette issue n'a pas de `pillar` déclaré : il reste
-valide (le champ est optionnel, `null` par défaut) mais n'affiche aucun lien
-de cocon tant qu'il n'en reçoit pas un.
