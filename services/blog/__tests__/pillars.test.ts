@@ -2,6 +2,14 @@ import { describe, expect, it } from "vitest";
 
 import { PILLARS, pickNextPillar, shouldInjectLocalAngle, type PillarId } from "../pillars";
 
+describe("PILLARS", () => {
+  it("declares a non-empty image scene hint for every pillar (used to vary blog cover illustrations)", () => {
+    for (const pillar of PILLARS) {
+      expect(pillar.imageScene.length).toBeGreaterThan(0);
+    }
+  });
+});
+
 describe("pickNextPillar", () => {
   it("never picks the same pillar as the one immediately preceding it", () => {
     const history: PillarId[] = [];

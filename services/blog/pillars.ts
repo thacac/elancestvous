@@ -6,6 +6,14 @@ export type Pillar = {
   targetPage: string;
   theme: string;
   weight: number;
+  // Suggestion de scène pour l'illustration de couverture (injectée par
+  // anthropicDraftGenerator.ts en plus de `theme`) : sans elle, le modèle
+  // retombe systématiquement sur les mêmes 2-3 compositions "sûres" (pièce
+  // vide, chaises inoccupées, nature morte d'objets), sans lien avec le
+  // sujet réel de l'article ni avec l'offre du site (accompagner des
+  // soignants). En français comme `theme` — le prompt final envoyé à l'API
+  // image reste en anglais, imposé par SYSTEM_PROMPT.
+  imageScene: string;
 };
 
 // Poids repris du ratio du plan éditorial initial (docs/blog-plan-editorial.md
@@ -20,6 +28,8 @@ export const PILLARS: Pillar[] = [
     theme:
       "Stress personnel, charge émotionnelle, transitions de vie/carrière, fonctionnement concret d'un accompagnement individuel.",
     weight: 2,
+    imageScene:
+      "Scène suggérée pour l'illustration : une séance de coaching individuel, deux personnes assises en échange, cadrage documentaire — jamais un portrait posé face caméra.",
   },
   {
     id: "B",
@@ -28,6 +38,8 @@ export const PILLARS: Pillar[] = [
     theme:
       "Coaching individuel et collectif pour cadres de santé, managers et équipes ; dynamiques d'équipe, posture managériale.",
     weight: 2,
+    imageScene:
+      "Scène suggérée pour l'illustration : un cadre de santé en échange avec son équipe, en briefing ou dans un couloir d'unité de soins, en mouvement, cadrage documentaire.",
   },
   {
     id: "C",
@@ -36,6 +48,8 @@ export const PILLARS: Pillar[] = [
     theme:
       "Prévention des RPS, QVCT, gestion du stress/des émotions, usure professionnelle.",
     weight: 4,
+    imageScene:
+      "Scène suggérée pour l'illustration : un petit groupe de soignants en formation ou en atelier, visiblement engagés (prise de notes, échange), cadrage documentaire.",
   },
   {
     id: "D",
@@ -45,6 +59,8 @@ export const PILLARS: Pillar[] = [
     theme:
       "Définition et fonctionnement du GAPP, différenciation avec des dispositifs voisins (supervision), bénéfices dans la durée.",
     weight: 3,
+    imageScene:
+      "Scène suggérée pour l'illustration : un groupe GAPP assis en cercle, chaises occupées, en train d'échanger — jamais des chaises vides.",
   },
 ];
 

@@ -39,8 +39,16 @@ Règles strictes :
   jamais une URL inventée ou approximative :
 ${SERVICE_PAGES_LIST}
 - Fournis toujours au moins un prompt d'illustration de couverture, en anglais, décrivant
-  une image éditoriale sobre et chaleureuse (pas de texte dans l'image, pas de visage
-  reconnaissable), cohérente avec la palette turquoise/marine de la marque.`;
+  une scène éditoriale documentaire qui illustre concrètement le sujet traité par cet
+  article — jamais une ambiance santé générique interchangeable d'un article à l'autre.
+  Des personnes en situation sont autorisées et même souhaitées (une soignante accompagnée,
+  un cadre de santé et son équipe, une séance de coaching, un groupe en formation ou en
+  GAPP réellement en train d'échanger) : cadre-les de façon candide et documentaire (de dos,
+  de profil, en action, plan mi-distance) plutôt qu'en portrait posé face caméra, pour
+  qu'aucun visage ne soit identifiable sans pour autant exclure les personnes de l'image.
+  Ne propose jamais, comme seule option, une pièce vide, des chaises inoccupées ou une
+  simple nature morte d'objets sur un bureau. Pas de texte dans l'image, cohérente avec la
+  palette turquoise/marine de la marque.`;
 
 export type GenerateDraftResult =
   | {
