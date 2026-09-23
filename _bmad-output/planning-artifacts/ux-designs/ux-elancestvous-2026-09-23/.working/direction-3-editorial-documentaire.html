@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Direction 3 — Éditorial / Documentaire</title>
+<!--
+RATIONALE : registre éditorial et documentaire, comme un dossier de recherche ou
+un rapport long-format plutôt qu'un site de vente. Grille asymétrique, gros
+folio serif en survol de la marge, piliers présentés en liste indexée (comme
+une table des matières) et non en cartes, CTA = lien souligné qui se trace au
+survol. Peu de couleur, beaucoup de texte et de silence — la crédibilité vient
+de la sobriété et de la lecture, pas de la décoration.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/*
+  PALETTE (tokens réels, respectés) :
+  --primary  #112e40  bleu-nuit profond   -> texte principal, folios
+  --accent   #ff5a3d  corail chaud        -> index numéroté, trait de soulignement
+  --pastel   #d1faf9  menthe très pâle    -> fond du bandeau eyebrow uniquement
+  --teal     #29b5ad  logo/teal           -> filet de marge
+  --secondary #898c91 gris                -> légendes, folios, méta
+  Fond page : #f8f6f1 (papier), seule teinte hors tokens, purement neutre.
+*/
+:root{
+  --primary:#112e40; --accent:#ff5a3d; --pastel:#d1faf9; --teal:#29b5ad; --secondary:#898c91;
+}
+*{box-sizing:border-box;}
+body{margin:0;background:#d8d5cc;font-family:'Inter',sans-serif;color:var(--primary);padding:40px 0;}
+.frame-label{max-width:1440px;margin:0 auto 12px;padding:0 24px;font:500 12px/1 'Inter',sans-serif;color:var(--secondary);text-transform:uppercase;letter-spacing:.12em;}
+.browser{max-width:1440px;margin:0 auto 64px;background:#f8f6f1;overflow:hidden;box-shadow:0 24px 50px -28px rgba(0,0,0,.4);}
+.chrome{display:flex;align-items:center;gap:8px;padding:12px 18px;background:#efece4;border-bottom:1px solid #ddd8cb;}
+.dot{width:10px;height:10px;background:#cfc9ba;}
+
+/* HERO */
+.hero{padding:80px 90px 70px;position:relative;border-bottom:2px solid var(--primary);}
+.folio{position:absolute;top:80px;right:90px;font-family:'Playfair Display',serif;font-style:italic;font-size:14px;color:var(--secondary);}
+.eyebrow{font:500 12px/1 'Inter',sans-serif;letter-spacing:.14em;text-transform:uppercase;background:var(--pastel);color:var(--primary);padding:8px 14px;display:inline-block;}
+h1.hero-title{font-family:'Playfair Display',serif;font-weight:700;font-size:64px;line-height:1.08;margin:26px 0 30px;max-width:920px;letter-spacing:-.01em;}
+.hero-grid{display:grid;grid-template-columns:2fr 1fr;gap:60px;align-items:start;border-top:1px solid #d6d2c6;padding-top:28px;}
+.hero-sub{font-size:18px;line-height:1.7;color:#2a3e4c;margin:0;font-family:'Playfair Display',serif;font-style:italic;font-weight:500;}
+.hero-side{border-left:1px solid var(--teal);padding-left:22px;}
+.btn-primary{font:500 15px/1 'Inter',sans-serif;color:var(--primary);text-decoration:none;padding-bottom:2px;background-image:linear-gradient(var(--accent),var(--accent));background-size:0% 2px;background-repeat:no-repeat;background-position:0 100%;transition:background-size .3s ease;display:inline-block;margin-bottom:22px;}
+.btn-primary:hover{background-size:100% 2px;}
+.btn-primary:before{content:'01 — ';color:var(--accent);font-weight:600;}
+.callout{font-size:13.5px;line-height:1.6;color:var(--secondary);margin:0;}
+.callout a{color:var(--primary);text-decoration:underline;text-decoration-color:var(--secondary);text-underline-offset:3px;}
+
+/* PILLARS — index / sommaire */
+.pillars{padding:56px 90px 90px;}
+.pillars-head{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--primary);padding-bottom:14px;margin-bottom:8px;}
+.pillars-head h2{font-family:'Playfair Display',serif;font-style:italic;font-weight:500;font-size:20px;margin:0;}
+.pillars-head span{font:400 12px 'Inter';color:var(--secondary);letter-spacing:.06em;}
+.row{display:grid;grid-template-columns:70px 1fr 2fr 200px;gap:28px;align-items:start;padding:32px 0;border-bottom:1px solid #ddd8cb;transition:background .2s ease;}
+.row:hover, .row.hover-state{background:#f1eee6;}
+.row-num{font-family:'Playfair Display',serif;font-style:italic;font-size:22px;color:var(--secondary);transition:color .2s ease;}
+.row:hover .row-num, .row.hover-state .row-num{color:var(--accent);}
+.row h3{font-family:'Playfair Display',serif;font-weight:600;font-size:24px;margin:0;}
+.row .tag{display:block;font:600 10px 'Inter';letter-spacing:.08em;color:var(--accent);margin-top:6px;}
+.row p{font-size:14.5px;line-height:1.7;color:#3a5261;margin:0;}
+.row-link{font:500 13.5px/1 'Inter',sans-serif;color:var(--primary);text-decoration:none;align-self:center;justify-self:end;background-image:linear-gradient(var(--accent),var(--accent));background-size:0% 1.5px;background-repeat:no-repeat;background-position:0 100%;transition:background-size .3s ease;padding-bottom:2px;}
+.row:hover .row-link, .row.hover-state .row-link{background-size:100% 1.5px;}
+
+/* MOBILE */
+.mobile-wrap{max-width:390px;margin:0 auto;}
+.mchrome{background:#efece4;padding:10px 16px;border:1px solid #ddd8cb;border-bottom:none;text-align:center;font:500 11px 'Inter';color:var(--secondary);}
+.mpage{background:#f8f6f1;border:1px solid #ddd8cb;overflow:hidden;}
+.mhero{padding:36px 22px 30px;border-bottom:2px solid var(--primary);}
+.mhero h1{font-family:'Playfair Display',serif;font-weight:700;font-size:32px;line-height:1.14;margin:18px 0 16px;}
+.mhero p{font-family:'Playfair Display',serif;font-style:italic;font-size:15px;line-height:1.6;color:#2a3e4c;margin:0 0 20px;}
+.mcallout{font-size:13px;color:var(--secondary);line-height:1.55;border-top:1px solid #ddd8cb;padding-top:14px;}
+.mrow{padding:22px 22px;border-bottom:1px solid #ddd8cb;}
+.mrow-top{display:flex;gap:14px;align-items:baseline;margin-bottom:8px;}
+.mrow .row-num{font-size:17px;}
+.mrow h3{font-family:'Playfair Display',serif;font-weight:600;font-size:20px;margin:0;}
+.mrow p{font-size:13.5px;line-height:1.6;color:#3a5261;margin:0 0 10px;}
+</style>
+</head>
+<body>
+
+<div class="frame-label">Desktop — 1440px</div>
+<div class="browser">
+  <div class="chrome"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+  <section class="hero">
+    <span class="folio">Élan C'est Vous — Dossier</span>
+    <span class="eyebrow">Santé au travail &amp; Performance Humaine</span>
+    <h1 class="hero-title">Préserver la santé de ceux qui soignent.</h1>
+    <div class="hero-grid">
+      <p class="hero-sub">« Ancienne soignante basée à Toulouse, j'accompagne les établissements et les professionnels de santé à prévenir l'épuisement, réguler la charge émotionnelle et soutenir des pratiques de travail durables. »</p>
+      <div class="hero-side">
+        <a class="btn-primary" href="#">Solutions pour les établissements</a>
+        <p class="callout">Vous êtes un particulier ? Pour débloquer une situation ou travailler un objectif, découvrez l'<a href="#">accompagnement individuel</a>.</p>
+      </div>
+    </div>
+  </section>
+  <section class="pillars">
+    <div class="pillars-head">
+      <h2>Sommaire des accompagnements</h2>
+      <span>4 sections</span>
+    </div>
+    <div class="row hover-state">
+      <span class="row-num">01</span>
+      <div><h3>Formation</h3></div>
+      <p>Formations professionnelles QVCT, RPS, gestion du stress et des émotions. Des formations sur-mesure pour prévenir l'épuisement professionnel, mieux comprendre le stress et la charge émotionnelle, et renforcer les ressources individuelles et collectives.</p>
+      <a class="row-link" href="#">Découvrir les formations →</a>
+    </div>
+    <div class="row">
+      <span class="row-num">02</span>
+      <div><h3>Coaching</h3></div>
+      <p>Coaching d'équipe ou individuel. Des accompagnements de coaching, individuels ou collectifs, lorsqu'un objectif précis est identifié : évolution des pratiques, ajustement des fonctionnements, réorganisation ou période de transition.</p>
+      <a class="row-link" href="#">Découvrir le coaching →</a>
+    </div>
+    <div class="row">
+      <span class="row-num">03</span>
+      <div><h3>GAPP</h3></div>
+      <p>Groupe d'analyse des pratiques professionnelles. Des espaces réguliers de réflexion collective pour prendre du recul sur les situations vécues, réguler la charge émotionnelle et soutenir les pratiques dans la durée.</p>
+      <a class="row-link" href="#">Découvrir les GAPP →</a>
+    </div>
+    <div class="row">
+      <span class="row-num">04</span>
+      <div><h3>Obligations légales<span class="tag">[DRAFT]</span></h3></div>
+      <p>Obligation de sécurité de l'employeur, prévention des RPS, DUERP : comprendre ce qui est exigé et comment agir avant le contentieux.</p>
+      <a class="row-link" href="#">Comprendre vos obligations →</a>
+    </div>
+  </section>
+</div>
+
+<div class="frame-label">Mobile — 390px</div>
+<div class="mobile-wrap">
+  <div class="mchrome">elancestvous.fr</div>
+  <div class="mpage">
+    <section class="mhero">
+      <span class="eyebrow" style="font-size:11px;">Santé au travail &amp; Performance Humaine</span>
+      <h1>Préserver la santé de ceux qui soignent.</h1>
+      <p>« Ancienne soignante basée à Toulouse, j'accompagne les établissements et les professionnels de santé à prévenir l'épuisement, réguler la charge émotionnelle et soutenir des pratiques de travail durables. »</p>
+      <a class="btn-primary" href="#" style="background-size:100% 2px;">Solutions pour les établissements</a>
+      <p class="mcallout">Vous êtes un particulier ? Pour débloquer une situation ou travailler un objectif, découvrez l'accompagnement individuel.</p>
+    </section>
+    <div class="mrow">
+      <div class="mrow-top"><span class="row-num">01</span><h3>Formation</h3></div>
+      <p>Formations QVCT, RPS, gestion du stress et des émotions, sur-mesure pour prévenir l'épuisement.</p>
+      <a class="row-link" href="#" style="background-size:100% 1.5px;">Découvrir les formations →</a>
+    </div>
+    <div class="mrow">
+      <div class="mrow-top"><span class="row-num">02</span><h3>Coaching</h3></div>
+      <p>Coaching d'équipe ou individuel lorsqu'un objectif précis est identifié.</p>
+      <a class="row-link" href="#">Découvrir le coaching →</a>
+    </div>
+    <div class="mrow">
+      <div class="mrow-top"><span class="row-num">03</span><h3>GAPP</h3></div>
+      <p>Espaces réguliers de réflexion collective pour réguler la charge émotionnelle.</p>
+      <a class="row-link" href="#">Découvrir les GAPP →</a>
+    </div>
+    <div class="mrow" style="border-bottom:none;">
+      <div class="mrow-top"><span class="row-num">04</span><h3>Obligations légales<span class="tag">[DRAFT]</span></h3></div>
+      <p>Obligation de sécurité, RPS, DUERP : agir avant le contentieux.</p>
+      <a class="row-link" href="#">Comprendre vos obligations →</a>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
