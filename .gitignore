@@ -37,3 +37,7 @@ next-env.d.ts
 
 # scripts/compareDraftModels.ts output (comparaisons de coût/qualité, jetables)
 /tmp-blog-compare/
+
+# BMAD Method — réponses d'install personnelles (par développeur, régénérées
+# par `bmad install`), jamais les mêmes que le config.toml partagé de l'équipe
+_bmad/config.user.toml
