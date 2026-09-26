@@ -66,7 +66,7 @@ contenu marketing déjà écrit ni la structure d'URL SEO qui a le plus de valeu
   d'encadrement.**
   Amandine, référente QVCT dans un établissement de santé toulousain, tape
   "formation QVCT établissement de santé" sur Google. Elle arrive sur
-  `/formations/prevention-rps-qvct` (hub de la Famille "Prévention des RPS et
+  `/formations/prevention-rps-qvct-etablissements-sante` (hub de la Famille "Prévention des RPS et
   QVCT"), reconnaît immédiatement le ton du site (contenu pédagogie/public
   cible déjà familier), voit en premier la section "Formations disponibles"
   — pas noyée en bas de page — compare deux fiches, ouvre "Diagnostic et plan
@@ -79,7 +79,7 @@ contenu marketing déjà écrit ni la structure d'URL SEO qui a le plus de valeu
   sécurité après un article de blog.**
   Marc lit un article de blog sur les signaux d'alerte RPS (maillage retour
   existant), clique sur le lien "en savoir plus sur vos obligations", atterrit
-  sur `/formations/cadre-legal-droits-ethique` (hub de la Famille "Cadre
+  sur `/formations/cadre-legal-etablissements-sante` (hub de la Famille "Cadre
   légal, droits et éthique"), comprend qu'un DUERP mal tenu est un risque
   juridique réel, ouvre la fiche "Obligations légales des établissements", et
   demande un devis pour la formation associée. Réalise UJ-2.
@@ -121,7 +121,7 @@ contenu marketing déjà écrit ni la structure d'URL SEO qui a le plus de valeu
 - **Hub** — Page qui conserve le contenu marketing actuel d'une offre et
   distribue vers ses Fiches formation ou sous-pages. Six hubs : Formations
   (= aussi le Catalogue), Coaching, et un hub par Famille (ex.
-  `/formations/prevention-rps-qvct`).
+  `/formations/prevention-rps-qvct-etablissements-sante`).
 - **Catalogue** — Le hub Formations (`/formations`) dans son rôle de liste
   filtrable de toutes les Fiches formation, toutes Familles confondues.
 - **Maillage retour** — Lien automatique d'un article de blog vers la page
@@ -170,10 +170,10 @@ bonne pratique (liens déjà partagés, bots, cohérence).
 
 #### FR-2: Nouveau schéma d'URL
 Le site expose les URLs suivantes :
-- `/formations` (hub + catalogue), `/formations/cadre-legal-droits-ethique`,
-  `/formations/prevention-rps-qvct`,
-  `/formations/accompagnement-pratiques-professionnelles`,
-  `/formations/dynamique-equipe-developpement-professionnel`
+- `/formations` (hub + catalogue), `/formations/cadre-legal-etablissements-sante`,
+  `/formations/prevention-rps-qvct-etablissements-sante`,
+  `/formations/accompagnement-professionnel-etablissements-sante`,
+  `/formations/dynamique-equipe-etablissements-sante`
 - `/coaching`, `/coaching/particuliers`, `/coaching/etablissements`
 - `/gapp-analyse-pratiques-professionnelles`
 
@@ -262,9 +262,9 @@ le maillage retour s'attache au hub (page), jamais à la fiche individuelle.
 #### FR-6: Nouveau pilier de rotation blog + retargeting du pilier existant
 Le système ajoute un pilier `F` ("Cadre légal, droits et éthique") à
 `PILLARS`, poids 4, `targetPage` pointant vers
-`/formations/cadre-legal-droits-ethique`. Le `targetPage` du pilier `C`
+`/formations/cadre-legal-etablissements-sante`. Le `targetPage` du pilier `C`
 existant ("Formations") est mis à jour vers
-`/formations/prevention-rps-qvct`.
+`/formations/prevention-rps-qvct-etablissements-sante`.
 
 **Consequences (testable):**
 - `pickNextPillar` peut désormais sélectionner le pilier `F`.
@@ -302,7 +302,7 @@ Le contenu actuel de `formations-rps-qvct/page.tsx`, `coaching/page.tsx`,
 `coaching-individuel/page.tsx` et de la page GAPP est repris intégralement
 sur les nouvelles URLs, sans perte de section. Le contenu de
 `formations-rps-qvct/page.tsx` devient celui du hub Famille "Prévention des
-RPS et QVCT" (`/formations/prevention-rps-qvct`).
+RPS et QVCT" (`/formations/prevention-rps-qvct-etablissements-sante`).
 
 **Consequences (testable):**
 - Chaque hub conserve son nombre de sections de contenu marketing d'origine
@@ -472,12 +472,15 @@ qualitatives pour ce PRD, à chiffrer une fois une baseline GSC disponible.*
    développement professionnel" : ajouter 2 piliers dès le MVP (dilue le
    poids de rotation des piliers existants), ou différer tant qu'aucun besoin
    éditorial concret n'apparaît (choix retenu pour le MVP, cf. §6.2) ?
-6. **Exactitude des slugs de Famille** — les 4 slugs proposés
-   (`cadre-legal-droits-ethique`, `prevention-rps-qvct`,
-   `accompagnement-pratiques-professionnelles`,
-   `dynamique-equipe-developpement-professionnel`) sont une proposition de ce
-   PRD, pas encore validés mot pour mot par l'utilisateur — à confirmer avant
-   `bmad-create-epics-and-stories`.
+6. ~~Exactitude des slugs de Famille~~ — **Résolu** : chaque slug porte un
+   suffixe `-etablissements-sante` pour garder le signal sectoriel dans l'URL
+   (constat : sans lui, les 4 slugs se lisaient comme des intitulés RH
+   génériques, sans rien qui distingue le secteur sanitaire/médico-social qui
+   est le vrai différenciateur de l'offre) — `cadre-legal-etablissements-sante`,
+   `prevention-rps-qvct-etablissements-sante`,
+   `accompagnement-professionnel-etablissements-sante`,
+   `dynamique-equipe-etablissements-sante`. Même principe déjà appliqué à
+   `gapp-analyse-pratiques-professionnelles` (cf. FR-2).
 
 ## 9. Assumptions Index
 
@@ -495,5 +498,7 @@ qualitatives pour ce PRD, à chiffrer une fois une baseline GSC disponible.*
   particulier pour les Familles 3 et 4, entièrement nouvelles (pas de page
   existante à reprendre).
 - §7 — Success Metrics qualitatives faute de baseline Search Console.
-- §8 — Slugs des 4 Familles proposés par ce PRD, pas encore confirmés mot
-  pour mot par l'utilisateur (cf. Open Question 6).
+- §8 — Suffixe `-etablissements-sante` retenu sur les 4 slugs de Famille pour
+  préserver le signal sectoriel dans l'URL, seul niveau où le secteur
+  santé/soin apparaissait explicitement dans l'ancien schéma d'URL
+  (`professionnels-etablissements-de-soins/...`) — confirmé par l'utilisateur.

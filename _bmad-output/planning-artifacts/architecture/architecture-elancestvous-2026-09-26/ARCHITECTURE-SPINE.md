@@ -51,9 +51,9 @@ graph LR
   `gray-matter` + schéma `zod`, détection de slug dupliqué, un type
   `FormationMeta` exporté. Le champ obligatoire est **`famille`**, pas
   `pillar` — un enum local à `lib/formations.ts` à 4 valeurs fixes
-  (`cadre-legal-droits-ethique`, `prevention-rps-qvct`,
-  `accompagnement-pratiques-professionnelles`,
-  `dynamique-equipe-developpement-professionnel`), **jamais** validé contre
+  (`cadre-legal-etablissements-sante`, `prevention-rps-qvct-etablissements-sante`,
+  `accompagnement-professionnel-etablissements-sante`,
+  `dynamique-equipe-etablissements-sante`), **jamais** validé contre
   `PILLAR_IDS` de `services/blog/pillars.ts`. Les deux enums restent
   distincts et non synchronisés : une Fiche formation ne référence jamais un
   Pilier blog. `[SUPERSEDES la version initiale de cet AD, qui prévoyait un
@@ -69,9 +69,9 @@ graph LR
   besoin éditorial identifié.
 - **Rule:** `services/blog/pillars.ts` gagne une entrée
   `{ id: "F", label: "Cadre légal, droits et éthique", targetPage:
-  "/formations/cadre-legal-droits-ethique", weight: 4, ... }` dans le tableau
+  "/formations/cadre-legal-etablissements-sante", weight: 4, ... }` dans le tableau
   `PILLARS`. Le `targetPage` de l'entrée `C` existante ("Formations") est mis
-  à jour vers `/formations/prevention-rps-qvct` (son hub successeur). Les
+  à jour vers `/formations/prevention-rps-qvct-etablissements-sante` (son hub successeur). Les
   Familles "Accompagnement et pratiques professionnelles" et "Dynamique
   d'équipe et développement professionnel" n'ont **aucune** entrée `PILLARS`
   correspondante — leurs hubs affichent un `ArticlesBlogLiesBloc` qui ne rend
@@ -102,10 +102,10 @@ graph LR
   contrôle éditorial et risque direct pour FR-7 (contenu conservé).
 - **Rule:** Chaque hub et chaque Famille est un `page.tsx` statique dédié —
   `app/formations/page.tsx`,
-  `app/formations/cadre-legal-droits-ethique/page.tsx`,
-  `app/formations/prevention-rps-qvct/page.tsx`,
-  `app/formations/accompagnement-pratiques-professionnelles/page.tsx`,
-  `app/formations/dynamique-equipe-developpement-professionnel/page.tsx`,
+  `app/formations/cadre-legal-etablissements-sante/page.tsx`,
+  `app/formations/prevention-rps-qvct-etablissements-sante/page.tsx`,
+  `app/formations/accompagnement-professionnel-etablissements-sante/page.tsx`,
+  `app/formations/dynamique-equipe-etablissements-sante/page.tsx`,
   `app/coaching/page.tsx`, `app/coaching/particuliers/page.tsx`,
   `app/coaching/etablissements/page.tsx`,
   `app/gapp-analyse-pratiques-professionnelles/page.tsx` — cohérent avec la
@@ -123,7 +123,7 @@ graph LR
   partageable, et introduit une gestion d'état client absente du reste du
   site.
 - **Rule:** `/formations` lit son filtre actif depuis `searchParams` (ex.
-  `?famille=prevention-rps-qvct`) sur le Server Component de la page ; les
+  `?famille=prevention-rps-qvct-etablissements-sante`) sur le Server Component de la page ; les
   pastilles de catégorie sont des `<Link>` qui changent ce paramètre, jamais
   un état React local. `[ADOPTED — tranche l'Open Question 4 du PRD.]`
 
@@ -162,12 +162,12 @@ graph LR
 ```text
 app/
   formations/
-    page.tsx                                              # catalogue, lit searchParams?famille=
-    cadre-legal-droits-ethique/page.tsx                    # hub Famille 1
-    prevention-rps-qvct/page.tsx                           # hub Famille 2, contenu repris de l'actuel formations-rps-qvct
-    accompagnement-pratiques-professionnelles/page.tsx     # hub Famille 3 (contenu marketing à rédiger, pas de page existante)
-    dynamique-equipe-developpement-professionnel/page.tsx  # hub Famille 4 (idem)
-    [famille]/[slug]/page.tsx                              # fiche formation individuelle (dynamique)
+    page.tsx                                            # catalogue, lit searchParams?famille=
+    cadre-legal-etablissements-sante/page.tsx           # hub Famille 1
+    prevention-rps-qvct-etablissements-sante/page.tsx   # hub Famille 2, contenu repris de l'actuel formations-rps-qvct
+    accompagnement-professionnel-etablissements-sante/page.tsx  # hub Famille 3 (contenu marketing à rédiger, pas de page existante)
+    dynamique-equipe-etablissements-sante/page.tsx      # hub Famille 4 (idem)
+    [famille]/[slug]/page.tsx                           # fiche formation individuelle (dynamique)
   coaching/
     page.tsx                        # hub, distribue vers les deux publics
     particuliers/page.tsx
@@ -180,7 +180,7 @@ content/
 lib/
   formations.ts                     # miroir de lib/blog.ts ; enum famille local, indépendant de PILLAR_IDS
 services/blog/
-  pillars.ts                        # + pilier F (Cadre légal), poids 4 ; pilier C retargeté vers /formations/prevention-rps-qvct
+  pillars.ts                        # + pilier F (Cadre légal), poids 4 ; pilier C retargeté vers /formations/prevention-rps-qvct-etablissements-sante
 components/ui/
   button.tsx                        # + variant CTA secondaire teinté
 next.config.ts                      # + async redirects()
