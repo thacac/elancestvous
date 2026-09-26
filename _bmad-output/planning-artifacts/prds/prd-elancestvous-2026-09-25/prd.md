@@ -1,8 +1,8 @@
 ---
 title: Refonte architecture Formations / Coaching / GAPP — elancestvous.fr
-status: draft
+status: final
 created: 2026-09-25
-updated: 2026-09-25
+updated: 2026-09-26
 ---
 
 # PRD : Refonte architecture Formations / Coaching / GAPP — elancestvous.fr
