@@ -1,8 +1,14 @@
-import { isBlogPublic } from "@/lib/featureFlags";
+import { isBlogPublic, isValidationEnv } from "@/lib/featureFlags";
 
 import type { MetadataRoute } from "next";
 
 export default function robots(): MetadataRoute.Robots {
+  // Val (val.elancestvous.fr) : rien à crawler, et surtout pas de sitemap
+  // pointant vers les URLs de prod depuis un domaine de recette.
+  if (isValidationEnv()) {
+    return { rules: { userAgent: "*", disallow: "/" } };
+  }
+
   return {
     rules: [
       {

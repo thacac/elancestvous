@@ -1,0 +1,40 @@
+# Environnement de validation (recette) — https://val.elancestvous.fr
+# Déployé par .github/workflows/deploy-validation.yml à chaque push sur la
+# branche `validation`, dans /home/$VPS_USR/elancestvous-validation (projet
+# compose `elancestvous-validation`), sur le même VPS et derrière le même
+# Traefik que la prod. Tous les noms (conteneur, routers, middlewares) sont
+# préfixés `elancestvous-validation` pour ne jamais entrer en collision avec
+# ceux de docker-compose.yaml (cf. infra/__tests__/validationDeploy.test.ts).
+#
+# Invisible pour les robots : basic auth (VAL_BASIC_AUTH, ligne htpasswd lue
+# dans le .env du dossier), en-tête X-Robots-Tag, et côté app SITE_ENV=validation
+# figé au build (robots.txt `Disallow: /`, métadonnées noindex/nofollow).
+services:
+  elancestvous-validation:
+    image: ghcr.io/thacac/elancestvous-nextjs-16:validation
+    container_name: elancestvous-validation
+    restart: unless-stopped
+    env_file:
+      - .env
+    expose:
+      - "3000"
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=elancestvous_default
+      - traefik.http.routers.elancestvous-validation.rule=Host(`val.elancestvous.fr`)
+      - traefik.http.routers.elancestvous-validation.entrypoints=websecure
+      - traefik.http.routers.elancestvous-validation.tls=true
+      - traefik.http.routers.elancestvous-validation.tls.certresolver=letsencrypt
+      - traefik.http.routers.elancestvous-validation.middlewares=elancestvous-validation-auth,elancestvous-validation-noindex
+      - traefik.http.services.elancestvous-validation.loadbalancer.server.port=3000
+      - traefik.http.middlewares.elancestvous-validation-auth.basicauth.users=${VAL_BASIC_AUTH:?VAL_BASIC_AUTH manquant dans .env}
+      - traefik.http.middlewares.elancestvous-validation-noindex.headers.customresponseheaders.X-Robots-Tag=noindex, nofollow, noarchive
+
+# Rejoint le réseau par défaut du projet compose de prod (dossier
+# `elancestvous` → réseau `elancestvous_default`), celui que Traefik atteint
+# déjà pour servir la prod. Conséquence : la prod doit avoir été démarrée au
+# moins une fois avant la Val (c'est le cas sur le VPS).
+networks:
+  default:
+    name: elancestvous_default
+    external: true

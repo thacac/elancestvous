@@ -20,3 +20,39 @@
 export function isBlogPublic(): boolean {
   return process.env.BLOG_ENABLED === "true";
 }
+
+/**
+ * Environnement de validation (val.elancestvous.fr, branche `validation`,
+ * workflow deploy-validation.yml) : le site ne doit jamais être indexé —
+ * robots.txt `Disallow: /` et métadonnées noindex/nofollow (en plus du
+ * X-Robots-Tag et du basic auth posés par Traefik, cf.
+ * docker-compose.validation.yaml).
+ *
+ * Même contrainte que BLOG_ENABLED : robots.ts et les métadonnées du layout
+ * sont figés au `next build`, SITE_ENV est donc passé en build-arg à l'image
+ * de validation (Dockerfile), pas seulement écrit dans son .env.
+ */
+export function isValidationEnv(): boolean {
+  return process.env.SITE_ENV === "validation";
+}
+
+export function siteRobotsMetadata() {
+  if (isValidationEnv()) {
+    return {
+      index: false,
+      follow: false,
+      nocache: true,
+      googleBot: { index: false, follow: false, noimageindex: true },
+    };
+  }
+  return {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large" as const,
+      "max-snippet": -1,
+    },
+  };
+}
