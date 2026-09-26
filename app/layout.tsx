@@ -5,7 +5,7 @@ import { Toaster } from "sonner";
 import Footer from "@/components/Footer";
 import JsonLd from "@/components/JsonLd";
 import Navbar from "@/components/Navbar";
-import { isBlogPublic } from "@/lib/featureFlags";
+import { isBlogPublic, siteRobotsMetadata } from "@/lib/featureFlags";
 import { OG_BANNER_IMAGES, TWITTER_BANNER_IMAGES } from "@/lib/openGraph";
 
 import type { Metadata, Viewport } from "next";
@@ -44,16 +44,7 @@ export const metadata: Metadata = {
   authors: [{ name: "Coralie Mathorel", url: "https://elancestvous.fr" }],
   creator: "Coralie Mathorel",
   publisher: "Élan C'est Vous",
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-    },
-  },
+  robots: siteRobotsMetadata(),
   alternates: {
     canonical: "/",
   },

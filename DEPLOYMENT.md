@@ -30,6 +30,58 @@ Le reverse-proxy en production est **Traefik** (voir les labels dans
 `docker-compose.yaml` : routing sur `elancestvous.fr` / `www.elancestvous.fr`,
 TLS via le resolver `letsencrypt`, redirection `www` → apex).
 
+## Environnement de validation (recette) — `val.elancestvous.fr`
+
+Pipeline de recette des features avant `master` :
+
+```
+feature/xxx ──PR──▶ validation ──(push = déploiement auto)──▶ https://val.elancestvous.fr
+                         │ recette OK
+feature/xxx ──PR──▶ master ──(workflow_dispatch)──▶ https://elancestvous.fr
+```
+
+- Les branches de feature sont mergées dans `validation` pour la recette, puis
+  font leur PR habituelle vers `master`. Resynchroniser régulièrement
+  `validation` avec `master` (`git merge origin/master`) pour que la Val reflète
+  la prod + les features en cours.
+- `.github/workflows/deploy-validation.yml` : à chaque push sur `validation`,
+  build de l'image `ghcr.io/<owner>/elancestvous-nextjs-16:validation` (+
+  `val-<sha>`, jamais `latest` ni le `<sha>` nu de la prod) avec
+  `SITE_ENV=validation`, puis déploiement dans
+  `/home/$VPS_USR/elancestvous-validation` via `docker-compose.validation.yaml`
+  (projet compose `elancestvous-validation`, conteneur `elancestvous-validation`).
+  Une PR vers `validation` ne fait que le build.
+- Même VPS et même Traefik que la prod (routers/middlewares préfixés
+  `elancestvous-validation`, réseau `elancestvous_default` partagé).
+- **Invisible pour les robots** : basic auth Traefik, en-tête
+  `X-Robots-Tag: noindex, nofollow, noarchive`, `robots.txt` en `Disallow: /`
+  sans sitemap, et métadonnées `noindex/nofollow` (figées au build par
+  `SITE_ENV=validation`, cf. `lib/featureFlags.ts`).
+- **Pipeline blog neutralisé** : aucun secret Discord/GitHub/cron/Anthropic
+  n'est transmis à la Val (routes `/api/blog/*` et `/api/discord/*` en 401) —
+  elle ne peut ni poster sur Discord ni committer sur `master`. Pas de SMTP
+  non plus : le formulaire de contact n'envoie rien depuis la Val.
+
+### Mise en place (une seule fois)
+
+1. **DNS** : enregistrement `A` (et `AAAA` le cas échéant) `val.elancestvous.fr`
+   → IP du VPS. Traefik obtient le certificat Let's Encrypt au premier appel.
+2. **Secret GitHub `VAL_BASIC_AUTH`** : une ligne htpasswd, générée localement
+   (le déploiement échoue volontairement si ce secret est absent) :
+   ```bash
+   htpasswd -nbB recette 'mot-de-passe-solide'   # paquet apache2-utils
+   ```
+   Coller la sortie telle quelle (`recette:$2y$05$...`), sans doubler les `$`.
+3. Créer la branche `validation` depuis `master` si elle n'existe pas, puis
+   pousser dessus (ou Actions → *Build and Deploy (validation)* → Run workflow
+   sur la branche `validation`).
+4. Vérifier :
+   ```bash
+   curl -I https://val.elancestvous.fr                  # 401 attendu
+   curl -I -u recette:... https://val.elancestvous.fr   # 200 + X-Robots-Tag
+   curl -u recette:... https://val.elancestvous.fr/robots.txt   # Disallow: /
+   ```
+
 ## Secrets GitHub requis (Settings → Secrets and variables → Actions)
 
 | Secret | Rôle |
@@ -38,6 +90,7 @@ TLS via le resolver `letsencrypt`, redirection `www` → apex).
 | `VPS_USR` | Utilisateur SSH |
 | `VPS_PASSWORD` | Mot de passe SSH (authentification par mot de passe, pas par clé — voir note sécurité ci-dessous) |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USR`, `SMTP_PWD` | Envoi du formulaire de contact |
+| `VAL_BASIC_AUTH` | Ligne htpasswd du basic auth de `val.elancestvous.fr` (workflow de validation uniquement) |
 
 > **Note sécurité** : le déploiement utilise une authentification SSH par mot de
 > passe (`VPS_PASSWORD`). Une authentification par clé (`ssh-keygen -t ed25519`,

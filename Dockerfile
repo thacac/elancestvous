@@ -34,6 +34,13 @@ COPY . .
 ARG BLOG_ENABLED
 ENV BLOG_ENABLED=$BLOG_ENABLED
 
+# SITE_ENV=validation uniquement pour l'image de la Val
+# (deploy-validation.yml) : même raison que BLOG_ENABLED ci-dessus, robots.ts
+# et les métadonnées noindex du layout sont figés ici au build. Vide pour la
+# prod (deploy.yml ne le passe pas).
+ARG SITE_ENV
+ENV SITE_ENV=$SITE_ENV
+
 RUN yarn build
 
 # Production image, copy all the files and run next
