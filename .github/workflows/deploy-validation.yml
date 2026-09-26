@@ -22,8 +22,11 @@ on:
       - validation
   workflow_dispatch:
 
+# Groupe par événement/ref : GitHub ne garde qu'un run en attente par
+# groupe, un run de PR (build seul) aurait sinon pu annuler un push en
+# attente de déploiement.
 concurrency:
-  group: deploy-validation
+  group: deploy-validation-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: false
 
 env:
@@ -70,9 +73,10 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          # Sur une PR vers `validation` : on vérifie seulement que l'image
-          # se construit.
-          push: ${{ github.event_name != 'pull_request' }}
+          # Sur une PR vers `validation`, ou un workflow_dispatch lancé
+          # depuis une autre branche : on vérifie seulement que l'image se
+          # construit, sans écraser le tag :validation.
+          push: ${{ github.ref == 'refs/heads/validation' && github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           # SITE_ENV=validation est figé au build (robots.txt Disallow: /,
@@ -103,6 +107,9 @@ jobs:
           VAL_BASIC_AUTH: ${{ secrets.VAL_BASIC_AUTH }}
           BLOG_ENABLED: ${{ secrets.BLOG_ENABLED }}
         run: |
+          # Un retour à la ligne collé avec le secret finirait dans le label
+          # Traefik et ferait échouer toute authentification.
+          VAL_BASIC_AUTH=$(printf %s "$VAL_BASIC_AUTH" | tr -d '\r\n')
           if [ -z "$VAL_BASIC_AUTH" ]; then
             echo "Le secret VAL_BASIC_AUTH n'est pas configuré — refus de déployer une Val publique (voir DEPLOYMENT.md)."
             exit 1

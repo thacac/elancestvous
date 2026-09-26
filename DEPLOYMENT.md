@@ -53,6 +53,10 @@ feature/xxx ──PR──▶ master ──(workflow_dispatch)──▶ https://
   Une PR vers `validation` ne fait que le build.
 - Même VPS et même Traefik que la prod (routers/middlewares préfixés
   `elancestvous-validation`, réseau `elancestvous_default` partagé).
+  Conséquence du réseau partagé : tant que le conteneur de Val tourne, un
+  `docker compose down` de la prod (ou `infra/deploy.sh`) ne peut pas supprimer
+  ce réseau — arrêter la Val d'abord
+  (`docker compose -p elancestvous-validation -f docker-compose.validation.yaml down`).
 - **Invisible pour les robots** : basic auth Traefik, en-tête
   `X-Robots-Tag: noindex, nofollow, noarchive`, `robots.txt` en `Disallow: /`
   sans sitemap, et métadonnées `noindex/nofollow` (figées au build par

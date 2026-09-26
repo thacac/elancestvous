@@ -77,4 +77,18 @@ describe(".github/workflows/deploy-validation.yml", () => {
       expect(yml).not.toContain(`secrets.${secret}`);
     }
   });
+
+  it("ne pousse l'image :validation que depuis la branche validation (hors PR)", () => {
+    expect(yml).toMatch(
+      /push: \$\{\{ github\.ref == 'refs\/heads\/validation' && github\.event_name != 'pull_request' \}\}/
+    );
+  });
+
+  it("isole la concurrence par événement/ref (une PR ne peut pas annuler un déploiement en attente)", () => {
+    expect(yml).toMatch(/group: deploy-validation-\$\{\{ github\.event_name \}\}-\$\{\{ github\.ref \}\}/);
+  });
+
+  it("retire les retours à la ligne du secret VAL_BASIC_AUTH avant de l'écrire", () => {
+    expect(yml).toMatch(/tr -d '\\r\\n'/);
+  });
 });
