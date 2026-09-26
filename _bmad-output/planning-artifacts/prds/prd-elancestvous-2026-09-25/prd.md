@@ -143,19 +143,28 @@ niché sous Formations (ce n'est pas une formation, c'est une offre au format
 différent — pas de champs Qualiopi, pas de programme pédagogique), même si le
 brief externe qui a inspiré la taxonomie des Familles la mentionne comme
 sous-item de la Famille 4 — écarté explicitement par l'utilisateur.
-`[ASSUMPTION: le bouton "Particuliers" du header actuel peut coexister avec
-l'entrée Coaching plutôt que d'être supprimé — aucune décision explicite prise
-sur son sort, sujet resté ouvert en party-mode.]`
+
+Le bouton "Particuliers" du header actuel est **conservé**, en plus des 3
+entrées de nav — ce n'est pas un 4e pilier de même niveau, mais un raccourci
+d'audience distinct qui reste nécessaire pour la visibilité humaine :
+proposé en retrait au profit du seul callout du Hero (moins de bruit dans la
+nav), l'utilisateur a tranché explicitement pour le garder, un lien texte ou
+un callout en bas de Hero n'étant pas assez visible pour un visiteur qui
+scanne rapidement le header à la recherche de son propre parcours.
 
 **Functional Requirements:**
 
-#### FR-1: Nav à 3 entrées racine
+#### FR-1: Nav à 3 entrées racine + bouton Particuliers
 Un visiteur peut naviguer depuis n'importe quelle page vers Formations,
-Coaching ou GAPP via la nav principale.
+Coaching ou GAPP via la nav principale. Le bouton "Particuliers" du header
+reste visible en plus de ces 3 entrées, comme raccourci direct vers
+`/coaching/particuliers`.
 
 **Consequences (testable):**
 - La nav ne contient aucune entrée "Obligations légales" de premier niveau.
 - GAPP reste un lien direct, jamais un sous-élément de Formations.
+- Le bouton "Particuliers" du header reste présent et cliquable sur toutes
+  les pages, indépendamment de l'entrée Coaching.
 
 ### 4.2 URLs cibles et redirections
 
@@ -457,9 +466,12 @@ qualitatives pour ce PRD, à chiffrer une fois une baseline GSC disponible.*
 
 ## 8. Open Questions
 
-1. Le bouton "Particuliers" du header actuel est-il conservé tel quel une
+1. ~~Le bouton "Particuliers" du header actuel est-il conservé tel quel une
    fois le hub Coaching en place, ou retiré au profit de l'entrée Coaching
-   seule ? Non tranché en party-mode.
+   seule ?~~ — **Résolu** : conservé. Proposé en retrait au profit du seul
+   callout du Hero, l'utilisateur a explicitement tranché pour le garder —
+   un lien texte ou un callout de bas de Hero n'est pas assez visible pour
+   un visiteur humain qui scanne rapidement le header (cf. FR-1).
 2. ~~Mécanisme technique des redirections 301~~ — **Résolu** en architecture
    (AD-3) : `next.config.ts` `redirects()`, jamais un middleware.
 3. ~~Combien de Fiches formation par Thème / authorship~~ — **Résolu** :
@@ -467,11 +479,11 @@ qualitatives pour ce PRD, à chiffrer une fois une baseline GSC disponible.*
    (pas d'interface d'admin) ; le volume réel reste non chiffré, cf. §6.2.
 4. ~~Filtre catalogue client-side vs lien partageable~~ — **Résolu** en
    architecture (AD-5) : filtre piloté par `searchParams` (URL partageable).
-5. **Piliers blog pour les Familles 3 et 4** — aucun pilier n'existe pour
-   "Accompagnement et pratiques professionnelles" ni "Dynamique d'équipe et
-   développement professionnel" : ajouter 2 piliers dès le MVP (dilue le
-   poids de rotation des piliers existants), ou différer tant qu'aucun besoin
-   éditorial concret n'apparaît (choix retenu pour le MVP, cf. §6.2) ?
+5. ~~Piliers blog pour les Familles 3 et 4~~ — **Résolu** : différés. Aucun
+   pilier n'existe pour "Accompagnement et pratiques professionnelles" ni
+   "Dynamique d'équipe et développement professionnel" ; l'utilisateur
+   confirme ne pas vouloir en ajouter tant qu'aucun besoin éditorial concret
+   n'apparaît (cf. §6.2, Deferred de l'Architecture Spine).
 6. ~~Exactitude des slugs de Famille~~ — **Résolu** : chaque slug porte un
    suffixe `-etablissements-sante` pour garder le signal sectoriel dans l'URL
    (constat : sans lui, les 4 slugs se lisaient comme des intitulés RH
@@ -486,14 +498,14 @@ qualitatives pour ce PRD, à chiffrer une fois une baseline GSC disponible.*
 
 - §0 — Les maquettes Design Artifact de cette session remplacent le run
   `bmad-ux` `draft` comme référence visuelle ; ce dernier reste non finalisé.
-  `[NOTE: les maquettes catalogue/hub reflètent encore l'ancienne taxonomie à
-  4 Thèmes — à mettre à jour pour refléter les 4 Familles avant le build UI.]`
+  Les maquettes catalogue/hub ont été mises à jour pour refléter les 4
+  Familles (slugs et intitulés définitifs).
 - §3 — Taxonomie à 4 Familles issue d'un brief externe (discussion ChatGPT
   fournie par l'utilisateur), pas d'une élicitation BMAD classique.
-- §4.1 — Le bouton "Particuliers" du header peut coexister avec l'entrée
-  Coaching (cf. Open Question 1).
+- §4.1 — Le bouton "Particuliers" du header est conservé en plus des 3
+  entrées de nav (cf. Open Question 1, résolue).
 - §4.4 — Poids de rotation Coaching (2/2) et GAPP (3) inchangés. Piliers
-  blog pour les Familles 3 et 4 différés (cf. Open Question 5).
+  blog pour les Familles 3 et 4 différés (cf. Open Question 5, résolue).
 - §6.2 — Charge de rédaction du reste du catalogue non chiffrée, en
   particulier pour les Familles 3 et 4, entièrement nouvelles (pas de page
   existante à reprendre).

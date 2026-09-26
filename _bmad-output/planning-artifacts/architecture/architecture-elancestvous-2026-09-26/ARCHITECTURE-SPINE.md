@@ -190,7 +190,7 @@ next.config.ts                      # + async redirects()
 
 | Capability / Area | Lives in | Governed by |
 | --- | --- | --- |
-| FR-1 Nav 3 piliers | `components/Navbar.tsx` (existant, à mettre à jour) | AD-4 |
+| FR-1 Nav 3 piliers + bouton Particuliers conservé | `components/Navbar.tsx` (existant, à mettre à jour) | AD-4 |
 | FR-2 URLs + redirections | `next.config.ts`, arborescence `app/` | AD-3, AD-4 |
 | FR-3 Modèle de contenu formation (champ `famille`) | `content/formations/`, `lib/formations.ts` | AD-1 |
 | FR-4 Catalogue filtrable par Famille | `app/formations/page.tsx` | AD-5 |
@@ -203,9 +203,6 @@ next.config.ts                      # + async redirects()
 
 ## Deferred
 
-- **Sort du bouton "Particuliers" du header** (Open Question 1 du PRD) —
-  décision produit/UX, pas un invariant technique ; n'affecte aucun AD
-  ci-dessus quel que soit le sens de la décision.
 - **Volume et calendrier de rédaction du reste du catalogue** (Open Question 3
   du PRD) — chantier de contenu, pas d'architecture ; le modèle (AD-1) supporte
   déjà un nombre arbitraire de fiches par thème.
