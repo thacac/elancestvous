@@ -48,7 +48,10 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          push: true
+          # Sur une PR (dont les promotions validation → master) : build de
+          # vérification seulement. Pousser ici écraserait :latest avec du
+          # code pas encore mergé, servi par tout pull ultérieur sur le VPS.
+          push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           # BLOG_ENABLED n'est autrement écrit que dans .env sur le VPS (job

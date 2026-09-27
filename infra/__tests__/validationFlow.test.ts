@@ -71,3 +71,14 @@ describe(".github/workflows/blog-seo-report-trigger.yml", () => {
     expect(yml).toMatch(/uses: actions\/checkout@v4\n\s*with:\n(?:\s*#.*\n)*\s*token: \$\{\{ secrets\.GH_PAT_TOKEN \}\}/);
   });
 });
+
+describe(".github/workflows/deploy.yml", () => {
+  const yml = read(".github/workflows/deploy.yml");
+
+  it("ne pousse pas les tags de prod (latest, <sha>) depuis une PR", () => {
+    // Une PR de promotion validation → master reconstruit l'image : sans
+    // cette condition, :latest serait écrasé par du code pas encore mergé.
+    expect(yml).toMatch(/push: \$\{\{ github\.event_name != 'pull_request' \}\}/);
+    expect(yml).not.toMatch(/^\s*push: true\s*$/m);
+  });
+});
