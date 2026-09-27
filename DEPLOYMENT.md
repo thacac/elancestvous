@@ -32,18 +32,27 @@ TLS via le resolver `letsencrypt`, redirection `www` → apex).
 
 ## Environnement de validation (recette) — `val.elancestvous.fr`
 
-Pipeline de recette des features avant `master` :
+Tout changement de code passe par la recette avant la prod :
 
 ```
 feature/xxx ──PR──▶ validation ──(push = déploiement auto)──▶ https://val.elancestvous.fr
                          │ recette OK
-feature/xxx ──PR──▶ master ──(workflow_dispatch)──▶ https://elancestvous.fr
+                         └──PR de promotion──▶ master ──(workflow_dispatch)──▶ https://elancestvous.fr
+
+blog auto (Discord, actualités, rapport SEO) ──commit direct──▶ master ──(sync auto)──▶ validation
 ```
 
-- Les branches de feature sont mergées dans `validation` pour la recette, puis
-  font leur PR habituelle vers `master`. Resynchroniser régulièrement
-  `validation` avec `master` (`git merge origin/master`) pour que la Val reflète
-  la prod + les features en cours.
+- Les branches de feature font leur PR vers `validation`. Une fois la recette
+  OK sur la Val, une PR de promotion `validation` → `master` embarque tout ce
+  qui a été validé ; le déploiement prod reste manuel (`workflow_dispatch`).
+- `.github/workflows/guard-master.yml` : le check `source-is-validation` fait
+  échouer toute PR vers `master` dont la source n'est pas la branche
+  `validation` du dépôt.
+- `.github/workflows/sync-validation.yml` : à chaque push sur `master`
+  (promotion, ou contenu blog automatisé qui écrit directement sur `master`),
+  `master` est mergé dans `validation` avec `GH_PAT_TOKEN` — la Val est
+  redéployée et reste à jour. En cas de conflit, le job échoue sans rien
+  pousser : merger `master` dans `validation` à la main.
 - `.github/workflows/deploy-validation.yml` : à chaque push sur `validation`,
   build de l'image `ghcr.io/<owner>/elancestvous-nextjs-16:validation` (+
   `val-<sha>`, jamais `latest` ni le `<sha>` nu de la prod) avec
@@ -67,6 +76,11 @@ feature/xxx ──PR──▶ master ──(workflow_dispatch)──▶ https://
   non plus : le formulaire de contact n'envoie rien depuis la Val.
 
 ### Mise en place (une seule fois)
+
+0. **Ruleset GitHub sur `master`** (Settings → Rules → Rulesets), sans quoi le
+   garde-fou reste contournable : exiger une pull request, et le status check
+   `source-is-validation`. Ne pas y soumettre le compte de `GH_PAT_TOKEN`
+   (bypass), qui publie le blog directement sur `master`.
 
 1. **DNS** : enregistrement `A` (et `AAAA` le cas échéant) `val.elancestvous.fr`
    → IP du VPS. Traefik obtient le certificat Let's Encrypt au premier appel.

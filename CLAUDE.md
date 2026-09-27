@@ -7,6 +7,10 @@ hebdomadaire validé via Discord avant publication automatique. Voir
 ## Workflow Git
 
 - Une branche par tâche, une PR par branche. Jamais de commit direct sur `master`.
+- Les PR de feature ciblent **`validation`** (déployée sur la Val,
+  https://val.elancestvous.fr), jamais `master` : seule une PR de promotion
+  `validation` → `master` y est acceptée (check `guard-master.yml`). Voir
+  `DEPLOYMENT.md`.
 - Commits réguliers, messages descriptifs (français, cohérents avec l'historique).
 - TDD obligatoire pour tout changement de code : écrire le test, le voir échouer,
   puis implémenter.

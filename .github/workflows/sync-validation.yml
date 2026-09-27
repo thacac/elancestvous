@@ -1,0 +1,52 @@
+name: Sync validation with master
+
+# Ramène sur `validation` tout ce qui arrive sur master : merges de
+# promotion (fast-forward) et contenu blog automatisé écrit directement sur
+# master (publication approuvée sur Discord, file d'actualités, rapport
+# SEO). La Val reste ainsi à jour, et les PR de promotion ne divergent pas.
+#
+# En cas de conflit, le job échoue (notification GitHub) sans rien pousser :
+# résoudre à la main en mergeant master dans validation.
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+concurrency:
+  group: sync-validation
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout validation
+        uses: actions/checkout@v4
+        with:
+          ref: validation
+          fetch-depth: 0
+          # GH_PAT_TOKEN et non le GITHUB_TOKEN du run : un push fait avec
+          # ce dernier ne déclenche aucun autre workflow, la Val ne serait
+          # donc pas redéployée (deploy-validation.yml).
+          token: ${{ secrets.GH_PAT_TOKEN }}
+
+      - name: Merger master dans validation
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch origin master
+          if git merge-base --is-ancestor origin/master HEAD; then
+            echo "validation contient déjà master — rien à faire."
+            exit 0
+          fi
+          if ! git merge --no-edit origin/master; then
+            git merge --abort
+            echo "::error::Conflit entre master et validation — merger master dans validation à la main."
+            exit 1
+          fi
+          git push origin HEAD:validation
