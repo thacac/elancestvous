@@ -51,7 +51,23 @@ describe(".github/workflows/sync-validation.yml", () => {
     expect(yml).toMatch(/token: \$\{\{ secrets\.GH_PAT_TOKEN \}\}/);
   });
 
+  it("réessaie le push si validation a bougé entre-temps (merge de feature)", () => {
+    expect(yml).toMatch(/for attempt in 1 2 3/);
+    expect(yml).toMatch(/git reset --keep origin\/validation/);
+  });
+
   it("sérialise les synchros", () => {
     expect(yml).toMatch(/concurrency:\s*\n\s*group: sync-validation/);
+  });
+});
+
+describe(".github/workflows/blog-seo-report-trigger.yml", () => {
+  const yml = read(".github/workflows/blog-seo-report-trigger.yml");
+
+  it("pousse le rapport avec GH_PAT_TOKEN (ruleset de master + synchro vers validation)", () => {
+    // Avec le GITHUB_TOKEN du run, le push direct serait refusé par le
+    // ruleset de master (seul le compte du PAT est en bypass), et ne
+    // déclencherait pas sync-validation.yml.
+    expect(yml).toMatch(/uses: actions\/checkout@v4\n\s*with:\n(?:\s*#.*\n)*\s*token: \$\{\{ secrets\.GH_PAT_TOKEN \}\}/);
   });
 });

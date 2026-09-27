@@ -51,8 +51,10 @@ blog auto (Discord, actualités, rapport SEO) ──commit direct──▶ maste
 - `.github/workflows/sync-validation.yml` : à chaque push sur `master`
   (promotion, ou contenu blog automatisé qui écrit directement sur `master`),
   `master` est mergé dans `validation` avec `GH_PAT_TOKEN` — la Val est
-  redéployée et reste à jour. En cas de conflit, le job échoue sans rien
-  pousser : merger `master` dans `validation` à la main.
+  redéployée et reste à jour. Le rapport SEO est lui aussi poussé avec
+  `GH_PAT_TOKEN` (un push fait avec le `GITHUB_TOKEN` d'un run ne déclenche
+  aucun workflow). En cas de conflit, le job échoue sans rien pousser :
+  merger `master` dans `validation` à la main.
 - `.github/workflows/deploy-validation.yml` : à chaque push sur `validation`,
   build de l'image `ghcr.io/<owner>/elancestvous-nextjs-16:validation` (+
   `val-<sha>`, jamais `latest` ni le `<sha>` nu de la prod) avec
@@ -78,10 +80,19 @@ blog auto (Discord, actualités, rapport SEO) ──commit direct──▶ maste
 ### Mise en place (une seule fois)
 
 0. **Ruleset GitHub sur `master`** (Settings → Rules → Rulesets), sans quoi le
-   garde-fou reste contournable : exiger une pull request, et le status check
-   `source-is-validation`. Ne pas y soumettre le compte de `GH_PAT_TOKEN`
-   (bypass), qui publie le blog directement sur `master`.
-
+   garde-fou reste contournable : exiger une pull request et le status check
+   `source-is-validation`. Sur un dépôt personnel, la liste de bypass ne
+   prend que des rôles : mettre **Repository admin**, pour que le blog
+   automatisé (poussé avec `GH_PAT_TOKEN`, compte propriétaire) puisse
+   toujours écrire directement sur `master`. Conséquence : le propriétaire
+   peut lui aussi forcer un merge — le check rouge reste visible, mais n'est
+   pas bloquant pour lui.
+   Pour les PR de promotion, choisir **« Create a merge commit »** (pas
+   squash/rebase) : `validation` est alors simplement avancée sur `master`
+   par la synchro, sans historique dupliqué.
+   `GH_PAT_TOKEN` doit avoir les droits Contents **et Workflows** en écriture
+   (la synchro pousse sur `validation` des modifications de
+   `.github/workflows` arrivées sur `master`).
 1. **DNS** : enregistrement `A` (et `AAAA` le cas échéant) `val.elancestvous.fr`
    → IP du VPS. Traefik obtient le certificat Let's Encrypt au premier appel.
 2. **Secret GitHub `VAL_BASIC_AUTH`** : une ligne htpasswd, générée localement
