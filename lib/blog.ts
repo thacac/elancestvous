@@ -1,7 +1,5 @@
-import fs from "node:fs";
 import path from "node:path";
 
-import matter from "gray-matter";
 import DOMPurify from "isomorphic-dompurify";
 import readingTime from "reading-time";
 import rehypeSanitize from "rehype-sanitize";
@@ -12,6 +10,7 @@ import remarkRehype from "remark-rehype";
 import { unified } from "unified";
 import { z } from "zod";
 
+import { loadMarkdownCollection, parseFrontmatter } from "@/lib/markdownCollection";
 import { PILLAR_IDS } from "@/services/blog/pillars";
 
 export const BLOG_CONTENT_DIR = path.join(process.cwd(), "content", "blog");
@@ -62,71 +61,26 @@ const draftFrontmatterSchema = frontmatterSchema
     path: ["coverImage"],
   });
 
-function listMarkdownFiles(dir: string): string[] {
-  if (!fs.existsSync(dir)) return [];
-  return fs
-    .readdirSync(dir)
-    .filter((file) => file.endsWith(".md"))
-    .map((file) => path.join(dir, file));
-}
-
 export function parsePostContent(
   raw: string,
   sourceLabel: string
 ): { frontmatter: z.infer<typeof frontmatterSchema>; content: string } {
-  const { data, content } = matter(raw);
-  const result = frontmatterSchema.safeParse(data);
-  if (!result.success) {
-    const issues = result.error.issues
-      .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
-      .join("; ");
-    throw new Error(`Frontmatter invalide dans ${sourceLabel} — ${issues}`);
-  }
-  return { frontmatter: result.data, content };
+  return parseFrontmatter(frontmatterSchema, raw, sourceLabel);
 }
 
 export function parseDraftContent(
   raw: string,
   sourceLabel: string
 ): { frontmatter: z.infer<typeof draftFrontmatterSchema>; content: string } {
-  const { data, content } = matter(raw);
-  const result = draftFrontmatterSchema.safeParse(data);
-  if (!result.success) {
-    const issues = result.error.issues
-      .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
-      .join("; ");
-    throw new Error(`Frontmatter invalide dans ${sourceLabel} — ${issues}`);
-  }
-  return { frontmatter: result.data, content };
-}
-
-function readAndValidate(filePath: string): {
-  frontmatter: z.infer<typeof frontmatterSchema>;
-  content: string;
-} {
-  const raw = fs.readFileSync(filePath, "utf8");
-  return parsePostContent(raw, path.basename(filePath));
+  return parseFrontmatter(draftFrontmatterSchema, raw, sourceLabel);
 }
 
 function loadAllMeta(dir: string): Array<PostMeta & { content: string }> {
-  const files = listMarkdownFiles(dir);
-  const seenSlugs = new Map<string, string>();
-  const posts = files.map((filePath) => {
-    const { frontmatter, content } = readAndValidate(filePath);
-    const existing = seenSlugs.get(frontmatter.slug);
-    if (existing) {
-      throw new Error(
-        `Slug dupliqué "${frontmatter.slug}" dans ${existing} et ${path.basename(
-          filePath
-        )}`
-      );
-    }
-    seenSlugs.set(frontmatter.slug, path.basename(filePath));
-    const stats = readingTime(content);
+  const posts = loadMarkdownCollection(dir, frontmatterSchema).map((post) => {
+    const stats = readingTime(post.content);
     return {
-      ...frontmatter,
+      ...post,
       readingTime: `${Math.max(1, Math.ceil(stats.minutes))} min de lecture`,
-      content,
     };
   });
   return posts.sort(
