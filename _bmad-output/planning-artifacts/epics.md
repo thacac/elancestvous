@@ -263,3 +263,179 @@ So that je peux comparer rapidement les formations d'une même famille avant de 
 **When** on l'inspecte
 **Then** la grille filtrable est complète et fonctionnelle
 **And** la section "tuiles vers les 4 familles" (FR9) n'existe pas encore — elle sera ajoutée par Epic 2 au-dessus, sans modifier cette grille
+
+## Epic 2: Nouvelle arborescence Formations / Coaching / GAPP
+
+Un visiteur navigue toute la nouvelle IA (home → nav 3 piliers + bouton
+Particuliers → hubs Formations/Coaching/GAPP) sur les nouvelles URLs, sans
+perdre le contenu marketing existant, avec les anciennes URLs qui redirigent
+proprement. **FRs couverts:** FR1, FR2, FR7, FR8, FR9, FR11. Séquencé pour
+qu'aucune story ne dépende d'une story future : les hubs (2.1-2.3) sont
+construits avant les pages qui pointent vers eux (2.4 tuiles, 2.5 home, 2.6
+nav), et les redirections (2.7) ferment la marche une fois toutes les cibles
+réelles en place. Le hub "Cadre légal, droits et éthique" n'a **aucune** page
+source existante à migrer, contrairement au hub "Prévention des RPS et QVCT"
+(confirmé par l'utilisateur, 28/09) — son contenu marketing est entièrement à
+rédiger, au même titre que les hubs des Familles 3 et 4, mais avec des fiches
+formation réelles à afficher dès le départ (contrairement à 3/4).
+
+### Story 2.1: Hubs Coaching + GAPP — contenu conservé sur nouvelles URLs
+
+As a visiteur intéressé par un accompagnement coaching ou un GAPP,
+I want retrouver tout le contenu marketing existant sur les nouvelles URLs,
+So that rien de ce qui me convainquait avant n'a disparu, seule l'adresse a changé.
+
+**Acceptance Criteria:**
+
+**Given** le contenu actuel de `coaching/page.tsx`, `coaching-individuel/page.tsx` et de la page GAPP
+**When** il est repris sur `/coaching`, `/coaching/particuliers`, `/coaching/etablissements`, `/gapp-analyse-pratiques-professionnelles`
+**Then** aucune section de contenu marketing n'est supprimée par rapport à l'original
+
+**Given** `/coaching`
+**When** je le visite
+**Then** il distribue clairement vers les deux publics (particuliers/établissements)
+
+**Given** `/coaching/etablissements`
+**When** je le visite
+**Then** son contenu est celui de l'actuelle page établissement, inchangé
+
+**Given** `/gapp-analyse-pratiques-professionnelles`
+**When** je le visite
+**Then** son contenu est celui de la page GAPP actuelle, inchangé
+
+### Story 2.2: Hubs Famille "Cadre légal" et "Prévention RPS/QVCT"
+
+As a directeur d'établissement ou référent QVCT qui cherche de l'info dans son domaine,
+I want arriver sur un hub qui garde le contenu de réassurance existant et me montre en premier les formations disponibles,
+So that je vois tout de suite si une formation répond à mon besoin, sans devoir chercher en bas de page.
+
+**Acceptance Criteria:**
+
+**Given** le contenu actuel de `formations-rps-qvct/page.tsx`
+**When** il est repris sur `/formations/prevention-rps-qvct-etablissements-sante`
+**Then** aucune section n'est supprimée
+
+**Given** `/formations/cadre-legal-etablissements-sante`
+**When** je le visite
+**Then** du contenu marketing/de réassurance nouveau (rédigé pour ce chantier, aucune page source existante à migrer) y est présent
+
+**Given** ces deux hubs
+**When** je les visite
+**Then** la section "Formations disponibles" apparaît comme premier bloc de la colonne de contenu, avant tout contenu de réassurance
+**And** elle liste les fiches réelles créées en Story 1.1
+
+**Given** ces deux hubs
+**When** on vérifie l'ordre du DOM
+**Then** aucun contenu de réassurance (pédagogie, public cible) ne précède la section "Formations disponibles"
+
+### Story 2.3: Hubs Famille "Accompagnement..." et "Dynamique d'équipe..."
+
+As a visiteur qui explore le catalogue Formations pour la première fois,
+I want que même une famille sans formation encore publiée montre un état honnête plutôt qu'une liste tronquée ou une page cassée,
+So that je comprends que l'offre existe et arrive bientôt, sans avoir l'impression d'un site à moitié fini.
+
+**Acceptance Criteria:**
+
+**Given** `/formations/accompagnement-professionnel-etablissements-sante` et `/formations/dynamique-equipe-etablissements-sante`
+**When** je les visite
+**Then** chacun affiche du contenu marketing rédigé pour ce chantier (aucune page source existante)
+
+**Given** qu'aucune Fiche formation n'existe encore pour ces deux familles
+**When** la section "Formations disponibles" s'affiche
+**Then** elle montre un état vide honnête (pas de liste tronquée, pas d'erreur) — cf. edge case UJ-1 du PRD
+
+**Given** ces deux hubs
+**When** on vérifie le maillage retour blog
+**Then** rien ne s'affiche à cet endroit (Epic 3 s'en charge ; ces familles n'ont pas de pilier)
+
+### Story 2.4: Hub Formations — tuiles vers les 4 familles
+
+As a visiteur qui arrive sur `/formations` sans idée précise de la famille qui le concerne,
+I want voir les 4 familles présentées comme tuiles cliquables,
+So that je peux choisir directement la bonne famille avant de me plonger dans le catalogue filtrable.
+
+**Acceptance Criteria:**
+
+**Given** `/formations` (créé en Epic 1, Story 1.4)
+**When** Epic 2 y ajoute la section tuiles
+**Then** 4 tuiles cliquables apparaissent, une par famille, menant vers les hubs créés en Story 2.2/2.3
+
+**Given** ces tuiles
+**When** comparées visuellement aux tuiles piliers de la home (Story 2.5)
+**Then** elles utilisent le même registre visuel
+**And** aucun regroupement en 2 groupes n'est réintroduit ("groupe sémantique" abandonné)
+
+**Given** la grille filtrable de Story 1.4
+**When** la section tuiles est ajoutée
+**Then** elle est positionnée au-dessus du contenu existant, sans modifier la grille elle-même
+
+### Story 2.5: Home en tuiles
+
+As a visiteur qui arrive sur la home,
+I want voir 3 tuiles de poids visuel comparable pour Formations, Coaching, GAPP,
+So that je comprends en un coup d'œil les 3 façons de m'accompagner, sans qu'aucune n'écrase les autres.
+
+**Acceptance Criteria:**
+
+**Given** la home
+**When** je consulte la section piliers en desktop
+**Then** les 3 tuiles (Formations, Coaching, GAPP) ont la même hauteur et largeur dans la grille
+
+**Given** le Hero
+**When** la home se charge
+**Then** il reste inchangé (fond pastel, logo, CTA "Solutions pour les établissements", callout particulier)
+
+**Given** chaque tuile
+**When** elle s'affiche
+**Then** son CTA "Découvrir..." utilise le variant secondaire de Story 1.2
+
+**Given** la tuile Formations/Coaching/GAPP
+**When** cliquée
+**Then** elle mène respectivement vers `/formations`, `/coaching`, `/gapp-analyse-pratiques-professionnelles` (toutes créées dans les stories précédentes)
+
+### Story 2.6: Nav à 3 piliers + bouton Particuliers
+
+As a visiteur sur n'importe quelle page du site,
+I want naviguer vers Formations, Coaching ou GAPP depuis la nav principale, et trouver rapidement l'accompagnement individuel si je suis un particulier,
+So that je trouve mon chemin sans avoir à deviner où chercher.
+
+**Acceptance Criteria:**
+
+**Given** n'importe quelle page
+**When** je consulte la nav principale
+**Then** je peux naviguer vers Formations, Coaching et GAPP
+
+**Given** la nav
+**When** je la consulte
+**Then** elle ne contient aucune entrée "Obligations légales" de premier niveau
+**And** GAPP reste un lien direct, jamais un sous-élément de Formations
+
+**Given** le bouton "Particuliers" du header
+**When** je consulte n'importe quelle page
+**Then** il reste présent et cliquable, menant vers `/coaching/particuliers`
+**And** ceci indépendamment de l'entrée Coaching
+
+### Story 2.7: Redirections 301 des anciennes URLs
+
+As a visiteur qui a un ancien lien vers le site (partagé, indexé, ou en favori),
+I want être redirigé automatiquement vers la nouvelle URL correspondante,
+So that je n'atterris jamais sur une page cassée, même après la migration.
+
+**Acceptance Criteria:**
+
+**Given** l'ancienne URL `particuliers/coaching-individuel`
+**When** elle est visitée
+**Then** elle répond en 301 vers `/coaching/particuliers`
+
+**Given** les anciennes URLs `professionnels-etablissements-de-soins/{coaching,formations-rps-qvct,gapp-groupe-analyse-pratiques-professionnelles}`
+**When** elles sont visitées
+**Then** chacune répond en 301 vers sa nouvelle URL correspondante (`/coaching/etablissements`, `/formations/prevention-rps-qvct-etablissements-sante`, `/gapp-analyse-pratiques-professionnelles`)
+
+**Given** ces redirections
+**When** elles sont déclarées
+**Then** elles vivent dans le bloc `async redirects()` de `next.config.ts`, à côté du bloc `headers()` existant
+**And** aucun `middleware.ts` n'est introduit
+
+**Given** la migration terminée
+**When** les préfixes `particuliers/` et `professionnels-etablissements-de-soins/` sont visités sur toute autre sous-page
+**Then** ils ne servent plus aucune page
