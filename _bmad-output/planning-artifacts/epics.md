@@ -1,5 +1,5 @@
 ---
-stepsCompleted: [1]
+stepsCompleted: [1, 2]
 inputDocuments:
   - _bmad-output/planning-artifacts/prds/prd-elancestvous-2026-09-25/prd.md
   - _bmad-output/planning-artifacts/architecture/architecture-elancestvous-2026-09-26/ARCHITECTURE-SPINE.md
@@ -71,8 +71,69 @@ Aucun document UX inclus dans cette extraction. Le run `bmad-ux` `ux-elancestvou
 
 ### FR Coverage Map
 
-{{requirements_coverage_map}}
+```
+FR1: Epic 2 - Nav 3 piliers + bouton Particuliers
+FR2: Epic 2 - Nouveau schéma d'URL + redirections 301
+FR3: Epic 1 - Modèle de contenu formation
+FR4: Epic 1 - Catalogue filtrable par famille
+FR5: Epic 1 - Fiche formation individuelle
+FR6: Epic 3 - Pilier blog "Cadre légal" + retargeting pilier "Formations"
+FR7: Epic 2 - Contenu marketing conservé sur chaque hub
+FR8: Epic 2 - Section "Formations disponibles" en tête de hub Famille
+FR9: Epic 2 - Hub Formations : tuiles vers les 4 familles
+FR10: Epic 3 - Articles de blog liés sur hub Famille
+FR11: Epic 2 - Home en tuiles
+FR12: Epic 1 - Bouton CTA secondaire
+```
+
+**Couverture des User Journeys (PRD §2.3)** — validé en party-mode le 27/09 :
+- UJ-1 (Amandine, formation QVCT) : se ferme avec Epic 1 + Epic 2.
+- UJ-2 (Marc, obligation légale via blog) : se ferme avec Epic 2 + Epic 3 (le maillage retour n'existe qu'à Epic 3).
+- UJ-3 (Sophie compare des formations sur le catalogue) : se ferme avec Epic 1 seul — n'exige pas la nouvelle nav.
 
 ## Epic List
 
-{{epics_list}}
+### Epic 1: Catalogue de formations Qualiopi
+Un professionnel peut consulter le catalogue de formations, filtrer par famille,
+ouvrir une fiche complète (Qualiopi) et demander un devis — y compris via un
+lien direct, avant même que la nouvelle nav/arborescence ne soit branchée
+(ferme UJ-3 à lui seul). Construit en premier : zéro dépendance vers la nav,
+les URLs ou les hubs (validé en party-mode — Winston/Amelia), et retire tôt le
+risque le plus incertain du projet (visibilité réelle des CTA sur du contenu
+Qualiopi complet, cf. l'incident CTA "inexistants" plus tôt dans la session).
+**FRs couverts:** FR3, FR4, FR5, FR12
+**Implementation Notes:** `lib/formations.ts` + `content/formations/` n'ont
+aucune dépendance vers Epic 2/3 — peuvent démarrer immédiatement. FR12 (variant
+CTA) est introduit ici car FR4/FR5 en ont besoin ; Epic 2 le réutilise tel
+quel. `app/formations/page.tsx` est créé ici pour la grille filtrable (FR4)
+uniquement — la story FR4 doit noter explicitement que la section "tuiles vers
+les 4 familles" (FR9) n'en fait pas partie et sera ajoutée par Epic 2
+au-dessus du contenu existant, jamais au milieu de la grille (le Glossary du
+PRD et AD-4 établissent que `/formations` est à la fois Hub et Catalogue —
+un seul fichier, deux features à des moments différents, pas un découpage
+technique caché).
+
+### Epic 2: Nouvelle arborescence Formations / Coaching / GAPP
+Un visiteur navigue toute la nouvelle IA (home → nav 3 piliers + bouton
+Particuliers → hubs Formations/Coaching/GAPP) sur les nouvelles URLs, sans
+perdre le contenu marketing existant, avec les anciennes URLs qui redirigent
+proprement.
+**FRs couverts:** FR1, FR2, FR7, FR8, FR9, FR11
+**Implementation Notes:** Dépend d'Epic 1 pour que les hubs Famille (FR8)
+affichent du contenu réel — techniquement, le `page.tsx` de chaque hub Famille
+appelle une fonction de `lib/formations.ts` créée par Epic 1. Build réel dans
+l'ordre 1 → 2, pas seulement la numérotation (confirmé). Reste fonctionnel
+seul via l'état vide honnête déjà spécifié (UJ-1, edge case) si testé isolément.
+FR9 ajoute la section tuiles sur `app/formations/page.tsx` déjà créé en Epic 1
+(cf. note Epic 1). Root a confirmé qu'une fenêtre transitoire de lien mort
+entre epics n'est pas un problème — tout sera testé en fin de chantier.
+
+### Epic 3: Maillage blog ↔ formations
+Un lecteur d'article de blog découvre automatiquement l'offre associée (Cadre
+légal ou Prévention RPS/QVCT) via un encart sur le hub Famille correspondant.
+**FRs couverts:** FR6, FR10
+**Implementation Notes:** Dépend des hubs Famille d'Epic 2 pour avoir une
+cible d'affichage. Mécanisme (`ArticlesBlogLiesBloc`, `lib/relatedArticles.ts`)
+déjà générique et inchangé — épique volontairement fin. Ferme UJ-2 en
+combinaison avec Epic 2 (le hub seul ne suffit pas sans le retargeting du
+pilier et le nouveau pilier F).
