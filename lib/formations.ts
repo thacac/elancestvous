@@ -7,23 +7,52 @@ import { loadMarkdownCollection, parseFrontmatter } from "@/lib/markdownCollecti
 
 export const FORMATIONS_CONTENT_DIR = path.join(process.cwd(), "content", "formations");
 
-// Enum local, indépendant de PILLAR_IDS (services/blog/pillars.ts) — AD-1 :
-// la classification du catalogue (Famille) et la rotation éditoriale du blog
-// (Pilier) sont deux axes distincts, jamais synchronisés. Une Fiche formation
-// ne référence jamais un Pilier blog.
-export const FORMATION_FAMILLES = [
-  "cadre-legal-etablissements-sante",
-  "prevention-rps-qvct-etablissements-sante",
-  "accompagnement-professionnel-etablissements-sante",
-  "dynamique-equipe-etablissements-sante",
-] as const;
+export type FormationFamilleId =
+  | "cadre-legal-etablissements-sante"
+  | "prevention-rps-qvct-etablissements-sante"
+  | "accompagnement-professionnel-etablissements-sante"
+  | "dynamique-equipe-etablissements-sante";
+
+export type FormationFamilleInfo = { id: FormationFamilleId; label: string };
+
+// Miroir de PILLARS/PILLAR_IDS (services/blog/pillars.ts) : un seul tableau
+// source (id + label), jamais deux structures séparées qui pourraient
+// diverger. Indépendant de PILLAR_IDS — AD-1 : la classification du
+// catalogue (Famille) et la rotation éditoriale du blog (Pilier) sont deux
+// axes distincts, jamais synchronisés. Une Fiche formation ne référence
+// jamais un Pilier blog. Labels repris tels quels du Glossary du PRD.
+export const FORMATION_FAMILLES: FormationFamilleInfo[] = [
+  {
+    id: "cadre-legal-etablissements-sante",
+    label: "Cadre légal, droits et éthique",
+  },
+  {
+    id: "prevention-rps-qvct-etablissements-sante",
+    label: "Prévention des RPS et QVCT",
+  },
+  {
+    id: "accompagnement-professionnel-etablissements-sante",
+    label: "Accompagnement et pratiques professionnelles",
+  },
+  {
+    id: "dynamique-equipe-etablissements-sante",
+    label: "Dynamique d'équipe et développement professionnel",
+  },
+];
+
+// Tuple non vide dérivé de FORMATION_FAMILLES — seule source de vérité des
+// ids valides, consommée par le schéma zod ci-dessous.
+export const FORMATION_FAMILLE_IDS = FORMATION_FAMILLES.map((f) => f.id) as [
+  FormationFamilleId,
+  ...FormationFamilleId[],
+];
 
 const frontmatterSchema = z.object({
   titre: z.string().min(1),
   slug: z
     .string()
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "le slug doit être en kebab-case"),
-  famille: z.enum(FORMATION_FAMILLES),
+  famille: z.enum(FORMATION_FAMILLE_IDS),
   objectifsPedagogiques: z.array(z.string().min(1)).min(1),
   prerequis: z.string().min(1),
   publicVise: z.array(z.string().min(1)).min(1),
