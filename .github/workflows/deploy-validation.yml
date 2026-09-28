@@ -1,0 +1,158 @@
+name: Build and Deploy (validation)
+
+# Pipeline de recette : les PR de feature sont mergées dans
+# `validation`, chaque push y reconstruit l'image et la déploie
+# automatiquement sur https://val.elancestvous.fr (même VPS/Traefik que la
+# prod, dossier/conteneur/routers dédiés). La prod reste pilotée par
+# deploy.yml sur `master`, inchangée.
+#
+# Aucun secret du pipeline blog (Discord, GH_PAT_TOKEN, BLOG_CRON_SECRET,
+# ANTHROPIC…) n'est transmis à la Val : ses routes /api/blog/* et
+# /api/discord/* répondent donc 401, et elle ne peut ni poster sur Discord
+# ni committer sur master (cf. infra/__tests__/validationDeploy.test.ts).
+# Pas de SMTP non plus : le formulaire de contact ne doit pas envoyer de
+# vrais mails à Coralie depuis la recette.
+
+on:
+  push:
+    branches:
+      - validation
+  pull_request:
+    branches:
+      - validation
+  workflow_dispatch:
+
+# Groupe par événement/ref : GitHub ne garde qu'un run en attente par
+# groupe, un run de PR (build seul) aurait sinon pu annuler un push en
+# attente de déploiement.
+concurrency:
+  group: deploy-validation-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository_owner }}/elancestvous-nextjs-16
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  VAL_DIR: elancestvous-validation
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          # Jamais `latest` ni le `<sha>` nu : ce sont les tags de la prod
+          # (deploy.yml), le second servant de cible de rollback. Un même
+          # commit construit ici avec SITE_ENV=validation (noindex) les
+          # écraserait.
+          tags: |
+            type=raw,value=validation
+            type=sha,prefix=val-,format=long
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          # Sur une PR vers `validation`, ou un workflow_dispatch lancé
+          # depuis une autre branche : on vérifie seulement que l'image se
+          # construit, sans écraser le tag :validation.
+          push: ${{ github.ref == 'refs/heads/validation' && github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          # SITE_ENV=validation est figé au build (robots.txt Disallow: /,
+          # métadonnées noindex) — cf. Dockerfile et lib/featureFlags.ts.
+          build-args: |
+            SITE_ENV=validation
+            BLOG_ENABLED=${{ secrets.BLOG_ENABLED }}
+
+  deploy:
+    needs: build
+    # Jamais depuis une PR ni depuis un workflow_dispatch lancé sur une autre
+    # branche (même garde que deploy.yml, relevée en revue sur la PR #47).
+    if: github.ref == 'refs/heads/validation' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create .env file
+        # VAL_BASIC_AUTH (ligne htpasswd `user:$apr1$...`) passe par une
+        # variable d'env et printf, jamais interpolé dans le script : ses `$`
+        # seraient sinon développés par le shell. Les quotes simples le
+        # gardent littéral pour l'interpolation de docker compose.
+        env:
+          VAL_BASIC_AUTH: ${{ secrets.VAL_BASIC_AUTH }}
+          BLOG_ENABLED: ${{ secrets.BLOG_ENABLED }}
+        run: |
+          # Un retour à la ligne collé avec le secret finirait dans le label
+          # Traefik et ferait échouer toute authentification.
+          VAL_BASIC_AUTH=$(printf %s "$VAL_BASIC_AUTH" | tr -d '\r\n')
+          if [ -z "$VAL_BASIC_AUTH" ]; then
+            echo "Le secret VAL_BASIC_AUTH n'est pas configuré — refus de déployer une Val publique (voir DEPLOYMENT.md)."
+            exit 1
+          fi
+          {
+            echo "SITE_ENV=validation"
+            echo "BLOG_ENABLED=$BLOG_ENABLED"
+            echo "GITHUB_REPO=${{ github.repository }}"
+            printf "VAL_BASIC_AUTH='%s'\n" "$VAL_BASIC_AUTH"
+          } > .env
+
+      - name: Prepare deployment folder on VPS
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USR }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          script: |
+            mkdir -p /home/${{ secrets.VPS_USR }}/${{ env.VAL_DIR }}
+            chown ${{ secrets.VPS_USR }}:${{ secrets.VPS_USR }} /home/${{ secrets.VPS_USR }}/${{ env.VAL_DIR }}
+            chmod 700 /home/${{ secrets.VPS_USR }}/${{ env.VAL_DIR }}
+
+      - name: Copy files to VPS (Docker Compose, .env)
+        uses: appleboy/scp-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USR }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          source: "docker-compose.validation.yaml,.env"
+          target: "/home/${{ secrets.VPS_USR }}/${{ env.VAL_DIR }}/"
+
+      - name: Deploy validation container
+        uses: appleboy/ssh-action@v1.2.0
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USR }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          envs: GITHUB_ACTOR,GITHUB_TOKEN
+          script: |
+            set -e
+            cd /home/${{ secrets.VPS_USR }}/${{ env.VAL_DIR }}
+            echo "$GITHUB_TOKEN" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
+            docker compose -p elancestvous-validation -f docker-compose.validation.yaml up -d --pull always

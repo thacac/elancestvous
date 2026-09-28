@@ -1,0 +1,34 @@
+name: Guard master
+
+# Tout changement de code passe par la recette avant la prod : une PR vers
+# master ne peut venir que de la branche `validation` (déployée sur
+# https://val.elancestvous.fr). Les features font leur PR vers `validation`,
+# puis une PR de promotion `validation` → `master`.
+#
+# Pour que ce garde-fou soit bloquant, le ruleset de master doit exiger une
+# PR et ce check (`source-is-validation`) — cf. DEPLOYMENT.md. Le contenu
+# blog automatisé écrit directement sur master via l'API (sans PR) et n'est
+# donc pas concerné.
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  source-is-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Vérifier que la PR vient de validation
+        # Nom de branche passé par env, jamais interpolé dans le script : il
+        # est choisi par l'auteur de la PR (injection shell sinon).
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+        run: |
+          if [ "$HEAD_REF" != "validation" ] || [ "$HEAD_REPO" != "$GITHUB_REPOSITORY" ]; then
+            echo "::error::Une PR vers master doit venir de la branche 'validation' (reçu : $HEAD_REPO:$HEAD_REF)."
+            echo "Faire la PR de la feature vers 'validation', recetter sur https://val.elancestvous.fr, puis ouvrir la PR de promotion validation → master."
+            exit 1
+          fi
+          echo "PR de promotion validation → master : OK."

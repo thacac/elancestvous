@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 
 import { afterEach, describe, expect, it } from "vitest";
 
-import { isBlogPublic } from "../featureFlags";
+import { isBlogPublic, isValidationEnv } from "../featureFlags";
 
 describe("isBlogPublic", () => {
   const original = process.env.BLOG_ENABLED;
@@ -60,5 +60,57 @@ describe("BLOG_ENABLED build-time wiring (garde-fou anti-régression)", () => {
     );
 
     expect(deployYml).toMatch(/build-args:[^\n]*\n?[^\n]*BLOG_ENABLED/);
+  });
+});
+
+describe("isValidationEnv", () => {
+  const original = process.env.SITE_ENV;
+
+  afterEach(() => {
+    if (original === undefined) delete process.env.SITE_ENV;
+    else process.env.SITE_ENV = original;
+  });
+
+  it("est désactivé par défaut (prod)", () => {
+    delete process.env.SITE_ENV;
+    expect(isValidationEnv()).toBe(false);
+  });
+
+  it("n'est activé que pour la valeur littérale 'validation'", () => {
+    process.env.SITE_ENV = "production";
+    expect(isValidationEnv()).toBe(false);
+    process.env.SITE_ENV = "VALIDATION";
+    expect(isValidationEnv()).toBe(false);
+    process.env.SITE_ENV = "validation";
+    expect(isValidationEnv()).toBe(true);
+  });
+});
+
+describe("SITE_ENV build-time wiring (même piège que BLOG_ENABLED)", () => {
+  // robots.ts et les métadonnées du layout sont figés au `next build` :
+  // SITE_ENV doit donc être vu par le build de l'image de validation, pas
+  // seulement par le .env du conteneur.
+  it("Dockerfile déclare SITE_ENV comme ARG/ENV avant `yarn build`", () => {
+    const dockerfile = readFileSync(resolve(process.cwd(), "Dockerfile"), "utf8");
+
+    const argIndex = dockerfile.indexOf("ARG SITE_ENV");
+    expect(argIndex).toBeGreaterThan(-1);
+    expect(dockerfile).toMatch(/ENV SITE_ENV=\$SITE_ENV/);
+    expect(dockerfile.indexOf("RUN yarn build")).toBeGreaterThan(argIndex);
+  });
+
+  it("deploy-validation.yml construit l'image avec SITE_ENV=validation", () => {
+    const yml = readFileSync(
+      resolve(process.cwd(), ".github/workflows/deploy-validation.yml"),
+      "utf8"
+    );
+
+    expect(yml).toMatch(/build-args:[\s\S]*SITE_ENV=validation/);
+  });
+
+  it("deploy.yml (prod) ne passe jamais SITE_ENV=validation", () => {
+    const yml = readFileSync(resolve(process.cwd(), ".github/workflows/deploy.yml"), "utf8");
+
+    expect(yml).not.toMatch(/SITE_ENV=validation/);
   });
 });

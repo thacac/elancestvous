@@ -30,6 +30,87 @@ Le reverse-proxy en production est **Traefik** (voir les labels dans
 `docker-compose.yaml` : routing sur `elancestvous.fr` / `www.elancestvous.fr`,
 TLS via le resolver `letsencrypt`, redirection `www` → apex).
 
+## Environnement de validation (recette) — `val.elancestvous.fr`
+
+Tout changement de code passe par la recette avant la prod :
+
+```
+feature/xxx ──PR──▶ validation ──(push = déploiement auto)──▶ https://val.elancestvous.fr
+                         │ recette OK
+                         └──PR de promotion──▶ master ──(workflow_dispatch)──▶ https://elancestvous.fr
+
+blog auto (Discord, actualités, rapport SEO) ──commit direct──▶ master ──(sync auto)──▶ validation
+```
+
+- Les branches de feature font leur PR vers `validation`. Une fois la recette
+  OK sur la Val, une PR de promotion `validation` → `master` embarque tout ce
+  qui a été validé ; le déploiement prod reste manuel (`workflow_dispatch`).
+- `.github/workflows/guard-master.yml` : le check `source-is-validation` fait
+  échouer toute PR vers `master` dont la source n'est pas la branche
+  `validation` du dépôt.
+- `.github/workflows/sync-validation.yml` : à chaque push sur `master`
+  (promotion, ou contenu blog automatisé qui écrit directement sur `master`),
+  `master` est mergé dans `validation` avec `GH_PAT_TOKEN` — la Val est
+  redéployée et reste à jour. Le rapport SEO est lui aussi poussé avec
+  `GH_PAT_TOKEN` (un push fait avec le `GITHUB_TOKEN` d'un run ne déclenche
+  aucun workflow). En cas de conflit, le job échoue sans rien pousser :
+  merger `master` dans `validation` à la main.
+- `.github/workflows/deploy-validation.yml` : à chaque push sur `validation`,
+  build de l'image `ghcr.io/<owner>/elancestvous-nextjs-16:validation` (+
+  `val-<sha>`, jamais `latest` ni le `<sha>` nu de la prod) avec
+  `SITE_ENV=validation`, puis déploiement dans
+  `/home/$VPS_USR/elancestvous-validation` via `docker-compose.validation.yaml`
+  (projet compose `elancestvous-validation`, conteneur `elancestvous-validation`).
+  Une PR vers `validation` ne fait que le build.
+- Même VPS et même Traefik que la prod (routers/middlewares préfixés
+  `elancestvous-validation`, réseau `elancestvous_default` partagé).
+  Conséquence du réseau partagé : tant que le conteneur de Val tourne, un
+  `docker compose down` de la prod (ou `infra/deploy.sh`) ne peut pas supprimer
+  ce réseau — arrêter la Val d'abord
+  (`docker compose -p elancestvous-validation -f docker-compose.validation.yaml down`).
+- **Invisible pour les robots** : basic auth Traefik, en-tête
+  `X-Robots-Tag: noindex, nofollow, noarchive`, `robots.txt` en `Disallow: /`
+  sans sitemap, et métadonnées `noindex/nofollow` (figées au build par
+  `SITE_ENV=validation`, cf. `lib/featureFlags.ts`).
+- **Pipeline blog neutralisé** : aucun secret Discord/GitHub/cron/Anthropic
+  n'est transmis à la Val (routes `/api/blog/*` et `/api/discord/*` en 401) —
+  elle ne peut ni poster sur Discord ni committer sur `master`. Pas de SMTP
+  non plus : le formulaire de contact n'envoie rien depuis la Val.
+
+### Mise en place (une seule fois)
+
+0. **Ruleset GitHub sur `master`** (Settings → Rules → Rulesets), sans quoi le
+   garde-fou reste contournable : exiger une pull request et le status check
+   `source-is-validation`. Sur un dépôt personnel, la liste de bypass ne
+   prend que des rôles : mettre **Repository admin**, pour que le blog
+   automatisé (poussé avec `GH_PAT_TOKEN`, compte propriétaire) puisse
+   toujours écrire directement sur `master`. Conséquence : le propriétaire
+   peut lui aussi forcer un merge — le check rouge reste visible, mais n'est
+   pas bloquant pour lui.
+   Pour les PR de promotion, choisir **« Create a merge commit »** (pas
+   squash/rebase) : `validation` est alors simplement avancée sur `master`
+   par la synchro, sans historique dupliqué.
+   `GH_PAT_TOKEN` doit avoir les droits Contents **et Workflows** en écriture
+   (la synchro pousse sur `validation` des modifications de
+   `.github/workflows` arrivées sur `master`).
+1. **DNS** : enregistrement `A` (et `AAAA` le cas échéant) `val.elancestvous.fr`
+   → IP du VPS. Traefik obtient le certificat Let's Encrypt au premier appel.
+2. **Secret GitHub `VAL_BASIC_AUTH`** : une ligne htpasswd, générée localement
+   (le déploiement échoue volontairement si ce secret est absent) :
+   ```bash
+   htpasswd -nbB recette 'mot-de-passe-solide'   # paquet apache2-utils
+   ```
+   Coller la sortie telle quelle (`recette:$2y$05$...`), sans doubler les `$`.
+3. Créer la branche `validation` depuis `master` si elle n'existe pas, puis
+   pousser dessus (ou Actions → *Build and Deploy (validation)* → Run workflow
+   sur la branche `validation`).
+4. Vérifier :
+   ```bash
+   curl -I https://val.elancestvous.fr                  # 401 attendu
+   curl -I -u recette:... https://val.elancestvous.fr   # 200 + X-Robots-Tag
+   curl -u recette:... https://val.elancestvous.fr/robots.txt   # Disallow: /
+   ```
+
 ## Secrets GitHub requis (Settings → Secrets and variables → Actions)
 
 | Secret | Rôle |
@@ -38,6 +119,7 @@ TLS via le resolver `letsencrypt`, redirection `www` → apex).
 | `VPS_USR` | Utilisateur SSH |
 | `VPS_PASSWORD` | Mot de passe SSH (authentification par mot de passe, pas par clé — voir note sécurité ci-dessous) |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USR`, `SMTP_PWD` | Envoi du formulaire de contact |
+| `VAL_BASIC_AUTH` | Ligne htpasswd du basic auth de `val.elancestvous.fr` (workflow de validation uniquement) |
 
 > **Note sécurité** : le déploiement utilise une authentification SSH par mot de
 > passe (`VPS_PASSWORD`). Une authentification par clé (`ssh-keygen -t ed25519`,
