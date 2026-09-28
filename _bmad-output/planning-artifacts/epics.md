@@ -137,3 +137,129 @@ cible d'affichage. Mécanisme (`ArticlesBlogLiesBloc`, `lib/relatedArticles.ts`)
 déjà générique et inchangé — épique volontairement fin. Ferme UJ-2 en
 combinaison avec Epic 2 (le hub seul ne suffit pas sans le retargeting du
 pilier et le nouveau pilier F).
+
+## Epic 1: Catalogue de formations Qualiopi
+
+Un professionnel peut consulter le catalogue de formations, filtrer par
+famille, ouvrir une fiche complète (Qualiopi) et demander un devis — y
+compris via un lien direct, avant même que la nouvelle nav/arborescence ne
+soit branchée. **FRs couverts:** FR3, FR4, FR5, FR12. **NFRs:** NFR1, NFR2, NFR3.
+
+### Story 1.1: Modèle de contenu formation
+
+As a membre de l'équipe éditoriale qui rédige les fiches formation,
+I want écrire un fichier `content/formations/<slug>.md` avec un frontmatter structuré,
+So that ma fiche est validée et exploitable par le site sans qu'aucune donnée ne soit jamais inventée à sa place.
+
+**Acceptance Criteria:**
+
+**Given** un fichier `content/formations/<slug>.md` avec un frontmatter complet et valide
+**When** le build lit le répertoire via `lib/formations.ts`
+**Then** la fiche est exposée par un type `FormationMeta` exporté avec tous les champs du frontmatter
+**And** le comportement réplique le paradigme de `lib/blog.ts` (gray-matter + zod)
+
+**Given** un fichier formation sans champ `famille` valide (une des 4 valeurs fixes)
+**When** le build valide le frontmatter
+**Then** la validation échoue explicitement (erreur zod), bloquant le build
+
+**Given** un champ Qualiopi optionnel absent (tarif, référent handicap, etc.)
+**When** la fiche est chargée
+**Then** le champ est exposé comme placeholder explicite, jamais comme valeur inventée
+
+**Given** deux fichiers formation partageant le même slug
+**When** `lib/formations.ts` charge le répertoire
+**Then** une erreur de slug dupliqué est levée (miroir de `lib/blog.ts`)
+
+**Given** les 2 fiches d'exemple déjà esquissées en maquette ("Obligations légales des établissements", Famille "Cadre légal, droits et éthique" ; "Diagnostic et plan d'action QVCT", Famille "Prévention des RPS et QVCT") créées comme contenu réel
+**When** `lib/formations.ts` liste toutes les fiches
+**Then** les deux apparaissent avec leur `famille` correcte
+
+### Story 1.2: Variant CTA secondaire
+
+As a visiteur qui découvre une tuile, une carte catalogue ou une fiche,
+I want voir un bouton "Découvrir" / "Voir la fiche" nettement visible (contour + fond teinté),
+So that je comprends immédiatement où cliquer, sans le confondre avec un lien texte nu.
+
+**Acceptance Criteria:**
+
+**Given** `components/ui/button.tsx` (`buttonVariants`, `cva`)
+**When** un nouveau `variant` secondaire teinté est ajouté
+**Then** il reste `rounded-md`/`shadow-sm` comme les variants existants
+**And** aucun nouveau composant bouton n'est créé
+
+**Given** ce variant appliqué sur un fond clair (blanc/pastel)
+**When** on mesure le contraste texte/fond
+**Then** il respecte au moins 4.5:1
+
+**Given** ce variant appliqué sur un fond navy (tuile Coaching)
+**When** on mesure le contraste texte/fond
+**Then** il respecte au moins 4.5:1
+
+**Given** les valeurs de police/radius/espacement du nouveau variant
+**When** on les compare à l'échelle Tailwind par défaut
+**Then** aucune valeur n'est hors échelle
+
+### Story 1.3: Fiche formation individuelle
+
+As a référent QVCT/RH qui envisage une formation,
+I want consulter une fiche complète (objectifs, programme, public visé, modalités) avec sa fiche pratique Qualiopi toujours visible,
+So that je peux vérifier durée/tarif/accessibilité et demander un devis sans chercher l'info ailleurs.
+
+**Acceptance Criteria:**
+
+**Given** une fiche formation valide (Story 1.1)
+**When** je visite `/formations/[famille]/[slug]`
+**Then** la page affiche la colonne de contenu (objectifs, programme, public visé, modalités)
+**And** une fiche pratique Qualiopi est affichée en sidebar
+
+**Given** la page desktop
+**When** je fais défiler la colonne de contenu
+**Then** la fiche pratique reste visible (`position: sticky`)
+
+**Given** la fiche pratique
+**When** elle s'affiche
+**Then** le CTA "Demander un devis" est un bouton plein (variant primaire existant, pas le variant de Story 1.2)
+**And** ce n'est jamais un lien texte
+
+**Given** un champ Qualiopi optionnel absent dans le frontmatter
+**When** la fiche pratique l'affiche
+**Then** un placeholder visuellement distinct apparaît, jamais une valeur inventée
+
+**Given** `lib/formations.ts`
+**When** `generateStaticParams` est appelé
+**Then** toutes les fiches valides génèrent une route statique
+**And** le mécanisme est un miroir exact de `app/blog/[slug]/page.tsx`
+
+### Story 1.4: Catalogue filtrable par famille
+
+As a cadre de santé qui compare plusieurs formations,
+I want parcourir `/formations` et filtrer par famille via des pastilles cliquables,
+So that je peux comparer rapidement les formations d'une même famille avant de choisir.
+
+**Acceptance Criteria:**
+
+**Given** le hub `/formations` sans filtre
+**When** je le visite
+**Then** toutes les fiches de toutes les familles sont listées
+**And** chacune affiche sa pastille de catégorie, sa durée, et un lien "Voir la fiche" stylé en bouton (Story 1.2)
+
+**Given** une pastille de catégorie
+**When** je clique dessus
+**Then** seules les fiches de cette famille restent affichées
+
+**Given** un filtre actif
+**When** je clique la pastille "Toutes"
+**Then** la liste complète est restaurée
+
+**Given** un filtre actif (ex. `?famille=cadre-legal-etablissements-sante`)
+**When** je rafraîchis la page ou partage l'URL
+**Then** le filtre reste appliqué (lu depuis `searchParams` côté Server Component, jamais un state client)
+
+**Given** une carte de la grille
+**When** je clique "Voir la fiche"
+**Then** j'atterris sur la page de la fiche créée en Story 1.3
+
+**Given** cette page livrée seule (Epic 1 sans Epic 2)
+**When** on l'inspecte
+**Then** la grille filtrable est complète et fonctionnelle
+**And** la section "tuiles vers les 4 familles" (FR9) n'existe pas encore — elle sera ajoutée par Epic 2 au-dessus, sans modifier cette grille
