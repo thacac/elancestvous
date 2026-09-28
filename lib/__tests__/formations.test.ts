@@ -3,7 +3,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
-  FORMATION_FAMILLE_LABELS,
+  FORMATION_FAMILLE_IDS,
   FORMATION_FAMILLES,
   getAllFormationsMeta,
   getFormationBySlug,
@@ -40,26 +40,32 @@ describe("getAllFormationsMeta", () => {
   it("validates famille against its own local enum, never against PILLAR_IDS", () => {
     // AD-1 : les deux systèmes de classification (Famille catalogue / Pilier
     // blog) restent indépendants — famille n'est jamais un id de pillars.ts.
-    expect(FORMATION_FAMILLES).toEqual([
+    expect(FORMATION_FAMILLE_IDS).toEqual([
       "cadre-legal-etablissements-sante",
       "prevention-rps-qvct-etablissements-sante",
       "accompagnement-professionnel-etablissements-sante",
       "dynamique-equipe-etablissements-sante",
     ]);
-    expect(FORMATION_FAMILLES).not.toContain("A");
-    expect(FORMATION_FAMILLES).not.toContain("C");
-    expect(FORMATION_FAMILLES).not.toContain("F");
+    expect(FORMATION_FAMILLE_IDS).not.toContain("A");
+    expect(FORMATION_FAMILLE_IDS).not.toContain("C");
+    expect(FORMATION_FAMILLE_IDS).not.toContain("F");
+  });
+
+  it("derives FORMATION_FAMILLE_IDS from FORMATION_FAMILLES — one source, never two structures that could diverge", () => {
+    // Miroir de PILLARS/PILLAR_IDS (services/blog/pillars.ts).
+    expect(FORMATION_FAMILLE_IDS).toEqual(FORMATION_FAMILLES.map((f) => f.id));
   });
 
   it("has exactly one label per famille, matching the PRD Glossary", () => {
-    expect(Object.keys(FORMATION_FAMILLE_LABELS).sort()).toEqual(
-      [...FORMATION_FAMILLES].sort()
-    );
-    expect(FORMATION_FAMILLE_LABELS["cadre-legal-etablissements-sante"]).toBe(
-      "Cadre légal, droits et éthique"
-    );
+    expect(FORMATION_FAMILLES).toHaveLength(4);
     expect(
-      FORMATION_FAMILLE_LABELS["prevention-rps-qvct-etablissements-sante"]
+      FORMATION_FAMILLES.find((f) => f.id === "cadre-legal-etablissements-sante")
+        ?.label
+    ).toBe("Cadre légal, droits et éthique");
+    expect(
+      FORMATION_FAMILLES.find(
+        (f) => f.id === "prevention-rps-qvct-etablissements-sante"
+      )?.label
     ).toBe("Prévention des RPS et QVCT");
   });
 

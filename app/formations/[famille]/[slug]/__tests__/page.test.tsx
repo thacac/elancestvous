@@ -2,14 +2,21 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/formations", () => ({
-  FORMATION_FAMILLE_LABELS: {
-    "cadre-legal-etablissements-sante": "Cadre légal, droits et éthique",
-    "prevention-rps-qvct-etablissements-sante": "Prévention des RPS et QVCT",
-    "accompagnement-professionnel-etablissements-sante":
-      "Accompagnement et pratiques professionnelles",
-    "dynamique-equipe-etablissements-sante":
-      "Dynamique d'équipe et développement professionnel",
-  },
+  FORMATION_FAMILLES: [
+    { id: "cadre-legal-etablissements-sante", label: "Cadre légal, droits et éthique" },
+    {
+      id: "prevention-rps-qvct-etablissements-sante",
+      label: "Prévention des RPS et QVCT",
+    },
+    {
+      id: "accompagnement-professionnel-etablissements-sante",
+      label: "Accompagnement et pratiques professionnelles",
+    },
+    {
+      id: "dynamique-equipe-etablissements-sante",
+      label: "Dynamique d'équipe et développement professionnel",
+    },
+  ],
   getAllFormationsMeta: vi.fn(),
   getFormationBySlug: vi.fn(),
 }));

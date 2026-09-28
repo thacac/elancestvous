@@ -3,11 +3,7 @@ import { notFound } from "next/navigation";
 
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { Button } from "@/components/ui/button";
-import {
-  FORMATION_FAMILLE_LABELS,
-  getAllFormationsMeta,
-  getFormationBySlug,
-} from "@/lib/formations";
+import { FORMATION_FAMILLES, getAllFormationsMeta, getFormationBySlug } from "@/lib/formations";
 
 export function generateStaticParams() {
   return getAllFormationsMeta().map((formation) => ({
@@ -57,7 +53,11 @@ export default async function FormationPage({
   }
 
   const formationDetail = formationData;
-  const familleLabel = FORMATION_FAMILLE_LABELS[formationDetail.famille];
+  // Non-null : famille est déjà validé par le schéma zod contre
+  // FORMATION_FAMILLE_IDS, dérivé de ce même tableau — toujours trouvé.
+  const familleLabel = FORMATION_FAMILLES.find(
+    (f) => f.id === formationDetail.famille
+  )!.label;
 
   return (
     <article className="pt-20 mb-40">
