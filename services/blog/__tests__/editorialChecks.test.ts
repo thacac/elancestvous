@@ -11,7 +11,7 @@ describe("hasServiceLink", () => {
 
   it("returns true for a Markdown link using the absolute site URL", () => {
     const body =
-      "## Section\n\n[Nos formations QVCT/RPS](https://elancestvous.fr/professionnels-etablissements-de-soins/formations-rps-qvct) en établissement.";
+      "## Section\n\n[Nos formations QVCT/RPS](https://elancestvous.fr/formations/prevention-rps-qvct-etablissements-sante) en établissement.";
     expect(hasServiceLink(body)).toBe(true);
   });
 

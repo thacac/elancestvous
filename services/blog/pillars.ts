@@ -44,7 +44,7 @@ export const PILLARS: Pillar[] = [
   {
     id: "C",
     label: "Formations QVCT / RPS",
-    targetPage: "/professionnels-etablissements-de-soins/formations-rps-qvct",
+    targetPage: "/formations/prevention-rps-qvct-etablissements-sante",
     theme:
       "Prévention des RPS, QVCT, gestion du stress/des émotions, usure professionnelle.",
     weight: 4,

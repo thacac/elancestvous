@@ -91,7 +91,7 @@ describe("BlogPost — fil d'Ariane (cocon sémantique, #73)", () => {
     expect(screen.getByRole("link", { name: "Blog" })).toHaveAttribute("href", "/blog");
     expect(screen.getByRole("link", { name: "Formations QVCT / RPS" })).toHaveAttribute(
       "href",
-      "/professionnels-etablissements-de-soins/formations-rps-qvct"
+      "/formations/prevention-rps-qvct-etablissements-sante"
     );
     // Le titre de l'article est la page courante : jamais un lien.
     expect(screen.queryByRole("link", { name: "Article courant" })).toBeNull();
