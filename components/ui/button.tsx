@@ -21,6 +21,15 @@ const buttonVariants = cva(
           "bg-accent text-white shadow-sm hover:bg-primary/90 transition-colors",
         ghost: "hover:bg-accent hover:text-accent-foreground transition-colors",
         link: "text-primary underline-offset-4 hover:underline transition-colors",
+        // CTA secondaire "Découvrir" / "Voir la fiche" (FR12) : contour +
+        // fond teinté, jamais un lien texte nu. `tinted` pour les surfaces
+        // claires (blanc/pastel), `tintedOnDark` pour les surfaces navy (ex.
+        // tuile Coaching) — même registre visuel, deux jeux de couleurs pour
+        // rester au-dessus de 4.5:1 dans les deux contextes (NFR2).
+        tinted:
+          "border-2 border-primary bg-primary/10 text-primary shadow-sm hover:bg-primary/20 transition-colors",
+        tintedOnDark:
+          "border-2 border-white bg-white/10 text-white shadow-sm hover:bg-white/20 transition-colors",
       },
       size: {
         default: "h-9 px-2 py-4 cursor-pointer",
