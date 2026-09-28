@@ -20,26 +20,20 @@ describe("openGraph images survive per-page metadata overrides", () => {
     ["app/a-propos/page.tsx", () => import("../a-propos/page")],
     ["app/contact/page.tsx", () => import("../contact/page")],
     [
-      "app/particuliers/coaching-individuel/page.tsx",
-      () => import("../particuliers/coaching-individuel/page"),
+      "app/coaching/particuliers/page.tsx",
+      () => import("../coaching/particuliers/page"),
     ],
     [
-      "app/professionnels-etablissements-de-soins/coaching/page.tsx",
-      () => import("../professionnels-etablissements-de-soins/coaching/page"),
+      "app/coaching/etablissements/page.tsx",
+      () => import("../coaching/etablissements/page"),
     ],
     [
-      "app/professionnels-etablissements-de-soins/formations-rps-qvct/page.tsx",
-      () =>
-        import(
-          "../professionnels-etablissements-de-soins/formations-rps-qvct/page"
-        ),
+      "app/formations/prevention-rps-qvct-etablissements-sante/page.tsx",
+      () => import("../formations/prevention-rps-qvct-etablissements-sante/page"),
     ],
     [
-      "app/professionnels-etablissements-de-soins/gapp-groupe-analyse-pratiques-professionnelles/page.tsx",
-      () =>
-        import(
-          "../professionnels-etablissements-de-soins/gapp-groupe-analyse-pratiques-professionnelles/page"
-        ),
+      "app/gapp-analyse-pratiques-professionnelles/page.tsx",
+      () => import("../gapp-analyse-pratiques-professionnelles/page"),
     ],
     ["app/blog/page.tsx", () => import("../blog/page")],
   ])("%s keeps a real openGraph.images entry", async (_label, load) => {

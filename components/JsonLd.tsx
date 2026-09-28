@@ -90,7 +90,7 @@ export default function JsonLd() {
             itemOffered: {
               "@type": "Service",
               name: "Coaching individuel — Particuliers",
-              url: `${SITE}/particuliers/coaching-individuel`,
+              url: `${SITE}/coaching/particuliers`,
             },
           },
           {
@@ -98,7 +98,7 @@ export default function JsonLd() {
             itemOffered: {
               "@type": "Service",
               name: "Coaching en établissements de soins",
-              url: `${SITE}/professionnels-etablissements-de-soins/coaching`,
+              url: `${SITE}/coaching/etablissements`,
             },
           },
           {
@@ -106,7 +106,7 @@ export default function JsonLd() {
             itemOffered: {
               "@type": "Service",
               name: "Formations QVCT / RPS",
-              url: `${SITE}/professionnels-etablissements-de-soins/formations-rps-qvct`,
+              url: `${SITE}/formations/prevention-rps-qvct-etablissements-sante`,
             },
           },
           {
@@ -114,7 +114,7 @@ export default function JsonLd() {
             itemOffered: {
               "@type": "Service",
               name: "Groupe d'analyse des pratiques professionnelles (GAPP)",
-              url: `${SITE}/professionnels-etablissements-de-soins/gapp-groupe-analyse-pratiques-professionnelles`,
+              url: `${SITE}/gapp-analyse-pratiques-professionnelles`,
             },
           },
         ],

@@ -9,20 +9,17 @@ describe("About page internal linking (audit SEO finding #1)", () => {
 
     expect(
       screen.getByRole("link", { name: /coaching individuel/i }),
-    ).toHaveAttribute("href", "/particuliers/coaching-individuel");
+    ).toHaveAttribute("href", "/coaching/particuliers");
 
     expect(
       screen.getByRole("link", { name: /formations qvct.*rps/i }),
     ).toHaveAttribute(
       "href",
-      "/professionnels-etablissements-de-soins/formations-rps-qvct",
+      "/formations/prevention-rps-qvct-etablissements-sante",
     );
 
     expect(
       screen.getByRole("link", { name: /groupes d.analyse des pratiques/i }),
-    ).toHaveAttribute(
-      "href",
-      "/professionnels-etablissements-de-soins/gapp-groupe-analyse-pratiques-professionnelles",
-    );
+    ).toHaveAttribute("href", "/gapp-analyse-pratiques-professionnelles");
   });
 });

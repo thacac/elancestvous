@@ -76,21 +76,21 @@ export default function About() {
                   construit à Toulouse une approche qui s&apos;appuie sur l&apos;écoute,
                   la mise en mouvement et des outils concrets —{" "}
                   <Link
-                    href="/particuliers/coaching-individuel"
+                    href="/coaching/particuliers"
                     className="text-accent underline underline-offset-2 hover:text-primary"
                   >
                     coaching individuel
                   </Link>
                   ,{" "}
                   <Link
-                    href="/professionnels-etablissements-de-soins/formations-rps-qvct"
+                    href="/formations/prevention-rps-qvct-etablissements-sante"
                     className="text-accent underline underline-offset-2 hover:text-primary"
                   >
                     formations QVCT/RPS
                   </Link>
                   ,{" "}
                   <Link
-                    href="/professionnels-etablissements-de-soins/gapp-groupe-analyse-pratiques-professionnelles"
+                    href="/gapp-analyse-pratiques-professionnelles"
                     className="text-accent underline underline-offset-2 hover:text-primary"
                   >
                     groupes d&apos;analyse des pratiques
