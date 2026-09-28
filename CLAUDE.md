@@ -7,6 +7,8 @@ hebdomadaire validé via Discord avant publication automatique. Voir
 ## Workflow Git
 
 - Une branche par tâche, une PR par branche. Jamais de commit direct sur `master`.
+- Les PR ciblent la branche `validation` (palier de recette), jamais `master`
+  directement — confirmé par l'utilisateur le 2026-09-28.
 - Commits réguliers, messages descriptifs (français, cohérents avec l'historique).
 - TDD obligatoire pour tout changement de code : écrire le test, le voir échouer,
   puis implémenter.
