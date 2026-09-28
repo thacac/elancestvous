@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/formations", () => ({
   getAllFormationsMeta: vi.fn(() => [
@@ -15,6 +15,8 @@ vi.mock("@/lib/formations", () => ({
 vi.mock("@/lib/relatedArticles", () => ({
   getRelatedArticleLinks: vi.fn(() => []),
 }));
+
+import { getRelatedArticleLinks } from "@/lib/relatedArticles";
 
 import CadreLegalPage from "../page";
 
@@ -61,5 +63,56 @@ describe("CadreLegalPage — ordre du DOM (FR: formations avant réassurance)", 
       "href",
       "/formations/cadre-legal-etablissements-sante/obligations-legales-des-etablissements"
     );
+  });
+});
+
+describe("CadreLegalPage — colonne latérale sticky des articles liés (Story 3.2)", () => {
+  afterEach(() => {
+    vi.mocked(getRelatedArticleLinks).mockReturnValue([]);
+  });
+
+  it("affiche les articles liés en colonne latérale sticky à côté de Formations disponibles quand au moins un article cible ce pilier", () => {
+    vi.mocked(getRelatedArticleLinks).mockReturnValue([
+      { href: "/blog/article-cadre-legal", label: "Article cadre légal" },
+    ]);
+
+    const { container } = render(<CadreLegalPage />);
+
+    const aside = container.querySelector("aside");
+    expect(aside).not.toBeNull();
+    expect(aside!.className).toMatch(/lg:sticky/);
+    expect(
+      screen.getByRole("link", { name: "Article cadre légal" })
+    ).toHaveAttribute("href", "/blog/article-cadre-legal");
+  });
+
+  it("ne réserve aucune colonne latérale quand aucun article ne cible encore ce pilier", () => {
+    vi.mocked(getRelatedArticleLinks).mockReturnValue([]);
+
+    const { container } = render(<CadreLegalPage />);
+
+    expect(container.querySelector("aside")).toBeNull();
+  });
+
+  it("la grille n'a que 2 enfants directs (colonne Formations + colonne articles), pas le titre et la fiche éclatés en 2 colonnes", () => {
+    vi.mocked(getRelatedArticleLinks).mockReturnValue([
+      { href: "/blog/article-cadre-legal", label: "Article cadre légal" },
+    ]);
+
+    const { container } = render(<CadreLegalPage />);
+
+    const aside = container.querySelector("aside")!;
+    expect(aside.parentElement!.children).toHaveLength(2);
+  });
+
+  it("ne récupère les articles liés qu'une seule fois (pas de second appel dans ArticlesBlogLiesBloc)", () => {
+    vi.mocked(getRelatedArticleLinks).mockReset();
+    vi.mocked(getRelatedArticleLinks).mockReturnValue([
+      { href: "/blog/article-cadre-legal", label: "Article cadre légal" },
+    ]);
+
+    render(<CadreLegalPage />);
+
+    expect(getRelatedArticleLinks).toHaveBeenCalledTimes(1);
   });
 });

@@ -97,3 +97,55 @@ describe("PreventionRpsQvctPage blog backlink (issue #72 : maillage retour)", ()
     );
   });
 });
+
+describe("PreventionRpsQvctPage — colonne latérale sticky des articles liés (Story 3.2)", () => {
+  afterEach(() => {
+    vi.mocked(getRelatedArticleLinks).mockReset();
+    vi.mocked(getRelatedArticleLinks).mockReturnValue([]);
+  });
+
+  it("affiche les articles liés en colonne latérale sticky à côté de Formations disponibles quand au moins un article cible ce pilier", () => {
+    vi.mocked(getRelatedArticleLinks).mockReturnValue([
+      { href: "/blog/article-rps-qvct", label: "Article RPS QVCT" },
+    ]);
+
+    const { container } = render(<PreventionRpsQvctPage />);
+
+    const aside = container.querySelector("aside");
+    expect(aside).not.toBeNull();
+    expect(aside!.className).toMatch(/lg:sticky/);
+    expect(
+      screen.getByRole("link", { name: "Article RPS QVCT" })
+    ).toHaveAttribute("href", "/blog/article-rps-qvct");
+  });
+
+  it("ne réserve aucune colonne latérale quand aucun article ne cible encore ce pilier", () => {
+    vi.mocked(getRelatedArticleLinks).mockReturnValue([]);
+
+    const { container } = render(<PreventionRpsQvctPage />);
+
+    expect(container.querySelector("aside")).toBeNull();
+  });
+
+  it("la grille n'a que 2 enfants directs (colonne Formations + colonne articles), pas le titre et la fiche éclatés en 2 colonnes", () => {
+    vi.mocked(getRelatedArticleLinks).mockReturnValue([
+      { href: "/blog/article-rps-qvct", label: "Article RPS QVCT" },
+    ]);
+
+    const { container } = render(<PreventionRpsQvctPage />);
+
+    const aside = container.querySelector("aside")!;
+    expect(aside.parentElement!.children).toHaveLength(2);
+  });
+
+  it("ne récupère les articles liés qu'une seule fois (pas de second appel dans ArticlesBlogLiesBloc)", () => {
+    vi.mocked(getRelatedArticleLinks).mockReset();
+    vi.mocked(getRelatedArticleLinks).mockReturnValue([
+      { href: "/blog/article-rps-qvct", label: "Article RPS QVCT" },
+    ]);
+
+    render(<PreventionRpsQvctPage />);
+
+    expect(getRelatedArticleLinks).toHaveBeenCalledTimes(1);
+  });
+});
