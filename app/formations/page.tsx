@@ -1,8 +1,22 @@
 import Link from "next/link";
 
 import { buttonVariants } from "@/components/ui/button";
-import { FORMATION_FAMILLES, getAllFormationsMeta } from "@/lib/formations";
+import { FORMATION_FAMILLES, getAllFormationsMeta, type FormationFamilleId } from "@/lib/formations";
 import { cn } from "@/lib/utils";
+
+// Descriptions courtes pour les tuiles familles (Story 2.4) : propres à cet
+// usage, distinctes du seul `label` de FORMATION_FAMILLES qui sert aussi aux
+// pastilles de filtre ci-dessous.
+const FAMILLE_TUILE_DESCRIPTIONS: Record<FormationFamilleId, string> = {
+  "cadre-legal-etablissements-sante":
+    "Sécuriser les obligations légales de l'établissement et outiller l'encadrement sur ses responsabilités.",
+  "prevention-rps-qvct-etablissements-sante":
+    "Gestion du stress, des émotions et prévention de l'usure professionnelle.",
+  "accompagnement-professionnel-etablissements-sante":
+    "Intégration, tutorat et montée en compétences pour l'encadrement de proximité.",
+  "dynamique-equipe-etablissements-sante":
+    "Renforcer la coopération et la cohésion d'une équipe dans la durée.",
+};
 
 export default async function FormationsCataloguePage({
   searchParams,
@@ -32,6 +46,25 @@ export default async function FormationsCataloguePage({
           santé, conçues et animées par une ancienne soignante.
         </p>
       </div>
+
+      <section className="container mb-14" aria-label="Familles de formations">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {FORMATION_FAMILLES.map((f) => (
+            <div
+              key={f.id}
+              className="bg-stone-50 p-8 rounded-2xl border border-stone-100 hover:shadow-xl transition duration-300"
+            >
+              <h2 className="text-lg font-bold text-primary mb-3">{f.label}</h2>
+              <p className="text-stone-600 mb-4 text-sm leading-relaxed">
+                {FAMILLE_TUILE_DESCRIPTIONS[f.id]}
+              </p>
+              <Link href={`/formations/${f.id}`} className={buttonVariants({ variant: "tinted" })}>
+                Découvrir
+              </Link>
+            </div>
+          ))}
+        </div>
+      </section>
 
       <nav
         aria-label="Filtre par catégorie"
