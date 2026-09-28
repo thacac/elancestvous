@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Direction 2 — Premium / Clinique</title>
+<!--
+RATIONALE : registre premium et clinique, pensé pour rassurer des directions
+d'établissement (DRH, direction générale). Fond quasi blanc, texte bleu-nuit,
+grille structurée par des filets fins de 1px plutôt que des ombres, aucune
+rondeur. Le corail n'apparaît qu'en un seul point de fixation (le bouton
+principal) pour rester crédible et non "vendeur". Le mouvement au survol est
+minimal et précis : un trait qui se colore, jamais de mouvement de volume.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/*
+  PALETTE (tokens réels, respectés) :
+  --primary  #112e40  bleu-nuit profond   -> texte, filets, fond hero
+  --accent   #ff5a3d  corail chaud        -> unique point d'accent (CTA)
+  --pastel   #d1faf9  menthe très pâle    -> liseré fin, tag
+  --teal     #29b5ad  logo/teal           -> puces numérotées
+  --secondary #898c91 gris                -> texte secondaire, labels
+  Fond propre à cette direction : #ffffff pur, aucune nouvelle couleur.
+*/
+:root{
+  --primary:#112e40; --accent:#ff5a3d; --pastel:#d1faf9; --teal:#29b5ad; --secondary:#898c91;
+}
+*{box-sizing:border-box;}
+body{margin:0;background:#dfe1e3;font-family:'Inter',sans-serif;color:var(--primary);padding:40px 0;}
+.frame-label{max-width:1440px;margin:0 auto 12px;padding:0 24px;font:500 12px/1 'Inter',sans-serif;color:var(--secondary);text-transform:uppercase;letter-spacing:.12em;}
+.browser{max-width:1440px;margin:0 auto 64px;background:#fff;overflow:hidden;box-shadow:0 20px 44px -24px rgba(0,0,0,.35);}
+.chrome{display:flex;align-items:center;gap:8px;padding:12px 18px;background:#f4f5f6;border-bottom:1px solid #e2e4e6;}
+.dot{width:10px;height:10px;background:#cdd0d3;}
+.page{background:#fff;}
+
+/* HERO */
+.hero{padding:100px 96px 84px;border-bottom:1px solid #e6e8ea;}
+.eyebrow{font:500 12px/1 'Inter',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--teal);border-bottom:1px solid var(--teal);padding-bottom:10px;display:inline-block;}
+h1.hero-title{font-family:'Playfair Display',serif;font-weight:500;font-size:52px;line-height:1.18;margin:32px 0 24px;max-width:780px;letter-spacing:-.01em;}
+.hero-sub{font-weight:300;font-size:18px;line-height:1.7;max-width:600px;color:#374f60;margin:0 0 44px;}
+.cta-row{display:flex;align-items:flex-end;justify-content:space-between;gap:40px;border-top:1px solid #e6e8ea;padding-top:32px;}
+.btn-primary{background:var(--accent);color:#fff;font:500 14.5px/1 'Inter',sans-serif;letter-spacing:.03em;padding:17px 32px;text-decoration:none;display:inline-block;transition:background .2s ease, letter-spacing .2s ease;}
+.btn-primary:hover{background:#e64a2f;letter-spacing:.05em;}
+.callout{font-weight:400;font-size:14px;color:var(--secondary);max-width:340px;line-height:1.55;text-align:right;}
+.callout a{color:var(--primary);text-decoration:none;border-bottom:1px solid var(--secondary);}
+.callout a:hover{border-color:var(--primary);}
+
+/* PILLARS */
+.pillars{padding:0 96px;}
+.pillars-head{font-weight:500;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--secondary);padding:28px 0;border-bottom:1px solid #e6e8ea;margin:0;}
+.grid-main{display:grid;grid-template-columns:1fr 1fr;}
+.card{padding:52px 48px 52px 0;border-bottom:1px solid #e6e8ea;transition:border-color .25s ease;}
+.grid-main .card:first-child{border-right:1px solid #e6e8ea;padding-right:48px;}
+.grid-main .card:last-child{padding-left:48px;}
+.card-num{font:400 13px 'Inter';color:var(--secondary);letter-spacing:.05em;display:block;margin-bottom:18px;}
+.card h3{font-family:'Playfair Display',serif;font-weight:500;font-size:26px;margin:0 0 16px;}
+.card p{font-weight:300;font-size:15px;line-height:1.75;color:#3a5261;margin:0 0 28px;max-width:440px;}
+.card-link{font:500 13.5px/1 'Inter',sans-serif;color:var(--primary);text-decoration:none;letter-spacing:.02em;padding-bottom:6px;border-bottom:1px solid var(--primary);transition:border-color .25s ease,color .25s ease;}
+.card-link:hover, .card.hover-state .card-link{color:var(--accent);border-color:var(--accent);}
+.grid-sub{display:grid;grid-template-columns:1fr 1fr;}
+.card-sm{padding:40px 48px 44px 0;}
+.grid-sub .card-sm:first-child{border-right:1px solid #e6e8ea;padding-right:48px;}
+.grid-sub .card-sm:last-child{padding-left:48px;}
+.card-sm h4{font-family:'Playfair Display',serif;font-weight:500;font-size:19px;margin:0 0 12px;}
+.card-sm p{font-weight:300;font-size:14px;line-height:1.7;color:#3a5261;margin:0 0 20px;max-width:400px;}
+.draft-tag{display:inline-block;font:600 10px/1 'Inter';letter-spacing:.1em;color:var(--primary);background:var(--pastel);padding:5px 9px;margin-bottom:14px;}
+.card-sm .card-link{font-size:13px;}
+.pillars-foot{height:1px;background:transparent;}
+
+/* MOBILE */
+.mobile-wrap{max-width:390px;margin:0 auto;}
+.mchrome{background:#f4f5f6;padding:10px 16px;border:1px solid #e2e4e6;border-bottom:none;text-align:center;font:500 11px 'Inter';color:var(--secondary);}
+.mpage{background:#fff;border:1px solid #e2e4e6;overflow:hidden;}
+.mhero{padding:44px 24px 36px;border-bottom:1px solid #e6e8ea;}
+.mhero h1{font-family:'Playfair Display',serif;font-weight:500;font-size:30px;line-height:1.22;margin:20px 0 14px;}
+.mhero p{font-weight:300;font-size:14.5px;line-height:1.65;color:#374f60;margin:0 0 26px;}
+.mbtn{display:block;text-align:center;background:var(--accent);color:#fff;font:500 14px 'Inter';padding:15px;text-decoration:none;margin-bottom:20px;}
+.mcallout{font-size:13px;color:var(--secondary);border-top:1px solid #e6e8ea;padding-top:16px;line-height:1.55;}
+.mcard{padding:28px 24px;border-bottom:1px solid #e6e8ea;}
+.mcard h3{font-family:'Playfair Display',serif;font-weight:500;font-size:21px;margin:0 0 10px;}
+.mcard p{font-weight:300;font-size:13.5px;line-height:1.65;color:#3a5261;margin:0 0 16px;}
+</style>
+</head>
+<body>
+
+<div class="frame-label">Desktop — 1440px</div>
+<div class="browser">
+  <div class="chrome"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+  <div class="page">
+    <section class="hero">
+      <span class="eyebrow">Santé au travail &amp; Performance Humaine</span>
+      <h1 class="hero-title">Préserver la santé de ceux qui soignent.</h1>
+      <p class="hero-sub">Ancienne soignante basée à Toulouse, j'accompagne les établissements et les professionnels de santé à prévenir l'épuisement, réguler la charge émotionnelle et soutenir des pratiques de travail durables.</p>
+      <div class="cta-row">
+        <a class="btn-primary" href="#">Solutions pour les établissements</a>
+        <p class="callout">Vous êtes un particulier ? Pour débloquer une situation ou travailler un objectif, découvrez l'<a href="#">accompagnement individuel</a>.</p>
+      </div>
+    </section>
+    <p class="pillars-head">Ce que je propose</p>
+    <section class="pillars">
+      <div class="grid-main">
+        <div class="card hover-state">
+          <span class="card-num">01</span>
+          <h3>Formation</h3>
+          <p>Formations professionnelles QVCT, RPS, gestion du stress et des émotions. Des formations sur-mesure pour prévenir l'épuisement professionnel, mieux comprendre le stress et la charge émotionnelle, et renforcer les ressources individuelles et collectives.</p>
+          <a class="card-link" href="#">Découvrir les formations</a>
+        </div>
+        <div class="card">
+          <span class="card-num">02</span>
+          <h3>Coaching</h3>
+          <p>Coaching d'équipe ou individuel. Des accompagnements de coaching, individuels ou collectifs, lorsqu'un objectif précis est identifié : évolution des pratiques, ajustement des fonctionnements, réorganisation ou période de transition.</p>
+          <a class="card-link" href="#">Découvrir le coaching</a>
+        </div>
+      </div>
+      <div class="grid-sub">
+        <div class="card-sm">
+          <span class="card-num">03</span>
+          <h4>GAPP</h4>
+          <p>Groupe d'analyse des pratiques professionnelles. Des espaces réguliers de réflexion collective pour prendre du recul sur les situations vécues, réguler la charge émotionnelle et soutenir les pratiques dans la durée.</p>
+          <a class="card-link" href="#">Découvrir les GAPP</a>
+        </div>
+        <div class="card-sm">
+          <span class="card-num">04</span>
+          <span class="draft-tag">[DRAFT]</span>
+          <h4>Obligations légales</h4>
+          <p>Obligation de sécurité de l'employeur, prévention des RPS, DUERP : comprendre ce qui est exigé et comment agir avant le contentieux.</p>
+          <a class="card-link" href="#">Comprendre vos obligations</a>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="frame-label">Mobile — 390px</div>
+<div class="mobile-wrap">
+  <div class="mchrome">elancestvous.fr</div>
+  <div class="mpage">
+    <section class="mhero">
+      <span class="eyebrow" style="font-size:11px;">Santé au travail &amp; Performance Humaine</span>
+      <h1>Préserver la santé de ceux qui soignent.</h1>
+      <p>Ancienne soignante basée à Toulouse, j'accompagne les établissements et les professionnels de santé à prévenir l'épuisement, réguler la charge émotionnelle et soutenir des pratiques de travail durables.</p>
+      <a class="mbtn" href="#">Solutions pour les établissements</a>
+      <p class="mcallout">Vous êtes un particulier ? Pour débloquer une situation ou travailler un objectif, découvrez l'accompagnement individuel.</p>
+    </section>
+    <div class="mcard">
+      <span class="card-num">01</span>
+      <h3>Formation</h3>
+      <p>Formations professionnelles QVCT, RPS, gestion du stress et des émotions, sur-mesure pour prévenir l'épuisement.</p>
+      <a class="card-link" href="#">Découvrir les formations</a>
+    </div>
+    <div class="mcard">
+      <span class="card-num">02</span>
+      <h3>Coaching</h3>
+      <p>Coaching d'équipe ou individuel lorsqu'un objectif précis est identifié.</p>
+      <a class="card-link" href="#">Découvrir le coaching</a>
+    </div>
+    <div class="mcard">
+      <span class="card-num">03</span>
+      <h4 style="font-family:'Playfair Display',serif;font-weight:500;font-size:18px;margin:0 0 10px;">GAPP</h4>
+      <p style="font-weight:300;font-size:13px;line-height:1.6;color:#3a5261;margin:0 0 14px;">Espaces réguliers de réflexion collective pour réguler la charge émotionnelle.</p>
+      <a class="card-link" href="#" style="font-size:12.5px;">Découvrir les GAPP</a>
+    </div>
+    <div class="mcard" style="border-bottom:none;">
+      <span class="card-num">04</span>
+      <span class="draft-tag">[DRAFT]</span>
+      <h4 style="font-family:'Playfair Display',serif;font-weight:500;font-size:18px;margin:0 0 10px;">Obligations légales</h4>
+      <p style="font-weight:300;font-size:13px;line-height:1.6;color:#3a5261;margin:0 0 14px;">Obligation de sécurité, RPS, DUERP : agir avant le contentieux.</p>
+      <a class="card-link" href="#" style="font-size:12.5px;">Comprendre vos obligations</a>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
