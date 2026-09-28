@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { FC } from "react";
 
-import { buttonVariants } from "../ui";
+import { buttonVariants } from "@/components/ui/button";
 
 const Axes: FC = () => {
   return (
@@ -17,10 +17,7 @@ const Axes: FC = () => {
         </h3>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12 mt-18">
-        <div className="group bg-stone-50 p-8 rounded-2xl border border-stone-100 hover:shadow-xl transition duration-300 relative overflow-hidden">
-          <div className="absolute top-0 right-0 bg-accent text-white text-xs px-2 py-1 rounded-bl-lg font-bold">
-            Populaire
-          </div>{" "}
+        <div className="group bg-stone-50 p-8 rounded-2xl border border-stone-100 hover:shadow-xl transition duration-300">
           <div className="w-14 h-14 bg-teal-100 rounded-full flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-white transition">
             <svg
               className="w-8 h-8"
@@ -42,17 +39,12 @@ const Axes: FC = () => {
             mieux comprendre le stress et la charge émotionnelle, et renforcer
             les ressources individuelles et collectives.
           </p>
-          <Link
-            href="/professionnels-etablissements-de-soins/formations-rps-qvct"
-            className={`${buttonVariants({
-              variant: "ghost",
-            })} mt-4 bg-primary text-white px-6 py-2 rounded-full!`}
-          >
-           Découvrir les formations
+          <Link href="/formations" className={`${buttonVariants({ variant: "tinted" })} mt-4`}>
+            Découvrir les formations
           </Link>
         </div>
 
-        <div className="group bg-stone-50 p-8 rounded-2xl border border-stone-100 hover:shadow-xl transition duration-300 relative overflow-hidden">
+        <div className="group bg-stone-50 p-8 rounded-2xl border border-stone-100 hover:shadow-xl transition duration-300">
           <div className="w-14 h-14 bg-teal-100 rounded-full flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-white transition">
             <svg
               className="w-8 h-8"
@@ -79,13 +71,8 @@ const Axes: FC = () => {
             ajustement des fonctionnements, réorganisation ou période de
             transition.
           </p>
-          <Link
-            href="/professionnels-etablissements-de-soins/coaching"
-            className={`${buttonVariants({
-              variant: "ghost",
-            })} mt-4 bg-primary text-white px-6 py-2 rounded-full!`}
-          >
-           Découvrir le coaching
+          <Link href="/coaching" className={`${buttonVariants({ variant: "tinted" })} mt-4`}>
+            Découvrir le coaching
           </Link>
         </div>
 
@@ -114,12 +101,10 @@ const Axes: FC = () => {
             soutenir les pratiques dans la durée.
           </p>
           <Link
-            href="/professionnels-etablissements-de-soins/gapp-groupe-analyse-pratiques-professionnelles"
-            className={`${buttonVariants({
-              variant: "ghost",
-            })} mt-4 bg-primary text-white px-6 py-2 rounded-full!`}
+            href="/gapp-analyse-pratiques-professionnelles"
+            className={`${buttonVariants({ variant: "tinted" })} mt-4`}
           >
-           Découvrir les GAPP
+            Découvrir les GAPP
           </Link>
         </div>
       </div>
