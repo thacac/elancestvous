@@ -18,6 +18,20 @@ export const FORMATION_FAMILLES = [
   "dynamique-equipe-etablissements-sante",
 ] as const;
 
+export type FormationFamille = (typeof FORMATION_FAMILLES)[number];
+
+// Libellés lisibles, repris tels quels du Glossary du PRD — source unique
+// pour toute page qui affiche une Famille (fil d'Ariane, tuiles, pastilles
+// de filtre).
+export const FORMATION_FAMILLE_LABELS: Record<FormationFamille, string> = {
+  "cadre-legal-etablissements-sante": "Cadre légal, droits et éthique",
+  "prevention-rps-qvct-etablissements-sante": "Prévention des RPS et QVCT",
+  "accompagnement-professionnel-etablissements-sante":
+    "Accompagnement et pratiques professionnelles",
+  "dynamique-equipe-etablissements-sante":
+    "Dynamique d'équipe et développement professionnel",
+};
+
 const frontmatterSchema = z.object({
   titre: z.string().min(1),
   slug: z

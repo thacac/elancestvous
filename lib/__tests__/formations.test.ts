@@ -3,6 +3,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
+  FORMATION_FAMILLE_LABELS,
   FORMATION_FAMILLES,
   getAllFormationsMeta,
   getFormationBySlug,
@@ -48,6 +49,18 @@ describe("getAllFormationsMeta", () => {
     expect(FORMATION_FAMILLES).not.toContain("A");
     expect(FORMATION_FAMILLES).not.toContain("C");
     expect(FORMATION_FAMILLES).not.toContain("F");
+  });
+
+  it("has exactly one label per famille, matching the PRD Glossary", () => {
+    expect(Object.keys(FORMATION_FAMILLE_LABELS).sort()).toEqual(
+      [...FORMATION_FAMILLES].sort()
+    );
+    expect(FORMATION_FAMILLE_LABELS["cadre-legal-etablissements-sante"]).toBe(
+      "Cadre légal, droits et éthique"
+    );
+    expect(
+      FORMATION_FAMILLE_LABELS["prevention-rps-qvct-etablissements-sante"]
+    ).toBe("Prévention des RPS et QVCT");
   });
 
   it("exposes optional Qualiopi fields as null placeholders when absent, never as invented values", () => {
