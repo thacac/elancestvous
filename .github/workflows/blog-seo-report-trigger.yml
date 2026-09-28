@@ -18,6 +18,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          # GH_PAT_TOKEN plutôt que le GITHUB_TOKEN du run pour le `git push`
+          # final : le ruleset de master n'autorise le push direct qu'au compte
+          # du PAT (bypass), et seul un push fait avec lui déclenche
+          # sync-validation.yml (rapport ramené sur validation).
+          token: ${{ secrets.GH_PAT_TOKEN }}
 
       - name: Set up Node
         uses: actions/setup-node@v4
