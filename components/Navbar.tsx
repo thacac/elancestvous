@@ -11,12 +11,9 @@ import { buttonVariants } from "./ui";
 
 const baseLinks = [
   { href: "/", label: "Accueil" },
-  { href: "/professionnels-etablissements-de-soins/formations-rps-qvct", label: "Formations" },
-  { href: "/professionnels-etablissements-de-soins/coaching", label: "Coaching" },
-  {
-    href: "/professionnels-etablissements-de-soins/gapp-groupe-analyse-pratiques-professionnelles",
-    label: "GAPP",
-  },
+  { href: "/formations", label: "Formations" },
+  { href: "/coaching", label: "Coaching" },
+  { href: "/gapp-analyse-pratiques-professionnelles", label: "GAPP" },
 ];
 
 const trailingLinks = [
@@ -93,7 +90,7 @@ export const Navbar: FC<NavbarProps> = ({ blogEnabled = false }) => {
         </div>
         <div className="hidden lg:flex lg:flex-1 lg:justify-end align-baseline">
           <Link
-            href="/particuliers/coaching-individuel"
+            href="/coaching/particuliers"
             className={
               buttonVariants({ variant: "outline", size: "sm" }) + " text-sm"
             }
@@ -149,7 +146,7 @@ export const Navbar: FC<NavbarProps> = ({ blogEnabled = false }) => {
               </div>
               <div>
                 <Link
-                  href="/particuliers/coaching-individuel"
+                  href="/coaching/particuliers"
                   onClick={() => setMobileMenuOpen(false)}
                   className={
                     buttonVariants({ variant: "outline", size: "sm" }) +

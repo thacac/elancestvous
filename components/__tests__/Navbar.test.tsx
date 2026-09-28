@@ -5,15 +5,9 @@ import Navbar from "../Navbar";
 
 const NAV_ITEMS: [string, string][] = [
   ["Accueil", "/"],
-  [
-    "Formations",
-    "/professionnels-etablissements-de-soins/formations-rps-qvct",
-  ],
-  ["Coaching", "/professionnels-etablissements-de-soins/coaching"],
-  [
-    "GAPP",
-    "/professionnels-etablissements-de-soins/gapp-groupe-analyse-pratiques-professionnelles",
-  ],
+  ["Formations", "/formations"],
+  ["Coaching", "/coaching"],
+  ["GAPP", "/gapp-analyse-pratiques-professionnelles"],
   ["À propos", "/a-propos"],
   ["Contact", "/contact"],
 ];
@@ -41,7 +35,18 @@ describe("Navbar on a non-home page (audit: crawlable navigation everywhere)", (
     const ctas = screen.getAllByRole("link", { name: /particuliers/i });
     expect(ctas.length).toBeGreaterThan(0);
     ctas.forEach((cta) =>
-      expect(cta).toHaveAttribute("href", "/particuliers/coaching-individuel"),
+      expect(cta).toHaveAttribute("href", "/coaching/particuliers"),
+    );
+  });
+
+  it("exposes no top-level 'Obligations légales' entry, and GAPP stays a direct link, never nested under Formations (Story 2.6)", () => {
+    render(<Navbar />);
+    expect(
+      screen.queryByRole("link", { name: /obligations légales/i }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "GAPP" })).toHaveAttribute(
+      "href",
+      "/gapp-analyse-pratiques-professionnelles",
     );
   });
 
