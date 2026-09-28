@@ -14,8 +14,8 @@ const CAP_DIR = path.join(FIXTURES, "pillars-cap");
 
 // Pilier A du plan éditorial (services/blog/pillars.ts) — reste stable ici
 // pour ne pas dépendre d'un import de PILLARS dans le test.
-const TARGET_PAGE_A = "/particuliers/coaching-individuel";
-const TARGET_PAGE_B = "/professionnels-etablissements-de-soins/coaching";
+const TARGET_PAGE_A = "/coaching/particuliers";
+const TARGET_PAGE_B = "/coaching/etablissements";
 
 describe("getRelatedArticleLinks", () => {
   const original = process.env.BLOG_ENABLED;

@@ -5,7 +5,7 @@ import { hasServiceLink } from "../editorialChecks";
 describe("hasServiceLink", () => {
   it("returns true for a Markdown link to a known service page (relative URL)", () => {
     const body =
-      "## Section\n\nPour aller plus loin, découvrez notre [accompagnement individuel](/particuliers/coaching-individuel).";
+      "## Section\n\nPour aller plus loin, découvrez notre [accompagnement individuel](/coaching/particuliers).";
     expect(hasServiceLink(body)).toBe(true);
   });
 
@@ -17,18 +17,18 @@ describe("hasServiceLink", () => {
 
   it("returns true when the link carries an anchor or query string suffix", () => {
     const body =
-      "[Le GAPP en pratique](/professionnels-etablissements-de-soins/gapp-groupe-analyse-pratiques-professionnelles#fonctionnement)";
+      "[Le GAPP en pratique](/gapp-analyse-pratiques-professionnelles#fonctionnement)";
     expect(hasServiceLink(body)).toBe(true);
   });
 
   it("returns true for a link with a trailing slash", () => {
-    const body = "[Coaching individuel](/particuliers/coaching-individuel/)";
+    const body = "[Coaching individuel](/coaching/particuliers/)";
     expect(hasServiceLink(body)).toBe(true);
   });
 
   it("returns true for an absolute link using a www. prefix", () => {
     const body =
-      "[Coaching individuel](https://www.elancestvous.fr/particuliers/coaching-individuel)";
+      "[Coaching individuel](https://www.elancestvous.fr/coaching/particuliers)";
     expect(hasServiceLink(body)).toBe(true);
   });
 

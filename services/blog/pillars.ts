@@ -24,7 +24,7 @@ export const PILLARS: Pillar[] = [
   {
     id: "A",
     label: "Coaching individuel (particuliers)",
-    targetPage: "/particuliers/coaching-individuel",
+    targetPage: "/coaching/particuliers",
     theme:
       "Stress personnel, charge émotionnelle, transitions de vie/carrière, fonctionnement concret d'un accompagnement individuel.",
     weight: 2,
@@ -34,7 +34,7 @@ export const PILLARS: Pillar[] = [
   {
     id: "B",
     label: "Coaching en établissement",
-    targetPage: "/professionnels-etablissements-de-soins/coaching",
+    targetPage: "/coaching/etablissements",
     theme:
       "Coaching individuel et collectif pour cadres de santé, managers et équipes ; dynamiques d'équipe, posture managériale.",
     weight: 2,
@@ -54,8 +54,7 @@ export const PILLARS: Pillar[] = [
   {
     id: "D",
     label: "GAPP",
-    targetPage:
-      "/professionnels-etablissements-de-soins/gapp-groupe-analyse-pratiques-professionnelles",
+    targetPage: "/gapp-analyse-pratiques-professionnelles",
     theme:
       "Définition et fonctionnement du GAPP, différenciation avec des dispositifs voisins (supervision), bénéfices dans la durée.",
     weight: 3,
