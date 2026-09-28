@@ -1,6 +1,6 @@
 name: Build and Deploy (validation)
 
-# Pipeline de recette : les branches de feature sont mergées dans
+# Pipeline de recette : les PR de feature sont mergées dans
 # `validation`, chaque push y reconstruit l'image et la déploie
 # automatiquement sur https://val.elancestvous.fr (même VPS/Traefik que la
 # prod, dossier/conteneur/routers dédiés). La prod reste pilotée par
