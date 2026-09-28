@@ -40,7 +40,7 @@ export default function Hero() {
             <p className="text-sm text-secondary">
               Pour débloquer une situation ou travailler un objectif, découvrez
               l&apos;<span className="font-serif text-accent italic underline cursor-alias">
-                <Link href="/particuliers/coaching-individuel">
+                <Link href="/coaching/particuliers">
                   <strong>accompagnement individuel</strong>
                 </Link>
               </span>
