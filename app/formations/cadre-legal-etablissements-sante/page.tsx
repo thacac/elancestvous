@@ -14,6 +14,9 @@ import {
   IconStethoscope,
 } from "@/components/ui/icons-publics";
 import { OG_BANNER_IMAGES } from "@/lib/openGraph";
+import { getRelatedArticleLinks } from "@/lib/relatedArticles";
+
+const TARGET_PAGE = "/formations/cadre-legal-etablissements-sante";
 
 export const metadata = {
   title: "Formations cadre légal, droits et éthique en établissements de santé",
@@ -44,6 +47,9 @@ export const metadata = {
 };
 
 export default function CadreLegalPage() {
+  const articlesLies = getRelatedArticleLinks(TARGET_PAGE);
+  const hasRelatedArticles = articlesLies.length > 0;
+
   return (
     <>
       <main className="min-h-screen overflow-hidden">
@@ -85,8 +91,21 @@ export default function CadreLegalPage() {
           </div>
         </section>
 
-        {/* --- 1b. Formations disponibles (Story 2.2 : avant tout contenu de réassurance) --- */}
-        <FormationsDisponiblesBloc famille="cadre-legal-etablissements-sante" />
+        {/* --- 1b. Formations disponibles (Story 2.2 : avant tout contenu de
+            réassurance) + colonne latérale sticky des articles liés (Story
+            3.2), quand au moins un article cible le pilier F. --- */}
+        <div
+          className={
+            hasRelatedArticles
+              ? "container py-14 grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-10 items-start"
+              : "container py-14"
+          }
+        >
+          <div>
+            <FormationsDisponiblesBloc famille="cadre-legal-etablissements-sante" bare />
+          </div>
+          <ArticlesBlogLiesBloc targetPage={TARGET_PAGE} variant="sidebar" liens={articlesLies} />
+        </div>
 
         {/* --- 2. ARGUMENTAIRE : CARTES CONTRASTÉES --- */}
         <CartesContrastBloc
@@ -170,9 +189,6 @@ export default function CadreLegalPage() {
             },
           ]}
         />
-
-        {/* --- 5b. Articles du blog en lien (issue #72 : maillage retour) --- */}
-        <ArticlesBlogLiesBloc targetPage="/formations/cadre-legal-etablissements-sante" />
 
         {/* --- 6. CTA FINAL --- */}
         <CtaElan />

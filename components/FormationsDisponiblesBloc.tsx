@@ -5,6 +5,11 @@ import { getAllFormationsMeta, type FormationFamilleId } from "@/lib/formations"
 
 interface FormationsDisponiblesBlocProps {
   famille: FormationFamilleId;
+  // Story 3.2 : sur les hubs avec pilier blog, ce bloc s'intègre dans une
+  // grille parente aux côtés d'une colonne latérale d'articles liés — le
+  // parent porte alors son propre `container`, et un second `container`
+  // imbriqué ici doublerait la marge intérieure.
+  bare?: boolean;
 }
 
 // Bloc partagé par les hubs Famille (Story 2.2/2.3) : liste les fiches
@@ -13,11 +18,12 @@ interface FormationsDisponiblesBlocProps {
 // erreur.
 export default function FormationsDisponiblesBloc({
   famille,
+  bare = false,
 }: FormationsDisponiblesBlocProps) {
   const formations = getAllFormationsMeta().filter((f) => f.famille === famille);
 
-  return (
-    <section className="container py-14">
+  const content = (
+    <>
       <h2 className="text-primary text-3xl md:text-4xl font-extrabold mb-8">
         Formations disponibles
       </h2>
@@ -45,6 +51,10 @@ export default function FormationsDisponiblesBloc({
           ))}
         </div>
       )}
-    </section>
+    </>
   );
+
+  if (bare) return content;
+
+  return <section className="container py-14">{content}</section>;
 }

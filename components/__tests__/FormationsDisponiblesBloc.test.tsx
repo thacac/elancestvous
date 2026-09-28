@@ -79,6 +79,31 @@ describe("FormationsDisponiblesBloc — liste filtrée par famille", () => {
   });
 });
 
+describe("FormationsDisponiblesBloc — mode bare (Story 3.2 : sidebar articles liés)", () => {
+  it("n'ajoute aucun wrapper de section/container en mode bare, pour s'intégrer dans une grille parente", () => {
+    vi.mocked(getAllFormationsMeta).mockReturnValue([formationMeta()]);
+
+    const { container } = render(
+      <FormationsDisponiblesBloc famille="cadre-legal-etablissements-sante" bare />
+    );
+
+    expect(container.querySelector("section")).toBeNull();
+    expect(
+      screen.getByRole("heading", { name: "Formations disponibles" })
+    ).toBeInTheDocument();
+  });
+
+  it("garde le wrapper section habituel quand bare n'est pas passé", () => {
+    vi.mocked(getAllFormationsMeta).mockReturnValue([formationMeta()]);
+
+    const { container } = render(
+      <FormationsDisponiblesBloc famille="cadre-legal-etablissements-sante" />
+    );
+
+    expect(container.querySelector("section")).not.toBeNull();
+  });
+});
+
 describe("FormationsDisponiblesBloc — état vide honnête (UJ-1)", () => {
   it("n'affiche ni liste tronquée ni erreur quand aucune fiche n'existe pour la famille", () => {
     vi.mocked(getAllFormationsMeta).mockReturnValue([formationMeta()]);
