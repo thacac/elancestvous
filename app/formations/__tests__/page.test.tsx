@@ -56,6 +56,41 @@ const ALL_FORMATIONS = [
   }),
 ];
 
+describe("FormationsCataloguePage — tuiles vers les 4 familles (Story 2.4)", () => {
+  it("affiche une tuile cliquable par famille, menant vers son hub", async () => {
+    vi.mocked(getAllFormationsMeta).mockReturnValue(ALL_FORMATIONS);
+
+    const jsx = await FormationsCataloguePage({ searchParams: Promise.resolve({}) });
+    render(jsx);
+
+    const tuiles = screen.getAllByRole("link", { name: "Découvrir" });
+    expect(
+      tuiles.some((lien) => lien.getAttribute("href") === "/formations/cadre-legal-etablissements-sante")
+    ).toBe(true);
+    expect(
+      tuiles.some(
+        (lien) => lien.getAttribute("href") === "/formations/dynamique-equipe-etablissements-sante"
+      )
+    ).toBe(true);
+  });
+
+  it("positionne les tuiles au-dessus de la grille filtrable, sans la modifier", async () => {
+    vi.mocked(getAllFormationsMeta).mockReturnValue(ALL_FORMATIONS);
+
+    const jsx = await FormationsCataloguePage({ searchParams: Promise.resolve({}) });
+    render(jsx);
+
+    const tuile = screen
+      .getAllByRole("link", { name: "Découvrir" })
+      .find((lien) => lien.getAttribute("href") === "/formations/cadre-legal-etablissements-sante")!;
+    const filtres = screen.getByRole("navigation", { name: /filtre/i });
+
+    expect(
+      tuile.compareDocumentPosition(filtres) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+  });
+});
+
 describe("FormationsCataloguePage — grille sans filtre (FR4)", () => {
   it("liste toutes les fiches, toutes familles confondues", async () => {
     vi.mocked(getAllFormationsMeta).mockReturnValue(ALL_FORMATIONS);
