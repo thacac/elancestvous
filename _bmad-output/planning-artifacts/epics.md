@@ -1,5 +1,5 @@
 ---
-stepsCompleted: [1, 2]
+stepsCompleted: [1, 2, 3]
 inputDocuments:
   - _bmad-output/planning-artifacts/prds/prd-elancestvous-2026-09-25/prd.md
   - _bmad-output/planning-artifacts/architecture/architecture-elancestvous-2026-09-26/ARCHITECTURE-SPINE.md
@@ -439,3 +439,64 @@ So that je n'atterris jamais sur une page cassée, même après la migration.
 **Given** la migration terminée
 **When** les préfixes `particuliers/` et `professionnels-etablissements-de-soins/` sont visités sur toute autre sous-page
 **Then** ils ne servent plus aucune page
+
+## Epic 3: Maillage blog ↔ formations
+
+Un lecteur d'article de blog découvre automatiquement l'offre associée (Cadre
+légal ou Prévention RPS/QVCT) via un encart sur le hub Famille correspondant.
+**FRs couverts:** FR6, FR10. Épique volontairement fin : le mécanisme
+(`ArticlesBlogLiesBloc`, `lib/relatedArticles.ts`) est déjà générique et
+inchangé — seule la configuration des piliers change.
+
+### Story 3.1: Nouveau pilier blog "Cadre légal" + retargeting du pilier existant
+
+As a équipe éditoriale qui produit le blog hebdomadaire,
+I want que le système propose aussi le pilier "Cadre légal" dans la rotation, et que le pilier "Formations" existant cible le bon hub,
+So that le blog continue d'alimenter automatiquement les bonnes pages du nouveau site, sans article mal routé.
+
+**Acceptance Criteria:**
+
+**Given** `services/blog/pillars.ts`
+**When** le pilier `F` est ajouté
+**Then** il porte le label "Cadre légal, droits et éthique", un poids 4, et un `targetPage` `/formations/cadre-legal-etablissements-sante`
+
+**Given** le pilier `C` existant ("Formations")
+**When** son `targetPage` est mis à jour
+**Then** il pointe vers `/formations/prevention-rps-qvct-etablissements-sante`
+
+**Given** `pickNextPillar`
+**When** il tire un pilier
+**Then** il peut désormais sélectionner le pilier `F` au même titre que les autres
+
+**Given** `getRelatedArticleLinks` (`lib/relatedArticles.ts`) et `ArticlesBlogLiesBloc`
+**When** les piliers `C` et `F` sont utilisés
+**Then** aucun code spécifique supplémentaire n'est nécessaire — le mécanisme reste générique par pilier
+
+**Given** tout autre fichier du dépôt
+**When** on cherche une référence littérale à l'id `"F"`
+**Then** aucune n'existe en dehors du tableau `PILLARS`
+
+### Story 3.2: Articles de blog liés sur chaque hub Famille disposant d'un pilier
+
+As a lecteur d'un article de blog sur le cadre légal ou la prévention RPS/QVCT,
+I want voir automatiquement les articles récents liés à ce sujet sur le hub Famille correspondant,
+So that je découvre l'offre associée sans chercher, et je peux approfondir via d'autres articles.
+
+**Acceptance Criteria:**
+
+**Given** le hub Famille "Cadre légal" (Story 2.2) et le pilier `F` (Story 3.1)
+**When** au moins un article de blog cible ce pilier
+**Then** jusqu'à 3 articles récents s'affichent via `ArticlesBlogLiesBloc`, en colonne latérale sticky à partir du breakpoint `lg`
+**And** empilée en pleine largeur en dessous de `lg`
+
+**Given** le hub Famille "Prévention RPS/QVCT" et le pilier `C` retargeté
+**When** au moins un article cible ce pilier
+**Then** le même comportement s'applique
+
+**Given** les hubs Famille "Accompagnement..." et "Dynamique d'équipe..." (Story 2.3, sans pilier)
+**When** on les visite
+**Then** `ArticlesBlogLiesBloc` ne rend rien à cet endroit, sans code spécial pour ce cas
+
+**Given** un hub Famille avec pilier mais sans encore aucun article publié dessus
+**When** on le visite
+**Then** rien ne s'affiche à cet endroit non plus, plutôt qu'un bloc vide visible
