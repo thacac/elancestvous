@@ -174,6 +174,11 @@ So that ma fiche est validée et exploitable par le site sans qu'aucune donnée 
 **When** `lib/formations.ts` liste toutes les fiches
 **Then** les deux apparaissent avec leur `famille` correcte
 
+**Given** le champ `famille` d'une fiche formation
+**When** il est validé
+**Then** il est vérifié contre un enum local à 4 valeurs fixes défini dans `lib/formations.ts`
+**And** jamais contre `PILLAR_IDS` de `services/blog/pillars.ts` — les deux systèmes de classification (Famille catalogue / Pilier blog) restent indépendants (AD-1)
+
 ### Story 1.2: Variant CTA secondaire
 
 As a visiteur qui découvre une tuile, une carte catalogue ou une fiche,
