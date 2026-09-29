@@ -89,6 +89,17 @@ h3,
   --color-muted-foreground: oklch(0.556 0 0);
   --color-pastel: #d1faf9;
   --color-logo: #29b5ad;
+  /* Pastilles de catégorie par famille de formation (catalogue, rattrapage
+     design Chantier B — cf. canevas Artifact "Home Élan C'est Vous —
+     refonte piliers", artboard Formations-Catalogue). */
+  --color-cat-legal: #ffece6;
+  --color-cat-legal-foreground: #b3421f;
+  --color-cat-prevention: #d1faf9;
+  --color-cat-prevention-foreground: #0f5c57;
+  --color-cat-accompagnement: #eaf2ff;
+  --color-cat-accompagnement-foreground: #1d4a8f;
+  --color-cat-dynamique: #fdeee0;
+  --color-cat-dynamique-foreground: #8a4a12;
 }
 
 .dark {
