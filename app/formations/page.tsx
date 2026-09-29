@@ -72,7 +72,7 @@ export default async function FormationsCataloguePage({
       </div>
 
       <section className="container mb-14" aria-label="Familles de formations">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {FORMATION_FAMILLES.map((f) => (
             <div
               key={f.id}

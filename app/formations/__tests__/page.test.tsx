@@ -99,7 +99,7 @@ describe("FormationsCataloguePage — tuiles vers les 4 familles (Story 2.4)", (
     ).toBe(true);
   });
 
-  it("autorise le titre d'une tuile à se couper (évite qu'un mot long comme « Accompagnement » chevauche la tuile voisine en grille 4 colonnes)", async () => {
+  it("autorise le titre d'une tuile à se couper si besoin (filet de sécurité pour un libellé long)", async () => {
     vi.mocked(getAllFormationsMeta).mockReturnValue(ALL_FORMATIONS);
 
     const jsx = await FormationsCataloguePage({ searchParams: Promise.resolve({}) });
@@ -109,6 +109,17 @@ describe("FormationsCataloguePage — tuiles vers les 4 familles (Story 2.4)", (
       name: "Accompagnement et pratiques professionnelles",
     });
     expect(titre.className).toContain("break-words");
+  });
+
+  it("reste en 2 colonnes même sur grand écran, jamais 4 (retour visuel : 4 colonnes ne laissait pas assez de place au titre des tuiles)", async () => {
+    vi.mocked(getAllFormationsMeta).mockReturnValue(ALL_FORMATIONS);
+
+    const jsx = await FormationsCataloguePage({ searchParams: Promise.resolve({}) });
+    const { container } = render(jsx);
+
+    const grille = container.querySelector('[aria-label="Familles de formations"] > div')!;
+    expect(grille.className).toContain("sm:grid-cols-2");
+    expect(grille.className).not.toMatch(/lg:grid-cols-4|grid-cols-3|grid-cols-4/);
   });
 
   it("positionne les tuiles au-dessus de la grille filtrable, sans la modifier", async () => {
