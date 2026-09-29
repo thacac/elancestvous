@@ -56,6 +56,18 @@ const ALL_FORMATIONS = [
   }),
 ];
 
+describe("FormationsCataloguePage — fil d'Ariane (rattrapage design)", () => {
+  it("affiche un fil d'Ariane Accueil / Formations", async () => {
+    vi.mocked(getAllFormationsMeta).mockReturnValue(ALL_FORMATIONS);
+
+    const jsx = await FormationsCataloguePage({ searchParams: Promise.resolve({}) });
+    render(jsx);
+
+    expect(screen.getByRole("link", { name: "Accueil" })).toHaveAttribute("href", "/");
+    expect(screen.getByText("Formations")).toBeInTheDocument();
+  });
+});
+
 describe("FormationsCataloguePage — tuiles vers les 4 familles (Story 2.4)", () => {
   it("affiche une tuile cliquable par famille, menant vers son hub", async () => {
     vi.mocked(getAllFormationsMeta).mockReturnValue(ALL_FORMATIONS);
@@ -106,7 +118,7 @@ describe("FormationsCataloguePage — grille sans filtre (FR4)", () => {
     ).toBeInTheDocument();
   });
 
-  it("chaque carte affiche sa pastille de famille, sa durée et un lien Voir la fiche stylé en bouton", async () => {
+  it("chaque carte affiche sa pastille de famille colorée, sa durée et un CTA accent Voir la fiche", async () => {
     vi.mocked(getAllFormationsMeta).mockReturnValue([formationMeta()]);
 
     const jsx = await FormationsCataloguePage({ searchParams: Promise.resolve({}) });
@@ -116,14 +128,58 @@ describe("FormationsCataloguePage — grille sans filtre (FR4)", () => {
       .getByRole("heading", { name: "Obligations légales des établissements" })
       .closest("div")!;
 
-    expect(within(carte).getByText("Cadre légal, droits et éthique")).toBeInTheDocument();
+    const pastille = within(carte).getByText("Cadre légal, droits et éthique");
+    expect(pastille.className).toContain("bg-cat-legal");
     expect(within(carte).getByText("1 journée")).toBeInTheDocument();
     const lien = within(carte).getByRole("link", { name: "Voir la fiche" });
     expect(lien).toHaveAttribute(
       "href",
       "/formations/cadre-legal-etablissements-sante/obligations-legales-des-etablissements"
     );
-    expect(lien.className).toContain("border-primary");
+    expect(lien.className).toContain("bg-accent");
+  });
+});
+
+describe("FormationsCataloguePage — état vide honnête par famille (rattrapage design)", () => {
+  it("affiche une carte 'Bientôt disponible' pour chaque famille sans fiche encore publiée, en vue Toutes", async () => {
+    vi.mocked(getAllFormationsMeta).mockReturnValue(ALL_FORMATIONS);
+
+    const jsx = await FormationsCataloguePage({ searchParams: Promise.resolve({}) });
+    render(jsx);
+
+    const cartesBientot = screen.getAllByRole("heading", { name: "Bientôt disponible" });
+    expect(cartesBientot).toHaveLength(2);
+
+    const famillesEnAttente = cartesBientot.map(
+      (titre) => titre.closest("div")!.querySelector("span")!.textContent
+    );
+    expect(famillesEnAttente).toContain("Accompagnement et pratiques professionnelles");
+    expect(famillesEnAttente).toContain("Dynamique d'équipe et développement professionnel");
+  });
+
+  it("n'affiche aucune carte 'Bientôt disponible' pour une famille qui a des fiches publiées", async () => {
+    vi.mocked(getAllFormationsMeta).mockReturnValue(ALL_FORMATIONS);
+
+    const jsx = await FormationsCataloguePage({ searchParams: Promise.resolve({}) });
+    render(jsx);
+
+    const cartesBientot = screen.getAllByRole("heading", { name: "Bientôt disponible" });
+    const famillesEnBientot = cartesBientot.map(
+      (titre) => within(titre.closest("div")!).getByText(/^(Cadre légal|Prévention|Accompagnement|Dynamique)/).textContent
+    );
+    expect(famillesEnBientot).not.toContain("Cadre légal, droits et éthique");
+    expect(famillesEnBientot).not.toContain("Prévention des RPS et QVCT");
+  });
+
+  it("filtré sur une famille vide, affiche sa carte 'Bientôt disponible' plutôt qu'une grille vide", async () => {
+    vi.mocked(getAllFormationsMeta).mockReturnValue(ALL_FORMATIONS);
+
+    const jsx = await FormationsCataloguePage({
+      searchParams: Promise.resolve({ famille: "dynamique-equipe-etablissements-sante" }),
+    });
+    render(jsx);
+
+    expect(screen.getByRole("heading", { name: "Bientôt disponible" })).toBeInTheDocument();
   });
 });
 
