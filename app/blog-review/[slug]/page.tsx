@@ -56,7 +56,7 @@ export default async function BlogReviewPage({
     : null;
 
   return (
-    <article className="pt-20 mb-40">
+    <article className="pt-6 sm:pt-20 mb-40">
       <div className="container max-w-3xl">
         <p className="mb-6 rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-800">
           🔒 Aperçu privé — brouillon non publié, réservé aux personnes ayant reçu ce

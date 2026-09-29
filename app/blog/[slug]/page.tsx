@@ -67,7 +67,7 @@ export default async function BlogPost({
   const pillarLabel = pillar?.label;
 
   return (
-    <article className="pt-20 mb-40">
+    <article className="pt-6 sm:pt-20 mb-40">
       <PostJsonLd post={post} />
       <Breadcrumbs
         items={[

@@ -126,3 +126,16 @@ describe("BlogPost — boutons de partage", () => {
     );
   });
 });
+
+describe("BlogPost — espacement sous la navbar (mobile)", () => {
+  it("réduit le padding-top mobile plutôt que le padding desktop fixe (pt-20)", async () => {
+    vi.mocked(getPostBySlug).mockResolvedValue(post({}));
+
+    const jsx = await BlogPost({ params: Promise.resolve({ slug: "article-courant" }) });
+    const { container } = render(jsx);
+    const article = container.querySelector("article")!;
+
+    expect(article.className).toContain("pt-6");
+    expect(article.className).toContain("sm:pt-20");
+  });
+});

@@ -60,7 +60,7 @@ export default async function FormationPage({
   )!.label;
 
   return (
-    <article className="pt-20 mb-40">
+    <article className="pt-6 sm:pt-20 mb-40">
       <Breadcrumbs
         items={[
           { label: "Formations", href: "/formations" },

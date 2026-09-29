@@ -56,6 +56,19 @@ const ALL_FORMATIONS = [
   }),
 ];
 
+describe("FormationsCataloguePage — espacement sous la navbar (mobile, rattrapage design)", () => {
+  it("réduit le padding-top mobile plutôt que le padding desktop fixe (pt-20)", async () => {
+    vi.mocked(getAllFormationsMeta).mockReturnValue(ALL_FORMATIONS);
+
+    const jsx = await FormationsCataloguePage({ searchParams: Promise.resolve({}) });
+    const { container } = render(jsx);
+    const wrapper = container.firstElementChild!;
+
+    expect(wrapper.className).toContain("pt-6");
+    expect(wrapper.className).toContain("sm:pt-20");
+  });
+});
+
 describe("FormationsCataloguePage — fil d'Ariane (rattrapage design)", () => {
   it("affiche un fil d'Ariane Accueil / Formations", async () => {
     vi.mocked(getAllFormationsMeta).mockReturnValue(ALL_FORMATIONS);
