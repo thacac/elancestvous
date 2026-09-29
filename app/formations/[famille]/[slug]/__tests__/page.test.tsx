@@ -37,7 +37,10 @@ function formation(overrides: Partial<Formation> = {}): Formation {
     ],
     prerequis: "Aucun",
     publicVise: ["Direction", "Encadrement"],
-    programme: "Cadre légal, DUERP, prévention RPS.",
+    programme: [
+      { titre: "Cadre légal et obligation de sécurité", texte: "Code du travail, jurisprudence." },
+      { titre: "DUERP en pratique", texte: "Méthode d'évaluation des risques, mise à jour." },
+    ],
     duree: "1 journée",
     format: "Présentiel, en intra-établissement",
     delaiAcces: "4 à 6 semaines",
@@ -66,9 +69,24 @@ describe("FormationPage — contenu principal (FR5)", () => {
     expect(
       screen.getByText("Identifier le cadre légal de l'obligation de sécurité")
     ).toBeInTheDocument();
-    expect(screen.getByText(/Cadre légal, DUERP, prévention RPS\./)).toBeInTheDocument();
+    expect(screen.getByText("Cadre légal et obligation de sécurité")).toBeInTheDocument();
+    expect(screen.getByText("Code du travail, jurisprudence.")).toBeInTheDocument();
     expect(screen.getByText("Direction")).toBeInTheDocument();
     expect(screen.getByText(/Quiz de fin de session\./)).toBeInTheDocument();
+  });
+
+  it("affiche le programme en modules numérotés (01, 02...), titre en gras et description, plutôt qu'un bloc de texte (rattrapage design)", async () => {
+    vi.mocked(getFormationBySlug).mockResolvedValue(formation());
+
+    const jsx = await FormationPage({ params: PARAMS });
+    render(jsx);
+
+    expect(screen.getByText("01")).toBeInTheDocument();
+    expect(screen.getByText("02")).toBeInTheDocument();
+    expect(screen.getByText("Cadre légal et obligation de sécurité")).toBeInTheDocument();
+    expect(screen.getByText("Code du travail, jurisprudence.")).toBeInTheDocument();
+    expect(screen.getByText("DUERP en pratique")).toBeInTheDocument();
+    expect(screen.getByText("Méthode d'évaluation des risques, mise à jour.")).toBeInTheDocument();
   });
 
   it("affiche le titre et le corps rendu depuis le markdown", async () => {
@@ -138,6 +156,19 @@ describe("FormationPage — fiche pratique Qualiopi", () => {
     const cta = screen.getByRole("link", { name: "Demander un devis" });
     expect(cta).toHaveAttribute("href", "/contact");
     expect(cta.className).toContain("bg-accent");
+  });
+});
+
+describe("FormationPage — pied de fiche (rattrapage design)", () => {
+  it("propose un lien de retour vers le catalogue des formations", async () => {
+    vi.mocked(getFormationBySlug).mockResolvedValue(formation());
+
+    const jsx = await FormationPage({ params: PARAMS });
+    render(jsx);
+
+    expect(
+      screen.getByRole("link", { name: /retour au catalogue/i })
+    ).toHaveAttribute("href", "/formations");
   });
 });
 

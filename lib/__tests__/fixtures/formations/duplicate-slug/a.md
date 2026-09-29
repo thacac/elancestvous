@@ -7,7 +7,9 @@ objectifsPedagogiques:
 prerequis: "Aucun"
 publicVise:
   - "Cadres de santé"
-programme: "Programme A."
+programme:
+  - titre: "Module"
+    texte: "Programme A."
 duree: "1 journée"
 format: "Présentiel"
 delaiAcces: "4 semaines"

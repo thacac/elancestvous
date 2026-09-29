@@ -87,6 +87,21 @@ describe("getAllFormationsMeta", () => {
     expect(formation?.tarif).toBe("Sur devis");
   });
 
+  it("exposes programme as a structured list of modules (titre + texte), not a single free-text field", () => {
+    const formations = getAllFormationsMeta(VALID);
+    const formation = formations.find(
+      (f) => f.slug === "obligations-legales-des-etablissements"
+    );
+    expect(Array.isArray(formation?.programme)).toBe(true);
+    expect(formation!.programme.length).toBeGreaterThan(0);
+    expect(formation!.programme[0]).toEqual(
+      expect.objectContaining({
+        titre: expect.any(String),
+        texte: expect.any(String),
+      })
+    );
+  });
+
   it("throws a descriptive error when famille is missing or invalid", () => {
     expect(() =>
       getAllFormationsMeta(path.join(FIXTURES, "invalid-frontmatter"))

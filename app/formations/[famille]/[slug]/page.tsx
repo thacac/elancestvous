@@ -94,7 +94,22 @@ export default async function FormationPage({
 
           <section className="mb-10">
             <h2 className="text-xl font-bold text-primary mb-4">Programme</h2>
-            <p className="text-sm text-stone-700">{formationDetail.programme}</p>
+            <div className="flex flex-col">
+              {formationDetail.programme.map((module, i) => (
+                <div
+                  key={i}
+                  className="flex gap-5 py-4 border-t border-stone-200 last:border-b"
+                >
+                  <span className="font-serif font-semibold text-lg text-logo w-8 shrink-0">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <div>
+                    <strong className="text-primary">{module.titre}</strong>
+                    <p className="mt-1.5 text-sm text-stone-600">{module.texte}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </section>
 
           <section className="mb-10">
@@ -145,6 +160,15 @@ export default async function FormationPage({
             </Button>
           </div>
         </div>
+      </div>
+
+      <div className="container border-t border-stone-200 mt-14 pt-8">
+        <Link
+          href="/formations"
+          className="text-sm font-semibold text-primary hover:underline underline-offset-2"
+        >
+          &larr; Retour au catalogue des formations
+        </Link>
       </div>
     </article>
   );

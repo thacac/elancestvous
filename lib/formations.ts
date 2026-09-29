@@ -56,7 +56,18 @@ const frontmatterSchema = z.object({
   objectifsPedagogiques: z.array(z.string().min(1)).min(1),
   prerequis: z.string().min(1),
   publicVise: z.array(z.string().min(1)).min(1),
-  programme: z.string().min(1),
+  // Modules numérotés (rattrapage design Chantier C, cf. canevas Artifact
+  // "Home Élan C'est Vous — refonte piliers", artboards Fiche-Formation*) :
+  // un tableau structuré plutôt qu'un seul champ texte libre, pour éviter
+  // de reconstituer la structure via un parsing fragile du contenu.
+  programme: z
+    .array(
+      z.object({
+        titre: z.string().min(1),
+        texte: z.string().min(1),
+      })
+    )
+    .min(1),
   duree: z.string().min(1),
   format: z.string().min(1),
   delaiAcces: z.string().min(1),

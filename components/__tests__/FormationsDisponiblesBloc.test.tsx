@@ -18,7 +18,7 @@ function formationMeta(overrides: Partial<FormationMeta> = {}): FormationMeta {
     objectifsPedagogiques: ["Objectif"],
     prerequis: "Aucun",
     publicVise: ["Direction"],
-    programme: "Programme.",
+    programme: [{ titre: "Module", texte: "Programme." }],
     duree: "1 journée",
     format: "Présentiel",
     delaiAcces: "4 semaines",
