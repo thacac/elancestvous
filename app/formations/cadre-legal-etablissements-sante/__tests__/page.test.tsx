@@ -80,7 +80,7 @@ describe("CadreLegalPage — colonne latérale sticky des articles liés (Story 
 
     const aside = container.querySelector("aside");
     expect(aside).not.toBeNull();
-    expect(aside!.className).toMatch(/lg:sticky/);
+    expect(aside!.className).toMatch(/md:sticky/);
     expect(
       screen.getByRole("link", { name: "Article cadre légal" })
     ).toHaveAttribute("href", "/blog/article-cadre-legal");

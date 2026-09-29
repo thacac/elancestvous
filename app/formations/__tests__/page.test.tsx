@@ -99,6 +99,18 @@ describe("FormationsCataloguePage — tuiles vers les 4 familles (Story 2.4)", (
     ).toBe(true);
   });
 
+  it("autorise le titre d'une tuile à se couper (évite qu'un mot long comme « Accompagnement » chevauche la tuile voisine en grille 4 colonnes)", async () => {
+    vi.mocked(getAllFormationsMeta).mockReturnValue(ALL_FORMATIONS);
+
+    const jsx = await FormationsCataloguePage({ searchParams: Promise.resolve({}) });
+    render(jsx);
+
+    const titre = screen.getByRole("heading", {
+      name: "Accompagnement et pratiques professionnelles",
+    });
+    expect(titre.className).toContain("break-words");
+  });
+
   it("positionne les tuiles au-dessus de la grille filtrable, sans la modifier", async () => {
     vi.mocked(getAllFormationsMeta).mockReturnValue(ALL_FORMATIONS);
 

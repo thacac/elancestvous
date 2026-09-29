@@ -6,7 +6,7 @@ import { getRelatedArticleLinks, type RelatedArticleLink } from "@/lib/relatedAr
 interface ArticlesBlogLiesBlocProps {
   targetPage: string;
   // Story 3.2 : sur les hubs Famille disposant d'un pilier, ce bloc devient
-  // une colonne latérale sticky (à partir de lg) plutôt que le bandeau
+  // une colonne latérale sticky (à partir de md) plutôt que le bandeau
   // pleine largeur utilisé sur les autres pages de service.
   variant?: "default" | "sidebar";
   // Story 3.2 : quand l'appelant a déjà besoin des liens pour une décision
@@ -31,7 +31,7 @@ export default function ArticlesBlogLiesBloc({
 
   if (variant === "sidebar") {
     return (
-      <aside className="lg:sticky lg:top-24">
+      <aside className="md:sticky md:top-24">
         <div className="bg-stone-50 rounded-2xl border border-stone-100 p-6">
           <h2 className="text-primary font-bold text-lg mb-4">Pour aller plus loin</h2>
           <ul className="space-y-3">

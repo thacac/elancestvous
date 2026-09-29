@@ -78,7 +78,7 @@ export default async function FormationsCataloguePage({
               key={f.id}
               className="bg-stone-50 p-8 rounded-2xl border border-stone-100 hover:shadow-xl transition duration-300"
             >
-              <h2 className="text-lg font-bold text-primary mb-3">{f.label}</h2>
+              <h2 className="text-lg font-bold text-primary mb-3 break-words">{f.label}</h2>
               <p className="text-stone-600 mb-4 text-sm leading-relaxed">
                 {FAMILLE_TUILE_DESCRIPTIONS[f.id]}
               </p>
