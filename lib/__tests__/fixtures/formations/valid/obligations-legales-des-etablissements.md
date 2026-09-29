@@ -10,7 +10,11 @@ publicVise:
   - "Direction d'établissement"
   - "Cadres de santé"
   - "Responsables QVCT"
-programme: "Cadre légal, obligation de sécurité, DUERP, prévention des RPS."
+programme:
+  - titre: "Cadre légal et obligation de sécurité"
+    texte: "Code du travail, jurisprudence, ce qui est exigé concrètement d'un établissement de santé."
+  - titre: "DUERP en pratique"
+    texte: "Méthode d'évaluation des risques, mise à jour, lien avec le plan d'action annuel."
 duree: "1 journée"
 format: "Présentiel, intra-établissement"
 delaiAcces: "4 à 6 semaines"
