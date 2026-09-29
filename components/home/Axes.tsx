@@ -2,6 +2,11 @@ import Link from "next/link";
 import { FC } from "react";
 
 import { buttonVariants } from "@/components/ui/button";
+import {
+  IconCoachingIllustration,
+  IconFormationsIllustration,
+  IconGappIllustration,
+} from "@/components/ui/icons-pillars";
 
 const Axes: FC = () => {
   return (
@@ -17,96 +22,73 @@ const Axes: FC = () => {
         </h3>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12 mt-18">
-        <div className="group bg-stone-50 p-8 rounded-2xl border border-stone-100 hover:shadow-xl transition duration-300">
-          <div className="w-14 h-14 bg-teal-100 rounded-full flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-white transition">
-            <svg
-              className="w-8 h-8"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-              ></path>
-            </svg>
+        <Link
+          href="/formations"
+          aria-label="Découvrir les formations"
+          className="bg-white border border-stone-200 rounded-2xl overflow-hidden flex flex-col hover:border-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring transition-colors"
+        >
+          <div className="flex items-center justify-center h-[190px]">
+            <IconFormationsIllustration className="w-40 h-40" />
           </div>
-          <h3 className="text-xl font-bold text-dark mb-3">Formations</h3>
-          <p className="text-stone-600 mb-4 text-sm leading-relaxed">
-            Des formations sur-mesure pour prévenir l&apos;épuisement professionnel,
-            mieux comprendre le stress et la charge émotionnelle, et renforcer
-            les ressources individuelles et collectives.
-          </p>
-          <Link href="/formations" className={`${buttonVariants({ variant: "tinted" })} mt-4`}>
-            Découvrir les formations
-          </Link>
-        </div>
+          <div className="bg-pastel p-6 flex flex-col gap-2.5 flex-1">
+            <h4 className="font-serif font-extrabold text-2xl text-primary">Formations</h4>
+            <p className="text-sm leading-relaxed text-primary/90">
+              Des formations sur-mesure pour prévenir l&apos;épuisement professionnel,
+              mieux comprendre le stress et la charge émotionnelle, et renforcer
+              les ressources individuelles et collectives.
+            </p>
+            <span className={`${buttonVariants({ variant: "tinted" })} mt-auto w-fit`}>
+              Découvrir les formations <span className="text-accent">→</span>
+            </span>
+          </div>
+        </Link>
 
-        <div className="group bg-stone-50 p-8 rounded-2xl border border-stone-100 hover:shadow-xl transition duration-300">
-          <div className="w-14 h-14 bg-teal-100 rounded-full flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-white transition">
-            <svg
-              className="w-8 h-8"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <circle cx="8" cy="10" r="3" strokeWidth="2" />
-              <circle cx="16" cy="10" r="3" strokeWidth="2" />
-              <path
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M2 20c0-2.5 3-4.5 6-4.5s6 2 6 4.5M10 20c0-2.5 3-4.5 6-4.5s6 2 6 4.5"
-              />
-            </svg>
+        <Link
+          href="/coaching"
+          aria-label="Découvrir le coaching"
+          className="bg-white border border-stone-200 rounded-2xl overflow-hidden flex flex-col hover:border-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring transition-colors"
+        >
+          <div className="flex items-center justify-center h-[190px]">
+            <IconCoachingIllustration className="w-40 h-40" />
           </div>
-          <h3 className="text-xl font-bold text-dark mb-3">
-            Coaching d&apos;équipe ou individuel
-          </h3>
-          <p className="text-stone-600 mb-4 text-sm leading-relaxed">
-            Des accompagnements de coaching, individuels ou collectifs,
-            lorsqu’un objectif précis est identifié : évolution des pratiques,
-            ajustement des fonctionnements, réorganisation ou période de
-            transition.
-          </p>
-          <Link href="/coaching" className={`${buttonVariants({ variant: "tinted" })} mt-4`}>
-            Découvrir le coaching
-          </Link>
-        </div>
+          <div className="bg-primary p-6 flex flex-col gap-2.5 flex-1">
+            <h4 className="font-serif font-extrabold text-2xl text-white">
+              Coaching d&apos;équipe ou individuel
+            </h4>
+            <p className="text-sm leading-relaxed text-white/80">
+              Des accompagnements de coaching, individuels ou collectifs,
+              lorsqu&rsquo;un objectif précis est identifié : évolution des pratiques,
+              ajustement des fonctionnements, réorganisation ou période de
+              transition.
+            </p>
+            <span className={`${buttonVariants({ variant: "tintedOnDark" })} mt-auto w-fit`}>
+              Découvrir le coaching <span className="text-accent">→</span>
+            </span>
+          </div>
+        </Link>
 
-        <div className="group bg-stone-50 p-8 rounded-2xl border border-stone-100 hover:shadow-xl transition duration-300">
-          <div className="w-14 h-14 bg-teal-100 rounded-full flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-white transition">
-            <svg
-              className="w-8 h-8"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-              ></path>
-            </svg>
+        <Link
+          href="/gapp-analyse-pratiques-professionnelles"
+          aria-label="Découvrir les GAPP"
+          className="bg-white border border-stone-200 rounded-2xl overflow-hidden flex flex-col hover:border-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring transition-colors"
+        >
+          <div className="flex items-center justify-center h-[190px]">
+            <IconGappIllustration className="w-40 h-40" />
           </div>
-          <h3 className="text-xl font-bold text-dark mb-3">
-            GAPP (Groupe d&apos;analyse des pratiques professionnelles)
-          </h3>
-          <p className="text-stone-600 mb-4 text-sm leading-relaxed">
-            Des espaces réguliers de réflexion collective pour prendre du recul
-            sur les situations vécues, réguler la charge émotionnelle et
-            soutenir les pratiques dans la durée.
-          </p>
-          <Link
-            href="/gapp-analyse-pratiques-professionnelles"
-            className={`${buttonVariants({ variant: "tinted" })} mt-4`}
-          >
-            Découvrir les GAPP
-          </Link>
-        </div>
+          <div className="bg-logo p-6 flex flex-col gap-2.5 flex-1">
+            <h4 className="font-serif font-extrabold text-2xl text-primary">
+              GAPP (Groupe d&apos;analyse des pratiques professionnelles)
+            </h4>
+            <p className="text-sm leading-relaxed text-primary/90">
+              Des espaces réguliers de réflexion collective pour prendre du recul
+              sur les situations vécues, réguler la charge émotionnelle et
+              soutenir les pratiques dans la durée.
+            </p>
+            <span className={`${buttonVariants({ variant: "tinted" })} mt-auto w-fit`}>
+              Découvrir les GAPP <span className="text-accent">→</span>
+            </span>
+          </div>
+        </Link>
       </div>
     </section>
   );

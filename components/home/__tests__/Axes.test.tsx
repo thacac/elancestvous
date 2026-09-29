@@ -27,19 +27,6 @@ describe("Axes — 3 tuiles de poids visuel comparable (Story 2.5)", () => {
     );
   });
 
-  it("chaque CTA utilise le variant secondaire tinted (Story 1.2)", () => {
-    render(<Axes />);
-    const ctas = [
-      screen.getByRole("link", { name: /découvrir les formations/i }),
-      screen.getByRole("link", { name: /découvrir le coaching/i }),
-      screen.getByRole("link", { name: /découvrir les gapp/i }),
-    ];
-    for (const cta of ctas) {
-      expect(cta.className).toContain("border-primary");
-      expect(cta.className).toContain("bg-primary/10");
-    }
-  });
-
   it("les 3 tuiles partagent la même classe de carte (largeur/hauteur comparables dans la grille)", () => {
     const { container } = render(<Axes />);
     const grille = container.querySelector(".grid")!;
@@ -49,5 +36,74 @@ describe("Axes — 3 tuiles de poids visuel comparable (Story 2.5)", () => {
     for (const tuile of reste) {
       expect(tuile.className).toBe(premiere.className);
     }
+  });
+});
+
+describe("Axes — toute la tuile est cliquable (rattrapage design)", () => {
+  it("chaque tuile n'est qu'un seul lien (pas un lien imbriqué dans un autre élément cliquable)", () => {
+    const { container } = render(<Axes />);
+    const grille = container.querySelector(".grid")!;
+    const tuiles = Array.from(grille.children) as HTMLElement[];
+
+    expect(tuiles).toHaveLength(3);
+    for (const tuile of tuiles) {
+      expect(tuile.tagName).toBe("A");
+      expect(tuile.querySelectorAll("a")).toHaveLength(0);
+    }
+  });
+
+  it("le lien de la tuile Formations couvre tout le contenu (titre, texte et CTA)", () => {
+    render(<Axes />);
+    const lien = screen.getByRole("link", { name: /découvrir les formations/i });
+    expect(lien).toHaveAccessibleName(/formations/i);
+    expect(lien.querySelector("h4")).toHaveTextContent("Formations");
+  });
+
+  it("expose un nom accessible concis (aria-label) plutôt que tout le texte de la tuile concaténé", () => {
+    render(<Axes />);
+    // La tuile entière est cliquable, mais l'annonce lecteur d'écran doit
+    // rester "Découvrir les formations", pas titre + paragraphe + CTA bout à bout.
+    const lien = screen.getByRole("link", { name: /découvrir les formations/i });
+    expect(lien).toHaveAccessibleName("Découvrir les formations");
+  });
+});
+
+describe("Axes — fond de tuile coloré par pilier (rattrapage design)", () => {
+  it("Formations sur fond pastel, Coaching sur fond navy plein, GAPP sur fond logo", () => {
+    render(<Axes />);
+    const corpsFormations = screen
+      .getByRole("link", { name: /découvrir les formations/i })
+      .querySelector("h4")!.parentElement!;
+    const corpsCoaching = screen
+      .getByRole("link", { name: /découvrir le coaching/i })
+      .querySelector("h4")!.parentElement!;
+    const corpsGapp = screen
+      .getByRole("link", { name: /découvrir les gapp/i })
+      .querySelector("h4")!.parentElement!;
+
+    expect(corpsFormations.className).toContain("bg-pastel");
+    expect(corpsCoaching.className).toContain("bg-primary");
+    expect(corpsGapp.className).toContain("bg-logo");
+  });
+
+  it("le CTA utilise le variant clair (tintedOnDark) sur la tuile Coaching, sombre (tinted) ailleurs", () => {
+    render(<Axes />);
+    const corpsFormations = screen
+      .getByRole("link", { name: /découvrir les formations/i })
+      .querySelector("h4")!.parentElement!;
+    const corpsCoaching = screen
+      .getByRole("link", { name: /découvrir le coaching/i })
+      .querySelector("h4")!.parentElement!;
+    const corpsGapp = screen
+      .getByRole("link", { name: /découvrir les gapp/i })
+      .querySelector("h4")!.parentElement!;
+
+    const ctaFormations = corpsFormations.lastElementChild as HTMLElement;
+    const ctaCoaching = corpsCoaching.lastElementChild as HTMLElement;
+    const ctaGapp = corpsGapp.lastElementChild as HTMLElement;
+
+    expect(ctaFormations.className).toContain("border-primary");
+    expect(ctaGapp.className).toContain("border-primary");
+    expect(ctaCoaching.className).toContain("border-white");
   });
 });
