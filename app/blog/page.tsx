@@ -35,7 +35,7 @@ export default function BlogIndex() {
   const posts = getAllPostsMeta();
 
   return (
-    <section className="pt-20 mb-40">
+    <section className="pt-6 sm:pt-20 mb-40">
       <Breadcrumbs items={[{ label: "Blog" }]} />
       <div className="container text-center mb-16">
         <h1>Le blog</h1>

@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 
 export default function MentionsLegales() {
   return (
-    <section id="mentions-legales" className="pt-20 mb-20">
+    <section id="mentions-legales" className="pt-6 sm:pt-20 mb-20">
       <div className="container text-center">
         <h1>
           Mentions{" "}

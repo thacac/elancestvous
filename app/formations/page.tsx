@@ -61,7 +61,7 @@ export default async function FormationsCataloguePage({
   );
 
   return (
-    <div className="pt-20 mb-40">
+    <div className="pt-6 sm:pt-20 mb-40">
       <Breadcrumbs items={[{ label: "Formations" }]} />
       <div className="container mb-10">
         <h1 className="mb-4">Formations professionnelles</h1>

@@ -23,3 +23,13 @@ describe("About page internal linking (audit SEO finding #1)", () => {
     ).toHaveAttribute("href", "/gapp-analyse-pratiques-professionnelles");
   });
 });
+
+describe("About page — espacement sous la navbar (mobile)", () => {
+  it("réduit le padding-top mobile plutôt que le padding desktop fixe (pt-20)", () => {
+    const { container } = render(<About />);
+    const section = container.querySelector("#apropos")!;
+
+    expect(section.className).toContain("pt-6");
+    expect(section.className).toContain("sm:pt-20");
+  });
+});

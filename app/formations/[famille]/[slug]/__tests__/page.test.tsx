@@ -202,6 +202,19 @@ describe("FormationPage — 404 quand la famille ne correspond pas au slug", () 
   });
 });
 
+describe("FormationPage — espacement sous la navbar (mobile, rattrapage design)", () => {
+  it("réduit le padding-top mobile plutôt que le padding desktop fixe (pt-20)", async () => {
+    vi.mocked(getFormationBySlug).mockResolvedValue(formation());
+
+    const jsx = await FormationPage({ params: PARAMS });
+    const { container } = render(jsx);
+    const article = container.querySelector("article")!;
+
+    expect(article.className).toContain("pt-6");
+    expect(article.className).toContain("sm:pt-20");
+  });
+});
+
 describe("generateStaticParams", () => {
   it("génère une route statique par fiche valide, miroir de app/blog/[slug]/page.tsx", async () => {
     vi.mocked(getAllFormationsMeta).mockReturnValue([

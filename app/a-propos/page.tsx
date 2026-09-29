@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 export default function About() {
   return (
     <>
-      <section id="apropos" className="pt-20 mb-40">
+      <section id="apropos" className="pt-6 sm:pt-20 mb-40">
         <div className="container text-center mb-20">
           <h1>
             Coralie Mathorel –{" "}
