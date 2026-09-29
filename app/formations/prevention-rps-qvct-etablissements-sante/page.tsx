@@ -1,15 +1,13 @@
-import ArticlesBlogLiesBloc from "@/components/ArticlesBlogLiesBloc";
 import ArticulationBloc from "@/components/ArticulationBloc";
 import BadgesBloc from "@/components/BadgesBloc";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import CartesContrastBloc from "@/components/CartesContrastBloc";
 import Citation from "@/components/Citation";
 import CtaElan from "@/components/CtaElan";
-import FormationsDisponiblesBloc from "@/components/FormationsDisponiblesBloc";
+import FormationsEtArticlesLiesBloc from "@/components/FormationsEtArticlesLiesBloc";
 import PublicsCiblesBloc from "@/components/PublicsCiblesBloc";
 import { IconBuilding, IconHand, IconHeart, IconManager, IconStairs, IconStethoscope } from "@/components/ui/icons-publics";
 import { OG_BANNER_IMAGES } from "@/lib/openGraph";
-import { getRelatedArticleLinks } from "@/lib/relatedArticles";
 
 const TARGET_PAGE = "/formations/prevention-rps-qvct-etablissements-sante";
 
@@ -44,9 +42,6 @@ export const metadata = {
 };
 
 export default function PreventionRpsQvctPage() {
-  const articlesLies = getRelatedArticleLinks(TARGET_PAGE);
-  const hasRelatedArticles = articlesLies.length > 0;
-
   return (
     <>
       <main className="min-h-screen overflow-hidden">
@@ -84,19 +79,13 @@ export default function PreventionRpsQvctPage() {
 
         {/* --- 1b. Formations disponibles (Story 2.2 : avant tout contenu de
             réassurance) + colonne latérale sticky des articles liés (Story
-            3.2), quand au moins un article cible le pilier C retargeté. --- */}
-        <div
-          className={
-            hasRelatedArticles
-              ? "container py-14 grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-10 items-start"
-              : "container py-14"
-          }
-        >
-          <div>
-            <FormationsDisponiblesBloc famille="prevention-rps-qvct-etablissements-sante" bare />
-          </div>
-          <ArticlesBlogLiesBloc targetPage={TARGET_PAGE} variant="sidebar" liens={articlesLies} />
-        </div>
+            3.2), quand au moins un article cible le pilier C retargeté. Mise
+            en page partagée par les 4 hubs Famille
+            (FormationsEtArticlesLiesBloc). --- */}
+        <FormationsEtArticlesLiesBloc
+          famille="prevention-rps-qvct-etablissements-sante"
+          targetPage={TARGET_PAGE}
+        />
 
         {/* --- 2. ARGUMENTAIRE "PLANNING" : CARTES CONTRASTÉES --- */}
         <CartesContrastBloc

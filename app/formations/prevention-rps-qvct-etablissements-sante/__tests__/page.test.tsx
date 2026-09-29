@@ -113,7 +113,7 @@ describe("PreventionRpsQvctPage — colonne latérale sticky des articles liés 
 
     const aside = container.querySelector("aside");
     expect(aside).not.toBeNull();
-    expect(aside!.className).toMatch(/lg:sticky/);
+    expect(aside!.className).toMatch(/md:sticky/);
     expect(
       screen.getByRole("link", { name: "Article RPS QVCT" })
     ).toHaveAttribute("href", "/blog/article-rps-qvct");

@@ -63,7 +63,7 @@ describe("ArticlesBlogLiesBloc — variant sidebar (Story 3.2)", () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it("renders the related articles inside a sticky aside at the lg breakpoint", () => {
+  it("renders the related articles inside a sticky aside at the md breakpoint", () => {
     vi.mocked(getRelatedArticleLinks).mockReturnValue([
       { href: "/blog/article-un", label: "Premier article" },
     ]);
@@ -77,7 +77,7 @@ describe("ArticlesBlogLiesBloc — variant sidebar (Story 3.2)", () => {
 
     const aside = container.querySelector("aside");
     expect(aside).not.toBeNull();
-    expect(aside!.className).toMatch(/lg:sticky/);
+    expect(aside!.className).toMatch(/md:sticky/);
     expect(
       screen.getByRole("link", { name: "Premier article" })
     ).toHaveAttribute("href", "/blog/article-un");

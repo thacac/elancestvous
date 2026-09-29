@@ -1,11 +1,10 @@
-import ArticlesBlogLiesBloc from "@/components/ArticlesBlogLiesBloc";
 import ArticulationBloc from "@/components/ArticulationBloc";
 import BadgesBloc from "@/components/BadgesBloc";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import CartesContrastBloc from "@/components/CartesContrastBloc";
 import Citation from "@/components/Citation";
 import CtaElan from "@/components/CtaElan";
-import FormationsDisponiblesBloc from "@/components/FormationsDisponiblesBloc";
+import FormationsEtArticlesLiesBloc from "@/components/FormationsEtArticlesLiesBloc";
 import PublicsCiblesBloc from "@/components/PublicsCiblesBloc";
 import {
   IconBuilding,
@@ -80,8 +79,16 @@ export default function DynamiqueEquipePage() {
           </div>
         </section>
 
-        {/* --- 1b. Formations disponibles (Story 2.3 : état vide honnête, UJ-1) --- */}
-        <FormationsDisponiblesBloc famille="dynamique-equipe-etablissements-sante" />
+        {/* --- 1b. Formations disponibles (Story 2.3 : état vide honnête, UJ-1)
+            + colonne latérale des articles liés (Story 3.2), quand un
+            pilier ciblera cette page. Mise en page partagée par les 4 hubs
+            Famille (FormationsEtArticlesLiesBloc) : ce hub n'a pas encore de
+            pilier actif, donc pas de colonne pour l'instant, aucun code
+            spécial requis. --- */}
+        <FormationsEtArticlesLiesBloc
+          famille="dynamique-equipe-etablissements-sante"
+          targetPage="/formations/dynamique-equipe-etablissements-sante"
+        />
 
         {/* --- 2. ARGUMENTAIRE : CARTES CONTRASTÉES --- */}
         <CartesContrastBloc
@@ -165,11 +172,6 @@ export default function DynamiqueEquipePage() {
             },
           ]}
         />
-
-        {/* --- 5b. Articles du blog en lien (issue #72 : maillage retour) ---
-            Famille sans pilier (Story 2.3/3.2) : ce bloc ne rend rien ici,
-            aucun code spécial requis, le mécanisme reste générique. */}
-        <ArticlesBlogLiesBloc targetPage="/formations/dynamique-equipe-etablissements-sante" />
 
         {/* --- 6. CTA FINAL --- */}
         <CtaElan />
