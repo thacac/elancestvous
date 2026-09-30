@@ -149,3 +149,16 @@ describe("PreventionRpsQvctPage — colonne latérale sticky des articles liés 
     expect(getRelatedArticleLinks).toHaveBeenCalledTimes(1);
   });
 });
+
+describe("PreventionRpsQvctPage — CTA final, provenance transmise au formulaire de contact", () => {
+  it("pré-remplit le formulaire de contact pour ce hub (institution)", () => {
+    render(<PreventionRpsQvctPage />);
+
+    const cta = screen.getByRole("link", { name: "Prendre contact" });
+    const url = new URL(cta.getAttribute("href")!, "https://elancestvous.fr");
+    expect(url.searchParams.get("type")).toBe("institution");
+    expect(url.searchParams.get("sujet")).toBe(
+      "Formations « Prévention des RPS et QVCT »"
+    );
+  });
+});

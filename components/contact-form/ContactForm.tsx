@@ -27,15 +27,26 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { submit_contact_form } from "./action";
 import { contactFormSchema, ContactFormValues } from "./validation";
 
-export default function ContactForm() {
+interface ContactFormProps {
+  // Provenance de la demande (fiche formation, hub, page coaching…) : la
+  // page /contact pré-remplit le formulaire à partir de ses searchParams
+  // plutôt que de laisser toujours les mêmes valeurs par défaut.
+  defaultProjectType?: ContactFormValues["projectType"];
+  defaultMessage?: string;
+}
+
+export default function ContactForm({
+  defaultProjectType = "institution",
+  defaultMessage = "",
+}: ContactFormProps = {}) {
   const form = useForm<ContactFormValues>({
     resolver: zodResolver(contactFormSchema),
     defaultValues: {
       firstName: "",
       lastName: "",
       email: "",
-      message: "",
-      projectType: "institution",
+      message: defaultMessage,
+      projectType: defaultProjectType,
     },
   });
 

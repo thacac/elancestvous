@@ -213,7 +213,7 @@ export default function CoachingParticuliersPage() {
         <ArticlesBlogLiesBloc targetPage="/coaching/particuliers" />
 
         {/* --- 7. CTA FINAL --- */}
-        <CtaElan />
+        <CtaElan contactType="particulier" contactSujet="Coaching individuel" />
       </main>
     </>
   );

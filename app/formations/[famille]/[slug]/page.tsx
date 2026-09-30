@@ -156,7 +156,14 @@ export default async function FormationPage({
               valeur={formationDetail.indicateursResultats}
             />
             <Button asChild variant="accent" size="lg">
-              <Link href="/contact">Demander un devis</Link>
+              <Link
+                href={`/contact?${new URLSearchParams({
+                  type: "institution",
+                  sujet: `Devis pour la formation « ${formationDetail.titre} »`,
+                }).toString()}`}
+              >
+                Demander un devis
+              </Link>
             </Button>
           </div>
         </div>

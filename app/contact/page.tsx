@@ -1,7 +1,19 @@
 import ContactForm from "@/components/contact-form/ContactForm";
+import type { ContactFormValues } from "@/components/contact-form/validation";
 import { OG_BANNER_IMAGES } from "@/lib/openGraph";
 
 import type { Metadata } from "next";
+
+const VALID_PROJECT_TYPES: ContactFormValues["projectType"][] = [
+  "institution",
+  "particulier",
+];
+
+function parseProjectType(
+  type: string | undefined
+): ContactFormValues["projectType"] | undefined {
+  return VALID_PROJECT_TYPES.find((valeur) => valeur === type);
+}
 
 export const metadata: Metadata = {
   title: "Contact – Parlons de vos besoins",
@@ -19,7 +31,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default function ContactPage() {
+export default async function ContactPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ type?: string; sujet?: string }>;
+}) {
+  const { type, sujet } = await searchParams;
+
   return (
     <section id="contact" className="py-20 container">
       <div className="text-center mb-8">
@@ -42,7 +60,10 @@ export default function ContactPage() {
       </div>
 
       <div className="bg-stone-50 rounded-2xl shadow-xl p-8 md:p-12 border border-stone-100">
-        <ContactForm />
+        <ContactForm
+          defaultProjectType={parseProjectType(type)}
+          defaultMessage={sujet}
+        />
       </div>
 
       {/* <div className="mt-8 text-center">

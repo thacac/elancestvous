@@ -174,7 +174,10 @@ export default function DynamiqueEquipePage() {
         />
 
         {/* --- 6. CTA FINAL --- */}
-        <CtaElan />
+        <CtaElan
+          contactType="institution"
+          contactSujet="Formations « Dynamique d'équipe et développement professionnel »"
+        />
       </main>
     </>
   );
