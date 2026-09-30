@@ -7,7 +7,7 @@ import { buttonVariants } from "@/components/ui/button";
 
 export default function Hero() {
   return (
-    <section className="relative bg-pastel flex flex-col md:flex-row md:items-center px-6 min-h-screen h-fit -top-20 pb-6 md:pb-0">
+    <section className="relative bg-pastel flex flex-col md:flex-row md:items-center px-6 min-h-screen h-fit pb-6 md:pb-0">
       <div className="bg-light flex flex-col lg:flex-row justify-between items-center mx-auto max-w-5xl">
         <div className="order-last flex-1 flex flex-col justify-center text-center md:my-0 lg:order-first md:text-left">
           <span className="inline-block py-1 px-3 rounded-full bg-muted text-primary text-[0.65rem] font-semibold mb-6 tracking-wide uppercase w-fit mx-auto md:mx-0">
