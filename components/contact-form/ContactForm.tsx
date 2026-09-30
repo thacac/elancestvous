@@ -1,6 +1,8 @@
 "use client";
 
+import { CheckCircleIcon } from "@heroicons/react/24/solid";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -53,9 +55,25 @@ export default function ContactForm({
   const {
     handleSubmit,
     setError,
-    formState: { errors, isValid, isSubmitting, isSubmitSuccessful },
+    formState: { errors, isValid, isSubmitting },
     reset,
+    watch,
   } = form;
+
+  // État de confirmation géré à la main plutôt que via isSubmitSuccessful :
+  // reset() efface tout le formState par défaut, et le conserver avec
+  // { keepIsSubmitSuccessful: true } le laisse collé à true jusqu'au *prochain
+  // envoi* — pas jusqu'à la prochaine saisie. Sans ça, un second message en
+  // cours de rédaction afficherait encore la confirmation du précédent.
+  const [justSubmitted, setJustSubmitted] = useState(false);
+
+  // watch() de react-hook-form n'est pas mémoïsable de façon sûre ; un
+  // tableau vide est le pattern documenté (ne s'abonner qu'au montage).
+  useEffect(() => {
+    const subscription = watch(() => setJustSubmitted(false));
+    return () => subscription.unsubscribe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const submitHandler = async (data: ContactFormValues) => {
     const result = await submit_contact_form(data);
@@ -68,6 +86,7 @@ export default function ContactForm({
 
     toast.success("Message envoyé.");
     reset();
+    setJustSubmitted(true);
   };
 
   return (
@@ -95,7 +114,7 @@ export default function ContactForm({
               >
                 <Field
                   orientation="horizontal"
-                  className="relative flex cursor-pointer rounded-lg border bg-white p-4 shadow-sm focus:outline-none"
+                  className="relative flex cursor-pointer rounded-lg border bg-white p-4 shadow-sm transition-colors focus:outline-none has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5"
                 >
                   <RadioGroupItem
                     value="institution"
@@ -113,7 +132,7 @@ export default function ContactForm({
                 </Field>
                 <Field
                   orientation="horizontal"
-                  className="relative flex cursor-pointer rounded-lg border bg-white p-4 shadow-sm focus:outline-none"
+                  className="relative flex cursor-pointer rounded-lg border bg-white p-4 shadow-sm transition-colors focus:outline-none has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5"
                 >
                   <RadioGroupItem
                     value="particulier"
@@ -239,13 +258,18 @@ export default function ContactForm({
           disabled={!isValid || isSubmitting}
           className={`  ${buttonVariants({ size: "lg" })} w-full hover:bg-accent transition shadow-lg`}
         >
-          {isValid
-            ? isSubmitting
-              ? "Envoi…"
-              : isSubmitSuccessful
-              ? "Message envoyé ✔"
-              : "Envoyer ma demande"
-            : "Remplissez le formulaire pour envoyer"}
+          {isSubmitting ? (
+            "Envoi…"
+          ) : justSubmitted ? (
+            <>
+              <CheckCircleIcon aria-hidden="true" className="size-4" />
+              Message envoyé
+            </>
+          ) : isValid ? (
+            "Envoyer ma demande"
+          ) : (
+            "Remplissez le formulaire pour envoyer"
+          )}
         </Button>
         <p className="text-xs opacity-70">
           En soumettant ce formulaire, vous acceptez d’être recontacté(e).
