@@ -41,3 +41,16 @@ describe("GappPage blog backlink (issue #72 : maillage retour)", () => {
     );
   });
 });
+
+describe("GappPage — CTA final, provenance transmise au formulaire de contact", () => {
+  it("pré-remplit le formulaire de contact avec le type institution", () => {
+    render(<GappPage />);
+
+    const cta = screen.getByRole("link", { name: "Prendre contact" });
+    const url = new URL(cta.getAttribute("href")!, "https://elancestvous.fr");
+    expect(url.searchParams.get("type")).toBe("institution");
+    expect(url.searchParams.get("sujet")).toBe(
+      "GAPP – Analyse des pratiques professionnelles"
+    );
+  });
+});

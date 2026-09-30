@@ -116,3 +116,16 @@ describe("CadreLegalPage — colonne latérale sticky des articles liés (Story 
     expect(getRelatedArticleLinks).toHaveBeenCalledTimes(1);
   });
 });
+
+describe("CadreLegalPage — CTA final, provenance transmise au formulaire de contact", () => {
+  it("pré-remplit le formulaire de contact pour ce hub (institution)", () => {
+    render(<CadreLegalPage />);
+
+    const cta = screen.getByRole("link", { name: "Prendre contact" });
+    const url = new URL(cta.getAttribute("href")!, "https://elancestvous.fr");
+    expect(url.searchParams.get("type")).toBe("institution");
+    expect(url.searchParams.get("sujet")).toBe(
+      "Formations « Cadre légal, droits et éthique »"
+    );
+  });
+});

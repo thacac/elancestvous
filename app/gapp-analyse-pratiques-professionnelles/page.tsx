@@ -200,7 +200,10 @@ export default function GappPage() {
         {/* --- 5b. Articles du blog en lien (issue #72 : maillage retour) --- */}
         <ArticlesBlogLiesBloc targetPage="/gapp-analyse-pratiques-professionnelles" />
         {/* --- 6. CTA FINAL --- */}
-        <CtaElan />
+        <CtaElan
+          contactType="institution"
+          contactSujet="GAPP – Analyse des pratiques professionnelles"
+        />
       </main>
     </>
   );

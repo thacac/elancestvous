@@ -50,3 +50,14 @@ describe("CoachingEtablissementsPage blog backlink (issue #72 : maillage retour)
     expect(getRelatedArticleLinks).toHaveBeenCalledWith("/coaching/etablissements");
   });
 });
+
+describe("CoachingEtablissementsPage — CTA final, provenance transmise au formulaire de contact", () => {
+  it("pré-remplit le formulaire de contact avec le type institution", () => {
+    render(<CoachingEtablissementsPage />);
+
+    const cta = screen.getByRole("link", { name: "Prendre contact" });
+    const url = new URL(cta.getAttribute("href")!, "https://elancestvous.fr");
+    expect(url.searchParams.get("type")).toBe("institution");
+    expect(url.searchParams.get("sujet")).toBe("Coaching en établissement");
+  });
+});

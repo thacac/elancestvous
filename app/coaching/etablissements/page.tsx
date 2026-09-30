@@ -246,7 +246,7 @@ export default function CoachingEtablissementsPage() {
         <ArticlesBlogLiesBloc targetPage="/coaching/etablissements" />
 
         {/* --- 7. CTA FINAL --- */}
-        <CtaElan />
+        <CtaElan contactType="institution" contactSujet="Coaching en établissement" />
       </main>
     </>
   );

@@ -1,6 +1,20 @@
 import Link from "next/link";
 
-export default function CtaElan() {
+interface CtaElanProps {
+  // Provenance de la demande (hub formation, page coaching, GAPP…) :
+  // transmise à /contact en query params pour pré-remplir le formulaire.
+  // Sans provenance (page générique, audience mixte), le lien reste nu —
+  // comportement historique inchangé.
+  contactType?: "institution" | "particulier";
+  contactSujet?: string;
+}
+
+export default function CtaElan({ contactType, contactSujet }: CtaElanProps = {}) {
+  const params = new URLSearchParams();
+  if (contactType) params.set("type", contactType);
+  if (contactSujet) params.set("sujet", contactSujet);
+  const contactHref = params.size > 0 ? `/contact?${params.toString()}` : "/contact";
+
   return (
     <section
       id="formations-cta-final"
@@ -12,7 +26,7 @@ export default function CtaElan() {
           vos équipes en mouvement ?
         </h2>
         <Link
-          href="/contact"
+          href={contactHref}
           className="bg-primary text-white px-12 py-5 rounded-full font-black text-xl transition shadow-2xl uppercase tracking-tighter active:scale-95! hover:scale-110!"
         >
           Prendre contact

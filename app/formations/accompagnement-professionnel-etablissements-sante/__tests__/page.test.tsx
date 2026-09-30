@@ -44,3 +44,16 @@ describe("AccompagnementProfessionnelPage — maillage retour blog (sans pilier)
     expect(screen.queryByText(/pour aller plus loin/i)).not.toBeInTheDocument();
   });
 });
+
+describe("AccompagnementProfessionnelPage — CTA final, provenance transmise au formulaire de contact", () => {
+  it("pré-remplit le formulaire de contact pour ce hub (institution)", () => {
+    render(<AccompagnementProfessionnelPage />);
+
+    const cta = screen.getByRole("link", { name: "Prendre contact" });
+    const url = new URL(cta.getAttribute("href")!, "https://elancestvous.fr");
+    expect(url.searchParams.get("type")).toBe("institution");
+    expect(url.searchParams.get("sujet")).toBe(
+      "Formations « Accompagnement et pratiques professionnelles »"
+    );
+  });
+});

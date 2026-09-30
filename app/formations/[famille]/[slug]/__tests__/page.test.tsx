@@ -154,8 +154,23 @@ describe("FormationPage — fiche pratique Qualiopi", () => {
     render(jsx);
 
     const cta = screen.getByRole("link", { name: "Demander un devis" });
-    expect(cta).toHaveAttribute("href", "/contact");
     expect(cta.className).toContain("bg-accent");
+  });
+
+  it("le CTA \"Demander un devis\" pré-remplit le formulaire de contact avec cette formation (provenance)", async () => {
+    vi.mocked(getFormationBySlug).mockResolvedValue(formation());
+
+    const jsx = await FormationPage({ params: PARAMS });
+    render(jsx);
+
+    const cta = screen.getByRole("link", { name: "Demander un devis" });
+    const href = cta.getAttribute("href")!;
+    const url = new URL(href, "https://elancestvous.fr");
+    expect(url.pathname).toBe("/contact");
+    expect(url.searchParams.get("type")).toBe("institution");
+    expect(url.searchParams.get("sujet")).toBe(
+      "Devis pour la formation « Obligations légales des établissements »"
+    );
   });
 });
 

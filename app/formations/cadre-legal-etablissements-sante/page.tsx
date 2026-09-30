@@ -179,7 +179,10 @@ export default function CadreLegalPage() {
         />
 
         {/* --- 6. CTA FINAL --- */}
-        <CtaElan />
+        <CtaElan
+          contactType="institution"
+          contactSujet="Formations « Cadre légal, droits et éthique »"
+        />
       </main>
     </>
   );

@@ -226,7 +226,10 @@ export default function PreventionRpsQvctPage() {
         />
 
         {/* --- 5. CTA FINAL : IMPACT MAXIMAL --- */}
-        <CtaElan />
+        <CtaElan
+          contactType="institution"
+          contactSujet="Formations « Prévention des RPS et QVCT »"
+        />
       </main>
     </>
   );

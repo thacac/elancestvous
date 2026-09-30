@@ -173,7 +173,10 @@ export default function AccompagnementProfessionnelPage() {
         />
 
         {/* --- 6. CTA FINAL --- */}
-        <CtaElan />
+        <CtaElan
+          contactType="institution"
+          contactSujet="Formations « Accompagnement et pratiques professionnelles »"
+        />
       </main>
     </>
   );
