@@ -33,7 +33,7 @@ export default function Hero() {
               Solutions pour les établissements
             </Link>
           </div>
-          <div className="border-t border-t-muted text-left py-6">
+          <div className="border-t border-t-muted text-center md:text-left py-6">
             <p className="text-sm text-primary leading-relaxed">
               Vous êtes un particulier&nbsp;?
             </p>
@@ -53,7 +53,7 @@ export default function Hero() {
             src="/logo_elancestvous.png"
             width={400}
             height={400}
-            className="max-w-1/2 mt-20 mb-10 md:max-w-2/3 md:mt-0 xl:max-w-2xl"
+            className="max-w-1/2 mb-10 md:max-w-2/3 md:mt-0 xl:max-w-2xl"
             alt="Élan C’est Vous – coaching et formations pour les professionnels de santé"
           />
         </div>
