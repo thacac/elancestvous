@@ -2,7 +2,9 @@
 
 Site vitrine Next.js pour la coach Coralie Mathorel (Toulouse), avec un blog IA
 hebdomadaire validé via Discord avant publication automatique. Voir
-`docs/blog-architecture.md` pour le détail du pipeline.
+`docs/blog-architecture.md` pour le détail du pipeline. Pour ajouter une
+formation au catalogue : `docs/formations/` (template à remplir par Coralie +
+cookbook de publication).
 
 ## Workflow Git
 
