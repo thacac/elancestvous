@@ -24,7 +24,7 @@ vi.mock("@/lib/formations", () => ({
 import { getAllFormationsMeta, getFormationBySlug } from "@/lib/formations";
 import type { Formation, FormationMeta } from "@/lib/formations";
 
-import FormationPage, { generateStaticParams } from "../page";
+import FormationPage, { generateMetadata, generateStaticParams } from "../page";
 
 function formation(overrides: Partial<Formation> = {}): Formation {
   return {
@@ -227,6 +227,70 @@ describe("FormationPage — espacement sous la navbar (mobile, rattrapage design
 
     expect(article.className).toContain("pt-6");
     expect(article.className).toContain("sm:pt-20");
+  });
+});
+
+describe("generateMetadata — audit SEO, finding #1 (canonical faux, hérité de l'accueil)", () => {
+  it("déclare un canonical self-référent sur l'URL réelle de la fiche, jamais celui, générique, hérité du layout racine", async () => {
+    vi.mocked(getFormationBySlug).mockResolvedValue(formation());
+
+    const meta = await generateMetadata({ params: PARAMS });
+
+    expect(meta.alternates?.canonical).toBe(
+      "/formations/cadre-legal-etablissements-sante/obligations-legales-des-etablissements"
+    );
+  });
+
+  it("déclare le titre de la fiche et une description qui lui est propre", async () => {
+    vi.mocked(getFormationBySlug).mockResolvedValue(formation());
+
+    const meta = await generateMetadata({ params: PARAMS });
+
+    expect(meta.title).toBe("Obligations légales des établissements");
+    expect(meta.description).toBeTruthy();
+    expect(meta.description).not.toBe(
+      "Coaching individuel et collectif, formations QVCT/RPS et groupes d'analyse des pratiques professionnelles pour établissements et soignants à Toulouse et en Occitanie."
+    );
+  });
+
+  it("déclare un openGraph dédié avec une URL self-référente, jamais celle de l'accueil", async () => {
+    vi.mocked(getFormationBySlug).mockResolvedValue(formation());
+
+    const meta = await generateMetadata({ params: PARAMS });
+
+    expect(meta.openGraph?.url).toBe(
+      "https://elancestvous.fr/formations/cadre-legal-etablissements-sante/obligations-legales-des-etablissements"
+    );
+    expect(meta.openGraph?.title).toBeTruthy();
+    expect(meta.openGraph?.images).toBeTruthy();
+  });
+
+  it("ne plante pas et ne renvoie pas de metadata pour un slug inexistant (404 gérée par la page elle-même)", async () => {
+    vi.mocked(getFormationBySlug).mockRejectedValue(new Error("introuvable"));
+
+    const meta = await generateMetadata({
+      params: Promise.resolve({
+        famille: "cadre-legal-etablissements-sante",
+        slug: "inexistant",
+      }),
+    });
+
+    expect(meta).toEqual({});
+  });
+
+  it("ne renvoie pas de metadata quand la fiche existe mais sous une autre famille que l'URL", async () => {
+    vi.mocked(getFormationBySlug).mockResolvedValue(
+      formation({ famille: "prevention-rps-qvct-etablissements-sante" })
+    );
+
+    const meta = await generateMetadata({
+      params: Promise.resolve({
+        famille: "cadre-legal-etablissements-sante",
+        slug: "obligations-legales-des-etablissements",
+      }),
+    });
+
+    expect(meta).toEqual({});
   });
 });
 

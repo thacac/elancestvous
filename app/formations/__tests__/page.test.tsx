@@ -23,7 +23,7 @@ vi.mock("@/lib/formations", () => ({
 import { getAllFormationsMeta } from "@/lib/formations";
 import type { FormationMeta } from "@/lib/formations";
 
-import FormationsCataloguePage from "../page";
+import FormationsCataloguePage, { metadata } from "../page";
 
 function formationMeta(overrides: Partial<FormationMeta> = {}): FormationMeta {
   return {
@@ -258,6 +258,24 @@ describe("FormationsCataloguePage — pastilles de filtre", () => {
     expect(pastille.className.split(" ")).toContain("bg-primary");
     const toutes = screen.getByRole("link", { name: "Toutes" });
     expect(toutes.className.split(" ")).not.toContain("bg-primary");
+  });
+});
+
+describe("FormationsCataloguePage — metadata (audit SEO, finding #1 : canonical faux, hérité de l'accueil)", () => {
+  it("déclare un canonical self-référent, jamais celui, générique, hérité du layout racine", () => {
+    expect(metadata.alternates?.canonical).toBe("/formations");
+  });
+
+  it("déclare un titre et une description propres à la page, pas génériques", () => {
+    expect(metadata.title).toBeTruthy();
+    expect(metadata.title).not.toBe("Élan C'est Vous | Coaching & Formations – Toulouse");
+    expect(metadata.description).toBeTruthy();
+  });
+
+  it("déclare un openGraph dédié avec une URL self-référente", () => {
+    expect(metadata.openGraph?.url).toBe("https://elancestvous.fr/formations");
+    expect(metadata.openGraph?.title).toBeTruthy();
+    expect(metadata.openGraph?.images).toBeTruthy();
   });
 });
 
