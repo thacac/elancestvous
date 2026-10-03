@@ -3,7 +3,31 @@ import Link from "next/link";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { buttonVariants } from "@/components/ui/button";
 import { FORMATION_FAMILLES, getAllFormationsMeta, type FormationFamilleId } from "@/lib/formations";
+import { OG_BANNER_IMAGES } from "@/lib/openGraph";
 import { cn } from "@/lib/utils";
+
+import type { Metadata } from "next";
+
+// Audit SEO (docs/seo-audit-architecture-formations.md, finding #1) : cette
+// page héritait intégralement de la metadata du layout racine (canonical
+// "/", titre et description génériques) faute de déclarer la sienne — même
+// modèle que les 4 hubs famille.
+export const metadata: Metadata = {
+  title: "Formations professionnelles pour établissements de santé",
+  description:
+    "Catalogue de formations sur-mesure pour les établissements de santé, conçues et animées par une ancienne soignante.",
+  alternates: {
+    canonical: "/formations",
+  },
+  openGraph: {
+    title: "Formations professionnelles pour établissements de santé | Élan C'est Vous",
+    description:
+      "Catalogue de formations sur-mesure pour les établissements de santé, conçues et animées par une ancienne soignante.",
+    url: "https://elancestvous.fr/formations",
+    type: "website",
+    images: OG_BANNER_IMAGES,
+  },
+};
 
 // Pastille de catégorie par famille (rattrapage design Chantier B) : couleur
 // dédiée par famille, distincte de la pastille "Toutes" et des CTA — dérivée

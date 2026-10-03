@@ -4,12 +4,63 @@ import { notFound } from "next/navigation";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { FORMATION_FAMILLES, getAllFormationsMeta, getFormationBySlug } from "@/lib/formations";
+import { OG_BANNER_IMAGES } from "@/lib/openGraph";
+
+import type { Metadata } from "next";
 
 export function generateStaticParams() {
   return getAllFormationsMeta().map((formation) => ({
     famille: formation.famille,
     slug: formation.slug,
   }));
+}
+
+// Audit SEO (docs/seo-audit-architecture-formations.md, finding #1) : cette
+// route dynamique ne déclarait aucune metadata, donc chaque fiche héritait
+// du canonical "/" du layout racine — un signal qui dit à Google que la
+// fiche est un doublon de l'accueil. Même modèle que app/blog/[slug]/page.tsx :
+// `{}` (pas de metadata dédiée) quand la fiche n'existe pas ou que l'URL ne
+// correspond pas à sa famille réelle — le 404 reste géré par la page elle-même.
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ famille: string; slug: string }>;
+}): Promise<Metadata> {
+  const { famille, slug } = await params;
+
+  let formationData;
+  try {
+    formationData = await getFormationBySlug(slug);
+  } catch {
+    return {};
+  }
+
+  if (formationData.famille !== famille) {
+    return {};
+  }
+
+  // Non-null : famille est déjà validé par le schéma zod contre
+  // FORMATION_FAMILLE_IDS, dérivé de ce même tableau — toujours trouvé.
+  const familleLabel = FORMATION_FAMILLES.find(
+    (f) => f.id === formationData.famille
+  )!.label;
+  const canonicalPath = `/formations/${formationData.famille}/${formationData.slug}`;
+  const description = `Formation « ${formationData.titre} » (${familleLabel}) pour les établissements de santé : ${formationData.objectifsPedagogiques[0]}.`;
+
+  return {
+    title: formationData.titre,
+    description,
+    alternates: {
+      canonical: canonicalPath,
+    },
+    openGraph: {
+      title: `${formationData.titre} | Élan C'est Vous`,
+      description,
+      url: `https://elancestvous.fr${canonicalPath}`,
+      type: "website",
+      images: OG_BANNER_IMAGES,
+    },
+  };
 }
 
 function ChampQualiopi({
