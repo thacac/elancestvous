@@ -107,3 +107,13 @@ describe("Axes — fond de tuile coloré par pilier (rattrapage design)", () => 
     expect(ctaCoaching.className).toContain("border-white");
   });
 });
+
+describe("Axes — espacement sous le Hero (titre collé au bord sans padding-top)", () => {
+  it("a un padding-top symétrique à son padding-bottom (pt-0 collait le titre pile à la limite de couleur avec le Hero)", () => {
+    const { container } = render(<Axes />);
+    const section = container.querySelector("section")!;
+
+    expect(section.className).not.toContain("pt-0");
+    expect(section.className).toContain("pt-15");
+  });
+});

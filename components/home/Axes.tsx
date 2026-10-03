@@ -12,7 +12,7 @@ const Axes: FC = () => {
   return (
     <section
       id="axes-de-travail"
-      className="pt-0 pb-15 bg-white container wide"
+      className="pt-15 pb-15 bg-white container wide"
     >
       <div className="text-center">
         <h2>Mes 3 Axes d&apos;Intervention</h2>
