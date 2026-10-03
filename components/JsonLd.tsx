@@ -105,8 +105,43 @@ export default function JsonLd() {
             "@type": "Offer",
             itemOffered: {
               "@type": "Service",
+              name: "Catalogue des formations professionnelles",
+              url: `${SITE}/formations`,
+            },
+          },
+          // Les 4 familles de formations (audit SEO, finding #3 : seule
+          // prevention-rps-qvct était listée, ajoutée quand c'était encore
+          // la seule famille existante).
+          {
+            "@type": "Offer",
+            itemOffered: {
+              "@type": "Service",
+              name: "Formations cadre légal, droits et éthique",
+              url: `${SITE}/formations/cadre-legal-etablissements-sante`,
+            },
+          },
+          {
+            "@type": "Offer",
+            itemOffered: {
+              "@type": "Service",
               name: "Formations QVCT / RPS",
               url: `${SITE}/formations/prevention-rps-qvct-etablissements-sante`,
+            },
+          },
+          {
+            "@type": "Offer",
+            itemOffered: {
+              "@type": "Service",
+              name: "Formations accompagnement et pratiques professionnelles",
+              url: `${SITE}/formations/accompagnement-professionnel-etablissements-sante`,
+            },
+          },
+          {
+            "@type": "Offer",
+            itemOffered: {
+              "@type": "Service",
+              name: "Formations dynamique d'équipe et développement professionnel",
+              url: `${SITE}/formations/dynamique-equipe-etablissements-sante`,
             },
           },
           {
