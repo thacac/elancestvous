@@ -145,28 +145,49 @@ enrichis "Formations" de Google).
   `Course`/`CourseInstance`) — plus structurant, à cadrer dans une story
   dédiée plutôt qu'en correctif rapide.
 
-### 4. [Reprise, statut à vérifier] Findings #2 et #3 de l'ancien audit, toujours non traités sur ce périmètre
+### 4. [Reprise, résolu] Findings #2 et #3 de l'ancien audit — revérifiés, plus d'actualité
 
-Non revérifiés en détail dans cette passe (hors scope "architecture"), mais
-probablement toujours valables, à confirmer avant de les clore :
-- Contenu relativement court sur les pages de service historiques (ancien
-  finding #2).
-- Aucune illustration sur les 4 pages de service historiques (ancien
-  finding #3) — les hubs famille et fiches de formations, eux, ont déjà des
-  illustrations (icônes SVG dédiées, Chantier A).
+Revérifiés après coup (hors scope "architecture" au moment de la rédaction
+initiale de ce document, mais la question méritait une réponse avant de
+rester en suspens) : les deux sont **déjà résolus**, en effet de bord des
+chantiers de rattrapage design (Chantiers A/B/C) menés sur ces pages depuis
+le dernier audit — sans lien avec le présent audit architecture.
+
+Comptage du texte visible (hors JSX/attributs, même méthode que l'ancien
+audit) sur les 4 pages concernées :
+
+| Page | Ancien audit | Aujourd'hui |
+| --- | --- | --- |
+| `/coaching/particuliers` | ~366 mots | ~423 mots |
+| `/coaching/etablissements` | ~410 mots | ~470 mots |
+| `/gapp-analyse-pratiques-professionnelles` | ~322 mots | ~377 mots |
+| `/formations/prevention-rps-qvct-etablissements-sante` | ~287 mots | ~425 mots |
+
+- **Ancien finding #2 (contenu court) : résolu.** Le contenu a grandi de
+  +15 à +48 % selon la page, via les blocs ajoutés depuis
+  (`CartesContrastBloc`, `BadgesBloc`, le bloc "Modalités pratiques",
+  `PublicsCiblesBloc`, `ArticulationBloc`).
+- **Ancien finding #3 (aucune illustration) : résolu.** Les 3 pages de
+  coaching/GAPP ont désormais chacune une photo réelle (`Citation`,
+  `imageSrc="/coralie.png"`) plus des icônes SVG illustratives (fond
+  décoratif + icônes des cartes "Public visé"). Seule nuance : c'est la
+  même photo de Coralie réutilisée sur les 3 pages, pas une illustration
+  dédiée par page — un choix de charte cohérent, pas un manque. Le hub
+  `prevention-rps-qvct` n'a pas de photo `Citation` mais a les mêmes icônes
+  décoratives que les 3 autres hubs famille (déjà noté solide plus haut).
+
+Rien à corriger ici — aucune PR de suivi nécessaire pour ce point.
 
 ## Séquencement recommandé
 
-1. **Finding #1 (metadata manquante)** — le plus impactant, le moins
-   risqué, corrige un vrai bug de canonical. À faire en premier, en TDD
-   comme le reste du site.
-2. **Finding #2 (sitemap)** — directement lié, à faire dans la même PR ou
-   juste après : les deux se corrigent par le même type de changement
-   (parcourir `getAllFormationsMeta()`/`FORMATION_FAMILLES`).
-3. **Finding #3 (OfferCatalog)** — correctif rapide des 3 familles
-   manquantes dans la foulée ; le schema `Course` par fiche en story séparée.
-4. **Finding #4** — à revérifier puis traiter si toujours valable, pas
-   bloquant.
+1. ~~**Finding #1 (metadata manquante)**~~ — corrigé, PR #130.
+2. ~~**Finding #2 (sitemap)**~~ — corrigé, PR #131.
+3. ~~**Finding #3 (OfferCatalog)**~~ — corrigé, PR #132 (le schema `Course`
+   par fiche individuelle reste hors scope, à cadrer dans une story dédiée).
+4. ~~**Finding #4**~~ — revérifié, résolu (voir section correspondante),
+   aucune PR de suivi nécessaire.
+
+Les 4 findings de cet audit sont clos.
 
 ## Ce qui ne doit pas être cassé au passage
 
