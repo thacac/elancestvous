@@ -105,7 +105,7 @@ describe("Hero — espacements et contrastes (revue Story 4.2)", () => {
     const texte = screen.getByText(/pour débloquer une situation/i);
     expect(texte.className).not.toMatch(/\btext-secondary\b/);
     const lien = screen.getByRole("link", { name: /accompagnement individuel/i });
-    expect(lien.closest("span")!.className.split(/\s+/)).toContain("text-accent-ink");
+    expect(lien.closest("span")!.className.split(/\s+/)).toContain("text-accent");
   });
 });
 

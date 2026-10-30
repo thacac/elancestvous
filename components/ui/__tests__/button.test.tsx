@@ -59,21 +59,21 @@ describe("Button — variant tinted (CTA secondaire, FR12)", () => {
   });
 });
 
-// Charte slides : orange foncé (accent-ink) sous le texte blanc des boutons.
-// L'orange accent ne fait que ≈ 3.5:1 avec le blanc, insuffisant pour du
-// texte en text-sm (4.5:1 requis) ; accent-ink ≈ 5.7:1.
+// Charte slides : le token accent est l'orange foncé #a64d08 (blanc dessus
+// ≈ 5.7:1, ≥ 4.5:1 requis en text-sm). L'orange vif (token orange) ne sert
+// jamais de fond de bouton.
 describe("Button — boutons orange lisibles (contraste)", () => {
-  it("la variante accent utilise l'orange foncé, jamais l'orange accent", () => {
+  it("la variante accent utilise l'orange foncé, jamais l'orange vif", () => {
     render(<Button variant="accent">Prendre contact</Button>);
     const classes = screen.getByRole("button", { name: "Prendre contact" }).className.split(/\s+/);
-    expect(classes).toContain("bg-accent-ink");
-    expect(classes).not.toContain("bg-accent");
+    expect(classes).toContain("bg-accent");
+    expect(classes).not.toContain("bg-orange");
   });
 
   it("le survol de la variante ghost passe aussi en orange foncé", () => {
     const classes = buttonVariants({ variant: "ghost" }).split(/\s+/);
-    expect(classes).toContain("hover:bg-accent-ink");
-    expect(classes).not.toContain("hover:bg-accent");
+    expect(classes).toContain("hover:bg-accent");
+    expect(classes).not.toContain("hover:bg-orange");
   });
 });
 

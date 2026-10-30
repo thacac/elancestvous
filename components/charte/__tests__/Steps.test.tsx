@@ -61,7 +61,7 @@ describe("Steps — robustesse (revue)", () => {
   it("n'a pas de pastille blanc sur orange vif (contraste insuffisant en 18px)", () => {
     render(<Steps steps={steps} />);
     for (const item of screen.getAllByRole("listitem")) {
-      expect(item.querySelector("[aria-hidden='true'].bg-accent")).toBeNull();
+      expect(item.querySelector("[aria-hidden='true'].bg-orange")).toBeNull();
     }
   });
 

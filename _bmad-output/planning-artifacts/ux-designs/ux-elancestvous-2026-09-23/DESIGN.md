@@ -10,20 +10,16 @@ sources:
   - app/fonts.ts
   - components/charte/
 colors:
-  # Socle conservé
-  primary: '#112e40'          # bleu nuit — texte principal, titres
-  logo: '#29b5ad'             # turquoise du logo
-  # Charte slides
-  petrol: '#0f4c5c'           # bandeaux de section, pastilles, pied de page
-  teal-soft: '#c6e8ec'        # vagues, sous-titres sur pétrole
-  orange: '#f28a1e'           # décor uniquement (pinceau, étincelles, flèches, barres)
-  accent: '#d9680a'           # fonds et grands textes orange (blanc dessus ≈ 3.5:1, texte large seulement)
-  accent-ink: '#a64d08'       # texte orange courant, fonds de boutons orange (blanc dessus ≈ 5.7:1)
-  sky: '#e6f4f8'              # fond pastel ciel
-  peach: '#fdefe2'            # fond pastel pêche
-  sage: '#e9f4e7'             # fond pastel vert d'eau
-  sage-ink: '#3f7a3a'         # pastille verte (blanc dessus ≥ 4.5:1)
-  lilac: '#efecf9'            # fond pastel lilas
+  # 8 couleurs, un rôle chacune (palette resserrée, validée le 2026-10-30).
+  # Valeurs mesurées dans le PDF des slides ; contrastes calculés (formule WCAG).
+  primary: '#0a0c44'          # bleu nuit indigo — texte et titres (18:1 sur blanc)
+  petrol: '#015566'           # bandeaux, pied de page, pastilles (blanc dessus 8.4:1)
+  cyan: '#01a4b8'             # turquoise vif — courbes et vagues uniquement (décor)
+  logo: '#29b5ad'             # turquoise du logo — logo uniquement
+  orange: '#f28a1e'           # orange vif — décor uniquement (pinceau, étincelles, flèches, barres)
+  accent: '#a64d08'           # orange foncé — texte orange et fonds de boutons (blanc dessus 5.7:1, 5:1 sur pastels)
+  sky: '#dff7fa'              # pastel ciel — cartes ; texte clair sur pétrole (7.5:1)
+  peach: '#fdefe2'            # pastel pêche — cartes, en alternance avec le ciel
   white: '#ffffff'
 typography:
   display:
@@ -55,13 +51,13 @@ components:
     title: '{typography.display}'
     title-color: '{colors.white}'
     subtitle: '{typography.hand}'
-    subtitle-color: '{colors.teal-soft}'
+    subtitle-color: '{colors.sky}'
     separator: '{colors.orange}'
   pastel-card:
-    background: '{colors.sky} | {colors.peach} | {colors.sage} | {colors.lilac}'
+    background: '{colors.sky} | {colors.peach}'
     radius: '{rounded.3xl}'
   chip:
-    background: '{colors.petrol} | {colors.accent-ink} | {colors.sage-ink}'
+    background: '{colors.petrol} | {colors.accent}'
     foreground: '{colors.white}'
     radius: '{rounded.full}'
   key-message:
@@ -70,14 +66,14 @@ components:
     icon-color: '{colors.petrol}'
     separator: '{colors.orange}'
   step-badge:
-    background: '{colors.accent-ink} | {colors.petrol} | {colors.sage-ink} | {colors.primary}'
+    background: '{colors.accent} | {colors.petrol} | {colors.primary}'
     foreground: '{colors.white}'
     radius: '{rounded.full}'
   bubble:
     background: '{colors.sky}'
     text: '{typography.display}'
   button-accent:
-    background: '{colors.accent-ink}'
+    background: '{colors.accent}'
     foreground: '{colors.white}'
     radius: '{rounded.md}'
   footer:
@@ -100,17 +96,19 @@ Le référencement passe avant la décoration. La charte habille le contenu exis
 
 ## Colors
 
-- **Bleu nuit `{colors.primary}`** : texte principal et titres sur fond clair. Inchangé depuis la charte précédente.
-- **Turquoise `{colors.logo}`** : cercle du logo. Jamais utilisé pour du texte sur blanc (≈ 2.4:1).
-- **Pétrole `{colors.petrol}`** : bandeaux de section, pastilles de titre, pied de page. Le texte posé dessus est blanc ou `{colors.teal-soft}`.
-- **Orange, en trois rôles distincts :**
-  - `{colors.orange}` est **décoratif uniquement** : trait de pinceau, étincelles, flèches entre étapes, barres verticales. Jamais de texte en orange vif.
-  - `{colors.accent}` sert aux fonds et aux très grands textes, à partir de 24 px ou 18,66 px en gras. Exemples : bandeau CTA, mot mis en avant dans un H1.
-  - `{colors.accent-ink}` sert au texte orange de taille courante et au fond des boutons orange, toujours avec un texte blanc.
-- **Pastels `{colors.sky}`, `{colors.peach}`, `{colors.sage}`, `{colors.lilac}`** : fonds de cartes qui alternent dans une même rangée, comme dans les slides. Le texte posé dessus est `{colors.primary}`.
-- Les couleurs de catégorie du catalogue (`cat-*` dans `globals.css`) restent en place pour les pastilles de famille.
+La palette compte **8 couleurs, chacune avec un rôle unique**. Les valeurs ont été mesurées dans le PDF des slides et chaque contraste est calculé selon la formule WCAG (voir la règle « Accessibilité » de `CLAUDE.md`, RGAA 4.1 / WCAG 2.2 AA).
 
-À éviter : un texte orange vif ; un texte turquoise sur blanc ; plus de deux pastels différents dans un même bloc de deux cartes ; tout dégradé.
+- **Bleu nuit `{colors.primary}`** : texte et titres. 18:1 sur blanc, plus de 16:1 sur les pastels.
+- **Pétrole `{colors.petrol}`** : bandeaux de section, pastilles, pied de page. Le texte posé dessus est blanc (8.4:1) ou `{colors.sky}` (7.5:1).
+- **Turquoise vif `{colors.cyan}`** : courbes sous les bandeaux et vagues, décor uniquement. Blanc dessus ≈ 3:1, donc jamais de texte courant.
+- **Turquoise du logo `{colors.logo}`** : réservé au logo.
+- **Orange, deux rôles seulement :**
+  - `{colors.orange}` (vif) est **décoratif uniquement** : trait de pinceau, étincelles, flèches, barres verticales. Jamais de texte en orange vif ni posé dessus.
+  - `{colors.accent}` (foncé) sert au texte orange, au mot mis en avant dans un titre et aux fonds de boutons orange, avec un texte blanc (5.7:1). Sur les pastels, il fait 5:1.
+- **Pastels `{colors.sky}` et `{colors.peach}`** : fonds de cartes, en alternance dans une même rangée. Le texte posé dessus est `{colors.primary}`.
+- Les couleurs de catégorie du catalogue (`cat-*` dans `globals.css`) restent à part : elles distinguent les 4 familles de formation. Les anciennes couleurs (`secondary`, `muted`, `pastel`) disparaîtront au fil des stories 4.3 à 4.6.
+
+À éviter : toute couleur hors de cette liste ; un texte sur l'orange vif ou le turquoise vif ; une couleur comme seul porteur d'information ; tout dégradé.
 
 ## Typography
 
@@ -135,15 +133,15 @@ On reste sur l'échelle Tailwind par défaut (NFR1). Les boutons gardent `{round
 
 Tous ces composants se trouvent dans `components/charte/`. Leur comportement est décrit dans `EXPERIENCE.md`.
 
-- **Bandeau de section (`SectionBanner`)** : aplat `{colors.petrol}` plein derrière le texte, prolongé d'une vague dessinée en dessous. Contenu : une icône au trait blanche, une barre `{colors.orange}`, un titre blanc et un sous-titre manuscrit `{colors.teal-soft}`. Le texte ne repose jamais sur la vague.
-- **Carte pastel (`PastelCard`)** et **pastille (`Chip`)** : fond pastel en `{rounded.3xl}`. La pastille de titre est blanche sur `{colors.petrol}`, `{colors.accent-ink}` ou `{colors.sage-ink}`.
+- **Bandeau de section (`SectionBanner`)** : aplat `{colors.petrol}` plein derrière le texte, prolongé d'une vague dessinée en dessous. Contenu : une icône au trait blanche, une barre `{colors.orange}`, un titre blanc et un sous-titre manuscrit `{colors.sky}`. Le texte ne repose jamais sur la vague.
+- **Carte pastel (`PastelCard`)** et **pastille (`Chip`)** : fond pastel en `{rounded.3xl}`. La pastille de titre est blanche sur `{colors.petrol}` ou `{colors.accent}`.
 - **Message clé (`KeyMessage`)** : fond `{colors.sky}` avec une ampoule pétrole aux rayons orange, une barre orange et une phrase en Nunito extra-gras. Au maximum un par section.
-- **Étapes (`Steps`)** : cartes ciel et pêche en alternance, numéro dans un cercle (`{colors.accent-ink}`, `{colors.petrol}`, `{colors.sage-ink}`, `{colors.primary}`), flèches orange entre les cartes.
+- **Étapes (`Steps`)** : cartes ciel et pêche en alternance, numéro dans un cercle (`{colors.accent}`, `{colors.petrol}`, `{colors.primary}`), flèches orange entre les cartes.
 - **Bulle (`Bubble`)** : nuage `{colors.sky}` avec deux petites bulles de queue, texte en Nunito 900.
-- **Décor (`Wave`, `Sparkle`, `BrushUnderline`)** : uniquement en `{colors.orange}`, `{colors.petrol}` et `{colors.teal-soft}`.
+- **Décor (`Wave`, `Sparkle`, `BrushUnderline`)** : uniquement en `{colors.orange}`, `{colors.cyan}`, `{colors.petrol}` et `{colors.sky}`.
 - **Logo (`Logo`)** : cercle `{colors.logo}`, lettre blanche, point `{colors.orange}`. La variante avec étincelles est réservée aux grands formats (accueil, supports). Fichiers source : `public/logo_elancestvous.svg` et `public/logo_elancestvous_etincelles.svg`.
-- **Bouton orange** (variante `accent` de `components/ui/button.tsx`) : fond `{colors.accent-ink}`, texte blanc, `{rounded.md}`. Le bouton secondaire teinté (FR12) est inchangé.
-- **Pied de page** : fond `{colors.petrol}`, liens blancs, mentions en `{colors.teal-soft}`.
+- **Bouton orange** (variante `accent` de `components/ui/button.tsx`) : fond `{colors.accent}`, texte blanc, `{rounded.md}`. Le bouton secondaire teinté (FR12) est inchangé.
+- **Pied de page** : fond `{colors.petrol}`, liens blancs, mentions en `{colors.sky}`.
 
 Les maquettes de référence sont la proposition de charte (https://claude.ai/artifact/T8zuRxkaB6sh87BtkJmUv2) et la planche logo (https://claude.ai/artifact/Vew5ADwHUXiV9msQJbV7Mx). En cas de conflit, ce document l'emporte.
 
@@ -152,9 +150,9 @@ Les maquettes de référence sont la proposition de charte (https://claude.ai/ar
 | À faire | À éviter |
 |---|---|
 | Un bandeau pétrole par section, avec un vrai titre Hn | Des titres centrés sans bandeau à côté de sections déjà restylées |
-| Alterner les pastels dans une rangée de cartes | Une rangée de cartes toutes grises ou toutes de la même teinte |
-| Orange vif pour le décor, `accent-ink` pour le texte et les boutons | Du texte ou un bouton blanc sur orange vif |
+| Alterner ciel et pêche dans une rangée de cartes | Une rangée de cartes toutes grises ou toutes de la même teinte |
+| Orange vif pour le décor, `accent` (orange foncé) pour le texte et les boutons | Du texte ou un bouton blanc sur orange vif |
 | 1 ou 2 touches manuscrites ou étincelles par écran | Kalam pour des paragraphes ; des étincelles partout |
 | Étapes numérotées pour une vraie démarche ordonnée | Des numéros sur une simple liste de points |
-| Échelle Tailwind par défaut (NFR1) | Des valeurs arbitraires `-[…]` (dette connue : la forme de `Bubble`) |
+| Échelle Tailwind par défaut (NFR1) | Des valeurs arbitraires `-[…]` |
 | Garder titres, textes et URLs existants | Modifier du contenu indexé pour « faire rentrer » un design |

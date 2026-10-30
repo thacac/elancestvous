@@ -15,7 +15,7 @@ describe("AppelContact — fin de l'accueil (Story 4.2)", () => {
     render(<AppelContact />);
     const lien = screen.getByRole("link", { name: "Prendre contact" });
     expect(lien).toHaveAttribute("href", "/contact");
-    expect(lien.className.split(/\s+/)).toContain("bg-accent-ink");
+    expect(lien.className.split(/\s+/)).toContain("bg-accent");
   });
 
   it("se termine par une vague décorative avant le pied de page", () => {

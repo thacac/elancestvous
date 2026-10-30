@@ -18,8 +18,8 @@ const buttonVariants = cva(
         secondary:
           "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80 transition-colors",
         accent:
-          "bg-accent-ink text-white shadow-sm hover:bg-primary/90 transition-colors",
-        ghost: "hover:bg-accent-ink hover:text-accent-foreground transition-colors",
+          "bg-accent text-white shadow-sm hover:bg-primary/90 transition-colors",
+        ghost: "hover:bg-accent hover:text-accent-foreground transition-colors",
         link: "text-primary underline-offset-4 hover:underline transition-colors",
         // CTA secondaire "Découvrir" / "Voir la fiche" (FR12) : contour +
         // fond teinté, jamais un lien texte nu. `tinted` pour les surfaces

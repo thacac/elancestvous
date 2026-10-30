@@ -28,14 +28,11 @@ describe("globals.css — palette inspirée des slides", () => {
     ["color-petrol", "#015566"],
     ["color-cyan", "#01a4b8"],
     ["color-orange", "#f28a1e"],
-    ["color-accent", "#d9680a"],
-    ["color-accent-ink", "#a64d08"],
-    ["color-teal-soft", "#c6e8ec"],
+    ["color-accent", "#a64d08"],
+
     ["color-sky", "#dff7fa"],
     ["color-peach", "#fdefe2"],
-    ["color-sage", "#e9f4e7"],
-    ["color-sage-ink", "#3f7a3a"],
-    ["color-lilac", "#efecf9"],
+
   ])("définit le token %s = %s", (name, value) => {
     expect(themeToken(name)).toBe(value);
   });
@@ -96,6 +93,47 @@ describe("globals.css — utilitaire du trait de pinceau", () => {
     expect(bloc).toMatch(/background-image:\s*url\("data:image\/svg\+xml/);
     // Orange décoratif de la charte (token --color-orange).
     expect(bloc).toContain("%23f28a1e");
+  });
+});
+
+// Palette resserrée à 8 couleurs, chacune avec un rôle unique (validé par
+// Cédric le 2026-10-30) : moins de variantes, contrastes maîtrisés.
+describe("globals.css — palette resserrée", () => {
+  it.each(["color-accent-ink", "color-sage", "color-sage-ink", "color-lilac", "color-teal-soft"])(
+    "ne définit plus %s",
+    (name) => {
+      expect(themeToken(name)).toBeUndefined();
+    },
+  );
+
+  it("garde exactement les 8 couleurs de la charte", () => {
+    expect({
+      primary: themeToken("color-primary"),
+      petrol: themeToken("color-petrol"),
+      cyan: themeToken("color-cyan"),
+      logo: themeToken("color-logo"),
+      orange: themeToken("color-orange"),
+      accent: themeToken("color-accent"),
+      sky: themeToken("color-sky"),
+      peach: themeToken("color-peach"),
+    }).toEqual({
+      primary: "#0a0c44",
+      petrol: "#015566",
+      cyan: "#01a4b8",
+      logo: "#29b5ad",
+      orange: "#f28a1e",
+      accent: "#a64d08",
+      sky: "#dff7fa",
+      peach: "#fdefe2",
+    });
+  });
+
+  it("aucun composant n'utilise une couleur supprimée", () => {
+    const supprimees = /\b(?:bg|text|fill|stroke|border)-(?:accent-ink|sage|sage-ink|lilac|teal-soft)\b/;
+    const fautifs = [...tsxFiles(join(root, "app")), ...tsxFiles(join(root, "components"))].filter(
+      (file) => !file.includes("__tests__") && supprimees.test(readFileSync(file, "utf8")),
+    );
+    expect(fautifs).toEqual([]);
   });
 });
 

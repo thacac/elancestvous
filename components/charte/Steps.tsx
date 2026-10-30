@@ -14,9 +14,9 @@ interface StepsProps {
   className?: string;
 }
 
-// Couleurs qui tournent comme dans les slides (1 orange, 2 pétrole, 3 vert…).
-// accent-ink et non accent : blanc sur accent ≈ 3.5:1, insuffisant en 18px.
-const BADGE_TONES = ["bg-accent-ink", "bg-petrol", "bg-sage-ink", "bg-primary"];
+// Couleurs qui tournent comme dans les slides (1 orange foncé, 2 pétrole,
+// 3 bleu nuit) ; blanc dessus ≥ 5.7:1.
+const BADGE_TONES = ["bg-accent", "bg-petrol", "bg-primary"];
 const CARD_TONES = ["bg-sky", "bg-peach"];
 
 // Étapes numérotées reliées par des flèches, à réserver aux vraies démarches.

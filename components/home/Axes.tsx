@@ -46,7 +46,7 @@ const Axes: FC = () => {
               les ressources individuelles et collectives.
             </p>
             <span className={`${buttonVariants({ variant: "tinted" })} mt-auto w-fit`}>
-              Découvrir les formations <span aria-hidden="true" className="text-accent-ink">→</span>
+              Découvrir les formations <span aria-hidden="true" className="text-accent">→</span>
             </span>
           </div>
         </Link>
@@ -70,7 +70,7 @@ const Axes: FC = () => {
               transition.
             </p>
             <span className={`${buttonVariants({ variant: "tinted" })} mt-auto w-fit`}>
-              Découvrir le coaching <span aria-hidden="true" className="text-accent-ink">→</span>
+              Découvrir le coaching <span aria-hidden="true" className="text-accent">→</span>
             </span>
           </div>
         </Link>
@@ -83,7 +83,7 @@ const Axes: FC = () => {
           <div className="flex items-center justify-center h-[190px]">
             <IconGappIllustration className="w-40 h-40" />
           </div>
-          <div className="bg-sage p-6 flex flex-col gap-2.5 flex-1">
+          <div className="bg-sky p-6 flex flex-col gap-2.5 flex-1">
             <h3 className="font-display! font-extrabold! text-2xl! text-primary! m-0! max-w-none!">
               GAPP (Groupe d&apos;analyse des pratiques professionnelles)
             </h3>
@@ -93,7 +93,7 @@ const Axes: FC = () => {
               soutenir les pratiques dans la durée.
             </p>
             <span className={`${buttonVariants({ variant: "tinted" })} mt-auto w-fit`}>
-              Découvrir les GAPP <span aria-hidden="true" className="text-accent-ink">→</span>
+              Découvrir les GAPP <span aria-hidden="true" className="text-accent">→</span>
             </span>
           </div>
         </Link>

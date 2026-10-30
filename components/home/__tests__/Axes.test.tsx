@@ -75,11 +75,11 @@ describe("Axes — tuiles pastel alternées (Story 4.2)", () => {
     return screen.getByRole("link", { name: nom }).querySelector("h3")!.parentElement!;
   }
 
-  it("Formations sur ciel, Coaching sur pêche, GAPP sur vert d'eau", () => {
+  it("alterne ciel, pêche, ciel (palette resserrée à deux pastels)", () => {
     render(<Axes />);
     expect(corps(/découvrir les formations/i)).toHaveClass("bg-sky");
     expect(corps(/découvrir le coaching/i)).toHaveClass("bg-peach");
-    expect(corps(/découvrir les gapp/i)).toHaveClass("bg-sage");
+    expect(corps(/découvrir les gapp/i)).toHaveClass("bg-sky");
   });
 
   it("utilise le même CTA teinté sur fond clair dans les 3 tuiles (FR12)", () => {

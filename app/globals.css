@@ -100,30 +100,26 @@ h3,
   --color-primary-foreground: oklch(0.985 0 0);
   --color-secondary: #898c91;
   --color-secondary-foreground: oklch(0.205 0 0);
-  /* Orange des slides. accent = fonds de bouton et grands textes (blanc
-     dessus ≈ 3.5:1, ok texte large) ; accent-ink = orange de texte courant
-     (≈ 5.7:1 sur blanc) ; orange = traits décoratifs uniquement (pinceau,
-     étincelles, flèches), jamais pour du texte. */
-  --color-accent: #d9680a;
-  --color-accent-ink: #a64d08;
+  /* Palette de la charte : 8 couleurs, un rôle chacune (DESIGN.md).
+     Deux oranges seulement : accent = orange foncé pour le texte et les
+     fonds de boutons (blanc dessus ≈ 5.7:1, ≈ 5:1 sur les pastels) ;
+     orange = décor uniquement (pinceau, étincelles, flèches), jamais sous
+     ou en guise de texte. */
+  --color-accent: #a64d08;
   --color-orange: #f28a1e;
   --color-accent-foreground: #f1f5f9;
   --color-muted: #93999b;
   --color-muted-foreground: oklch(0.556 0 0);
   --color-pastel: #d1faf9;
   --color-logo: #29b5ad;
-  /* Bandeaux de section et pastilles. */
+  /* Bandeaux de section, pied de page et pastilles. */
   --color-petrol: #015566;
-  /* Turquoise vif des slides (courbes, pastilles). Blanc dessus ≈ 3:1 :
-     texte blanc seulement en très grand, sinon texte primary (≈ 6:1). */
+  /* Turquoise vif des slides : courbes et vagues uniquement (décor). */
   --color-cyan: #01a4b8;
-  --color-teal-soft: #c6e8ec;
-  /* Fonds pastel des cartes, en alternance comme dans les slides. */
+  /* Fonds pastel des cartes, en alternance ciel / pêche. Le ciel sert
+     aussi de texte clair sur pétrole (≈ 7.5:1). */
   --color-sky: #dff7fa;
   --color-peach: #fdefe2;
-  --color-sage: #e9f4e7;
-  --color-sage-ink: #3f7a3a;
-  --color-lilac: #efecf9;
   /* Scintillement des étincelles du logo (Hero), décalé par étincelle :
      deux fois au chargement puis immobile (WCAG 2.2.2 : < 5 s). */
   --animate-elan-sparkle: elan-sparkle 2.2s ease-in-out 2;

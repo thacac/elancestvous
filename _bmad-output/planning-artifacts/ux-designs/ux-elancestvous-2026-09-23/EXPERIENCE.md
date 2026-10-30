@@ -57,11 +57,11 @@ Le site s'adresse au visiteur comme une formatrice à son groupe : il pose des q
 
 - Seuls les boutons et les liens sont interactifs. Les cartes, pastilles, bulles et étapes ne le sont jamais, sauf si elles contiennent un lien explicite.
 - Le focus clavier reste visible sur tous les éléments interactifs.
-- Le survol des boutons orange garde un texte lisible : fond `accent-ink` ou primary, jamais l'orange vif.
+- Le survol des boutons orange garde un texte lisible : fond `accent` (orange foncé) ou primary, jamais l'orange vif.
 
 ## Accessibility Floor
 
-- Contraste d'au moins 4.5:1 pour tout texte de taille courante. Le blanc ne se pose jamais sur l'orange vif ; le texte orange courant utilise `accent-ink`.
+- Contraste d'au moins 4.5:1 pour tout texte de taille courante. Le blanc ne se pose jamais sur l'orange vif ; le texte orange utilise `accent` (orange foncé). Règle complète : section « Accessibilité » de `CLAUDE.md` (RGAA 4.1 / WCAG 2.2 AA).
 - Tout le décor est `aria-hidden`. Chaque section garde un titre Hn réel.
 - Aucune animation automatique de plus de 5 s ; les animations respectent `prefers-reduced-motion`.
 - Les listes ordonnées sans puces gardent `role="list"` (Safari / VoiceOver).

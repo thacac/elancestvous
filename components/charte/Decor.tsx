@@ -27,7 +27,7 @@ export function Wave({ position = "bottom", className }: WaveProps) {
         className,
       )}
     >
-      <path d="M0 22C220 4 420 40 700 54V64H0Z" className="fill-teal-soft" />
+      <path d="M0 22C220 4 420 40 700 54V64H0Z" className="fill-sky" />
       <path d="M460 64C780 56 1000 30 1200 6V64Z" className="fill-petrol" />
       <path
         d="M0 48C380 30 820 66 1200 18"

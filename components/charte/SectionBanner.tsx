@@ -52,7 +52,7 @@ export function SectionBanner({
               {title}
             </Heading>
             {subtitle && (
-              <p className="font-hand text-base text-teal-soft md:text-lg">
+              <p className="font-hand text-base text-sky md:text-lg">
                 {subtitle}
               </p>
             )}
