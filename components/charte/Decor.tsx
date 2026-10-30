@@ -58,30 +58,10 @@ export function Sparkle({ className }: { className?: string }) {
   );
 }
 
-// Trait de pinceau orange sous un mot clé. Le texte reste un nœud texte
-// ordinaire dans le flux (indexé tel quel), le trait est un SVG masqué.
-export function BrushUnderline({
-  children,
-  className,
-}: {
-  children: ReactNode;
-  className?: string;
-}) {
-  return (
-    <span className={cn("relative inline-block", className)}>
-      {children}
-      <svg
-        aria-hidden="true"
-        focusable="false"
-        viewBox="0 0 200 12"
-        preserveAspectRatio="none"
-        fill="none"
-        strokeWidth="5"
-        strokeLinecap="round"
-        className="pointer-events-none absolute -bottom-2 left-0 h-3 w-full stroke-orange"
-      >
-        <path d="M3 8 C 50 3, 120 2, 197 6" />
-      </svg>
-    </span>
-  );
+// Trait de pinceau orange sous un mot clé. Simple <span> en ligne avec
+// l'utilitaire brush-underline (app/globals.css) : le texte reste un nœud
+// texte ordinaire (indexé tel quel), se coupe comme le reste du titre, et
+// chaque ligne garde son trait.
+export function BrushUnderline({ children, className }: { children: ReactNode; className?: string }) {
+  return <span className={cn("brush-underline", className)}>{children}</span>;
 }

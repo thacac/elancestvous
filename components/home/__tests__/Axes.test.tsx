@@ -56,7 +56,7 @@ describe("Axes — toute la tuile est cliquable (rattrapage design)", () => {
     render(<Axes />);
     const lien = screen.getByRole("link", { name: /découvrir les formations/i });
     expect(lien).toHaveAccessibleName(/formations/i);
-    expect(lien.querySelector("h4")).toHaveTextContent("Formations");
+    expect(lien.querySelector("h3")).toHaveTextContent("Formations");
   });
 
   it("expose un nom accessible concis (aria-label) plutôt que tout le texte de la tuile concaténé", () => {
@@ -68,52 +68,56 @@ describe("Axes — toute la tuile est cliquable (rattrapage design)", () => {
   });
 });
 
-describe("Axes — fond de tuile coloré par pilier (rattrapage design)", () => {
-  it("Formations sur fond pastel, Coaching sur fond navy plein, GAPP sur fond logo", () => {
-    render(<Axes />);
-    const corpsFormations = screen
-      .getByRole("link", { name: /découvrir les formations/i })
-      .querySelector("h4")!.parentElement!;
-    const corpsCoaching = screen
-      .getByRole("link", { name: /découvrir le coaching/i })
-      .querySelector("h4")!.parentElement!;
-    const corpsGapp = screen
-      .getByRole("link", { name: /découvrir les gapp/i })
-      .querySelector("h4")!.parentElement!;
+// Story 4.2 (charte slides) : fonds pastel alternés à la place de
+// pastel / navy / logo, donc le même bouton secondaire teinté partout (FR12).
+describe("Axes — tuiles pastel alternées (Story 4.2)", () => {
+  function corps(nom: RegExp) {
+    return screen.getByRole("link", { name: nom }).querySelector("h3")!.parentElement!;
+  }
 
-    expect(corpsFormations.className).toContain("bg-pastel");
-    expect(corpsCoaching.className).toContain("bg-primary");
-    expect(corpsGapp.className).toContain("bg-logo");
+  it("Formations sur ciel, Coaching sur pêche, GAPP sur vert d'eau", () => {
+    render(<Axes />);
+    expect(corps(/découvrir les formations/i)).toHaveClass("bg-sky");
+    expect(corps(/découvrir le coaching/i)).toHaveClass("bg-peach");
+    expect(corps(/découvrir les gapp/i)).toHaveClass("bg-sage");
   });
 
-  it("le CTA utilise le variant clair (tintedOnDark) sur la tuile Coaching, sombre (tinted) ailleurs", () => {
+  it("utilise le même CTA teinté sur fond clair dans les 3 tuiles (FR12)", () => {
     render(<Axes />);
-    const corpsFormations = screen
-      .getByRole("link", { name: /découvrir les formations/i })
-      .querySelector("h4")!.parentElement!;
-    const corpsCoaching = screen
-      .getByRole("link", { name: /découvrir le coaching/i })
-      .querySelector("h4")!.parentElement!;
-    const corpsGapp = screen
-      .getByRole("link", { name: /découvrir les gapp/i })
-      .querySelector("h4")!.parentElement!;
-
-    const ctaFormations = corpsFormations.lastElementChild as HTMLElement;
-    const ctaCoaching = corpsCoaching.lastElementChild as HTMLElement;
-    const ctaGapp = corpsGapp.lastElementChild as HTMLElement;
-
-    expect(ctaFormations.className).toContain("border-primary");
-    expect(ctaGapp.className).toContain("border-primary");
-    expect(ctaCoaching.className).toContain("border-white");
+    for (const nom of [/découvrir les formations/i, /découvrir le coaching/i, /découvrir les gapp/i]) {
+      const cta = corps(nom).lastElementChild as HTMLElement;
+      expect(cta.className).toContain("border-primary");
+      expect(cta.className).not.toContain("border-white");
+    }
   });
 });
 
-describe("Axes — espacement sous le Hero (titre collé au bord sans padding-top)", () => {
-  it("a un padding-top symétrique à son padding-bottom (pt-0 collait le titre pile à la limite de couleur avec le Hero)", () => {
-    const { container } = render(<Axes />);
-    const section = container.querySelector("section")!;
+// Story 4.2 : la section s'ouvre sur le bandeau pétrole de la charte. Même
+// texte qu'avant ; la phrase d'introduction n'est plus un faux h3 et les
+// tuiles passent de h4 à h3 (hiérarchie Hn sans saut, validé par Cédric).
+describe("Axes — bandeau de section et hiérarchie des titres (Story 4.2)", () => {
+  it("ouvre sur un h2 inchangé dans un bandeau pétrole", () => {
+    render(<Axes />);
+    const titre = screen.getByRole("heading", { level: 2, name: "Mes 3 Axes d'Intervention" });
+    expect(titre.closest(".bg-petrol")).not.toBeNull();
+  });
 
-    expect(section.className).not.toContain("pt-0");
-    expect(section.className).toContain("pt-15");
+  it("garde la phrase d'introduction, en paragraphe et non plus en titre", () => {
+    render(<Axes />);
+    const intro = screen.getByText(
+      "Une approche globale, avec des modalités d'intervention adaptables aux besoins des équipes.",
+    );
+    expect(intro.tagName).toBe("P");
+  });
+
+  it("titre chaque tuile en h3, sans aucun h4", () => {
+    const { container } = render(<Axes />);
+    expect(screen.getAllByRole("heading", { level: 3 })).toHaveLength(3);
+    expect(container.querySelectorAll("h4")).toHaveLength(0);
+  });
+
+  it("garde l'ancre #axes-de-travail visée par le bouton du Hero", () => {
+    const { container } = render(<Axes />);
+    expect(container.querySelector("#axes-de-travail")).not.toBeNull();
   });
 });

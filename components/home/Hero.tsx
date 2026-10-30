@@ -2,22 +2,23 @@
 
 import Link from "next/link";
 
-import { Logo } from "@/components/charte";
+import { BrushUnderline, Bubble, Logo, Wave } from "@/components/charte";
 import { buttonVariants } from "@/components/ui/button";
 
 export default function Hero() {
   return (
-    <section className="relative bg-pastel flex flex-col md:flex-row md:items-center px-6 min-h-screen h-fit -mt-20 pt-20 pb-6 md:pb-0">
+    <section className="relative bg-pastel flex flex-col md:flex-row md:items-center px-6 min-h-screen h-fit -mt-20 pt-20 pb-16 md:pb-12">
       <div className="bg-light flex flex-col lg:flex-row justify-between items-center mx-auto max-w-5xl">
         <div className="order-last flex-1 flex flex-col justify-center text-center md:my-0 lg:order-first md:text-left">
-          <span className="inline-block py-1 px-3 rounded-full bg-muted text-primary text-[0.65rem] font-semibold mb-6 tracking-wide uppercase w-fit mx-auto md:mx-0">
+          <span className="inline-block py-1 px-3 rounded-full bg-petrol text-white text-xs font-bold mb-6 tracking-wide uppercase w-fit mx-auto md:mx-0">
             Santé au travail & Performance Humaine
           </span>
           <h1 className="text-5xl lg:text-6xl font-display font-bold text-primary leading-tight mb-6">
             Préserver la santé de&nbsp;
-            <span className="text-accent italic">ceux qui soignent</span>.
+            <BrushUnderline className="text-accent italic">ceux qui soignent</BrushUnderline>
+            .
           </h1>
-          <p className="text-md md:text-lg text-secondary leading-relaxed max-w-2xl">
+          <p className="text-md md:text-lg text-primary/80 leading-relaxed max-w-2xl">
             Ancienne soignante basée à <strong>Toulouse</strong>, j&apos;accompagne les établissements et les
             professionnels de santé à prévenir l&apos;épuisement, réguler la charge
             émotionnelle et soutenir des pratiques de travail durables.
@@ -48,15 +49,17 @@ export default function Hero() {
             </p>
           </div>
         </div>
-        <div className="flex-1 flex items-center justify-center order-first lg:order-last mt-8 md:mt-0">
+        <div className="flex-1 flex flex-col items-center justify-center gap-2 order-first lg:order-last mt-8 md:mt-0">
           <Logo
             variant="sparkles"
             animated
             title="Élan C’est Vous – coaching et formations pour les professionnels de santé"
-            className="w-1/2 max-w-md h-auto mb-10 md:w-2/3 md:mt-0"
+            className="w-1/2 max-w-md h-auto md:w-2/3 md:mt-0"
           />
+          <Bubble className="hidden lg:block mb-10">Et vous, comment allez-vous vraiment&nbsp;?</Bubble>
         </div>
       </div>
+      <Wave className="absolute inset-x-0 bottom-0" />
     </section>
   );
 }

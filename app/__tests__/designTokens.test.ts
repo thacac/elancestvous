@@ -86,3 +86,13 @@ describe("globals.css — le scintillement s'arrête de lui-même", () => {
   });
 });
 
+describe("globals.css — utilitaire du trait de pinceau", () => {
+  it("déclare brush-underline, répété sur chaque ligne du texte", () => {
+    const bloc = globalsCss.match(/@utility brush-underline \{([^}]*)\}/)?.[1] ?? "";
+    expect(bloc).toMatch(/box-decoration-break:\s*clone/);
+    expect(bloc).toMatch(/background-image:\s*url\("data:image\/svg\+xml/);
+    // Orange décoratif de la charte (token --color-orange).
+    expect(bloc).toContain("%23f28a1e");
+  });
+});
+
