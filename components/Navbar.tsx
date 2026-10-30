@@ -48,7 +48,7 @@ export const Navbar: FC<NavbarProps> = ({ blogEnabled = false }) => {
         <div className="flex lg:flex-1">
           <Link
             href="/"
-            className="font-serif italic font-extrabold text-primary text-xl"
+            className="font-display italic font-extrabold text-primary text-xl"
           >
             <span>
               <Image

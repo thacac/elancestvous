@@ -31,7 +31,7 @@ const Axes: FC = () => {
             <IconFormationsIllustration className="w-40 h-40" />
           </div>
           <div className="bg-pastel p-6 flex flex-col gap-2.5 flex-1">
-            <h4 className="font-serif font-extrabold text-2xl text-primary">Formations</h4>
+            <h4 className="font-display font-extrabold text-2xl text-primary">Formations</h4>
             <p className="text-sm leading-relaxed text-primary/90">
               Des formations sur-mesure pour prévenir l&apos;épuisement professionnel,
               mieux comprendre le stress et la charge émotionnelle, et renforcer
@@ -52,7 +52,7 @@ const Axes: FC = () => {
             <IconCoachingIllustration className="w-40 h-40" />
           </div>
           <div className="bg-primary p-6 flex flex-col gap-2.5 flex-1">
-            <h4 className="font-serif font-extrabold text-2xl text-white">
+            <h4 className="font-display font-extrabold text-2xl text-white">
               Coaching d&apos;équipe ou individuel
             </h4>
             <p className="text-sm leading-relaxed text-white/80">
@@ -76,7 +76,7 @@ const Axes: FC = () => {
             <IconGappIllustration className="w-40 h-40" />
           </div>
           <div className="bg-logo p-6 flex flex-col gap-2.5 flex-1">
-            <h4 className="font-serif font-extrabold text-2xl text-primary">
+            <h4 className="font-display font-extrabold text-2xl text-primary">
               GAPP (Groupe d&apos;analyse des pratiques professionnelles)
             </h4>
             <p className="text-sm leading-relaxed text-primary/90">

@@ -135,7 +135,7 @@ export default function PreventionRpsQvctPage() {
             <div className="flex flex-col lg:flex-row gap-20">
               <div className="w-full md:w-1/2 lg:w-2/3">
                 <div className="relative w-full flex flex-col items-center mb-12">
-                  <h2 className="text-4xl font-serif font-extrabold text-primary mb-6 relative z-20">
+                  <h2 className="text-4xl font-display font-extrabold text-primary mb-6 relative z-20">
                     Un cycle structuré & cohérent
                   </h2>
                   {/* Icône escalier stylisé en arrière-plan */}

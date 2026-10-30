@@ -21,7 +21,7 @@ export default function CtaElan({ contactType, contactSujet }: CtaElanProps = {}
       className="py-15 bg-accent relative overflow-hidden"
     >
       <div className="container mx-auto px-6 text-center relative z-10">
-        <h2 className="text-white font-serif font-black text-5xl lg:text-7xl mb-12!">
+        <h2 className="text-white font-display font-black text-5xl lg:text-7xl mb-12!">
           Prêt à mettre <br />
           vos équipes en mouvement ?
         </h2>

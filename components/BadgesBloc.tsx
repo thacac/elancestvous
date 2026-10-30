@@ -16,7 +16,7 @@ export default function BadgesBloc({
   return (
     <section className={`py-20 bg-stone-50 ${className}`}>
       <div className="container mx-auto px-6 text-center">
-        <h2 className="text-primary font-serif font-bold text-3xl mb-14!">
+        <h2 className="text-primary font-display font-bold text-3xl mb-14!">
           {titre}
         </h2>
         <div className="flex flex-wrap justify-center gap-6 mb-8">
