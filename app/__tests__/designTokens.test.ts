@@ -25,12 +25,13 @@ function tsxFiles(dir: string): string[] {
 
 describe("globals.css — palette inspirée des slides", () => {
   it.each([
-    ["color-petrol", "#0f4c5c"],
+    ["color-petrol", "#015566"],
+    ["color-cyan", "#01a4b8"],
     ["color-orange", "#f28a1e"],
     ["color-accent", "#d9680a"],
     ["color-accent-ink", "#a64d08"],
     ["color-teal-soft", "#c6e8ec"],
-    ["color-sky", "#e6f4f8"],
+    ["color-sky", "#dff7fa"],
     ["color-peach", "#fdefe2"],
     ["color-sage", "#e9f4e7"],
     ["color-sage-ink", "#3f7a3a"],
@@ -39,8 +40,10 @@ describe("globals.css — palette inspirée des slides", () => {
     expect(themeToken(name)).toBe(value);
   });
 
-  it("garde le bleu nuit et le turquoise du logo comme socle", () => {
-    expect(themeToken("color-primary")).toBe("#112e40");
+  // Couleurs mesurées dans le PDF des slides (validé par Cédric le 2026-10-30) :
+  // bleu nuit indigo des titres #0a0c44, pétrole #015566, turquoise #01a4b8.
+  it("garde le turquoise du logo et prend le bleu nuit indigo des slides", () => {
+    expect(themeToken("color-primary")).toBe("#0a0c44");
     expect(themeToken("color-logo")).toBe("#29b5ad");
   });
 });

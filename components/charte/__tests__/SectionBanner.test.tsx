@@ -61,3 +61,12 @@ describe("SectionBanner — lisibilité", () => {
     }
   });
 });
+
+describe("SectionBanner — courbe turquoise des slides", () => {
+  it("trace une courbe turquoise vif sous le bandeau, en plus du trait orange", () => {
+    const { container } = render(<SectionBanner title="Mes axes" />);
+    expect(container.querySelector(".stroke-cyan, .fill-cyan")).not.toBeNull();
+    expect(container.querySelector(".stroke-orange")).not.toBeNull();
+  });
+});
+

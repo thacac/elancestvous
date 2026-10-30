@@ -71,7 +71,7 @@ export function SectionBanner({
         <path d="M0 0H1200V2C880 8 520 30 0 36Z" className="fill-petrol" />
         <path
           d="M380 26C700 14 960 4 1200 2V14C960 18 720 32 380 34Z"
-          className="fill-teal-soft"
+          className="fill-cyan"
         />
         <path
           d="M0 44C420 40 820 20 1200 10"

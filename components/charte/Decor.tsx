@@ -35,6 +35,7 @@ export function Wave({ position = "bottom", className }: WaveProps) {
         strokeWidth="4"
         className="stroke-orange"
       />
+      <path d="M0 58C400 44 840 72 1200 30" fill="none" strokeWidth="3" className="stroke-cyan" />
     </svg>
   );
 }

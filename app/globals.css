@@ -96,7 +96,7 @@ h3,
   --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
   /* Personnal vars */
-  --color-primary: #112e40;
+  --color-primary: #0a0c44;
   --color-primary-foreground: oklch(0.985 0 0);
   --color-secondary: #898c91;
   --color-secondary-foreground: oklch(0.205 0 0);
@@ -113,10 +113,13 @@ h3,
   --color-pastel: #d1faf9;
   --color-logo: #29b5ad;
   /* Bandeaux de section et pastilles. */
-  --color-petrol: #0f4c5c;
+  --color-petrol: #015566;
+  /* Turquoise vif des slides (courbes, pastilles). Blanc dessus ≈ 3:1 :
+     texte blanc seulement en très grand, sinon texte primary (≈ 6:1). */
+  --color-cyan: #01a4b8;
   --color-teal-soft: #c6e8ec;
   /* Fonds pastel des cartes, en alternance comme dans les slides. */
-  --color-sky: #e6f4f8;
+  --color-sky: #dff7fa;
   --color-peach: #fdefe2;
   --color-sage: #e9f4e7;
   --color-sage-ink: #3f7a3a;

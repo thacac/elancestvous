@@ -11,6 +11,13 @@ describe("Wave", () => {
     expect(svg).toHaveAttribute("focusable", "false");
   });
 
+  it("mêle turquoise vif, orange et pétrole comme les vagues des slides", () => {
+    const { container } = render(<Wave />);
+    expect(container.querySelector(".stroke-cyan, .fill-cyan")).not.toBeNull();
+    expect(container.querySelector(".stroke-orange")).not.toBeNull();
+    expect(container.querySelector(".fill-petrol")).not.toBeNull();
+  });
+
   it("se retourne pour une vague de haut de section", () => {
     const { container } = render(<Wave position="top" />);
     expect(container.querySelector("svg")).toHaveClass("-scale-y-100");
