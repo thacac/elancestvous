@@ -37,7 +37,7 @@ function IconDialogue() {
 
 export default function Accompagnement() {
   return (
-    <section id="comment-se-passe-un-accompagnement" className="pb-15 bg-white">
+    <section id="comment-se-passe-un-accompagnement" className="scroll-mt-20 pb-15 bg-white">
       <SectionBanner
         title="Comment se passe un accompagnement ?"
         subtitle="Une démarche simple en 4 étapes"

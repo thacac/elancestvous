@@ -23,7 +23,7 @@ function IconTarget() {
 
 const Axes: FC = () => {
   return (
-    <section id="axes-de-travail" className="pb-15 bg-white">
+    <section id="axes-de-travail" className="scroll-mt-20 pb-15 bg-white">
       <SectionBanner
         title="Mes 3 Axes d'Intervention"
         subtitle="Une approche globale, avec des modalités d'intervention adaptables aux besoins des équipes."
@@ -46,7 +46,7 @@ const Axes: FC = () => {
               les ressources individuelles et collectives.
             </p>
             <span className={`${buttonVariants({ variant: "tinted" })} mt-auto w-fit`}>
-              Découvrir les formations <span className="text-accent-ink">→</span>
+              Découvrir les formations <span aria-hidden="true" className="text-accent-ink">→</span>
             </span>
           </div>
         </Link>
@@ -70,7 +70,7 @@ const Axes: FC = () => {
               transition.
             </p>
             <span className={`${buttonVariants({ variant: "tinted" })} mt-auto w-fit`}>
-              Découvrir le coaching <span className="text-accent-ink">→</span>
+              Découvrir le coaching <span aria-hidden="true" className="text-accent-ink">→</span>
             </span>
           </div>
         </Link>
@@ -93,7 +93,7 @@ const Axes: FC = () => {
               soutenir les pratiques dans la durée.
             </p>
             <span className={`${buttonVariants({ variant: "tinted" })} mt-auto w-fit`}>
-              Découvrir les GAPP <span className="text-accent-ink">→</span>
+              Découvrir les GAPP <span aria-hidden="true" className="text-accent-ink">→</span>
             </span>
           </div>
         </Link>

@@ -26,6 +26,7 @@ describe("Accueil — structure et SEO (Story 4.2)", () => {
     const niveaux = Array.from(container.querySelectorAll("h1, h2, h3, h4, h5, h6")).map((h) =>
       Number(h.tagName[1]),
     );
+    expect(niveaux[0]).toBe(1);
     niveaux.forEach((niveau, i) => {
       if (i > 0) expect(niveau - niveaux[i - 1]).toBeLessThanOrEqual(1);
     });

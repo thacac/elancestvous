@@ -121,3 +121,18 @@ describe("Axes — bandeau de section et hiérarchie des titres (Story 4.2)", ()
     expect(container.querySelector("#axes-de-travail")).not.toBeNull();
   });
 });
+
+describe("Axes — revue Story 4.2", () => {
+  it("décale l'ancre sous la barre de navigation collante", () => {
+    const { container } = render(<Axes />);
+    expect(container.querySelector("#axes-de-travail")).toHaveClass("scroll-mt-20");
+  });
+
+  it("traite la flèche des CTA comme une icône décorative", () => {
+    const { container } = render(<Axes />);
+    const fleches = Array.from(container.querySelectorAll("span")).filter((s) => s.textContent === "→");
+    expect(fleches).toHaveLength(3);
+    for (const fleche of fleches) expect(fleche).toHaveAttribute("aria-hidden", "true");
+  });
+});
+

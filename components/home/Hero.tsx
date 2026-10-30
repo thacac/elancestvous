@@ -7,7 +7,7 @@ import { buttonVariants } from "@/components/ui/button";
 
 export default function Hero() {
   return (
-    <section className="relative bg-pastel flex flex-col md:flex-row md:items-center px-6 min-h-screen h-fit -mt-20 pt-20 pb-16 md:pb-12">
+    <section className="relative bg-pastel flex flex-col md:flex-row md:items-center px-6 min-h-screen h-fit -mt-20 pt-20 pb-16 md:pb-16">
       <div className="bg-light flex flex-col lg:flex-row justify-between items-center mx-auto max-w-5xl">
         <div className="order-last flex-1 flex flex-col justify-center text-center md:my-0 lg:order-first md:text-left">
           <span className="inline-block py-1 px-3 rounded-full bg-petrol text-white text-xs font-bold mb-6 tracking-wide uppercase w-fit mx-auto md:mx-0">
@@ -38,9 +38,9 @@ export default function Hero() {
             <p className="text-sm text-primary leading-relaxed">
               Vous êtes un particulier&nbsp;?
             </p>
-            <p className="text-sm text-secondary">
+            <p className="text-sm text-primary/80">
               Pour débloquer une situation ou travailler un objectif, découvrez
-              l&apos;<span className="font-display text-accent italic underline cursor-alias">
+              l&apos;<span className="font-display text-accent-ink italic underline cursor-alias">
                 <Link href="/coaching/particuliers">
                   <strong>accompagnement individuel</strong>
                 </Link>
@@ -54,7 +54,7 @@ export default function Hero() {
             variant="sparkles"
             animated
             title="Élan C’est Vous – coaching et formations pour les professionnels de santé"
-            className="w-1/2 max-w-md h-auto md:w-2/3 md:mt-0"
+            className="w-1/2 max-w-md h-auto mb-10 lg:mb-0 md:w-2/3 md:mt-0"
           />
           <Bubble className="hidden lg:block mb-10">Et vous, comment allez-vous vraiment&nbsp;?</Bubble>
         </div>

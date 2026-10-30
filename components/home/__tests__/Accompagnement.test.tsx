@@ -41,3 +41,11 @@ describe("Accompagnement — démarche en 4 étapes", () => {
     expect(container.textContent).not.toMatch(/sans engagement|gratuit/i);
   });
 });
+
+describe("Accompagnement — ancre", () => {
+  it("décale l'ancre sous la barre de navigation collante", () => {
+    const { container } = render(<Accompagnement />);
+    expect(container.querySelector("#comment-se-passe-un-accompagnement")).toHaveClass("scroll-mt-20");
+  });
+});
+

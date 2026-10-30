@@ -87,3 +87,25 @@ describe("Hero — charte slides (Story 4.2)", () => {
   });
 });
 
+// Revue Story 4.2 : corrections de mise en page et de contraste.
+describe("Hero — espacements et contrastes (revue Story 4.2)", () => {
+  it("garde un espace sous le logo quand la bulle est masquée (mobile, tablette)", () => {
+    render(<Hero />);
+    const logo = screen.getByRole("img", { name: /coaching et formations/i });
+    expect(logo).toHaveClass("mb-10", "lg:mb-0");
+  });
+
+  it("réserve sous le contenu au moins la hauteur de la vague (h-12, md:h-16)", () => {
+    const { container } = render(<Hero />);
+    expect(container.querySelector("section")).toHaveClass("pb-16", "md:pb-16");
+  });
+
+  it("écrit le bloc « particulier » en couleurs lisibles sur le pastel (≥ 4.5:1)", () => {
+    render(<Hero />);
+    const texte = screen.getByText(/pour débloquer une situation/i);
+    expect(texte.className).not.toMatch(/\btext-secondary\b/);
+    const lien = screen.getByRole("link", { name: /accompagnement individuel/i });
+    expect(lien.closest("span")!.className.split(/\s+/)).toContain("text-accent-ink");
+  });
+});
+
