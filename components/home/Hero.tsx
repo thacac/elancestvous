@@ -1,8 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 
+import { Logo } from "@/components/charte";
 import { buttonVariants } from "@/components/ui/button";
 
 export default function Hero() {
@@ -13,7 +13,7 @@ export default function Hero() {
           <span className="inline-block py-1 px-3 rounded-full bg-muted text-primary text-[0.65rem] font-semibold mb-6 tracking-wide uppercase w-fit mx-auto md:mx-0">
             Santé au travail & Performance Humaine
           </span>
-          <h1 className="text-5xl lg:text-6xl font-serif font-bold text-primary leading-tight mb-6">
+          <h1 className="text-5xl lg:text-6xl font-display font-bold text-primary leading-tight mb-6">
             Préserver la santé de&nbsp;
             <span className="text-accent italic">ceux qui soignent</span>.
           </h1>
@@ -39,7 +39,7 @@ export default function Hero() {
             </p>
             <p className="text-sm text-secondary">
               Pour débloquer une situation ou travailler un objectif, découvrez
-              l&apos;<span className="font-serif text-accent italic underline cursor-alias">
+              l&apos;<span className="font-display text-accent italic underline cursor-alias">
                 <Link href="/coaching/particuliers">
                   <strong>accompagnement individuel</strong>
                 </Link>
@@ -49,12 +49,11 @@ export default function Hero() {
           </div>
         </div>
         <div className="flex-1 flex items-center justify-center order-first lg:order-last mt-8 md:mt-0">
-          <Image
-            src="/logo_elancestvous.png"
-            width={400}
-            height={400}
-            className="max-w-1/2 mb-10 md:max-w-2/3 md:mt-0 xl:max-w-2xl"
-            alt="Élan C’est Vous – coaching et formations pour les professionnels de santé"
+          <Logo
+            variant="sparkles"
+            animated
+            title="Élan C’est Vous – coaching et formations pour les professionnels de santé"
+            className="w-1/2 max-w-md h-auto mb-10 md:w-2/3 md:mt-0"
           />
         </div>
       </div>

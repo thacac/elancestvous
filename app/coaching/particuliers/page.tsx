@@ -127,7 +127,7 @@ export default function CoachingParticuliersPage() {
             <div className="flex flex-col lg:flex-row gap-20">
               <div className="w-full md:w-1/2 lg:w-2/3">
                 <div className="relative w-full flex flex-col items-center mb-12">
-                  <h2 className="text-4xl font-serif font-extrabold text-primary mb-6 relative z-20">
+                  <h2 className="text-4xl font-display font-extrabold text-primary mb-6 relative z-20">
                     Un processus structuré & progressif
                   </h2>
                   <span className="absolute -left-10 -bottom-15 md:-left-10 md:-bottom-35 lg:-left-20 lg:-bottom-20 z-0 opacity-10 pointer-events-none select-none">

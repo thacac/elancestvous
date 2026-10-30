@@ -134,7 +134,7 @@ export default function GappPage() {
         >
           <div className="container mx-auto px-6 text-center max-w-3xl flex flex-col items-center relative z-10">
             <div className="relative w-full flex flex-col items-center mb-4">
-              <h2 className="text-primary font-serif font-bold text-2xl mb-6 relative z-20">
+              <h2 className="text-primary font-display font-bold text-2xl mb-6 relative z-20">
                 Une démarche inscrite dans la durée
               </h2>
               {/* Icône montre moderne en arrière-plan */}

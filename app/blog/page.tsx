@@ -63,7 +63,7 @@ export default function BlogIndex() {
                   />
                 </div>
                 <CardHeader>
-                  <CardTitle className="text-primary font-serif text-xl">
+                  <CardTitle className="text-primary font-display text-xl">
                     {post.title}
                   </CardTitle>
                   <CardDescription>{post.excerpt}</CardDescription>

@@ -151,7 +151,7 @@ export default async function FormationPage({
                   key={i}
                   className="flex gap-5 py-4 border-t border-stone-200 last:border-b"
                 >
-                  <span className="font-serif font-semibold text-lg text-logo w-8 shrink-0">
+                  <span className="font-display font-semibold text-lg text-logo w-8 shrink-0">
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <div>

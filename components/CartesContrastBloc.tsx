@@ -22,7 +22,7 @@ export default function CartesContrastBloc({
     <section className={`py-20 bg-primary ${className}`}>
       <div className="container mx-auto px-6">
         <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
-          <h2 className="text-3xl lg:text-5xl !text-white font-serif font-bold max-w-xl">
+          <h2 className="text-3xl lg:text-5xl !text-white font-display font-bold max-w-xl">
             {titre}
           </h2>
           {sousTitre && (

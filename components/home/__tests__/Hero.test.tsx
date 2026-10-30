@@ -29,9 +29,9 @@ describe("Hero — fond visible en transparence sous la navbar (effet vitre dép
 describe("Hero — tient dans un écran mobile sans scroll excessif avant le CTA", () => {
   it("le logo n'a plus son propre décalage mt-20 mobile, désormais redondant avec le pt-20 de la section (sinon 80px perdus deux fois)", () => {
     render(<Hero />);
-    const logo = screen.getByAltText(/coaching et formations/i);
+    const logo = screen.getByRole("img", { name: /coaching et formations/i });
 
-    expect(logo.className).not.toMatch(/(?<!md:)(?<!lg:)(?<!xl:)\bmt-20\b/);
+    expect(logo.getAttribute("class") ?? "").not.toMatch(/(?<!md:)(?<!lg:)(?<!xl:)\bmt-20\b/);
   });
 });
 
@@ -46,3 +46,14 @@ describe("Hero — bloc \"particulier\" aligné comme le reste du contenu sur mo
     expect(bloc.className).not.toMatch(/(?<!md:)\btext-left\b/);
   });
 });
+
+describe("Hero — logo variante C", () => {
+  it("affiche le logo vectoriel avec ses étincelles animées", () => {
+    const { container } = render(<Hero />);
+    const logo = screen.getByRole("img", { name: /coaching et formations/i });
+    expect(logo.tagName.toLowerCase()).toBe("svg");
+    expect(container.querySelectorAll("[data-sparkle]")).toHaveLength(3);
+    expect(container.querySelector("[data-sparkle]")).toHaveClass("motion-safe:animate-elan-sparkle");
+  });
+});
+

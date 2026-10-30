@@ -133,3 +133,13 @@ describe("ContactForm — UX : confirmation visuelle après envoi", () => {
     });
   });
 });
+
+describe("ContactForm — bouton d'envoi lisible au survol", () => {
+  it("passe en orange foncé au survol (texte blanc ≥ 4.5:1)", () => {
+    render(<ContactForm />);
+    const classes = screen.getByRole("button", { name: /envoyer/i }).className.split(/\s+/);
+    expect(classes).toContain("hover:bg-accent-ink");
+    expect(classes).not.toContain("hover:bg-accent");
+  });
+});
+

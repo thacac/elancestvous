@@ -50,7 +50,7 @@ export default function About() {
               alt="Coralie Mathorel, coach professionnelle certifiée et ancienne soignante, à Toulouse"
             />
             <div className="absolute left-0 md:-bottom-15 right-0 p-6 text-center">
-              <p className="text-primary font-serif text-lg md:text-xl italic">
+              <p className="text-primary font-display text-lg md:text-xl italic">
                 &quot;Accompagnement humain.&quot;
               </p>
             </div>
@@ -66,7 +66,7 @@ export default function About() {
                 <p>
                   <strong>
                     C&apos;est ce qui fait aujourd&apos;hui ma force :&nbsp;
-                    <span className="text-accent font-serif font-extrabold text-2xl italic">
+                    <span className="text-accent font-display font-extrabold text-2xl italic">
                       je ne parle pas de théorie, je parle de votre réalité.
                     </span>
                   </strong>

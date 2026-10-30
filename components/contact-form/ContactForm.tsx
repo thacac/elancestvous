@@ -256,7 +256,7 @@ export default function ContactForm({
         <Button
           type="submit"
           disabled={!isValid || isSubmitting}
-          className={`  ${buttonVariants({ size: "lg" })} w-full hover:bg-accent transition shadow-lg`}
+          className={`  ${buttonVariants({ size: "lg" })} w-full hover:bg-accent-ink transition shadow-lg`}
         >
           {isSubmitting ? (
             "Envoi…"
