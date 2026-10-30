@@ -1,8 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 
+import { Logo } from "@/components/charte";
 import { buttonVariants } from "@/components/ui/button";
 
 export default function Hero() {
@@ -49,12 +49,11 @@ export default function Hero() {
           </div>
         </div>
         <div className="flex-1 flex items-center justify-center order-first lg:order-last mt-8 md:mt-0">
-          <Image
-            src="/logo_elancestvous.png"
-            width={400}
-            height={400}
-            className="max-w-1/2 mb-10 md:max-w-2/3 md:mt-0 xl:max-w-2xl"
-            alt="Élan C’est Vous – coaching et formations pour les professionnels de santé"
+          <Logo
+            variant="sparkles"
+            animated
+            title="Élan C’est Vous – coaching et formations pour les professionnels de santé"
+            className="w-1/2 max-w-md h-auto mb-10 md:w-2/3 md:mt-0"
           />
         </div>
       </div>

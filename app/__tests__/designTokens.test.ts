@@ -65,3 +65,11 @@ describe("globals.css — typographie", () => {
     expect(offenders).toEqual([]);
   });
 });
+
+describe("globals.css — animation des étincelles du logo", () => {
+  it("déclare l'utilitaire animate-elan-sparkle et ses keyframes", () => {
+    expect(themeToken("animate-elan-sparkle")).toMatch(/^elan-sparkle /);
+    expect(globalsCss).toMatch(/@keyframes elan-sparkle/);
+  });
+});
+

@@ -30,6 +30,18 @@ describe("Navbar on a non-home page (audit: crawlable navigation everywhere)", (
     ).toHaveAttribute("href", "/");
   });
 
+  it("uses the vector logo (orange dot, no sparkles), decorative next to the name", () => {
+    const { container } = render(<Navbar />);
+    const link = screen.getByRole("link", { name: /élan c.est vous/i });
+    // Nom lisible (le texte visible « ÉlanC’estVous » est collé), sans
+    // « logo » en doublon.
+    expect(link).toHaveAccessibleName("Élan C’est Vous, accueil");
+    const svg = link.querySelector("svg");
+    expect(svg).toHaveAttribute("aria-hidden", "true");
+    expect(svg?.querySelector("[data-logo-dot]")).not.toBeNull();
+    expect(container.querySelector("img[src*='logo_elancestvous']")).toBeNull();
+  });
+
   it("renders the Particuliers CTA as a real link", () => {
     render(<Navbar />);
     const ctas = screen.getAllByRole("link", { name: /particuliers/i });

@@ -107,6 +107,20 @@ h3,
   --color-sage: #e9f4e7;
   --color-sage-ink: #3f7a3a;
   --color-lilac: #efecf9;
+  /* Scintillement des étincelles du logo (Hero), décalé par étincelle. */
+  --animate-elan-sparkle: elan-sparkle 2.8s ease-in-out infinite;
+  @keyframes elan-sparkle {
+    0%,
+    60%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    75% {
+      opacity: 0.25;
+      transform: scale(0.55);
+    }
+  }
   /* Pastilles de catégorie par famille de formation (catalogue, rattrapage
      design Chantier B — cf. canevas Artifact "Home Élan C'est Vous —
      refonte piliers", artboard Formations-Catalogue). */
