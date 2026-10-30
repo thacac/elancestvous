@@ -3,6 +3,8 @@ stepsCompleted: [1, 2, 3]
 inputDocuments:
   - _bmad-output/planning-artifacts/prds/prd-elancestvous-2026-09-25/prd.md
   - _bmad-output/planning-artifacts/architecture/architecture-elancestvous-2026-09-26/ARCHITECTURE-SPINE.md
+  - _bmad-output/planning-artifacts/ux-designs/ux-elancestvous-2026-09-23/DESIGN.md
+  - _bmad-output/planning-artifacts/ux-designs/ux-elancestvous-2026-09-23/EXPERIENCE.md
 ---
 
 # elancestvous - Epic Breakdown
@@ -69,6 +71,16 @@ NFR3: Intégrité des données Qualiopi — Aucune donnée factuelle (tarif, dur
 
 Aucun document UX inclus dans cette extraction. Le run `bmad-ux` `ux-elancestvous-2026-09-23` est resté `status: draft`, abandonné après deux essais de direction visuelle rejetés (bento SaaS, éditorial noir & blanc), et exclu sur confirmation explicite de l'utilisateur. La référence visuelle réelle de ce chantier est l'ensemble des maquettes Design Artifact validées itérativement dans la session PRD/Architecture (registre "flat design, tuiles blanches à trait fin, icônes SVG en aplat, CTA à fond teinté") — non structurées comme document UX BMAD, donc non extraites sous forme d'UX-DR ici. Leurs contraintes testables sont déjà couvertes par NFR1, NFR2, FR11 et FR12 ci-dessus.
 
+**Mise à jour 2026-10-30, charte inspirée des slides.** Le run `ux-elancestvous-2026-09-23` a été repris en mode Update et finalisé (`status: final`) à partir des slides de formation fournies par Cédric. `DESIGN.md` et `EXPERIENCE.md` font désormais référence et **remplacent le registre « tuiles blanches à trait fin »** de la PRD §4.6. FR11 (3 tuiles de poids égal), FR12 (bouton secondaire teinté, jamais de pill), NFR1, NFR2 et NFR3 restent en vigueur. Exigences UX extraites pour l'Epic 4 :
+
+UX-DR1: Chaque section restylée s'ouvre sur un `SectionBanner` qui rend un vrai titre Hn, au niveau imposé par la hiérarchie de la page.
+UX-DR2: Les groupes de contenus parallèles utilisent des `PastelCard` aux teintes alternées (ciel, pêche, vert d'eau, lilas), jamais une rangée uniforme.
+UX-DR3: Le texte orange de taille courante et les boutons orange utilisent `accent-ink` ; l'orange vif est réservé au décor (contraste ≥ 4.5:1).
+UX-DR4: Les démarches ordonnées utilisent `Steps` (`<ol role="list">`), les messages à retenir `KeyMessage` (`role="note"`), au plus un par section.
+UX-DR5: Le décor (vagues, étincelles, pinceau, flèches, icônes de bandeau) est `aria-hidden`, et aucune animation automatique ne dure plus de 5 s.
+UX-DR6: Aucun titre, texte indexé ni URL n'est modifié pour les besoins du style (SEO d'abord) ; un contenu ajouté (étapes, repères chiffrés) est sourcé et validé.
+UX-DR7: Les valeurs Tailwind restent sur l'échelle par défaut (NFR1) ; les valeurs arbitraires existantes de `Bubble` sont résorbées.
+
 ### FR Coverage Map
 
 ```
@@ -90,6 +102,8 @@ FR12: Epic 1 - Bouton CTA secondaire
 - UJ-1 (Amandine, formation QVCT) : se ferme avec Epic 1 + Epic 2.
 - UJ-2 (Marc, obligation légale via blog) : se ferme avec Epic 2 + Epic 3 (le maillage retour n'existe qu'à Epic 3).
 - UJ-3 (Sophie compare des formations sur le catalogue) : se ferme avec Epic 1 seul — n'exige pas la nouvelle nav.
+
+**Couverture UX-DR (Epic 4, ajouté le 2026-10-30)** : UX-DR1 à UX-DR7 → Epic 4 ; chaque story 4.2 à 4.6 applique UX-DR1 à UX-DR6 sur son périmètre, et la story 4.1 couvre UX-DR5 et UX-DR7.
 
 ## Epic List
 
@@ -137,6 +151,18 @@ cible d'affichage. Mécanisme (`ArticlesBlogLiesBloc`, `lib/relatedArticles.ts`)
 déjà générique et inchangé — épique volontairement fin. Ferme UJ-2 en
 combinaison avec Epic 2 (le hub seul ne suffit pas sans le retargeting du
 pilier et le nouveau pilier F).
+
+### Epic 4: Charte inspirée des slides de formation
+Un visiteur retrouve sur tout le site l'expérience des slides de formation :
+bandeaux pétrole, cartes pastel, questions qui l'interpellent, logo variante
+C. Le référencement et le contenu indexé restent intacts.
+**UX-DR couverts:** UX-DR1 à UX-DR7 (voir `ux-designs/ux-elancestvous-2026-09-23/DESIGN.md` et `EXPERIENCE.md`)
+**Implementation Notes:** S'appuie sur les pages livrées par les Epics 1 à 3
+sans en changer les URLs ni le contenu. La story 4.1 est livrée (PR #133). Les
+stories 4.2 à 4.6 sont indépendantes entre elles et peuvent être livrées dans
+n'importe quel ordre, mais **ne pas promouvoir `validation` → `master` avant
+4.2** : sans elle, la production mélangerait la nouvelle typographie et les
+anciennes mises en page. Une PR par story, vers `validation`.
 
 ## Epic 1: Catalogue de formations Qualiopi
 
@@ -505,3 +531,134 @@ So that je découvre l'offre associée sans chercher, et je peux approfondir via
 **Given** un hub Famille avec pilier mais sans encore aucun article publié dessus
 **When** on le visite
 **Then** rien ne s'affiche à cet endroit non plus, plutôt qu'un bloc vide visible
+
+## Epic 4: Charte inspirée des slides de formation
+
+Un visiteur retrouve sur tout le site l'expérience des slides de formation,
+sans perte de référencement. Référence : `DESIGN.md` / `EXPERIENCE.md` du run
+`ux-elancestvous-2026-09-23` (finalisé le 2026-10-30).
+
+### Story 4.1: Fondations de la charte et logo variante C
+
+As a Cédric, qui pilote le site,
+I want disposer de la palette, des polices et des composants de la charte, ainsi que du nouveau logo,
+So that chaque page puisse ensuite être restylée de façon cohérente.
+
+**Statut :** livrée, PR #133 vers `validation`.
+
+**Acceptance Criteria:**
+
+**Given** `app/globals.css` et `app/fonts.ts`
+**When** le site se charge
+**Then** les tokens pétrole, orange, accent, accent-ink et pastels sont disponibles, et Nunito, Nunito Sans et Kalam sont auto-hébergées via next/font
+
+**Given** `components/charte/`
+**When** une page les importe
+**Then** `SectionBanner`, `KeyMessage`, `Steps`, `PastelCard`/`Chip`, `Bubble`, `Wave`/`Sparkle`/`BrushUnderline` et `Logo` respectent UX-DR1, UX-DR4 et UX-DR5
+
+**Given** le logo
+**When** il s'affiche dans la barre de navigation ou en icône
+**Then** c'est la variante C sans étincelles ; sur l'accueil, les étincelles scintillent deux fois puis se figent
+
+**Given** les boutons orange et le pied de page
+**When** on mesure le contraste du texte
+**Then** il est d'au moins 4.5:1 (UX-DR3)
+
+**Reste à faire (dette UX-DR7)** : la forme et les petites bulles de `Bubble` utilisent encore 3 valeurs arbitraires.
+
+### Story 4.2: Accueil aux couleurs des slides
+
+As a visiteur établissement qui arrive sur l'accueil,
+I want comprendre l'offre et me sentir interpellé comme en formation,
+So that j'ai envie d'en parler à Coralie.
+
+**Acceptance Criteria:**
+
+**Given** l'accueil
+**When** il se charge
+**Then** le Hero garde son H1, son texte et ses deux appels à l'action, avec le logo à étincelles, la bulle « Et vous, comment allez-vous vraiment ? » et la photo ou une illustration de Coralie
+
+**Given** la section des 3 axes
+**When** on la consulte
+**Then** elle s'ouvre sur un `SectionBanner` (h2) et les 3 tuiles restent de poids égal (FR11), en `PastelCard` aux teintes alternées, chacune avec son bouton secondaire (FR12)
+
+**Given** la section « Comment se passe un accompagnement »
+**When** on la consulte
+**Then** elle présente une démarche en 4 étapes via `Steps`, avec un texte validé par Cédric (UX-DR6)
+
+**Given** la fin de page
+**When** on y arrive
+**Then** une bulle-question et un `KeyMessage` mènent au contact, et le pied de page est précédé d'une `Wave`
+
+**Given** le SEO
+**When** on compare avant et après
+**Then** le titre, la meta description, le H1 et les URLs sont inchangés, et la hiérarchie Hn reste valide
+
+### Story 4.3: Hubs Coaching, GAPP et Formations restylés
+
+As a visiteur qui explore un pilier,
+I want retrouver les bandeaux et cartes de la charte sur les pages hub,
+So that le parcours reste cohérent de l'accueil jusqu'au devis.
+
+**Acceptance Criteria:**
+
+**Given** `/coaching`, `/coaching/particuliers`, `/coaching/etablissements`, `/gapp-analyse-pratiques-professionnelles` et `/formations`
+**When** on les consulte
+**Then** chaque section existante s'ouvre sur un `SectionBanner` au niveau Hn d'origine, sans texte supprimé ni réécrit (FR7, UX-DR6)
+
+**Given** les blocs `CtaElan`, `Citation`, `CartesContrastBloc`, `BadgesBloc` et `PublicsCiblesBloc`
+**When** ils s'affichent
+**Then** ils utilisent la charte (pastels, pétrole, `accent-ink`) avec un contraste d'au moins 4.5:1
+
+**Given** la page `/coaching/etablissements` ou le hub Formations
+**When** on y ajoute des repères chiffrés (DREES, TraCov2 2023, publication juin 2025)
+**Then** chaque chiffre affiche sa source, et rien n'est inventé (NFR3)
+
+### Story 4.4: Catalogue, hubs Famille et fiches formation restylés
+
+As a Amandine, référente QVCT,
+I want parcourir le catalogue et les fiches dans la nouvelle charte,
+So that je trouve, compare et demande un devis aussi facilement qu'avant.
+
+**Acceptance Criteria:**
+
+**Given** le catalogue `/formations` et les hubs Famille
+**When** on les consulte
+**Then** les pastilles de filtre restent des `<Link>` (AD-5), les cartes de formation passent en `PastelCard` et la section « Formations disponibles » reste en premier (FR8)
+
+**Given** une fiche formation
+**When** on la consulte
+**Then** le programme utilise `Steps` s'il est séquentiel, la fiche pratique Qualiopi et le CTA « Demander un devis » restent visibles, et les placeholders Qualiopi restent visuellement distincts (NFR3)
+
+### Story 4.5: Blog dans la charte
+
+As a Marc, lecteur d'un article,
+I want une lecture confortable avec l'essentiel mis en avant,
+So that je retiens l'idée clé et je découvre l'offre associée.
+
+**Acceptance Criteria:**
+
+**Given** la liste du blog
+**When** on la consulte
+**Then** les cartes d'articles alternent les pastels, sans changer les titres ni les URLs
+
+**Given** un article
+**When** il s'affiche
+**Then** la typographie de lecture est en Nunito Sans, et un `KeyMessage` peut clore l'article si le contenu en fournit un, sans modifier le pipeline de génération ni le flux de validation Discord
+
+### Story 4.6: Liens orange lisibles et dette de la charte
+
+As a visiteur malvoyant,
+I want lire tous les liens orange sans effort,
+So that aucun texte ne passe sous le seuil de contraste.
+
+**Acceptance Criteria:**
+
+**Given** les liens `text-accent` de taille courante (à propos, Hero, fiches)
+**When** on mesure leur contraste
+**Then** ils sont passés en `text-accent-ink` (≥ 4.5:1), et l'orange `accent` ne reste que sur les très grands textes
+
+**Given** `Bubble`
+**When** on inspecte ses classes
+**Then** il n'utilise plus de valeur Tailwind arbitraire (UX-DR7, NFR1)
+
