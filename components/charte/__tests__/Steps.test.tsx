@@ -51,3 +51,54 @@ describe("Steps", () => {
     }
   });
 });
+
+describe("Steps — robustesse (revue)", () => {
+  it("garde la sémantique de liste même sans puces (VoiceOver/Safari)", () => {
+    render(<Steps steps={steps} />);
+    expect(screen.getByRole("list")).toHaveAttribute("role", "list");
+  });
+
+  it("n'a pas de pastille blanc sur orange vif (contraste insuffisant en 18px)", () => {
+    render(<Steps steps={steps} />);
+    for (const item of screen.getAllByRole("listitem")) {
+      expect(item.querySelector("[aria-hidden='true'].bg-accent")).toBeNull();
+    }
+  });
+
+  it("accepte deux étapes de même titre sans avertissement de clé React", () => {
+    const errors: unknown[] = [];
+    const original = console.error;
+    console.error = (...args: unknown[]) => errors.push(args);
+    try {
+      render(
+        <Steps
+          steps={[
+            { title: "On fait le point", description: "Avant" },
+            { title: "On fait le point", description: "Après" },
+          ]}
+        />,
+      );
+    } finally {
+      console.error = original;
+    }
+    expect(errors).toEqual([]);
+  });
+
+  it("accepte une description en bloc (liste) sans l'imbriquer dans un <p>", () => {
+    render(
+      <Steps
+        steps={[
+          {
+            title: "On agit",
+            description: (
+              <ul>
+                <li>Formation</li>
+              </ul>
+            ),
+          },
+        ]}
+      />,
+    );
+    expect(screen.getByText("Formation").closest("p")).toBeNull();
+  });
+});

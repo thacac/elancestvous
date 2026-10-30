@@ -27,3 +27,10 @@ describe("Bubble", () => {
     expect(screen.getByText("Question")).toHaveTextContent(/^Question$/);
   });
 });
+
+describe("Bubble — titre", () => {
+  it("neutralise l'interlettrage serré du h2 global", () => {
+    render(<Bubble as="h2">Question</Bubble>);
+    expect(screen.getByRole("heading")).toHaveClass("tracking-normal!");
+  });
+});

@@ -46,6 +46,8 @@ describe("app/fonts — polices auto-hébergées (next/font)", () => {
 
   it("charge l'italique de Nunito (mots mis en avant dans les titres)", () => {
     expect(optionsOf("Nunito")).toMatchObject({ style: ["normal", "italic"] });
+    // 400 inclus : un texte font-display sans graisse explicite ne doit pas passer en 600.
+    expect(optionsOf("Nunito")?.weight).toContain("400");
   });
 
   it("regroupe les trois variables dans une seule classe à poser sur <html>", () => {

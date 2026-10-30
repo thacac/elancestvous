@@ -40,10 +40,17 @@ describe("PastelCard", () => {
 describe("Chip", () => {
   it.each([
     ["petrol", "bg-petrol"],
-    ["accent", "bg-accent"],
+    ["accent", "bg-accent-ink"],
     ["sage", "bg-sage-ink"],
   ] as const)("pastille %s → %s, texte blanc", (tone, className) => {
     render(<Chip tone={tone}>Formations</Chip>);
     expect(screen.getByText("Formations")).toHaveClass(className, "text-white");
+  });
+});
+
+describe("Chip — contraste", () => {
+  it("n'utilise jamais bg-accent (blanc dessus ≈ 3.5:1, insuffisant en 16px)", () => {
+    render(<Chip tone="accent">Coaching</Chip>);
+    expect(screen.getByText("Coaching")).not.toHaveClass("bg-accent");
   });
 });

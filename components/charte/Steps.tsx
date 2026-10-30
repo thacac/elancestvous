@@ -2,7 +2,6 @@ import { cn } from "@/lib/utils";
 
 import type { ReactNode } from "react";
 
-
 export interface Step {
   title: string;
   description: ReactNode;
@@ -16,17 +15,30 @@ interface StepsProps {
 }
 
 // Couleurs qui tournent comme dans les slides (1 orange, 2 pétrole, 3 vert…).
-const BADGE_TONES = ["bg-accent", "bg-petrol", "bg-sage-ink", "bg-primary"];
+// accent-ink et non accent : blanc sur accent ≈ 3.5:1, insuffisant en 18px.
+const BADGE_TONES = ["bg-accent-ink", "bg-petrol", "bg-sage-ink", "bg-primary"];
 const CARD_TONES = ["bg-sky", "bg-peach"];
 
 // Étapes numérotées reliées par des flèches, à réserver aux vraies démarches.
 // L'ordre est porté par la liste ordonnée ; numéros et flèches sont décoratifs.
-export function Steps({ steps, headingLevel: Heading = "h3", className }: StepsProps) {
+export function Steps({
+  steps,
+  headingLevel: Heading = "h3",
+  className,
+}: StepsProps) {
   return (
-    <ol className={cn("grid list-none gap-6 p-0 sm:grid-cols-2 lg:auto-cols-fr lg:grid-flow-col lg:grid-cols-none", className)}>
+    // role="list" explicite : Safari/VoiceOver ignore la sémantique d'une liste
+    // dont les puces sont retirées (list-none).
+    <ol
+      role="list"
+      className={cn(
+        "grid list-none gap-6 p-0 sm:grid-cols-2 lg:auto-cols-fr lg:grid-flow-col lg:grid-cols-none",
+        className,
+      )}
+    >
       {steps.map((step, index) => (
         <li
-          key={step.title}
+          key={index}
           className={cn(
             "relative flex flex-col items-center gap-2 rounded-3xl px-4 py-5 text-center",
             CARD_TONES[index % CARD_TONES.length],
@@ -56,8 +68,10 @@ export function Steps({ steps, headingLevel: Heading = "h3", className }: StepsP
           >
             {index + 1}
           </span>
-          <Heading className="font-display! text-lg! font-black! text-primary! m-0! max-w-none!">{step.title}</Heading>
-          <p className="text-sm text-stone-600">{step.description}</p>
+          <Heading className="font-display! text-lg! font-black! text-primary! m-0! max-w-none!">
+            {step.title}
+          </Heading>
+          <div className="text-sm text-stone-600">{step.description}</div>
         </li>
       ))}
     </ol>

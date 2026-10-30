@@ -2,7 +2,6 @@ import { cn } from "@/lib/utils";
 
 import type { ReactNode } from "react";
 
-
 // Éléments décoratifs de la charte inspirée des slides de formation. Tous
 // masqués aux technologies d'assistance : ils n'apportent aucun contenu.
 // Couleurs via les classes dérivées des tokens de app/globals.css, jamais en
@@ -22,11 +21,20 @@ export function Wave({ position = "bottom", className }: WaveProps) {
       focusable="false"
       viewBox="0 0 1200 64"
       preserveAspectRatio="none"
-      className={cn("block h-12 w-full md:h-16", position === "top" && "-scale-y-100", className)}
+      className={cn(
+        "block h-12 w-full md:h-16",
+        position === "top" && "-scale-y-100",
+        className,
+      )}
     >
       <path d="M0 22C220 4 420 40 700 54V64H0Z" className="fill-teal-soft" />
       <path d="M460 64C780 56 1000 30 1200 6V64Z" className="fill-petrol" />
-      <path d="M0 48C380 30 820 66 1200 18" fill="none" strokeWidth="4" className="stroke-orange" />
+      <path
+        d="M0 48C380 30 820 66 1200 18"
+        fill="none"
+        strokeWidth="4"
+        className="stroke-orange"
+      />
     </svg>
   );
 }
@@ -52,7 +60,13 @@ export function Sparkle({ className }: { className?: string }) {
 
 // Trait de pinceau orange sous un mot clé. Le texte reste un nœud texte
 // ordinaire dans le flux (indexé tel quel), le trait est un SVG masqué.
-export function BrushUnderline({ children, className }: { children: ReactNode; className?: string }) {
+export function BrushUnderline({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
   return (
     <span className={cn("relative inline-block", className)}>
       {children}

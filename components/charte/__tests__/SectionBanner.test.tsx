@@ -43,3 +43,21 @@ describe("SectionBanner", () => {
     }
   });
 });
+
+// Revue : la forme pétrole venait d'un SVG étiré dont le bord descendait sous
+// la moitié droite du texte → titre blanc sur fond blanc sur mobile. Le texte
+// doit toujours reposer sur un aplat pétrole, la vague étant dessinée dessous.
+describe("SectionBanner — lisibilité", () => {
+  it("pose titre et sous-titre sur un aplat pétrole plein", () => {
+    render(<SectionBanner title="Mes axes" subtitle="Sous-titre" />);
+    expect(screen.getByRole("heading").closest(".bg-petrol")).not.toBeNull();
+    expect(screen.getByText("Sous-titre").closest(".bg-petrol")).not.toBeNull();
+  });
+
+  it("dessine la vague après le bloc de texte, jamais en fond absolu derrière lui", () => {
+    const { container } = render(<SectionBanner title="Mes axes" />);
+    for (const svg of container.querySelectorAll("svg")) {
+      expect(svg).not.toHaveClass("absolute");
+    }
+  });
+});

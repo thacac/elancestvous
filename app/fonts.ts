@@ -7,7 +7,7 @@ import { Kalam, Nunito, Nunito_Sans } from "next/font/google";
 // Titres : arrondie et chaleureuse, comme les bandeaux des slides.
 const nunito = Nunito({
   subsets: ["latin"],
-  weight: ["600", "700", "800", "900"],
+  weight: ["400", "600", "700", "800", "900"],
   style: ["normal", "italic"],
   display: "swap",
   variable: "--font-nunito",
