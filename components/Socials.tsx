@@ -5,9 +5,11 @@ import { FC } from "react";
 
 type SocialsProps = {
   className?: string;
+  /** Couleur des liens, à adapter au fond (ex. texte clair sur pétrole). */
+  linkClassName?: string;
 };
 
-const Socials: FC<SocialsProps> = ({ className = "" }) => {
+const Socials: FC<SocialsProps> = ({ className = "", linkClassName = "text-primary hover:text-gray-500" }) => {
   const socialsList = [
     // {
     //   name: "Facebook",
@@ -52,7 +54,7 @@ const Socials: FC<SocialsProps> = ({ className = "" }) => {
           rel="noopener noreferrer"
           title={`Elancestvous ${social.name} official profile`}
           href={social.href}
-          className="text-primary hover:text-gray-500"
+          className={linkClassName}
         >
           <span className="sr-only">{social.name}</span>
           {social.svg}

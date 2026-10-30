@@ -38,3 +38,28 @@ describe("Footer on a non-home page (audit: crawlable links everywhere)", () => 
     ).toHaveLength(0);
   });
 });
+
+// Charte slides : pied de page pétrole, texte clair. Sur l'orange de la
+// nouvelle palette, le texte bleu nuit tombait à ≈ 4:1 (< 4.5:1 requis pour
+// ce texte de petite taille) ; blanc sur pétrole ≈ 9.5:1.
+describe("Footer — charte slides (contraste)", () => {
+  it("utilise le fond pétrole, plus l'orange", () => {
+    const { container } = render(<Footer />);
+    const footer = container.querySelector("footer");
+    expect(footer).toHaveClass("bg-petrol");
+    expect(footer).not.toHaveClass("bg-accent");
+  });
+
+  it("écrit liens et mentions en clair, jamais en bleu nuit sur le pétrole", () => {
+    const { container } = render(<Footer />);
+    for (const name of [/mentions légales/i, /politique de confidentialité/i, /linkedin/i]) {
+      const link = screen.getByRole("link", { name });
+      expect(link).toHaveClass("text-white");
+      expect(link).not.toHaveClass("text-primary");
+    }
+    for (const paragraph of container.querySelectorAll("footer p")) {
+      expect(paragraph.className).not.toMatch(/text-primary/);
+    }
+  });
+});
+
