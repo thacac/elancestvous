@@ -126,3 +126,18 @@ describe("JSON-LD — logo de l'organisation", () => {
   });
 });
 
+// Revue Copilot : un attribut sans valeur (data-logo-dot) rendait les SVG
+// invalides en XML, illisibles par les logiciels stricts (supports de
+// formation, outils de mise en page).
+describe.each(["public/logo_elancestvous.svg", "public/logo_elancestvous_etincelles.svg"])(
+  "%s",
+  (file) => {
+    it("est un XML valide (ouvrable seul, hors navigateur)", () => {
+      const xml = readFileSync(join(root, file), "utf8");
+      const doc = new DOMParser().parseFromString(xml, "image/svg+xml");
+      expect(doc.getElementsByTagName("parsererror")).toHaveLength(0);
+      expect(doc.documentElement.nodeName).toBe("svg");
+    });
+  },
+);
+
