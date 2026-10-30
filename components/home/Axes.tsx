@@ -1,13 +1,9 @@
+import Image from "next/image";
 import Link from "next/link";
 import { FC } from "react";
 
 import { SectionBanner } from "@/components/charte";
 import { buttonVariants } from "@/components/ui/button";
-import {
-  IconCoachingIllustration,
-  IconFormationsIllustration,
-  IconGappIllustration,
-} from "@/components/ui/icons-pillars";
 
 // Icône au trait du bandeau (cible), comme sur les slides de formation.
 function IconTarget() {
@@ -35,8 +31,15 @@ const Axes: FC = () => {
           aria-label="Découvrir les formations"
           className="bg-white border-2 border-stone-100 rounded-3xl overflow-hidden flex flex-col hover:border-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring transition-colors"
         >
-          <div className="flex items-center justify-center h-[190px]">
-            <IconFormationsIllustration className="w-40 h-40" />
+          <div className="flex items-center justify-center py-6">
+            <Image
+              src="/illustrations/soignantes-atelier-formation.jpg"
+              alt="Illustration : une équipe de soignants en atelier de formation autour d'une table"
+              width={160}
+              height={160}
+              sizes="160px"
+              className="size-40 rounded-full object-cover"
+            />
           </div>
           <div className="bg-sky p-6 flex flex-col gap-2.5 flex-1">
             <h3 className="font-display! font-extrabold! text-2xl! text-primary! m-0! max-w-none!">Formations</h3>
@@ -56,8 +59,15 @@ const Axes: FC = () => {
           aria-label="Découvrir le coaching"
           className="bg-white border-2 border-stone-100 rounded-3xl overflow-hidden flex flex-col hover:border-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring transition-colors"
         >
-          <div className="flex items-center justify-center h-[190px]">
-            <IconCoachingIllustration className="w-40 h-40" />
+          <div className="flex items-center justify-center py-6">
+            <Image
+              src="/illustrations/soignante-pensive-coaching.jpg"
+              alt="Illustration : une soignante pensive, le menton dans les mains"
+              width={160}
+              height={160}
+              sizes="160px"
+              className="size-40 rounded-full object-cover"
+            />
           </div>
           <div className="bg-peach p-6 flex flex-col gap-2.5 flex-1">
             <h3 className="font-display! font-extrabold! text-2xl! text-primary! m-0! max-w-none!">
@@ -80,8 +90,15 @@ const Axes: FC = () => {
           aria-label="Découvrir les GAPP"
           className="bg-white border-2 border-stone-100 rounded-3xl overflow-hidden flex flex-col hover:border-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring transition-colors"
         >
-          <div className="flex items-center justify-center h-[190px]">
-            <IconGappIllustration className="w-40 h-40" />
+          <div className="flex items-center justify-center py-6">
+            <Image
+              src="/illustrations/groupe-analyse-pratiques-cercle.jpg"
+              alt="Illustration : un groupe de professionnels assis en cercle, en discussion"
+              width={160}
+              height={160}
+              sizes="160px"
+              className="size-40 rounded-full object-cover"
+            />
           </div>
           <div className="bg-sky p-6 flex flex-col gap-2.5 flex-1">
             <h3 className="font-display! font-extrabold! text-2xl! text-primary! m-0! max-w-none!">

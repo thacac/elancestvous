@@ -49,3 +49,15 @@ describe("Accompagnement — ancre", () => {
   });
 });
 
+describe("Accompagnement — petites soignantes des étapes", () => {
+  it("place un dessin décoratif différent au-dessus de chaque étape", () => {
+    render(<Accompagnement />);
+    const items = within(screen.getByRole("list")).getAllByRole("listitem");
+    const sources = items.map((item) => item.querySelector("img")!.getAttribute("src"));
+    ["soignante-echange", "soignante-reflexion", "soignante-affirmation", "soignante-apaisee"].forEach(
+      (fichier, i) => expect(sources[i]).toContain(fichier),
+    );
+    for (const item of items) expect(item.querySelector("img")).toHaveAttribute("alt", "");
+  });
+});
+

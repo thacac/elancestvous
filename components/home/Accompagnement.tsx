@@ -2,24 +2,29 @@ import { SectionBanner, Steps } from "@/components/charte";
 
 // Déroulé d'un accompagnement (Story 4.2), texte validé par Cédric le
 // 2026-10-30. Ne pas promettre de premier échange gratuit ou « sans
-// engagement » tant que Coralie ne l'a pas confirmé.
+// engagement » tant que Coralie ne l'a pas confirmé. Dessins tirés des
+// slides de formation (choix « tout en dessin »), un différent par étape.
 const ETAPES = [
   {
     title: "On échange",
+    image: "/illustrations/soignante-echange.jpg",
     description: "Un premier échange pour comprendre votre contexte, vos équipes et ce qui vous amène.",
   },
   {
     title: "On fait le point",
+    image: "/illustrations/soignante-reflexion.jpg",
     description:
       "J'analyse avec vous les besoins, les sources de tension et les ressources déjà présentes dans l'équipe.",
   },
   {
     title: "On agit",
+    image: "/illustrations/soignante-affirmation.jpg",
     description:
       "Je vous propose un accompagnement sur-mesure, en formation, coaching ou GAPP, adapté au rythme de votre établissement.",
   },
   {
     title: "On ancre dans la durée",
+    image: "/illustrations/soignante-apaisee.jpg",
     description:
       "On fait le bilan ensemble et on définit ce qui sera suivi dans le temps, pour que les changements tiennent.",
   },

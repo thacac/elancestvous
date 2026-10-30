@@ -156,3 +156,4 @@ Les maquettes de référence sont la proposition de charte (https://claude.ai/ar
 | Étapes numérotées pour une vraie démarche ordonnée | Des numéros sur une simple liste de points |
 | Échelle Tailwind par défaut (NFR1) | Des valeurs arbitraires `-[…]` |
 | Garder titres, textes et URLs existants | Modifier du contenu indexé pour « faire rentrer » un design |
+| Images : uniquement des dessins tirés des slides, en médaillon rond (`public/illustrations/`) | Mélanger photos et dessins ; photos de banque d'images. Exceptions : vraies photos de Coralie, couvertures du blog |

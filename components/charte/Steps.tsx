@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 import { cn } from "@/lib/utils";
 
 import type { ReactNode } from "react";
@@ -5,6 +7,8 @@ import type { ReactNode } from "react";
 export interface Step {
   title: string;
   description: ReactNode;
+  /** Dessin décoratif (médaillon) au-dessus du numéro, ex. /illustrations/… */
+  image?: string;
 }
 
 interface StepsProps {
@@ -58,6 +62,16 @@ export function Steps({
             >
               <path d="M5 12h13M13 6l6 6-6 6" />
             </svg>
+          )}
+          {step.image && (
+            <Image
+              src={step.image}
+              alt=""
+              width={80}
+              height={80}
+              sizes="80px"
+              className="size-20 rounded-full border-4 border-white object-cover"
+            />
           )}
           <span
             aria-hidden="true"

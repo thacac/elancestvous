@@ -102,3 +102,24 @@ describe("Steps — robustesse (revue)", () => {
     expect(screen.getByText("Formation").closest("p")).toBeNull();
   });
 });
+
+describe("Steps — illustration facultative", () => {
+  it("affiche l'image de l'étape en médaillon décoratif, au-dessus du numéro", () => {
+    render(
+      <Steps
+        steps={[{ title: "On échange", description: "Texte", image: "/illustrations/soignante-echange.jpg" }]}
+      />,
+    );
+    const item = screen.getByRole("listitem");
+    const image = item.querySelector("img")!;
+    expect(image.getAttribute("src")).toContain("soignante-echange");
+    expect(image).toHaveAttribute("alt", "");
+    expect(image).toHaveClass("rounded-full");
+  });
+
+  it("ne rend aucune image quand l'étape n'en a pas", () => {
+    render(<Steps steps={[{ title: "On échange", description: "Texte" }]} />);
+    expect(screen.getByRole("listitem").querySelector("img")).toBeNull();
+  });
+});
+

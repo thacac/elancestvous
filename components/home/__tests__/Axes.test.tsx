@@ -136,3 +136,25 @@ describe("Axes — revue Story 4.2", () => {
   });
 });
 
+// Story 4.2 : illustrations dessinées tirées des slides, en médaillon rond.
+describe("Axes — illustrations des tuiles", () => {
+  it.each([
+    [/découvrir les formations/i, "soignantes-atelier-formation"],
+    [/découvrir le coaching/i, "soignante-pensive-coaching"],
+    [/découvrir les gapp/i, "groupe-analyse-pratiques-cercle"],
+  ])("la tuile %s affiche son dessin en médaillon, avec un texte alternatif", (nom, fichier) => {
+    render(<Axes />);
+    const image = screen.getByRole("link", { name: nom }).querySelector("img")!;
+    expect(image.getAttribute("src")).toContain(fichier);
+    expect(image.getAttribute("alt")?.length).toBeGreaterThan(10);
+    expect(image).toHaveClass("rounded-full");
+  });
+
+  it("n'utilise plus les pictogrammes plats", () => {
+    const { container } = render(<Axes />);
+    for (const tuile of container.querySelectorAll(".grid > a")) {
+      expect(tuile.querySelector("svg")).toBeNull();
+    }
+  });
+});
+
