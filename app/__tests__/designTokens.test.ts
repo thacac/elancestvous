@@ -73,3 +73,16 @@ describe("globals.css — animation des étincelles du logo", () => {
   });
 });
 
+// Revue (WCAG 2.2.2) : une animation qui démarre seule doit s'arrêter en
+// moins de 5 s, sinon il faut un bouton pause. On scintille quelques fois au
+// chargement puis on se fige.
+describe("globals.css — le scintillement s'arrête de lui-même", () => {
+  it("n'est pas infini et dure moins de 5 s, décalage des étincelles compris", () => {
+    const token = themeToken("animate-elan-sparkle") ?? "";
+    expect(token).not.toMatch(/infinite/);
+    const [, duration, iterations] = token.match(/^elan-sparkle ([\d.]+)s \S+ (\d+)/) ?? [];
+    const maxStagger = 0.5; // 2 × 0.25 s (components/charte/Logo.tsx)
+    expect(Number(duration) * Number(iterations) + maxStagger).toBeLessThanOrEqual(5);
+  });
+});
+

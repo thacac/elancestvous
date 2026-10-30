@@ -43,8 +43,8 @@ export default function JsonLd() {
       logo: {
         "@type": "ImageObject",
         url: `${SITE}/logo_elancestvous.png`,
-        width: 521,
-        height: 521,
+        width: 512,
+        height: 512,
       },
       image: {
         "@type": "ImageObject",

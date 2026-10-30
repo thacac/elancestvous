@@ -2,9 +2,12 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { inflateSync } from "node:zlib";
 
+import { render } from "@testing-library/react";
+import { createElement } from "react";
 import { describe, expect, it } from "vitest";
 
 import { LOGO_LETTER_PATH } from "@/components/charte/logoPath";
+import JsonLd from "@/components/JsonLd";
 
 // Les fichiers statiques du logo (données structurées, icônes d'onglet et de
 // téléphone) sont générés depuis le même tracé vectoriel que le composant
@@ -94,3 +97,32 @@ describe.each([
     expect(b).toBeLessThan(80);
   });
 });
+
+describe.each([
+  ["app/favicon-32x32.png", 32],
+  ["app/favicon-16x16.png", 16],
+])("%s", (file, size) => {
+  it(`fait ${size}×${size} px`, () => {
+    const { width, height } = pixel(file, 0, 0);
+    expect([width, height]).toEqual([size, size]);
+  });
+});
+
+// Revue : le PNG régénéré fait 512 px alors que les données structurées
+// annonçaient encore 521 px → incohérence signalée à Google.
+describe("JSON-LD — logo de l'organisation", () => {
+  it("déclare les dimensions réelles de public/logo_elancestvous.png", () => {
+    const { container } = render(createElement(JsonLd));
+    const script = container.querySelector('script[type="application/ld+json"]')!;
+    const graph = JSON.parse(script.innerHTML)["@graph"] as Array<Record<string, unknown>>;
+    const logo = graph.find((node) => node["@type"] === "ProfessionalService")!.logo as {
+      url: string;
+      width: number;
+      height: number;
+    };
+    expect(logo.url).toBe("https://elancestvous.fr/logo_elancestvous.png");
+    const { width, height } = pixel("public/logo_elancestvous.png", 0, 0);
+    expect([logo.width, logo.height]).toEqual([width, height]);
+  });
+});
+
