@@ -67,6 +67,34 @@ describe("/formations — pastilles de filtre", () => {
   });
 });
 
+// Règle « le SEO, c'est d'abord le contenu » (Cédric, 2026-10-31) : on peut
+// ajouter un titre utile, jamais modifier un titre existant.
+describe("/formations — bandeau de la liste des fiches", () => {
+  it("ouvre la liste par un bandeau « Toutes nos formations » (h2), filtres et cartes dans la même section", async () => {
+    await renderCatalogue();
+    const titre = screen.getByRole("heading", { level: 2, name: "Toutes nos formations" });
+    expect(titre.closest("header")?.querySelector(".bg-petrol")).not.toBeNull();
+    const section = titre.closest("section")!;
+    expect(within(section).getByRole("navigation", { name: "Filtre par catégorie" })).toBeInTheDocument();
+    expect(within(section).getByRole("list", { name: "Formations du catalogue" })).toBeInTheDocument();
+  });
+
+  it("passe les titres de carte en h3 sous ce bandeau, textes inchangés", async () => {
+    await renderCatalogue();
+    expect(screen.getByRole("heading", { level: 3, name: "Diagnostic et plan d'action QVCT" })).toBeInTheDocument();
+    expect(screen.getAllByRole("heading", { level: 3, name: "Bientôt disponible" })).toHaveLength(2);
+  });
+
+  it("illustre les cartes « Bientôt disponible » du bloc-notes, en décor", async () => {
+    await renderCatalogue();
+    screen.getAllByRole("heading", { level: 3, name: "Bientôt disponible" }).forEach((h) => {
+      const image = h.closest("li")!.querySelector("img")!;
+      expect(image).toHaveAttribute("alt", "");
+      expect(decodeURIComponent(image.getAttribute("src")!)).toContain("bloc-notes-stylo.jpg");
+    });
+  });
+});
+
 describe("/formations — grille en cartes pastel", () => {
   it("liste fiches et familles à venir en cartes ciel / pêche alternées", async () => {
     await renderCatalogue();
@@ -79,20 +107,20 @@ describe("/formations — grille en cartes pastel", () => {
 
   it("garde la pastille de famille visible sur le pastel (bordure de sa couleur de texte)", async () => {
     await renderCatalogue();
-    const carte = screen.getByRole("heading", { level: 2, name: "Diagnostic et plan d'action QVCT" }).closest("li")!;
+    const carte = screen.getByRole("heading", { level: 3, name: "Diagnostic et plan d'action QVCT" }).closest("li")!;
     const pastille = within(carte).getByText("Prévention des RPS et QVCT");
     expect(pastille).toHaveClass("bg-cat-prevention", "border", "border-cat-prevention-foreground");
   });
 
   it("affiche la durée dans une couleur lisible sur pastel (≥ 4.5:1)", async () => {
     await renderCatalogue();
-    const carte = screen.getByRole("heading", { level: 2, name: "Diagnostic et plan d'action QVCT" }).closest("li")!;
+    const carte = screen.getByRole("heading", { level: 3, name: "Diagnostic et plan d'action QVCT" }).closest("li")!;
     expect(within(carte).getByText("2 jours")).toHaveClass("text-primary/80");
   });
 
   it("distingue la carte « Bientôt disponible » d'une vraie fiche (bordure pointillée)", async () => {
     await renderCatalogue();
-    const cartes = screen.getAllByRole("heading", { level: 2, name: "Bientôt disponible" }).map((h) => h.closest("li")!);
+    const cartes = screen.getAllByRole("heading", { level: 3, name: "Bientôt disponible" }).map((h) => h.closest("li")!);
     expect(cartes).toHaveLength(2);
     cartes.forEach((carte) => expect(carte).toHaveClass("border-dashed", "border-petrol"));
   });
@@ -101,6 +129,7 @@ describe("/formations — grille en cartes pastel", () => {
 const HUBS = [
   {
     nom: "Prévention",
+    medaillon: "soignante-stressee.jpg",
     rendu: () => render(<PreventionPage />),
     meta: metaPrevention,
     title: "Formations QVCT, RPS, gestion du stress et des émotions",
@@ -116,6 +145,7 @@ const HUBS = [
   },
   {
     nom: "Cadre légal",
+    medaillon: "presse-papiers-coche.jpg",
     rendu: () => render(<CadreLegalPage />),
     meta: metaCadreLegal,
     title: "Formations cadre légal, droits et éthique en établissements de santé",
@@ -130,6 +160,7 @@ const HUBS = [
   },
   {
     nom: "Accompagnement",
+    medaillon: "soignante-explique.jpg",
     rendu: () => render(<AccompagnementPage />),
     meta: metaAccompagnement,
     title: "Formations accompagnement et pratiques professionnelles",
@@ -144,6 +175,7 @@ const HUBS = [
   },
   {
     nom: "Dynamique d'équipe",
+    medaillon: "collegues-en-tension.jpg",
     rendu: () => render(<DynamiquePage />),
     meta: metaDynamique,
     title: "Formations dynamique d'équipe et développement professionnel",
@@ -158,7 +190,7 @@ const HUBS = [
   },
 ];
 
-describe.each(HUBS)("Hub Famille $nom", ({ rendu, meta, title, h1, sections, fiches }) => {
+describe.each(HUBS)("Hub Famille $nom", ({ rendu, meta, title, h1, sections, fiches, medaillon }) => {
   it("garde son title, son H1 et une hiérarchie Hn sans saut", () => {
     expect(meta.title).toBe(title);
     const { container } = rendu();
@@ -170,7 +202,26 @@ describe.each(HUBS)("Hub Famille $nom", ({ rendu, meta, title, h1, sections, fic
   // débordaient de l'écran.
   it("laisse son H1 se couper (pas de défilement horizontal à 320 px)", () => {
     rendu();
-    expect(screen.getByRole("heading", { level: 1 })).toHaveClass("break-words", "hyphens-auto");
+    // break-words seul : hyphens-auto coupait à 320 px des mots qui tenaient
+    // sur la ligne (« Accompagne-ment »).
+    expect(screen.getByRole("heading", { level: 1 })).toHaveClass("break-words");
+    expect(screen.getByRole("heading", { level: 1 })).not.toHaveClass("hyphens-auto");
+  });
+
+  // À 390 px, en 48 px, le H1 se coupait en « Accompagne-ment et pra-tiques
+  // profession-nelles » : taille réduite sur mobile, comme le catalogue.
+  // En 36 px, « Accompagnement » ne tenait pas à 320 px (« Accompagnemen/t ») :
+  // 30 px sur smartphone, sous lequel tous les mots des 4 titres tiennent.
+  it("réduit son H1 sur smartphone", () => {
+    rendu();
+    expect(screen.getByRole("heading", { level: 1 })).toHaveClass("text-3xl!", "sm:text-5xl!", "lg:text-6xl!");
+  });
+
+  it("affiche dans son titre le médaillon de sa tuile du catalogue, en décor", () => {
+    rendu();
+    const image = document.querySelector("[data-hero] img")!;
+    expect(image).toHaveAttribute("alt", "");
+    expect(decodeURIComponent(image.getAttribute("src")!)).toContain(medaillon);
   });
 
   it("ne rend pas de <main> propre (le layout le fournit)", () => {
@@ -275,7 +326,8 @@ describe("Fiche formation", () => {
   it("laisse le H1 se couper et la colonne de lecture rétrécir (pas de défilement à 320 px)", async () => {
     await renderFiche("cadre-legal-etablissements-sante", "obligations-legales-des-etablissements");
     const h1 = screen.getByRole("heading", { level: 1 });
-    expect(h1).toHaveClass("break-words", "hyphens-auto");
+    expect(h1).toHaveClass("break-words", "text-4xl!", "sm:text-5xl!", "lg:text-6xl!");
+    expect(h1).not.toHaveClass("hyphens-auto");
     expect(h1.parentElement).toHaveClass("min-w-0");
   });
 
@@ -312,9 +364,38 @@ describe("Fiche formation", () => {
     items.forEach((li) => expect(li.querySelector(".bg-petrol")).not.toBeNull());
   });
 
+  // Règle « UI d'abord, efficace sur smartphone » (Cédric, 2026-10-31) : en
+  // une colonne, la fiche pratique et son CTA suivent l'introduction au lieu
+  // d'attendre la fin de la page ; le CTA ouvre la carte (visible même sur
+  // un écran de portable peu haut).
+  it("place la fiche pratique juste après l'introduction, avant les objectifs (ordre mobile)", async () => {
+    const { container } = await renderFiche(...FICHE);
+    const fiche = container.querySelector(".lg\\:sticky")!;
+    const objectifs = screen.getByRole("heading", { level: 2, name: "Objectifs pédagogiques" });
+    const h1 = screen.getByRole("heading", { level: 1 });
+    expect(h1.compareDocumentPosition(fiche) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(fiche.compareDocumentPosition(objectifs) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    // Sur desktop, la carte reste dans la colonne de droite, sur toute la hauteur.
+    expect(fiche).toHaveClass("lg:col-start-2", "lg:row-start-1", "lg:row-span-2");
+  });
+
+  it("ouvre la fiche pratique par le CTA « Demander un devis »", async () => {
+    const { container } = await renderFiche(...FICHE);
+    const carte = container.querySelector(".lg\\:sticky .bg-sky")!;
+    expect(carte.firstElementChild).toHaveTextContent("Demander un devis");
+  });
+
+  it("illustre les objectifs pédagogiques de la cible, en décor", async () => {
+    await renderFiche(...FICHE);
+    const section = screen.getByRole("heading", { level: 2, name: "Objectifs pédagogiques" }).closest("section")!;
+    const image = section.querySelector("img")!;
+    expect(image).toHaveAttribute("alt", "");
+    expect(decodeURIComponent(image.getAttribute("src")!)).toContain("cible-flechee.jpg");
+  });
+
   it("garde la fiche pratique Qualiopi visible, en carte ciel, avec le CTA « Demander un devis »", async () => {
     const { container } = await renderFiche(...FICHE);
-    const fiche = container.querySelector(".sticky .bg-sky")!;
+    const fiche = container.querySelector(".lg\\:sticky .bg-sky")!;
     expect(fiche).not.toBeNull();
     expect(within(fiche as HTMLElement).getByText("2 jours")).toBeInTheDocument();
     expect(within(fiche as HTMLElement).getByRole("link", { name: "Demander un devis" })).toHaveClass("bg-accent");

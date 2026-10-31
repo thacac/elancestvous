@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 import ArticulationBloc from "@/components/ArticulationBloc";
 import BadgesBloc from "@/components/BadgesBloc";
 import Breadcrumbs from "@/components/Breadcrumbs";
@@ -56,7 +58,17 @@ export default function DynamiqueEquipePage() {
         {/* --- 1. Titre */}
         <section id="formations-dynamique-equipe" data-hero className="py-20 container">
           <div className="text-center mb-8">
-            <h1 className="break-words hyphens-auto">
+            {/* Story 4.4 : même médaillon que la tuile de la famille sur
+                /formations (décoratif, le titre porte l'information). */}
+            <Image
+              src="/illustrations/collegues-en-tension.jpg"
+              alt=""
+              width={128}
+              height={128}
+              sizes="(min-width: 640px) 128px, 96px"
+              className="mx-auto mb-6 size-24 rounded-full border-4 border-sky object-cover sm:size-32"
+            />
+            <h1 className="text-3xl! sm:text-5xl! lg:text-6xl! break-words">
               Dynamique d&apos;équipe et{" "}
               <span className="text-accent">
                 <strong>développement professionnel</strong>

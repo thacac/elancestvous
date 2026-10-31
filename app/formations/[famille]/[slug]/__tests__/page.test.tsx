@@ -165,13 +165,13 @@ describe("FormationPage — fiche pratique Qualiopi", () => {
     expect(screen.getByText("Sur devis")).toBeInTheDocument();
   });
 
-  it("place la fiche pratique dans un conteneur sticky (reste visible pendant le défilement)", async () => {
+  it("place la fiche pratique dans un conteneur sticky sur desktop (reste visible pendant le défilement)", async () => {
     vi.mocked(getFormationBySlug).mockResolvedValue(formation());
 
     const jsx = await FormationPage({ params: PARAMS });
     const { container } = render(jsx);
 
-    expect(container.querySelector(".sticky")).not.toBeNull();
+    expect(container.querySelector(".lg\\:sticky")).not.toBeNull();
   });
 
   it("le CTA \"Demander un devis\" est un bouton plein, jamais un lien texte nu", async () => {

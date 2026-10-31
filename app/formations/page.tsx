@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import Breadcrumbs from "@/components/Breadcrumbs";
-import { BrushUnderline, PastelCard } from "@/components/charte";
+import { BrushUnderline, PastelCard, SectionBanner } from "@/components/charte";
 import { buttonVariants } from "@/components/ui/button";
 import { FORMATION_FAMILLES, getAllFormationsMeta, type FormationFamilleId } from "@/lib/formations";
 import { OG_BANNER_IMAGES } from "@/lib/openGraph";
@@ -74,8 +74,9 @@ const FAMILLE_TUILE_DESCRIPTIONS: Record<FormationFamilleId, string> = {
 // Filtre en forme de bouton du site, libellé autorisé à passer à la ligne.
 const FILTRE_CLASSES = "h-auto min-h-9 whitespace-normal px-4 py-2 text-center";
 const TAG_CLASSES = "text-xs font-semibold uppercase tracking-wide rounded-full px-3 py-1 w-fit";
-// Styles globaux h2 hors @layer (globals.css) : modificateurs `!`.
-const TITRE_CARTE_CLASSES = "font-display! text-lg! font-black! text-primary! m-0! leading-snug";
+// Styles globaux h3 hors @layer (gris, centré, globals.css) : modificateurs `!`.
+const TITRE_CARTE_CLASSES =
+  "font-display! text-lg! font-black! text-primary! m-0! max-w-none! leading-snug break-words hyphens-auto";
 
 export default async function FormationsCataloguePage({
   searchParams,
@@ -155,86 +156,101 @@ export default async function FormationsCataloguePage({
           passer à la ligne : en whitespace-nowrap, « Dynamique d'équipe et
           développement professionnel » débordait à 320 px. Le filtre actif
           est signalé par aria-current, pas seulement par sa couleur. */}
-      <nav
-        aria-label="Filtre par catégorie"
-        className="container flex flex-wrap gap-2 mb-10"
-      >
-        <Link
-          href="/formations"
-          aria-current={activeFamille ? undefined : "page"}
-          className={cn(
-            buttonVariants({ variant: activeFamille ? "tinted" : "default" }),
-            FILTRE_CLASSES
-          )}
+      {/* Story 4.4 : la liste des fiches s'ouvre par un bandeau (titre
+          ajouté, validé par Cédric : « le SEO, c'est d'abord le contenu »),
+          filtres et cartes dans la même section. */}
+      <section id="toutes-nos-formations" className="scroll-mt-20">
+        <SectionBanner title="Toutes nos formations" />
+        <nav
+          aria-label="Filtre par catégorie"
+          className="container flex flex-wrap gap-2 mt-8 mb-10"
         >
-          Toutes
-        </Link>
-        {FORMATION_FAMILLES.map((f) => (
           <Link
-            key={f.id}
-            href={`/formations?famille=${f.id}`}
-            aria-current={activeFamille === f.id ? "page" : undefined}
+            href="/formations"
+            aria-current={activeFamille ? undefined : "page"}
             className={cn(
-              buttonVariants({ variant: activeFamille === f.id ? "default" : "tinted" }),
+              buttonVariants({ variant: activeFamille ? "tinted" : "default" }),
               FILTRE_CLASSES
             )}
           >
-            {f.label}
+            Toutes
           </Link>
-        ))}
-      </nav>
-
-      {/* Story 4.4 : cartes pastel ciel / pêche alternées, fiches puis
-          familles encore vides. */}
-      <div className="container">
-        <ul
-          role="list"
-          aria-label="Formations du catalogue"
-          className="grid list-none gap-6 p-0 sm:grid-cols-2 lg:grid-cols-3"
-        >
-          {formationsAffichees.map((formation, i) => {
-            const familleLabel = FORMATION_FAMILLES.find(
-              (f) => f.id === formation.famille
-            )!.label;
-            return (
-              <PastelCard
-                key={formation.slug}
-                as="li"
-                tone={i % 2 === 0 ? "sky" : "peach"}
-                className="flex flex-col gap-3"
-              >
-                <span className={cn(FAMILLE_TAG_CLASSES[formation.famille], TAG_CLASSES)}>
-                  {familleLabel}
-                </span>
-                <h2 className={TITRE_CARTE_CLASSES}>{formation.titre}</h2>
-                <p className="text-sm text-primary/80 mt-auto">{formation.duree}</p>
-                <Link
-                  href={`/formations/${formation.famille}/${formation.slug}`}
-                  className={buttonVariants({ variant: "accent" })}
-                >
-                  Voir la fiche
-                </Link>
-              </PastelCard>
-            );
-          })}
-          {famillesSansFormation.map((f, j) => (
-            <PastelCard
+          {FORMATION_FAMILLES.map((f) => (
+            <Link
               key={f.id}
-              as="li"
-              tone={(formationsAffichees.length + j) % 2 === 0 ? "sky" : "peach"}
-              className="flex flex-col gap-3 border-2 border-dashed border-petrol"
+              href={`/formations?famille=${f.id}`}
+              aria-current={activeFamille === f.id ? "page" : undefined}
+              className={cn(
+                buttonVariants({ variant: activeFamille === f.id ? "default" : "tinted" }),
+                FILTRE_CLASSES
+              )}
             >
-              <span className={cn(FAMILLE_TAG_CLASSES[f.id], TAG_CLASSES)}>
-                {f.label}
-              </span>
-              <h2 className={TITRE_CARTE_CLASSES}>Bientôt disponible</h2>
-              <p className="text-sm text-primary/80 mt-auto">
-                Cette famille est en cours de rédaction — aucune fiche publiée pour l&apos;instant.
-              </p>
-            </PastelCard>
+              {f.label}
+            </Link>
           ))}
-        </ul>
-      </div>
+        </nav>
+
+        {/* Story 4.4 : cartes pastel ciel / pêche alternées, fiches puis
+            familles encore vides. */}
+        <div className="container">
+          <ul
+            role="list"
+            aria-label="Formations du catalogue"
+            className="grid list-none gap-6 p-0 sm:grid-cols-2 lg:grid-cols-3"
+          >
+            {formationsAffichees.map((formation, i) => {
+              const familleLabel = FORMATION_FAMILLES.find(
+                (f) => f.id === formation.famille
+              )!.label;
+              return (
+                <PastelCard
+                  key={formation.slug}
+                  as="li"
+                  tone={i % 2 === 0 ? "sky" : "peach"}
+                  className="flex flex-col gap-3"
+                >
+                  <span className={cn(FAMILLE_TAG_CLASSES[formation.famille], TAG_CLASSES)}>
+                    {familleLabel}
+                  </span>
+                  <h3 className={TITRE_CARTE_CLASSES}>{formation.titre}</h3>
+                  <p className="text-sm text-primary/80 mt-auto">{formation.duree}</p>
+                  <Link
+                    href={`/formations/${formation.famille}/${formation.slug}`}
+                    className={buttonVariants({ variant: "accent" })}
+                  >
+                    Voir la fiche
+                  </Link>
+                </PastelCard>
+              );
+            })}
+            {famillesSansFormation.map((f, j) => (
+              <PastelCard
+                key={f.id}
+                as="li"
+                tone={(formationsAffichees.length + j) % 2 === 0 ? "sky" : "peach"}
+                className="flex flex-col gap-3 border-2 border-dashed border-petrol"
+              >
+                <span className={cn(FAMILLE_TAG_CLASSES[f.id], TAG_CLASSES)}>
+                  {f.label}
+                </span>
+                {/* Dessin décoratif (bloc-notes des slides) : « en cours de rédaction ». */}
+                <Image
+                  src="/illustrations/bloc-notes-stylo.jpg"
+                  alt=""
+                  width={80}
+                  height={80}
+                  sizes="80px"
+                  className="size-20 rounded-full border-4 border-white object-cover"
+                />
+                <h3 className={TITRE_CARTE_CLASSES}>Bientôt disponible</h3>
+                <p className="text-sm text-primary/80 mt-auto">
+                  Cette famille est en cours de rédaction — aucune fiche publiée pour l&apos;instant.
+                </p>
+              </PastelCard>
+            ))}
+          </ul>
+        </div>
+      </section>
     </div>
   );
 }

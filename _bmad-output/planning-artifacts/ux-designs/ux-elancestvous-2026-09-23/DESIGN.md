@@ -94,6 +94,11 @@ La posture est chaleureuse, claire et pédagogique. Elle évite le registre SaaS
 
 Le référencement passe avant la décoration. La charte habille le contenu existant sans toucher aux titres, aux textes ni aux URLs.
 
+Deux règles fixées par Cédric le 2026-10-31 complètent ce principe :
+
+- **Le SEO, c'est d'abord le contenu.** On peut ajouter un titre ou un texte utile : un vrai Hn qui décrit sa section, comme le bandeau « Toutes nos formations » du catalogue. On ne modifie et on ne retire jamais un titre, un texte indexé ou une URL existants.
+- **L'interface d'abord, efficace sur smartphone.** On conçoit d'abord pour une seule colonne. L'ordre de lecture sur mobile place l'action principale tôt : sur une fiche formation, la fiche pratique et « Demander un devis » viennent juste après l'introduction, pas en fin de page. Le décor (médaillons, flèches) se réduit ou s'efface sur petit écran plutôt que de repousser le contenu.
+
 ## Colors
 
 La palette compte **8 couleurs, chacune avec un rôle unique**. Les valeurs ont été mesurées dans le PDF des slides et chaque contraste est calculé selon la formule WCAG (voir la règle « Accessibilité » de `CLAUDE.md`, RGAA 4.1 / WCAG 2.2 AA).
@@ -155,5 +160,6 @@ Les maquettes de référence sont la proposition de charte (https://claude.ai/ar
 | 1 ou 2 touches manuscrites ou étincelles par écran | Kalam pour des paragraphes ; des étincelles partout |
 | Étapes numérotées pour une vraie démarche ordonnée | Des numéros sur une simple liste de points |
 | Échelle Tailwind par défaut (NFR1) | Des valeurs arbitraires `-[…]` |
-| Garder titres, textes et URLs existants | Modifier du contenu indexé pour « faire rentrer » un design |
+| Garder titres, textes et URLs existants ; ajouter un titre utile si une section n'en a pas | Modifier ou retirer du contenu indexé pour « faire rentrer » un design |
+| Placer l'action principale tôt dans l'ordre de lecture mobile | Un CTA atteignable seulement après toute la page sur smartphone |
 | Images : uniquement des dessins tirés des slides, en médaillon rond (`public/illustrations/`) | Mélanger photos et dessins ; photos de banque d'images. Exceptions : vraies photos de Coralie, couvertures du blog |

@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 import ArticulationBloc from "@/components/ArticulationBloc";
 import BadgesBloc from "@/components/BadgesBloc";
 import Breadcrumbs from "@/components/Breadcrumbs";
@@ -69,7 +71,17 @@ export default function PreventionRpsQvctPage() {
         {/* --- 1. Titre */}
         <section id="formations-professionnelles" data-hero className="py-20 container">
           <div className="text-center mb-8">
-            <h1 className="break-words hyphens-auto">Formations professionnelles.</h1>
+            {/* Story 4.4 : même médaillon que la tuile de la famille sur
+                /formations (décoratif, le titre porte l'information). */}
+            <Image
+              src="/illustrations/soignante-stressee.jpg"
+              alt=""
+              width={128}
+              height={128}
+              sizes="(min-width: 640px) 128px, 96px"
+              className="mx-auto mb-6 size-24 rounded-full border-4 border-sky object-cover sm:size-32"
+            />
+            <h1 className="text-3xl! sm:text-5xl! lg:text-6xl! break-words">Formations professionnelles.</h1>
             <h2 className="py-5 ">
               Gestion du{" "}
               <span className="text-accent">

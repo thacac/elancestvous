@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -141,18 +142,69 @@ export default async function FormationPage({
           { label: formationDetail.titre },
         ]}
       />
-      <div className="container grid gap-12 lg:grid-cols-[1.7fr_1fr]">
+      <div className="container grid gap-x-12 gap-y-10 lg:grid-cols-[1.7fr_1fr]">
         {/* min-w-0 + césure : un mot long du titre (« établissements » en
             48 px) débordait à 320 px de large. */}
-        <div className="min-w-0">
-          <h1 className="mb-6 break-words hyphens-auto">{formationDetail.titre}</h1>
+        <div className="min-w-0 lg:col-start-1">
+          <h1 className="mb-6 text-4xl! sm:text-5xl! lg:text-6xl! break-words">{formationDetail.titre}</h1>
           <div
-            className="prose prose-stone max-w-none mb-10"
+            className="prose prose-stone max-w-none"
             dangerouslySetInnerHTML={{ __html: formationDetail.html }}
           />
+        </div>
+
+        {/* Fiche pratique Qualiopi en carte ciel (Story 4.4). Règle « UI
+            d'abord, efficace sur smartphone » : en une colonne, elle suit
+            l'introduction (au lieu d'attendre la fin de la page) et s'ouvre
+            par le CTA ; sur desktop, colonne de droite sur toute la hauteur,
+            sticky. */}
+        <div className="self-start lg:sticky lg:top-24 lg:col-start-2 lg:row-start-1 lg:row-span-2">
+          <PastelCard as="div" tone="sky" className="p-6 sm:p-8 flex flex-col gap-5">
+            <Button asChild variant="accent" size="lg">
+              <Link
+                href={`/contact?${new URLSearchParams({
+                  type: "institution",
+                  sujet: `Devis pour la formation « ${formationDetail.titre} »`,
+                }).toString()}`}
+              >
+                Demander un devis
+              </Link>
+            </Button>
+            <ChampQualiopi label="Durée" valeur={formationDetail.duree} />
+            <ChampQualiopi label="Format" valeur={formationDetail.format} />
+            <ChampQualiopi label="Délai d'accès" valeur={formationDetail.delaiAcces} />
+            <ChampQualiopi label="Prérequis" valeur={formationDetail.prerequis} />
+            <ChampQualiopi label="Tarif" valeur={formationDetail.tarif} />
+            <ChampQualiopi
+              label="Accessibilité"
+              valeur={formationDetail.accessibilite}
+            />
+            <ChampQualiopi
+              label="Référent handicap"
+              valeur={formationDetail.referentHandicap}
+            />
+            <ChampQualiopi
+              label="Indicateurs de résultats"
+              valeur={formationDetail.indicateursResultats}
+            />
+          </PastelCard>
+        </div>
+
+        <div className="min-w-0 lg:col-start-1">
 
           <section className="mb-12">
-            <TitreSection>Objectifs pédagogiques</TitreSection>
+            {/* Dessin décoratif des slides (cible), le titre porte l'information. */}
+            <div className="flex items-start justify-between gap-4">
+              <TitreSection>Objectifs pédagogiques</TitreSection>
+              <Image
+                src="/illustrations/cible-flechee.jpg"
+                alt=""
+                width={96}
+                height={96}
+                sizes="(min-width: 640px) 96px, 64px"
+                className="size-16 shrink-0 rounded-full border-4 border-sky object-cover sm:size-24"
+              />
+            </div>
             <ul role="list" className="list-none space-y-3 p-0">
               {formationDetail.objectifsPedagogiques.map((objectif) => (
                 <li key={objectif} className="flex items-start gap-3 text-primary">
@@ -198,38 +250,6 @@ export default async function FormationPage({
           </section>
         </div>
 
-        <div className="sticky top-24 self-start">
-          {/* Fiche pratique Qualiopi en carte ciel (Story 4.4), toujours sticky. */}
-          <PastelCard as="div" tone="sky" className="p-8 flex flex-col gap-6">
-            <ChampQualiopi label="Durée" valeur={formationDetail.duree} />
-            <ChampQualiopi label="Format" valeur={formationDetail.format} />
-            <ChampQualiopi label="Délai d'accès" valeur={formationDetail.delaiAcces} />
-            <ChampQualiopi label="Prérequis" valeur={formationDetail.prerequis} />
-            <ChampQualiopi label="Tarif" valeur={formationDetail.tarif} />
-            <ChampQualiopi
-              label="Accessibilité"
-              valeur={formationDetail.accessibilite}
-            />
-            <ChampQualiopi
-              label="Référent handicap"
-              valeur={formationDetail.referentHandicap}
-            />
-            <ChampQualiopi
-              label="Indicateurs de résultats"
-              valeur={formationDetail.indicateursResultats}
-            />
-            <Button asChild variant="accent" size="lg">
-              <Link
-                href={`/contact?${new URLSearchParams({
-                  type: "institution",
-                  sujet: `Devis pour la formation « ${formationDetail.titre} »`,
-                }).toString()}`}
-              >
-                Demander un devis
-              </Link>
-            </Button>
-          </PastelCard>
-        </div>
       </div>
 
       <div className="container border-t border-stone-200 mt-14 pt-8">
