@@ -198,6 +198,13 @@ Corps.
     expect(parseDraftContent(avec, "test").frontmatter.keyMessage).toBe("Une idée à retenir.");
   });
 
+  // `keyMessage:` laissé vide vaut null en YAML : traité comme absent plutôt
+  // que de casser /blog, le sitemap et le RSS au build.
+  it("traite un keyMessage vide en YAML (null) comme absent", () => {
+    const nul = draft.replace("tags: []", "keyMessage:\ntags: []");
+    expect(parseDraftContent(nul, "test").frontmatter.keyMessage).toBeUndefined();
+  });
+
   it("refuse un message clé vide", () => {
     const vide = draft.replace("tags: []", 'keyMessage: ""\ntags: []');
     expect(() => parseDraftContent(vide, "test")).toThrow(/keyMessage/);
