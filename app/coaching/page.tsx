@@ -27,7 +27,7 @@ export const metadata = {
 // bleu nuit ≥ 9:1), boutons orange foncé de la charte.
 export default function CoachingHubPage() {
   return (
-    <main className="min-h-screen overflow-hidden">
+    <div className="min-h-screen overflow-hidden">
       <Breadcrumbs items={[{ label: "Coaching" }]} />
       <section data-hero className="py-20 container">
         <div className="text-center mb-12">
@@ -64,6 +64,6 @@ export default function CoachingHubPage() {
           </PastelCard>
         </ul>
       </section>
-    </main>
+    </div>
   );
 }

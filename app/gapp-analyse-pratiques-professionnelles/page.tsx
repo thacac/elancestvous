@@ -44,7 +44,7 @@ export const metadata = {
 export default function GappPage() {
   return (
     <>
-      <main className="min-h-screen overflow-hidden">
+      <div className="min-h-screen overflow-hidden">
         <Breadcrumbs items={[{ label: "GAPP" }]} />
         {/* --- 1. Titre --- */}
         <section id="gapp-titre" data-hero className="py-20 container">
@@ -131,18 +131,20 @@ export default function GappPage() {
         {/* --- 3b. Démarche dans la durée --- */}
         <section id="gapp-duree" className="scroll-mt-20 bg-white pb-15">
           <SectionBanner title="Une démarche inscrite dans la durée" icon={<IconWatch />} />
-          <PastelCard as="div" tone="sky" className="container mt-8 max-w-3xl p-8 md:p-10">
-            <p className="text-lg text-primary mb-4">
-              Les groupes d’analyse de la pratique s’inscrivent dans une logique
-              de durée, avec une régularité définie en fonction des besoins et
-              du contexte des équipes.
-            </p>
-            <p className="text-lg text-primary">
-              Ils constituent un espace de respiration professionnelle,
-              complémentaire aux actions de formation ou de coaching, sans
-              objectif de performance ni injonction au changement.
-            </p>
-          </PastelCard>
+          <div className="container mt-8">
+            <PastelCard as="div" tone="sky" className="mx-auto max-w-3xl p-8 md:p-10">
+              <p className="text-lg text-primary mb-4">
+                Les groupes d’analyse de la pratique s’inscrivent dans une logique
+                de durée, avec une régularité définie en fonction des besoins et
+                du contexte des équipes.
+              </p>
+              <p className="text-lg text-primary">
+                Ils constituent un espace de respiration professionnelle,
+                complémentaire aux actions de formation ou de coaching, sans
+                objectif de performance ni injonction au changement.
+              </p>
+            </PastelCard>
+          </div>
         </section>
         {/* --- 4. Pour qui ? --- */}
         <PublicsCiblesBloc
@@ -194,7 +196,7 @@ export default function GappPage() {
           contactType="institution"
           contactSujet="GAPP – Analyse des pratiques professionnelles"
         />
-      </main>
+      </div>
     </>
   );
 }

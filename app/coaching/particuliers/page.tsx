@@ -59,7 +59,7 @@ const BADGE_TONES = ["bg-accent", "bg-petrol", "bg-primary"];
 export default function CoachingParticuliersPage() {
   return (
     <>
-      <main className="min-h-screen overflow-hidden">
+      <div className="min-h-screen overflow-hidden">
         <Breadcrumbs
           items={[
             { label: "Coaching", href: "/coaching" },
@@ -229,7 +229,7 @@ export default function CoachingParticuliersPage() {
 
         {/* --- 7. CTA FINAL --- */}
         <CtaElan contactType="particulier" contactSujet="Coaching individuel" />
-      </main>
+      </div>
     </>
   );
 }

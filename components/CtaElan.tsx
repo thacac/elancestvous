@@ -23,12 +23,8 @@ export default function CtaElan({ contactType, contactSujet }: CtaElanProps = {}
   const contactHref = params.size > 0 ? `/contact?${params.toString()}` : "/contact";
 
   return (
-    <section id="formations-cta-final" className="relative overflow-hidden bg-white pt-15">
-      {/* Motif en arrière-plan */}
-      <div className="absolute inset-0 flex items-center justify-center text-[20vw] font-black text-primary opacity-10 select-none">
-        ELAN
-      </div>
-      <div className="container relative z-10 flex flex-col items-center gap-6 pb-12 text-center">
+    <section id="formations-cta-final" className="bg-white pt-15">
+      <div className="container flex flex-col items-center gap-6 pb-12 text-center">
         <Bubble as="h2" className="mx-auto">
           Prêt à mettre <br />
           vos équipes en mouvement ?
@@ -38,7 +34,7 @@ export default function CtaElan({ contactType, contactSujet }: CtaElanProps = {}
         </Link>
         <p className="font-medium text-primary">Premier échange pour comprendre votre contexte.</p>
       </div>
-      <Wave className="relative z-10" />
+      <Wave />
     </section>
   );
 }

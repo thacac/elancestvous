@@ -108,6 +108,20 @@ describe("Un bandeau de la charte par section (UX-DR1)", () => {
   });
 });
 
+// Le layout racine fournit déjà <main> : une page ne doit pas en ajouter un
+// second (un seul repère principal, RGAA 12).
+describe("Un seul repère principal", () => {
+  it.each([
+    ["/coaching", () => render(<CoachingHubPage />)],
+    ["/coaching/particuliers", () => render(<CoachingParticuliersPage />)],
+    ["/coaching/etablissements", () => render(<CoachingEtablissementsPage />)],
+    ["/gapp", () => render(<GappPage />)],
+  ])("%s ne rend pas de <main> propre", (_page, rendu) => {
+    const { container } = rendu();
+    expect(container.querySelector("main")).toBeNull();
+  });
+});
+
 describe("/coaching — cartes pastel vers les deux publics", () => {
   it("présente Particuliers et Établissements en cartes ciel puis pêche", () => {
     render(<CoachingHubPage />);
@@ -179,6 +193,18 @@ describe("/formations — tuiles Famille en cartes pastel", () => {
       "sky",
       "peach",
     ]);
+  });
+});
+
+// Revue : `.container` est hors @layer et écrasait max-w-3xl et le padding
+// de la carte posée sur le même élément (carte collée aux bords sur mobile).
+describe("/gapp — carte « Une démarche inscrite dans la durée »", () => {
+  it("est posée dans le conteneur, pas confondue avec lui", () => {
+    render(<GappPage />);
+    const carte = document.querySelector("#gapp-duree .bg-sky")!;
+    expect(carte).not.toHaveClass("container");
+    expect(carte.parentElement).toHaveClass("container");
+    expect(carte).toHaveClass("max-w-3xl", "mx-auto");
   });
 });
 

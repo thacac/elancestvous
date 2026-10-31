@@ -92,7 +92,7 @@ function IconChart() {
 export default function CoachingEtablissementsPage() {
   return (
     <>
-      <main className="min-h-screen overflow-hidden">
+      <div className="min-h-screen overflow-hidden">
         <Breadcrumbs
           items={[
             { label: "Coaching", href: "/coaching" },
@@ -300,7 +300,7 @@ export default function CoachingEtablissementsPage() {
 
         {/* --- 7. CTA FINAL --- */}
         <CtaElan contactType="institution" contactSujet="Coaching en établissement" />
-      </main>
+      </div>
     </>
   );
 }

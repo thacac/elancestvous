@@ -74,8 +74,11 @@ describe("CtaElan — charte des slides (Story 4.3)", () => {
     expect(section.lastElementChild).toHaveAttribute("aria-hidden", "true");
   });
 
-  it("garde le motif « ELAN » discret (opacité 10 %)", () => {
-    render(<CtaElan />);
-    expect(screen.getByText("ELAN")).toHaveClass("opacity-10");
+  // Supprimé sur décision de Cédric (2026-10-31) : il chargeait la bulle et
+  // utilisait une valeur arbitraire (text-[20vw], NFR1).
+  it("n'a plus le motif « ELAN » en filigrane", () => {
+    const { container } = render(<CtaElan />);
+    expect(screen.queryByText("ELAN")).not.toBeInTheDocument();
+    expect(container.innerHTML).not.toMatch(/-\[/);
   });
 });
