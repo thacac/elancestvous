@@ -10,9 +10,9 @@ import { Button, buttonVariants } from "../button";
 // (texte/contour primary, fond primary légèrement teinté), `tintedOnDark`
 // sur fond navy (texte/contour blancs, fond blanc légèrement teinté) — cf.
 // tuile Coaching. Contrastes vérifiés par calcul WCAG (pas de lib
-// axe-core dans ce dépôt) : navy #112e40 sur fond ~blanc (teinte 10%
-// primary) ≈ 12.7:1 ; blanc sur fond ~navy (teinte 10% blanc sur #112e40)
-// ≈ 10.4:1 — les deux largement au-dessus du seuil 4.5:1 (NFR2).
+// axe-core dans ce dépôt) : bleu nuit #0a0c44 sur fond ~blanc (teinte 10%
+// primary) ≈ 14.8:1 ; blanc sur fond ~bleu nuit (teinte 10% blanc sur
+// #0a0c44) ≈ 14.4:1 — les deux largement au-dessus du seuil 4.5:1 (NFR2).
 describe("Button — variant tinted (CTA secondaire, FR12)", () => {
   it("renders a real button element, never a styled link-only span", () => {
     render(<Button variant="tinted">Découvrir</Button>);

@@ -40,3 +40,21 @@ describe("CtaElan — provenance transmise au formulaire de contact", () => {
     );
   });
 });
+
+// Revue palette 2026-10-30 : texte courant sur l'orange foncé, ≥ 4.5:1 exigé
+// (CLAUDE.md). Blanc pur ≈ 5.7:1 ; le motif « ELAN » derrière ne doit pas
+// éclaircir le fond au point de passer sous le seuil.
+describe("CtaElan — contraste du texte sur le bandeau orange", () => {
+  it("écrit la phrase d'accompagnement en blanc pur", () => {
+    render(<CtaElan />);
+    const phrase = screen.getByText(/premier échange pour comprendre votre contexte/i);
+    expect(phrase.className.split(/\s+/)).toContain("text-white");
+    expect(phrase.className).not.toMatch(/text-white\/\d+/);
+  });
+
+  it("garde le motif « ELAN » discret (opacité 10 %)", () => {
+    render(<CtaElan />);
+    expect(screen.getByText("ELAN")).toHaveClass("opacity-10");
+  });
+});
+

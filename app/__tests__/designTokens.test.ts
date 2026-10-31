@@ -14,6 +14,15 @@ function themeToken(name: string): string | undefined {
   return match?.[1].trim();
 }
 
+function sourceFiles(dir: string): string[] {
+  return readdirSync(dir).flatMap((entry) => {
+    const path = join(dir, entry);
+    if (entry === "node_modules" || entry.startsWith(".")) return [];
+    if (statSync(path).isDirectory()) return sourceFiles(path);
+    return /\.(tsx?|css|mdx?)$/.test(path) ? [path] : [];
+  });
+}
+
 function tsxFiles(dir: string): string[] {
   return readdirSync(dir).flatMap((entry) => {
     const path = join(dir, entry);
@@ -128,12 +137,21 @@ describe("globals.css — palette resserrée", () => {
     });
   });
 
-  it("aucun composant n'utilise une couleur supprimée", () => {
-    const supprimees = /\b(?:bg|text|fill|stroke|border)-(?:accent-ink|sage|sage-ink|lilac|teal-soft)\b/;
-    const fautifs = [...tsxFiles(join(root, "app")), ...tsxFiles(join(root, "components"))].filter(
-      (file) => !file.includes("__tests__") && supprimees.test(readFileSync(file, "utf8")),
+  it("aucun fichier n'utilise une couleur supprimée (classes et variables CSS)", () => {
+    const supprimees =
+      /\b[a-z]+(?:-[a-z]+)*-(?:accent-ink|sage|sage-ink|lilac|teal-soft)\b|--color-(?:accent-ink|sage|sage-ink|lilac|teal-soft)\b/;
+    const fichiers = ["app", "components", "lib"].flatMap((dossier) =>
+      sourceFiles(join(root, dossier)),
+    );
+    const fautifs = fichiers.filter(
+      (file) =>
+        !file.includes("__tests__") &&
+        !file.endsWith("globals.css") &&
+        supprimees.test(readFileSync(file, "utf8")),
     );
     expect(fautifs).toEqual([]);
+    // globals.css : la variable elle-même ne doit plus être déclarée.
+    expect(globalsCss).not.toMatch(/--color-(?:accent-ink|sage|sage-ink|lilac|teal-soft):/);
   });
 });
 

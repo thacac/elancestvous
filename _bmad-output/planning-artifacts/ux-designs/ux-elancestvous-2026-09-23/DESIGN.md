@@ -103,7 +103,7 @@ La palette compte **8 couleurs, chacune avec un rôle unique**. Les valeurs ont 
 - **Turquoise vif `{colors.cyan}`** : courbes sous les bandeaux et vagues, décor uniquement. Blanc dessus ≈ 3:1, donc jamais de texte courant.
 - **Turquoise du logo `{colors.logo}`** : réservé au logo.
 - **Orange, deux rôles seulement :**
-  - `{colors.orange}` (vif) est **décoratif uniquement** : trait de pinceau, étincelles, flèches, barres verticales. Jamais de texte en orange vif ni posé dessus.
+  - `{colors.orange}` (vif) est **décoratif uniquement** sur fond clair : trait de pinceau, étincelles, flèches, barres verticales. Jamais de texte en orange vif sur fond clair, ni de texte posé dessus. Exception : sur bleu nuit, l'orange vif peut servir au grand texte (6.6:1), là où l'orange foncé ne passe pas (2.9:1).
   - `{colors.accent}` (foncé) sert au texte orange, au mot mis en avant dans un titre et aux fonds de boutons orange, avec un texte blanc (5.7:1). Sur les pastels, il fait 5:1.
 - **Pastels `{colors.sky}` et `{colors.peach}`** : fonds de cartes, en alternance dans une même rangée. Le texte posé dessus est `{colors.primary}`.
 - Les couleurs de catégorie du catalogue (`cat-*` dans `globals.css`) restent à part : elles distinguent les 4 familles de formation. Les anciennes couleurs (`secondary`, `muted`, `pastel`) disparaîtront au fil des stories 4.3 à 4.6.

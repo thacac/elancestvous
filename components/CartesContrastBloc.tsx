@@ -36,11 +36,11 @@ export default function CartesContrastBloc({
               className="group bg-white/5 p-12 hover:bg-accent transition-colors duration-500 cursor-default border border-white/10"
             >
               {carte.numero && (
-                <span className="text-accent group-hover:text-primary text-5xl font-black mb-6 block">
+                <span className="text-orange group-hover:text-primary text-5xl font-black mb-6 block">
                   {carte.numero}
                 </span>
               )}
-              <h3 className="text-2xl font-bold mb-4">{carte.titre}</h3>
+              <h3 className="text-white! text-2xl font-bold mb-4">{carte.titre}</h3>
               <p className="text-pastel/70 group-hover:text-white">{carte.texte}</p>
             </div>
           ))}
