@@ -2,7 +2,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { ArticleBody } from "@/components/blog/ArticleBody";
 import Breadcrumbs from "@/components/Breadcrumbs";
+import { PastelCard } from "@/components/charte";
 import PostJsonLd from "@/components/PostJsonLd";
 import ShareButtons from "@/components/ShareButtons";
 import { getAllPostsMeta, getPostBySlug, getPostSlugs } from "@/lib/blog";
@@ -80,7 +82,7 @@ export default async function BlogPost({
         ]}
       />
       <div className="container max-w-3xl">
-        <p className="text-xs text-stone-500 uppercase tracking-wide mb-2">
+        <p className="text-xs text-stone-600 uppercase tracking-wide mb-2">
           {new Date(post.publishedAt).toLocaleDateString("fr-FR", {
             day: "numeric",
             month: "long",
@@ -89,13 +91,14 @@ export default async function BlogPost({
           {" · "}
           {post.readingTime}
         </p>
-        <h1 className="mb-6">{post.title}</h1>
+        {/* Réduit sur smartphone (titres longs), coupé sans césure à 320 px. */}
+        <h1 className="mb-6 text-3xl! sm:text-5xl! lg:text-6xl! break-words">{post.title}</h1>
         <ShareButtons
           url={`${SITE}/blog/${post.slug}`}
           title={post.title}
           className="mb-8"
         />
-        <div className="relative aspect-[16/9] mb-8 rounded-xl overflow-hidden">
+        <div className="relative aspect-[16/9] mb-8 rounded-3xl overflow-hidden">
           <Image
             src={post.coverImage}
             alt={post.coverImageAlt}
@@ -104,37 +107,28 @@ export default async function BlogPost({
             priority
           />
         </div>
-        <div
-          className="prose prose-stone max-w-none"
-          dangerouslySetInnerHTML={{ __html: post.html }}
-        />
-        {post.tags.length > 0 && (
-          <ul className="flex flex-wrap gap-2 mt-10">
-            {post.tags.map((tag) => (
-              <li
-                key={tag}
-                className="text-xs bg-pastel text-primary rounded-full px-3 py-1"
-              >
-                {tag}
-              </li>
-            ))}
-          </ul>
-        )}
+        <ArticleBody html={post.html} keyMessage={post.keyMessage} tags={post.tags} />
         {post.relatedPosts.length > 0 && (
           <div className="mt-12 border-t border-stone-200 pt-8">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-stone-500 mb-4">
+            <h2 className="text-xl! lg:text-2xl!">
               À lire aussi{pillarLabel ? ` — ${pillarLabel}` : ""}
             </h2>
-            <ul className="space-y-2">
-              {post.relatedPosts.map((relatedPost) => (
-                <li key={relatedPost.slug}>
+            {/* Cartes pastel alternées (UX-DR2) ; seul le lien est interactif. */}
+            <ul role="list" className="grid gap-4 sm:grid-cols-2">
+              {post.relatedPosts.map((relatedPost, i) => (
+                <PastelCard
+                  key={relatedPost.slug}
+                  as="li"
+                  tone={i % 2 === 0 ? "sky" : "peach"}
+                  className="p-5"
+                >
                   <Link
                     href={`/blog/${relatedPost.slug}`}
-                    className="text-primary underline underline-offset-2"
+                    className="font-display font-bold text-primary underline underline-offset-2 break-words"
                   >
                     {relatedPost.title}
                   </Link>
-                </li>
+                </PastelCard>
               ))}
             </ul>
           </div>

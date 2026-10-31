@@ -171,3 +171,35 @@ Corps du brouillon.
     expect(frontmatter.coverImage).toBe("/blog/brouillon-sans-image/cover.jpg");
   });
 });
+
+// Story 4.5 : un message clé facultatif, lu dans l'en-tête de l'article. Le
+// générateur ne l'écrit pas (pipeline inchangé) : il n'apparaît que si
+// quelqu'un l'ajoute.
+describe("keyMessage (Story 4.5)", () => {
+  const draft = `---
+title: "Brouillon"
+slug: "brouillon"
+description: "Description"
+excerpt: "Extrait"
+publishedAt: "2026-01-01"
+tags: []
+pillar: "A"
+---
+Corps.
+`;
+
+  it("est absent quand l'en-tête ne le fournit pas", () => {
+    expect(parseDraftContent(draft, "test").frontmatter.keyMessage).toBeUndefined();
+    expect(getAllPostsMeta(VALID).every((p) => p.keyMessage === undefined)).toBe(true);
+  });
+
+  it("est lu quand l'en-tête le fournit", () => {
+    const avec = draft.replace("tags: []", 'keyMessage: "Une idée à retenir."\ntags: []');
+    expect(parseDraftContent(avec, "test").frontmatter.keyMessage).toBe("Une idée à retenir.");
+  });
+
+  it("refuse un message clé vide", () => {
+    const vide = draft.replace("tags: []", 'keyMessage: ""\ntags: []');
+    expect(() => parseDraftContent(vide, "test")).toThrow(/keyMessage/);
+  });
+});

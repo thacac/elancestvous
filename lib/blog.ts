@@ -34,6 +34,10 @@ const frontmatterSchema = z.object({
   // jamais bloquant, cf. getRelatedPosts et lib/relatedArticles.ts qui
   // l'ignorent simplement (pas de pilier déclaré ⇒ pas de maillage).
   pillar: z.enum(PILLAR_IDS).nullable().default(null),
+  // Story 4.5 : phrase à retenir, affichée en KeyMessage à la fin de
+  // l'article. Facultative et jamais écrite par le générateur (pipeline et
+  // flux Discord inchangés) : elle n'apparaît que si quelqu'un l'ajoute.
+  keyMessage: z.string().min(1).optional(),
 });
 
 export type PostMeta = z.infer<typeof frontmatterSchema> & {
