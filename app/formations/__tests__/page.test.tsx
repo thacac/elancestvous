@@ -184,7 +184,7 @@ describe("FormationsCataloguePage — état vide honnête par famille (rattrapag
     const jsx = await FormationsCataloguePage({ searchParams: Promise.resolve({}) });
     render(jsx);
 
-    const cartesBientot = screen.getAllByRole("heading", { name: "Bientôt disponible" });
+    const cartesBientot = screen.getAllByRole("heading", { name: /^Bientôt disponible/ });
     expect(cartesBientot).toHaveLength(2);
 
     const famillesEnAttente = cartesBientot.map(
@@ -200,7 +200,7 @@ describe("FormationsCataloguePage — état vide honnête par famille (rattrapag
     const jsx = await FormationsCataloguePage({ searchParams: Promise.resolve({}) });
     render(jsx);
 
-    const cartesBientot = screen.getAllByRole("heading", { name: "Bientôt disponible" });
+    const cartesBientot = screen.getAllByRole("heading", { name: /^Bientôt disponible/ });
     const famillesEnBientot = cartesBientot.map(
       (titre) => within(titre.closest("li")!).getByText(/^(Cadre légal|Prévention|Accompagnement|Dynamique)/).textContent
     );
@@ -216,7 +216,7 @@ describe("FormationsCataloguePage — état vide honnête par famille (rattrapag
     });
     render(jsx);
 
-    expect(screen.getByRole("heading", { name: "Bientôt disponible" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /^Bientôt disponible/ })).toBeInTheDocument();
   });
 });
 

@@ -246,7 +246,11 @@ export default async function FormationsCataloguePage({
                   sizes="80px"
                   className="size-20 rounded-full border-4 border-white object-cover"
                 />
-                <h3 className={TITRE_CARTE_CLASSES}>Bientôt disponible</h3>
+                {/* Famille ajoutée pour les lecteurs d'écran (RGAA 9.1, validé par
+                    Cédric) : sinon plusieurs titres identiques. */}
+                <h3 className={TITRE_CARTE_CLASSES}>
+                  Bientôt disponible<span className="sr-only"> : {f.label}</span>
+                </h3>
                 <p className="text-sm text-primary/80 mt-auto">
                   Cette famille est en cours de rédaction — aucune fiche publiée pour l&apos;instant.
                 </p>

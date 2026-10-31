@@ -82,12 +82,26 @@ describe("/formations — bandeau de la liste des fiches", () => {
   it("passe les titres de carte en h3 sous ce bandeau, textes inchangés", async () => {
     await renderCatalogue();
     expect(screen.getByRole("heading", { level: 3, name: "Diagnostic et plan d'action QVCT" })).toBeInTheDocument();
-    expect(screen.getAllByRole("heading", { level: 3, name: "Bientôt disponible" })).toHaveLength(2);
+    expect(screen.getAllByRole("heading", { level: 3, name: /^Bientôt disponible/ })).toHaveLength(2);
+  });
+
+  // RGAA 9.1 / WCAG 2.4.6 (validé par Cédric) : deux titres « Bientôt
+  // disponible » identiques ne disaient pas de quelle famille il s'agit en
+  // navigation par titres. Le nom de la famille est ajouté pour les lecteurs
+  // d'écran ; le texte visible ne change pas.
+  it("nomme la famille dans le titre de chaque carte « Bientôt disponible », texte visible inchangé", async () => {
+    await renderCatalogue();
+    const titres = screen.getAllByRole("heading", { level: 3, name: /^Bientôt disponible/ });
+    expect(titres.map((h) => h.textContent)).toEqual([
+      "Bientôt disponible : Accompagnement et pratiques professionnelles",
+      "Bientôt disponible : Dynamique d'équipe et développement professionnel",
+    ]);
+    titres.forEach((h) => expect(h.querySelector(".sr-only")?.textContent).toMatch(/^ : /));
   });
 
   it("illustre les cartes « Bientôt disponible » du bloc-notes, en décor", async () => {
     await renderCatalogue();
-    screen.getAllByRole("heading", { level: 3, name: "Bientôt disponible" }).forEach((h) => {
+    screen.getAllByRole("heading", { level: 3, name: /^Bientôt disponible/ }).forEach((h) => {
       const image = h.closest("li")!.querySelector("img")!;
       expect(image).toHaveAttribute("alt", "");
       expect(decodeURIComponent(image.getAttribute("src")!)).toContain("bloc-notes-stylo.jpg");
@@ -147,7 +161,7 @@ describe("/formations — grille en cartes pastel", () => {
 
   it("distingue la carte « Bientôt disponible » d'une vraie fiche (bordure pointillée)", async () => {
     await renderCatalogue();
-    const cartes = screen.getAllByRole("heading", { level: 3, name: "Bientôt disponible" }).map((h) => h.closest("li")!);
+    const cartes = screen.getAllByRole("heading", { level: 3, name: /^Bientôt disponible/ }).map((h) => h.closest("li")!);
     expect(cartes).toHaveLength(2);
     cartes.forEach((carte) => expect(carte).toHaveClass("border-dashed", "border-petrol"));
   });
