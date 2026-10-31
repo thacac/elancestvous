@@ -77,3 +77,18 @@ describe("Button — boutons orange lisibles (contraste)", () => {
   });
 });
 
+
+// Revue story 4.3 : `ring-ring` ne correspondait à aucun token (pas de
+// --color-ring), l'anneau prenait la couleur du texte — blanc sur un bouton
+// accent posé sur fond blanc, focus invisible (WCAG 2.4.7, RGAA 10.7).
+// Anneau bleu nuit de 2 px, décalé par un liseré blanc : ≥ 3:1 sur blanc,
+// pastels et pétrole.
+describe("buttonVariants — focus clavier visible", () => {
+  it.each(["default", "accent", "tinted"] as const)("variant %s : anneau bleu nuit de 2 px décalé", (variant) => {
+    const classes = buttonVariants({ variant }).split(/\s+/);
+    expect(classes).toEqual(
+      expect.arrayContaining(["focus-visible:ring-2", "focus-visible:ring-primary", "focus-visible:ring-offset-2"]),
+    );
+    expect(classes).not.toContain("focus-visible:ring-ring");
+  });
+});

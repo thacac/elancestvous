@@ -23,7 +23,7 @@ export default function ArticulationBloc({
   return (
     <section className={`container mb-14 ${className}`}>
       <div className="max-w-3xl mx-auto text-justify">
-        <p className="text-muted text-sm md:text-md leading-relaxed">
+        <p className="text-primary/80 text-sm md:text-md leading-relaxed">
           <span className="text-primary font-bold mr-2">{titre}</span>
           {textePrincipal}
           <br />

@@ -3,6 +3,7 @@ import ArticulationBloc from "@/components/ArticulationBloc";
 import BadgesBloc from "@/components/BadgesBloc";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import CartesContrastBloc from "@/components/CartesContrastBloc";
+import { BrushUnderline, PastelCard, SectionBanner } from "@/components/charte";
 import Citation from "@/components/Citation";
 import CtaElan from "@/components/CtaElan";
 import PublicsCiblesBloc from "@/components/PublicsCiblesBloc";
@@ -10,7 +11,7 @@ import {
   IconBuilding,
   IconHand,
   IconManager,
-  IconStairs,
+  IconEscalier,
 } from "@/components/ui/icons-publics";
 import { OG_BANNER_IMAGES } from "@/lib/openGraph";
 
@@ -43,10 +44,55 @@ export const metadata = {
   },
 };
 
+// Slide « Le stress au travail chez les professionnels de santé : des
+// repères chiffrés » (formation de Coralie). Ne pas modifier sans source.
+const SOURCE_DREES = "Source : DREES, enquête TraCov2, données 2023, publication juin 2025.";
+const REPERES_DREES = [
+  {
+    chiffre: "46\u00a0%",
+    texte:
+      "des professionnels de santé déclarent travailler souvent ou toujours sous pression, contre 29\u00a0% de l'ensemble des salariés.",
+  },
+  {
+    chiffre: "50\u00a0%",
+    texte:
+      "estiment recevoir le respect et l'estime que mérite leur travail, contre 63\u00a0% de l'ensemble des salariés.",
+  },
+];
+
+const ACCOMPAGNEMENTS = [
+  {
+    titre: "Coaching Collectif",
+    items: [
+      "soutenir les dynamiques d'équipe",
+      "travailler les modes de coopération",
+      "clarifier les fonctionnements et les rôles",
+    ],
+  },
+  {
+    titre: "Coaching Individuel",
+    items: [
+      "réguler la charge émotionnelle liée à la fonction",
+      "prendre du recul sur la posture managériale",
+      "clarifier des situations complexes et travailler des objectifs identifiés",
+    ],
+  },
+];
+
+// Icône au trait du bandeau des repères chiffrés (histogramme).
+function IconChart() {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M6 42h36" />
+      <path d="M11 42V26h7v16M21 42V14h7v28M31 42V20h7v22" />
+    </svg>
+  );
+}
+
 export default function CoachingEtablissementsPage() {
   return (
     <>
-      <main className="min-h-screen overflow-hidden">
+      <div className="min-h-screen overflow-hidden">
         <Breadcrumbs
           items={[
             { label: "Coaching", href: "/coaching" },
@@ -54,7 +100,7 @@ export default function CoachingEtablissementsPage() {
           ]}
         />
         {/* --- 1. Titre */}
-        <section id="coaching" className="py-20 container">
+        <section id="coaching" data-hero className="py-20 container">
           <div className="text-center mb-8">
             <h1>
               Coaching{" "}
@@ -62,9 +108,9 @@ export default function CoachingEtablissementsPage() {
                 <strong>individuel</strong>
               </span>{" "}
               ou{" "}
-              <span className="text-accent">
+              <BrushUnderline className="text-accent">
                 <strong>collectif</strong>
-              </span>
+              </BrushUnderline>
               .
             </h1>
             <h2 className="py-5">
@@ -84,6 +130,32 @@ export default function CoachingEtablissementsPage() {
               réel et des contraintes organisationnelles.
             </h3>
           </div>
+        </section>
+
+        {/* --- 1b. REPÈRES CHIFFRÉS DREES (Story 4.3, validé par Cédric le
+            2026-10-31) : chiffres de la slide de formation, chacun avec sa
+            source (NFR3 : rien d'inventé). --- */}
+        <section id="reperes-chiffres" className="scroll-mt-20 bg-white pb-15">
+          <SectionBanner
+            title="Le stress au travail chez les professionnels de santé : des repères chiffrés"
+            icon={<IconChart />}
+          />
+          <ul role="list" className="container wide mt-8 grid list-none gap-6 md:grid-cols-2">
+            {REPERES_DREES.map((repere, i) => (
+              <PastelCard
+                key={repere.chiffre}
+                as="li"
+                tone={i % 2 === 0 ? "sky" : "peach"}
+                className="flex flex-col gap-3 p-8"
+              >
+                <p className="font-display text-5xl font-black leading-none text-accent">
+                  {repere.chiffre}
+                </p>
+                <p className="text-lg text-primary">{repere.texte}</p>
+                <p className="mt-auto text-sm text-primary/80">{SOURCE_DREES}</p>
+              </PastelCard>
+            ))}
+          </ul>
         </section>
 
         {/* --- 2. CONTEXTES : CARTES CONTRASTÉES --- */}
@@ -131,70 +203,51 @@ export default function CoachingEtablissementsPage() {
         />
 
         {/* --- 4. FORMES D'ACCOMPAGNEMENT --- */}
-        <section id="modalites-coaching" className="py-20 bg-muted/40 relative">
-          <div className="container mx-auto px-6">
-            <div className="flex flex-col lg:flex-row gap-20">
-              <div className="w-full md:w-1/2 lg:w-2/3">
-                <div className="relative w-full flex flex-col items-center mb-12">
-                  <h2 className="text-4xl font-display font-extrabold text-primary mb-6 relative z-20">
-                    Mes accompagnements coaching.
-                  </h2>
-                  <span className="absolute -left-10 -bottom-15 md:-left-10 md:-bottom-35 lg:-left-20 lg:-bottom-20 z-0 opacity-10 pointer-events-none select-none">
-                    <IconStairs className="w-56 h-56 md:w-85 md:h-85 text-primary -translate-x-8 md:-translate-x-20" />
-                  </span>
-                </div>
-                <div className="space-y-6">
-                  <h3 className="text-accent! text-xl!">Coaching Collectif</h3>
-                  {[
-                    "soutenir les dynamiques d'équipe",
-                    "travailler les modes de coopération",
-                    "clarifier les fonctionnements et les rôles",
-                  ].map((item, i) => (
-                    <div key={i} className="flex items-center gap-4 group">
-                      <div className="h-2 w-2 rounded-full bg-accent group-hover:w-8 transition-all"></div>
-                      <p className="text-lg text-primary/80 font-medium">
-                        {item}
-                      </p>
-                    </div>
-                  ))}
-                  <h3 className="text-accent! text-xl!">Coaching Individuel</h3>
-                  {[
-                    "réguler la charge émotionnelle liée à la fonction",
-                    "prendre du recul sur la posture managériale",
-                    "clarifier des situations complexes et travailler des objectifs identifiés",
-                  ].map((item, i) => (
-                    <div key={i} className="flex items-center gap-4 group">
-                      <div className="h-2 w-2 rounded-full bg-accent group-hover:w-8 transition-all"></div>
-                      <p className="text-lg text-primary/80 font-medium">
-                        {item}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Modalités pratiques */}
-              <div className="w-full md:w-1/2 lg:w-1/3 bg-white/5 p-12 cursor-default border border-white/10">
-                <h3 className="text-2xl font-bold mb-4">
-                  Modalités pratiques
+        <section id="modalites-coaching" className="scroll-mt-20 bg-white pb-15">
+          <SectionBanner title="Mes accompagnements coaching." icon={<IconEscalier />} />
+          <div className="container wide mt-8 grid gap-6 lg:grid-cols-3">
+            {ACCOMPAGNEMENTS.map((accompagnement, i) => (
+              <PastelCard
+                key={accompagnement.titre}
+                as="div"
+                tone={i % 2 === 0 ? "sky" : "peach"}
+                className="p-8"
+              >
+                <h3 className="font-display! text-xl! font-black! text-accent! m-0! mb-4! max-w-none!">
+                  {accompagnement.titre}
                 </h3>
-                <h4 className="text-accent font-black text-2xl mb-4 uppercase italic">
-                  Cadre sur-mesure
-                </h4>
-                <p className="text-primary text-lg leading-relaxed mb-6">
-                  Les modalités sont définies en fonction des besoins et du
-                  contexte : accompagnement{" "}
-                  <strong>individuel ou collectif</strong>, interventions{" "}
-                  <strong>ponctuelles ou inscrites dans la durée</strong>.
-                </p>
-                <p className="text-primary/70 text-base leading-relaxed mb-6">
-                  Les séances se déroulent en{" "}
-                  <strong>présentiel ou à distance</strong>. Le cadre est posé
-                  en amont, de manière claire et partagée.
-                </p>
-                <div className="w-12 h-1 bg-primary"></div>
-              </div>
-            </div>
+                <ul role="list" className="list-none space-y-3 p-0">
+                  {accompagnement.items.map((item) => (
+                    <li key={item} className="flex items-start gap-3">
+                      <span aria-hidden="true" className="mt-2.5 size-2 shrink-0 rounded-full bg-accent" />
+                      <p className="text-lg text-primary font-medium">{item}</p>
+                    </li>
+                  ))}
+                </ul>
+              </PastelCard>
+            ))}
+
+            {/* Modalités pratiques */}
+            <PastelCard as="div" tone="sky" className="p-8">
+              <h3 className="font-display! text-2xl! font-black! text-primary! m-0! mb-4! max-w-none!">
+                Modalités pratiques
+              </h3>
+              <h4 className="text-accent font-black text-2xl mb-4 uppercase italic">
+                Cadre sur-mesure
+              </h4>
+              <p className="text-primary text-lg leading-relaxed mb-6">
+                Les modalités sont définies en fonction des besoins et du
+                contexte : accompagnement{" "}
+                <strong>individuel ou collectif</strong>, interventions{" "}
+                <strong>ponctuelles ou inscrites dans la durée</strong>.
+              </p>
+              <p className="text-primary/80 text-base leading-relaxed mb-6">
+                Les séances se déroulent en{" "}
+                <strong>présentiel ou à distance</strong>. Le cadre est posé
+                en amont, de manière claire et partagée.
+              </p>
+              <span aria-hidden="true" className="block h-1 w-12 rounded-full bg-orange" />
+            </PastelCard>
           </div>
         </section>
 
@@ -214,7 +267,7 @@ export default function CoachingEtablissementsPage() {
                 "Aux cadres de santé et managers cherchant du recul sur leur posture",
             },
             {
-              icon: <IconStairs className="w-6 h-6 text-accent" />,
+              icon: <IconEscalier className="w-6 h-6 text-accent" />,
               titre:
                 "Aux professionnels en responsabilité traversant une transition",
             },
@@ -247,7 +300,7 @@ export default function CoachingEtablissementsPage() {
 
         {/* --- 7. CTA FINAL --- */}
         <CtaElan contactType="institution" contactSujet="Coaching en établissement" />
-      </main>
+      </div>
     </>
   );
 }

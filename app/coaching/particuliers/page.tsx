@@ -2,6 +2,7 @@ import ArticlesBlogLiesBloc from "@/components/ArticlesBlogLiesBloc";
 import BadgesBloc from "@/components/BadgesBloc";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import CartesContrastBloc from "@/components/CartesContrastBloc";
+import { BrushUnderline, PastelCard, SectionBanner } from "@/components/charte";
 import Citation from "@/components/Citation";
 import CtaElan from "@/components/CtaElan";
 import PublicsCiblesBloc from "@/components/PublicsCiblesBloc";
@@ -9,9 +10,10 @@ import {
   IconHand,
   IconHeart,
   IconManager,
-  IconStairs,
+  IconEscalier,
 } from "@/components/ui/icons-publics";
 import { OG_BANNER_IMAGES } from "@/lib/openGraph";
+import { cn } from "@/lib/utils";
 
 export const metadata = {
   title: "Coaching individuel pour particuliers à Toulouse et à distance",
@@ -41,10 +43,23 @@ export const metadata = {
   },
 };
 
+const PROCESSUS = [
+  "Évaluation de votre situation et définition de vos objectifs",
+  "Exploration des freins et identification de vos ressources",
+  "Clarification de vos enjeux et de votre direction",
+  "Régulation émotionnelle et leviers d'ajustement",
+  "Mise en mouvement progressive, pas à pas",
+  "Consolidation et ancrage des changements",
+];
+
+// Pastilles numérotées comme Steps (orange foncé, pétrole, bleu nuit) :
+// blanc dessus ≥ 5.7:1.
+const BADGE_TONES = ["bg-accent", "bg-petrol", "bg-primary"];
+
 export default function CoachingParticuliersPage() {
   return (
     <>
-      <main className="min-h-screen overflow-hidden">
+      <div className="min-h-screen overflow-hidden">
         <Breadcrumbs
           items={[
             { label: "Coaching", href: "/coaching" },
@@ -52,9 +67,11 @@ export default function CoachingParticuliersPage() {
           ]}
         />
         {/* --- 1. Titre */}
-        <section id="coaching-individuel" className="py-20 container">
+        <section id="coaching-individuel" data-hero className="py-20 container">
           <div className="text-center mb-8">
-            <h1>Coaching individuel.</h1>
+            <h1>
+              Coaching <BrushUnderline>individuel</BrushUnderline>.
+            </h1>
             <h2 className="py-5">
               Un espace pour{" "}
               <span className="text-accent">
@@ -121,58 +138,56 @@ export default function CoachingParticuliersPage() {
           }
         />
 
-        {/* --- 4. MODALITÉS D'ACCOMPAGNEMENT --- */}
-        <section id="modalites" className="py-20 bg-muted/40 relative">
-          <div className="container mx-auto px-6">
-            <div className="flex flex-col lg:flex-row gap-20">
-              <div className="w-full md:w-1/2 lg:w-2/3">
-                <div className="relative w-full flex flex-col items-center mb-12">
-                  <h2 className="text-4xl font-display font-extrabold text-primary mb-6 relative z-20">
-                    Un processus structuré & progressif
-                  </h2>
-                  <span className="absolute -left-10 -bottom-15 md:-left-10 md:-bottom-35 lg:-left-20 lg:-bottom-20 z-0 opacity-10 pointer-events-none select-none">
-                    <IconStairs className="w-56 h-56 md:w-85 md:h-85 text-primary -translate-x-8 md:-translate-x-20" />
+        {/* --- 4. MODALITÉS D'ACCOMPAGNEMENT (Story 4.3 : démarche ordonnée,
+            numéros décoratifs, l'ordre est porté par <ol>) --- */}
+        <section id="modalites" className="scroll-mt-20 bg-white pb-15">
+          <SectionBanner
+            title="Un processus structuré & progressif"
+            icon={<IconEscalier />}
+          />
+          <div className="container wide mt-8 grid gap-8 lg:grid-cols-3">
+            <ol role="list" className="grid list-none gap-3 p-0 lg:col-span-2">
+              {PROCESSUS.map((item, i) => (
+                <li
+                  key={item}
+                  className={cn(
+                    "flex items-center gap-4 rounded-3xl px-5 py-4",
+                    i % 2 === 0 ? "bg-sky" : "bg-peach",
+                  )}
+                >
+                  <span
+                    aria-hidden="true"
+                    className={cn(
+                      "flex size-9 shrink-0 items-center justify-center rounded-full font-display text-lg font-black text-white",
+                      BADGE_TONES[i % BADGE_TONES.length],
+                    )}
+                  >
+                    {i + 1}
                   </span>
-                </div>
-                <div className="space-y-6">
-                  {[
-                    "Évaluation de votre situation et définition de vos objectifs",
-                    "Exploration des freins et identification de vos ressources",
-                    "Clarification de vos enjeux et de votre direction",
-                    "Régulation émotionnelle et leviers d'ajustement",
-                    "Mise en mouvement progressive, pas à pas",
-                    "Consolidation et ancrage des changements",
-                  ].map((item, i) => (
-                    <div key={i} className="flex items-center gap-4 group">
-                      <div className="h-2 w-2 rounded-full bg-accent group-hover:w-8 transition-all"></div>
-                      <p className="text-lg text-primary/80 font-medium">
-                        {item}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
+                  <p className="text-lg font-semibold text-primary">{item}</p>
+                </li>
+              ))}
+            </ol>
 
-              {/* Cadre de l'accompagnement */}
-              <div className="w-full md:w-1/2 lg:w-1/3 bg-white/5 p-12 cursor-default border border-white/10">
-                <h3 className="text-2xl font-bold mb-4">
-                  Cadre de l&apos;accompagnement
-                </h3>
-                <h4 className="text-accent font-black text-2xl mb-4 uppercase italic">
-                  Modalités pratiques
-                </h4>
-                <p className="text-primary text-lg leading-relaxed mb-6">
-                  L&apos;accompagnement se déroule généralement sur{" "}
-                  <strong>environ huit séances</strong>, permettant un travail
-                  progressif, en profondeur, et respectueux de votre rythme.
-                </p>
-                <p className="text-primary/70 text-base leading-relaxed mb-6">
-                  Les séances se déroulent <strong>à distance</strong>, dans un
-                  cadre <strong>sécurisé et confidentiel</strong>.
-                </p>
-                <div className="w-12 h-1 bg-primary"></div>
-              </div>
-            </div>
+            {/* Cadre de l'accompagnement */}
+            <PastelCard as="div" tone="peach" className="h-fit p-8">
+              <h3 className="font-display! text-2xl! font-black! text-primary! m-0! mb-4! max-w-none!">
+                Cadre de l&apos;accompagnement
+              </h3>
+              <h4 className="text-accent font-black text-2xl mb-4 uppercase italic">
+                Modalités pratiques
+              </h4>
+              <p className="text-primary text-lg leading-relaxed mb-6">
+                L&apos;accompagnement se déroule généralement sur{" "}
+                <strong>environ huit séances</strong>, permettant un travail
+                progressif, en profondeur, et respectueux de votre rythme.
+              </p>
+              <p className="text-primary/80 text-base leading-relaxed mb-6">
+                Les séances se déroulent <strong>à distance</strong>, dans un
+                cadre <strong>sécurisé et confidentiel</strong>.
+              </p>
+              <span aria-hidden="true" className="block h-1 w-12 rounded-full bg-orange" />
+            </PastelCard>
           </div>
         </section>
 
@@ -187,7 +202,7 @@ export default function CoachingParticuliersPage() {
                 "À toute personne ressentant un stress ou une charge émotionnelle trop lourde",
             },
             {
-              icon: <IconStairs className="w-6 h-6 text-accent" />,
+              icon: <IconEscalier className="w-6 h-6 text-accent" />,
               titre:
                 "À ceux qui traversent une transition ou font face à un choix difficile",
             },
@@ -205,7 +220,7 @@ export default function CoachingParticuliersPage() {
         />
 
         {/* --- 6. Lien avec les autres accompagnements --- */}
-        <p className="text-center text-stone-500 text-sm mb-20">
+        <p className="container text-center text-primary/80 text-sm mb-20">
           Un premier échange permet de vérifier ensemble si le coaching individuel est adapté à votre situation.
         </p>
 
@@ -214,7 +229,7 @@ export default function CoachingParticuliersPage() {
 
         {/* --- 7. CTA FINAL --- */}
         <CtaElan contactType="particulier" contactSujet="Coaching individuel" />
-      </main>
+      </div>
     </>
   );
 }

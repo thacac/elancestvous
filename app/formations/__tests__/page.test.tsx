@@ -77,7 +77,8 @@ describe("FormationsCataloguePage — fil d'Ariane (rattrapage design)", () => {
     render(jsx);
 
     expect(screen.getByRole("link", { name: "Accueil" })).toHaveAttribute("href", "/");
-    expect(screen.getByText("Formations")).toBeInTheDocument();
+    // Élément courant du fil d'Ariane (le H1 contient aussi « Formations »).
+    expect(screen.getByText("Formations", { selector: "[aria-current='page']" })).toBeInTheDocument();
   });
 });
 

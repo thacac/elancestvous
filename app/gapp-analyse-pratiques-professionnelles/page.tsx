@@ -3,6 +3,7 @@ import ArticulationBloc from "@/components/ArticulationBloc";
 import BadgesBloc from "@/components/BadgesBloc";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import CartesContrastBloc from "@/components/CartesContrastBloc";
+import { BrushUnderline, PastelCard, SectionBanner } from "@/components/charte";
 import Citation from "@/components/Citation";
 import CtaElan from "@/components/CtaElan";
 import PublicsCiblesBloc from "@/components/PublicsCiblesBloc";
@@ -43,16 +44,16 @@ export const metadata = {
 export default function GappPage() {
   return (
     <>
-      <main className="min-h-screen overflow-hidden">
+      <div className="min-h-screen overflow-hidden">
         <Breadcrumbs items={[{ label: "GAPP" }]} />
         {/* --- 1. Titre --- */}
-        <section id="gapp-titre" className="py-20 container">
+        <section id="gapp-titre" data-hero className="py-20 container">
           <div className="text-center mb-8">
             <h1>
               Groupe d&apos;analyse des{" "}
-              <span className="text-accent">
+              <BrushUnderline className="text-accent">
                 <strong>pratiques professionnelles</strong>
-              </span>
+              </BrushUnderline>
               .
             </h1>
             <h2 className="py-5 ">
@@ -80,7 +81,7 @@ export default function GappPage() {
 
         <section>
           <div className="container mx-auto text-center -mt-20 mb-20">
-            <p className="text-md italic text-stone-500 mb-2">
+            <p className="text-md italic text-primary/80 mb-2">
               (En cours de certification, animation de groupe d’analyse des pratiques professionnelles.)
             </p>
           </div>
@@ -128,30 +129,21 @@ export default function GappPage() {
         />
 
         {/* --- 3b. Démarche dans la durée --- */}
-        <section
-          id="gapp-duree"
-          className="py-16 bg-muted/40 relative overflow-hidden"
-        >
-          <div className="container mx-auto px-6 text-center max-w-3xl flex flex-col items-center relative z-10">
-            <div className="relative w-full flex flex-col items-center mb-4">
-              <h2 className="text-primary font-display font-bold text-2xl mb-6 relative z-20">
-                Une démarche inscrite dans la durée
-              </h2>
-              {/* Icône montre moderne en arrière-plan */}
-              <span className="absolute left-0 -bottom-5 md:-left-20 md:-bottom-10 z-0 opacity-10 pointer-events-none select-none">
-                <IconWatch className="w-45 h-45 md:w-65 md:h-65 text-primary" />
-              </span>
-            </div>
-            <p className="text-lg text-primary/80 mb-2 relative z-20 text-justify">
-              Les groupes d’analyse de la pratique s’inscrivent dans une logique
-              de durée, avec une régularité définie en fonction des besoins et
-              du contexte des équipes.
-            </p>
-            <p className="text-lg text-primary/80 mb-2 relative z-20 text-justify">
-              Ils constituent un espace de respiration professionnelle,
-              complémentaire aux actions de formation ou de coaching, sans
-              objectif de performance ni injonction au changement.
-            </p>
+        <section id="gapp-duree" className="scroll-mt-20 bg-white pb-15">
+          <SectionBanner title="Une démarche inscrite dans la durée" icon={<IconWatch />} />
+          <div className="container mt-8">
+            <PastelCard as="div" tone="sky" className="mx-auto max-w-3xl p-8 md:p-10">
+              <p className="text-lg text-primary mb-4">
+                Les groupes d’analyse de la pratique s’inscrivent dans une logique
+                de durée, avec une régularité définie en fonction des besoins et
+                du contexte des équipes.
+              </p>
+              <p className="text-lg text-primary">
+                Ils constituent un espace de respiration professionnelle,
+                complémentaire aux actions de formation ou de coaching, sans
+                objectif de performance ni injonction au changement.
+              </p>
+            </PastelCard>
           </div>
         </section>
         {/* --- 4. Pour qui ? --- */}
@@ -204,7 +196,7 @@ export default function GappPage() {
           contactType="institution"
           contactSujet="GAPP – Analyse des pratiques professionnelles"
         />
-      </main>
+      </div>
     </>
   );
 }

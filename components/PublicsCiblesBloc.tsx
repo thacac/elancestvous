@@ -1,4 +1,7 @@
-import { ReactNode } from "react";
+import { PastelCard, SectionBanner } from "@/components/charte";
+import { cn } from "@/lib/utils";
+
+import type { ReactNode } from "react";
 
 export interface PublicCibleCardProps {
   icon?: ReactNode;
@@ -9,40 +12,49 @@ export interface PublicsCiblesBlocProps {
   titre: string;
   sousTitre?: string;
   cartes: PublicCibleCardProps[];
+  /** Icône au trait du bandeau (décorative). */
+  icon?: ReactNode;
   className?: string;
 }
 
+// Story 4.3 : bandeau pétrole (vrai h2), introduction en paragraphe, puis
+// publics en cartes pastel alternées. L'icône (décorative) passe en blanc
+// dans une pastille pétrole, quelle que soit la couleur fournie par la page.
 export default function PublicsCiblesBloc({
   titre,
   sousTitre,
   cartes,
+  icon,
   className = "",
 }: PublicsCiblesBlocProps) {
   return (
-    <section className={`container py-14 ${className}`}>
-      <div className="max-w-4xl mx-auto bg-white/90 rounded-2xl shadow-lg border border-stone-200 p-8 md:p-12 flex flex-col items-center text-center">
-        <h2 className="text-primary text-3xl md:text-4xl font-extrabold mb-4 flex items-center gap-3">
-          <span className="inline-block w-2 h-8 bg-accent rounded-full"></span>
-          {titre}
-        </h2>
-        {sousTitre && (
-          <p className="mb-8 text-lg text-stone-600 max-w-2xl mx-auto">{sousTitre}</p>
-        )}
-        <div className={`grid grid-cols-1 sm:grid-cols-${cartes.length > 1 ? 2 : 1} gap-6 w-full`}>
+    <section className={cn("bg-white pb-15", className)}>
+      <SectionBanner title={titre} icon={icon} />
+      <div className="container wide mt-8">
+        {sousTitre && <p className="mb-6 text-lg text-primary/80">{sousTitre}</p>}
+        <ul
+          role="list"
+          className={cn("grid list-none grid-cols-1 gap-4 p-0", cartes.length > 1 && "sm:grid-cols-2")}
+        >
           {cartes.map((carte, i) => (
-            <div
+            <PastelCard
               key={i}
-              className="bg-white rounded-lg border border-accent/20 p-6 flex items-center gap-4 shadow-sm col-span-1"
+              as="li"
+              tone={i % 2 === 0 ? "sky" : "peach"}
+              className="flex items-center gap-4 p-5"
             >
-              <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-accent/10">
-                {carte.icon}
-              </span>
-              <span className="font-semibold text-primary text-left">
-                {carte.titre}
-              </span>
-            </div>
+              {carte.icon && (
+                <span
+                  aria-hidden="true"
+                  className="flex size-12 shrink-0 items-center justify-center rounded-full bg-petrol text-white [&_svg]:size-6 [&_svg]:text-white"
+                >
+                  {carte.icon}
+                </span>
+              )}
+              <span className="font-semibold text-primary">{carte.titre}</span>
+            </PastelCard>
           ))}
-        </div>
+        </ul>
       </div>
     </section>
   );
