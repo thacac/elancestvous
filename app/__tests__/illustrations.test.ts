@@ -32,6 +32,13 @@ describe.each([
   ["soignante-reflexion.jpg", 80],
   ["soignante-affirmation.jpg", 80],
   ["soignante-apaisee.jpg", 80],
+  // Story 4.3 : tuiles Famille du hub /formations (128 px) et carte
+  // Établissements du hub /coaching (160 px).
+  ["presse-papiers-coche.jpg", 128],
+  ["soignante-stressee.jpg", 128],
+  ["soignante-explique.jpg", 128],
+  ["collegues-en-tension.jpg", 128],
+  ["responsable-et-soignante.jpg", 160],
 ])("public/illustrations/%s", (fichier, affichage) => {
   const { width, height } = jpegSize(`public/illustrations/${fichier}`);
 

@@ -208,6 +208,35 @@ describe("/gapp — carte « Une démarche inscrite dans la durée »", () => {
   });
 });
 
+// Story 4.3 : médaillons dessinés tirés des slides (validés par Cédric le
+// 2026-10-31). Décoratifs : le titre de la carte porte l'information.
+describe("Médaillons dessinés", () => {
+  it("/coaching : un dessin décoratif par carte", () => {
+    render(<CoachingHubPage />);
+    const items = within(document.querySelector<HTMLElement>("[data-hero] ul")!).getAllByRole("listitem");
+    const sources = items.map((item) => {
+      const image = item.querySelector("img")!;
+      expect(image).toHaveAttribute("alt", "");
+      return image.getAttribute("src");
+    });
+    expect(sources[0]).toContain("soignante-pensive-coaching.jpg");
+    expect(sources[1]).toContain("responsable-et-soignante.jpg");
+  });
+
+  it("/formations : un dessin décoratif par tuile Famille", async () => {
+    await renderFormations();
+    const tuiles = Array.from(document.querySelector('[aria-label="Familles de formations"] > div')!.children);
+    const sources = tuiles.map((tuile) => {
+      const image = tuile.querySelector("img")!;
+      expect(image).toHaveAttribute("alt", "");
+      return decodeURIComponent(image.getAttribute("src")!);
+    });
+    ["presse-papiers-coche.jpg", "soignante-stressee.jpg", "soignante-explique.jpg", "collegues-en-tension.jpg"].forEach(
+      (fichier, i) => expect(sources[i]).toContain(fichier),
+    );
+  });
+});
+
 // Palette resserrée : les anciennes couleurs disparaissent des pages touchées.
 describe("Anciennes couleurs retirées (Story 4.3)", () => {
   it.each([

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import Breadcrumbs from "@/components/Breadcrumbs";
@@ -42,6 +43,14 @@ export default function CoachingHubPage() {
 
         <ul role="list" className="grid list-none gap-8 p-0 md:grid-cols-2 max-w-4xl mx-auto">
           <PastelCard as="li" tone="sky" className="p-10 text-center flex flex-col items-center gap-4">
+            <Image
+              src="/illustrations/soignante-pensive-coaching.jpg"
+              alt=""
+              width={160}
+              height={160}
+              sizes="160px"
+              className="size-40 rounded-full border-4 border-white object-cover"
+            />
             <h3 className="font-display! text-2xl! font-black! text-primary! m-0! max-w-none!">Particuliers</h3>
             <p className="text-primary/80">
               Un espace pour faire le point, prendre du recul et avancer à
@@ -53,6 +62,14 @@ export default function CoachingHubPage() {
           </PastelCard>
 
           <PastelCard as="li" tone="peach" className="p-10 text-center flex flex-col items-center gap-4">
+            <Image
+              src="/illustrations/responsable-et-soignante.jpg"
+              alt=""
+              width={160}
+              height={160}
+              sizes="160px"
+              className="size-40 rounded-full border-4 border-white object-cover"
+            />
             <h3 className="font-display! text-2xl! font-black! text-primary! m-0! max-w-none!">Établissements</h3>
             <p className="text-primary/80">
               Un accompagnement pour soutenir les dynamiques d&apos;équipe et

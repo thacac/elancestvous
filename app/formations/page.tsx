@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import Breadcrumbs from "@/components/Breadcrumbs";
@@ -39,6 +40,15 @@ const FAMILLE_TAG_CLASSES: Record<FormationFamilleId, string> = {
   "accompagnement-professionnel-etablissements-sante":
     "bg-cat-accompagnement text-cat-accompagnement-foreground",
   "dynamique-equipe-etablissements-sante": "bg-cat-dynamique text-cat-dynamique-foreground",
+};
+
+// Médaillons dessinés des tuiles (Story 4.3) : tirés des slides de
+// formation, décoratifs (le titre de la tuile porte l'information).
+const FAMILLE_TUILE_ILLUSTRATIONS: Record<FormationFamilleId, string> = {
+  "cadre-legal-etablissements-sante": "/illustrations/presse-papiers-coche.jpg",
+  "prevention-rps-qvct-etablissements-sante": "/illustrations/soignante-stressee.jpg",
+  "accompagnement-professionnel-etablissements-sante": "/illustrations/soignante-explique.jpg",
+  "dynamique-equipe-etablissements-sante": "/illustrations/collegues-en-tension.jpg",
 };
 
 // Descriptions courtes pour les tuiles familles (Story 2.4) : propres à cet
@@ -108,6 +118,14 @@ export default async function FormationsCataloguePage({
               tone={i % 2 === 0 ? "sky" : "peach"}
               className="flex flex-col p-8"
             >
+              <Image
+                src={FAMILLE_TUILE_ILLUSTRATIONS[f.id]}
+                alt=""
+                width={128}
+                height={128}
+                sizes="128px"
+                className="mb-4 size-32 rounded-full border-4 border-white object-cover"
+              />
               <h2 className="font-display! text-xl! font-black! text-primary! mb-3! break-words">{f.label}</h2>
               <p className="text-primary/80 mb-4 text-sm leading-relaxed">
                 {FAMILLE_TUILE_DESCRIPTIONS[f.id]}
