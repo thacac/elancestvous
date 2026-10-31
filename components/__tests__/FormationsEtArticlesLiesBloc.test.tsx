@@ -112,7 +112,9 @@ describe("FormationsEtArticlesLiesBloc — bloc partagé par tous les hubs Famil
     expect(getRelatedArticleLinks).toHaveBeenCalledTimes(1);
   });
 
-  it("ne rend qu'une seule fois le bloc Formations disponibles, sans double conteneur (bare)", () => {
+  // Story 4.4 : une seule section, ouverte par le bandeau « Formations
+  // disponibles » ; le bloc imbriqué (bare) n'en ajoute pas de seconde.
+  it("ne rend qu'une seule fois le bloc Formations disponibles, sans double section ni double titre (bare)", () => {
     const { container } = render(
       <FormationsEtArticlesLiesBloc
         famille="cadre-legal-etablissements-sante"
@@ -120,7 +122,8 @@ describe("FormationsEtArticlesLiesBloc — bloc partagé par tous les hubs Famil
       />
     );
 
-    expect(container.querySelectorAll("section")).toHaveLength(0);
+    expect(container.querySelectorAll("section")).toHaveLength(1);
+    expect(screen.getAllByRole("heading", { name: "Formations disponibles" })).toHaveLength(1);
   });
 
   it("liste la fiche réelle de la famille demandée", () => {

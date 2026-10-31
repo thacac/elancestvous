@@ -47,7 +47,8 @@ export const metadata = {
 export default function CadreLegalPage() {
   return (
     <>
-      <main className="min-h-screen overflow-hidden">
+      {/* Story 4.4 : le layout fournit déjà <main> (un seul repère principal). */}
+      <div className="min-h-screen overflow-hidden">
         <Breadcrumbs
           items={[
             { label: "Formations", href: "/formations" },
@@ -55,7 +56,7 @@ export default function CadreLegalPage() {
           ]}
         />
         {/* --- 1. Titre */}
-        <section id="formations-cadre-legal" className="py-20 container">
+        <section id="formations-cadre-legal" data-hero className="py-20 container">
           <div className="text-center mb-8">
             <h1>
               Cadre légal,{" "}
@@ -183,7 +184,7 @@ export default function CadreLegalPage() {
           contactType="institution"
           contactSujet="Formations « Cadre légal, droits et éthique »"
         />
-      </main>
+      </div>
     </>
   );
 }

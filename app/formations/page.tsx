@@ -34,12 +34,18 @@ export const metadata: Metadata = {
 // Pastille de catégorie par famille (rattrapage design Chantier B) : couleur
 // dédiée par famille, distincte de la pastille "Toutes" et des CTA — dérivée
 // des tokens --color-cat-* de app/globals.css, jamais du hex en dur.
+// Story 4.4 : sur carte pastel, le fond cat-* se confond avec le ciel ou la
+// pêche (≈ 1:1) ; la bordure dans la couleur de texte (≥ 5:1) garde la
+// pastille visible.
 const FAMILLE_TAG_CLASSES: Record<FormationFamilleId, string> = {
-  "cadre-legal-etablissements-sante": "bg-cat-legal text-cat-legal-foreground",
-  "prevention-rps-qvct-etablissements-sante": "bg-cat-prevention text-cat-prevention-foreground",
+  "cadre-legal-etablissements-sante":
+    "bg-cat-legal text-cat-legal-foreground border border-cat-legal-foreground",
+  "prevention-rps-qvct-etablissements-sante":
+    "bg-cat-prevention text-cat-prevention-foreground border border-cat-prevention-foreground",
   "accompagnement-professionnel-etablissements-sante":
-    "bg-cat-accompagnement text-cat-accompagnement-foreground",
-  "dynamique-equipe-etablissements-sante": "bg-cat-dynamique text-cat-dynamique-foreground",
+    "bg-cat-accompagnement text-cat-accompagnement-foreground border border-cat-accompagnement-foreground",
+  "dynamique-equipe-etablissements-sante":
+    "bg-cat-dynamique text-cat-dynamique-foreground border border-cat-dynamique-foreground",
 };
 
 // Médaillons dessinés des tuiles (Story 4.3) : tirés des slides de
@@ -64,6 +70,12 @@ const FAMILLE_TUILE_DESCRIPTIONS: Record<FormationFamilleId, string> = {
   "dynamique-equipe-etablissements-sante":
     "Renforcer la coopération et la cohésion d'une équipe dans la durée.",
 };
+
+// Filtre en forme de bouton du site, libellé autorisé à passer à la ligne.
+const FILTRE_CLASSES = "h-auto min-h-9 whitespace-normal px-4 py-2 text-center";
+const TAG_CLASSES = "text-xs font-semibold uppercase tracking-wide rounded-full px-3 py-1 w-fit";
+// Styles globaux h2 hors @layer (globals.css) : modificateurs `!`.
+const TITRE_CARTE_CLASSES = "font-display! text-lg! font-black! text-primary! m-0! leading-snug";
 
 export default async function FormationsCataloguePage({
   searchParams,
@@ -138,15 +150,21 @@ export default async function FormationsCataloguePage({
         </div>
       </section>
 
+      {/* Story 4.4 : les filtres restent des liens (AD-5), en forme de
+          bouton (rounded-md, jamais de pilule : PRD §4.7). Le libellé peut
+          passer à la ligne : en whitespace-nowrap, « Dynamique d'équipe et
+          développement professionnel » débordait à 320 px. Le filtre actif
+          est signalé par aria-current, pas seulement par sa couleur. */}
       <nav
         aria-label="Filtre par catégorie"
         className="container flex flex-wrap gap-2 mb-10"
       >
         <Link
           href="/formations"
+          aria-current={activeFamille ? undefined : "page"}
           className={cn(
             buttonVariants({ variant: activeFamille ? "tinted" : "default" }),
-            "rounded-full"
+            FILTRE_CLASSES
           )}
         >
           Toutes
@@ -155,9 +173,10 @@ export default async function FormationsCataloguePage({
           <Link
             key={f.id}
             href={`/formations?famille=${f.id}`}
+            aria-current={activeFamille === f.id ? "page" : undefined}
             className={cn(
               buttonVariants({ variant: activeFamille === f.id ? "default" : "tinted" }),
-              "rounded-full"
+              FILTRE_CLASSES
             )}
           >
             {f.label}
@@ -165,54 +184,56 @@ export default async function FormationsCataloguePage({
         ))}
       </nav>
 
-      <div className="container grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {formationsAffichees.map((formation) => {
-          const familleLabel = FORMATION_FAMILLES.find(
-            (f) => f.id === formation.famille
-          )!.label;
-          return (
-            <div
-              key={formation.slug}
-              className="border border-stone-200 rounded-xl p-6 flex flex-col gap-3"
-            >
-              <span
-                className={cn(
-                  FAMILLE_TAG_CLASSES[formation.famille],
-                  "text-xs font-semibold uppercase tracking-wide rounded-full px-3 py-1 w-fit"
-                )}
+      {/* Story 4.4 : cartes pastel ciel / pêche alternées, fiches puis
+          familles encore vides. */}
+      <div className="container">
+        <ul
+          role="list"
+          aria-label="Formations du catalogue"
+          className="grid list-none gap-6 p-0 sm:grid-cols-2 lg:grid-cols-3"
+        >
+          {formationsAffichees.map((formation, i) => {
+            const familleLabel = FORMATION_FAMILLES.find(
+              (f) => f.id === formation.famille
+            )!.label;
+            return (
+              <PastelCard
+                key={formation.slug}
+                as="li"
+                tone={i % 2 === 0 ? "sky" : "peach"}
+                className="flex flex-col gap-3"
               >
-                {familleLabel}
+                <span className={cn(FAMILLE_TAG_CLASSES[formation.famille], TAG_CLASSES)}>
+                  {familleLabel}
+                </span>
+                <h2 className={TITRE_CARTE_CLASSES}>{formation.titre}</h2>
+                <p className="text-sm text-primary/80 mt-auto">{formation.duree}</p>
+                <Link
+                  href={`/formations/${formation.famille}/${formation.slug}`}
+                  className={buttonVariants({ variant: "accent" })}
+                >
+                  Voir la fiche
+                </Link>
+              </PastelCard>
+            );
+          })}
+          {famillesSansFormation.map((f, j) => (
+            <PastelCard
+              key={f.id}
+              as="li"
+              tone={(formationsAffichees.length + j) % 2 === 0 ? "sky" : "peach"}
+              className="flex flex-col gap-3 border-2 border-dashed border-petrol"
+            >
+              <span className={cn(FAMILLE_TAG_CLASSES[f.id], TAG_CLASSES)}>
+                {f.label}
               </span>
-              <h2 className="text-lg font-bold text-primary">{formation.titre}</h2>
-              <p className="text-xs text-stone-500 mt-auto">{formation.duree}</p>
-              <Link
-                href={`/formations/${formation.famille}/${formation.slug}`}
-                className={buttonVariants({ variant: "accent" })}
-              >
-                Voir la fiche
-              </Link>
-            </div>
-          );
-        })}
-        {famillesSansFormation.map((f) => (
-          <div
-            key={f.id}
-            className="border border-dashed border-stone-300 bg-stone-50/60 rounded-xl p-6 flex flex-col gap-3"
-          >
-            <span
-              className={cn(
-                FAMILLE_TAG_CLASSES[f.id],
-                "text-xs font-semibold uppercase tracking-wide rounded-full px-3 py-1 w-fit"
-              )}
-            >
-              {f.label}
-            </span>
-            <h2 className="text-lg font-bold text-primary">Bientôt disponible</h2>
-            <p className="text-xs text-stone-500 mt-auto">
-              Cette famille est en cours de rédaction — aucune fiche publiée pour l&apos;instant.
-            </p>
-          </div>
-        ))}
+              <h2 className={TITRE_CARTE_CLASSES}>Bientôt disponible</h2>
+              <p className="text-sm text-primary/80 mt-auto">
+                Cette famille est en cours de rédaction — aucune fiche publiée pour l&apos;instant.
+              </p>
+            </PastelCard>
+          ))}
+        </ul>
       </div>
     </div>
   );

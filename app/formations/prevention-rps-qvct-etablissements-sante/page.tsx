@@ -2,12 +2,24 @@ import ArticulationBloc from "@/components/ArticulationBloc";
 import BadgesBloc from "@/components/BadgesBloc";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import CartesContrastBloc from "@/components/CartesContrastBloc";
+import { PastelCard, SectionBanner } from "@/components/charte";
 import Citation from "@/components/Citation";
 import CtaElan from "@/components/CtaElan";
 import FormationsEtArticlesLiesBloc from "@/components/FormationsEtArticlesLiesBloc";
 import PublicsCiblesBloc from "@/components/PublicsCiblesBloc";
-import { IconBuilding, IconHand, IconHeart, IconManager, IconStairs, IconStethoscope } from "@/components/ui/icons-publics";
+import { IconBuilding, IconEscalier, IconHand, IconHeart, IconManager, IconStethoscope } from "@/components/ui/icons-publics";
 import { OG_BANNER_IMAGES } from "@/lib/openGraph";
+
+// Thèmes du cycle (texte inchangé, Story 4.4 : simple déplacement en
+// constante pour la carte ciel).
+const THEMES_DU_CYCLE = [
+  "Mécanismes du stress et de la charge émotionnelle",
+  "Prévention des situations fragilisantes",
+  "Identification des facteurs de stress internes et externes",
+  "Régulation émotionnelle et leviers d'ajustement",
+  "Communication et relations professionnelles",
+  "Sens du travail et valeurs professionnelles",
+];
 
 const TARGET_PAGE = "/formations/prevention-rps-qvct-etablissements-sante";
 
@@ -44,7 +56,8 @@ export const metadata = {
 export default function PreventionRpsQvctPage() {
   return (
     <>
-      <main className="min-h-screen overflow-hidden">
+      {/* Story 4.4 : le layout fournit déjà <main> (un seul repère principal). */}
+      <div className="min-h-screen overflow-hidden">
         <Breadcrumbs
           items={[
             { label: "Formations", href: "/formations" },
@@ -52,7 +65,7 @@ export default function PreventionRpsQvctPage() {
           ]}
         />
         {/* --- 1. Titre */}
-        <section id="formations-professionnelles" className="py-20 container">
+        <section id="formations-professionnelles" data-hero className="py-20 container">
           <div className="text-center mb-8">
             <h1>Formations professionnelles.</h1>
             <h2 className="py-5 ">
@@ -129,56 +142,39 @@ export default function PreventionRpsQvctPage() {
           }
         />
 
-        {/* --- 4. CONTENU DU CYCLE : LISTE ÉPURÉE & "KIT" --- */}
-        <section id="formations-contenu" className="py-20 bg-muted/40 relative">
-          <div className="container mx-auto px-6">
-            <div className="flex flex-col lg:flex-row gap-20">
-              <div className="w-full md:w-1/2 lg:w-2/3">
-                <div className="relative w-full flex flex-col items-center mb-12">
-                  <h2 className="text-4xl font-display font-extrabold text-primary mb-6 relative z-20">
-                    Un cycle structuré & cohérent
-                  </h2>
-                  {/* Icône escalier stylisé en arrière-plan */}
-                  <span className="absolute -left-10 -bottom-15 md:-left-10 md:-bottom-35 lg:-left-20 lg:-bottom-20 z-0 opacity-10 pointer-events-none select-none">
-                    <IconStairs className="w-56 h-56 md:w-85 md:h-85 text-primary -translate-x-8 md:-translate-x-20" />
-                  </span>
-                </div>
-                <div className="space-y-6">
-                  {[
-                    "Mécanismes du stress et de la charge émotionnelle",
-                    "Prévention des situations fragilisantes",
-                    "Identification des facteurs de stress internes et externes",
-                    "Régulation émotionnelle et leviers d'ajustement",
-                    "Communication et relations professionnelles",
-                    "Sens du travail et valeurs professionnelles",
-                  ].map((item, i) => (
-                    <div key={i} className="flex items-center gap-4 group">
-                      <div className="h-2 w-2 rounded-full bg-accent group-hover:w-8 transition-all"></div>
-                      <p className="text-lg text-primary/80 font-medium">
-                        {item}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
+        {/* --- 4. CONTENU DU CYCLE (Story 4.4) : bandeau pétrole, thèmes dans
+            une carte ciel, kit dans une carte pêche (modèle de la section
+            « Mes accompagnements coaching » de /coaching/etablissements). --- */}
+        <section id="formations-contenu" className="scroll-mt-20 bg-white pb-15">
+          <SectionBanner title="Un cycle structuré & cohérent" icon={<IconEscalier />} />
+          <div className="container wide mt-8 grid gap-6 lg:grid-cols-3">
+            <PastelCard as="div" tone="sky" className="p-8 lg:col-span-2">
+              <ul role="list" className="list-none space-y-4 p-0">
+                {THEMES_DU_CYCLE.map((item) => (
+                  <li key={item} className="flex items-start gap-3">
+                    <span aria-hidden="true" className="mt-2.5 size-2 shrink-0 rounded-full bg-accent" />
+                    <p className="text-lg text-primary font-medium">{item}</p>
+                  </li>
+                ))}
+              </ul>
+            </PastelCard>
 
-              {/* Le KIT DURABLE : Mis en boîte comme un produit de valeur */}
-              <div className="w-full md:w-1/2 lg:w-1/3 bg-white/5 p-12 cursor-default border border-white/10">
-                <h3 className="text-2xl font-bold mb-4">
-                  Assimilation durable
-                </h3>
-                <h4 className="text-accent font-black text-2xl mb-4 uppercase italic">
-                  Le Kit de Prévention
-                </h4>
-                <p className="text-primary text-lg leading-relaxed mb-6">
-                  À l&apos;issue du cycle, les participants repartent avec des
-                  repères et des outils concrets, mobilisables{" "}
-                  <strong>individuellement</strong> et{" "}
-                  <strong>collectivement</strong>.
-                </p>
-                <div className="w-12 h-1 bg-primary"></div>
-              </div>
-            </div>
+            {/* Le kit durable */}
+            <PastelCard as="div" tone="peach" className="p-8">
+              <h3 className="font-display! text-2xl! font-black! text-primary! m-0! mb-4! max-w-none!">
+                Assimilation durable
+              </h3>
+              <h4 className="text-accent font-black text-2xl mb-4 uppercase italic">
+                Le Kit de Prévention
+              </h4>
+              <p className="text-primary text-lg leading-relaxed mb-6">
+                À l&apos;issue du cycle, les participants repartent avec des
+                repères et des outils concrets, mobilisables{" "}
+                <strong>individuellement</strong> et{" "}
+                <strong>collectivement</strong>.
+              </p>
+              <span aria-hidden="true" className="block h-1 w-12 rounded-full bg-orange" />
+            </PastelCard>
           </div>
         </section>
 
@@ -230,7 +226,7 @@ export default function PreventionRpsQvctPage() {
           contactType="institution"
           contactSujet="Formations « Prévention des RPS et QVCT »"
         />
-      </main>
+      </div>
     </>
   );
 }

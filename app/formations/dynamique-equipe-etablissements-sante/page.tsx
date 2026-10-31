@@ -43,7 +43,8 @@ export const metadata = {
 export default function DynamiqueEquipePage() {
   return (
     <>
-      <main className="min-h-screen overflow-hidden">
+      {/* Story 4.4 : le layout fournit déjà <main> (un seul repère principal). */}
+      <div className="min-h-screen overflow-hidden">
         <Breadcrumbs
           items={[
             { label: "Formations", href: "/formations" },
@@ -51,7 +52,7 @@ export default function DynamiqueEquipePage() {
           ]}
         />
         {/* --- 1. Titre */}
-        <section id="formations-dynamique-equipe" className="py-20 container">
+        <section id="formations-dynamique-equipe" data-hero className="py-20 container">
           <div className="text-center mb-8">
             <h1>
               Dynamique d&apos;équipe et{" "}
@@ -178,7 +179,7 @@ export default function DynamiqueEquipePage() {
           contactType="institution"
           contactSujet="Formations « Dynamique d'équipe et développement professionnel »"
         />
-      </main>
+      </div>
     </>
   );
 }

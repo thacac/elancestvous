@@ -43,7 +43,8 @@ export const metadata = {
 export default function AccompagnementProfessionnelPage() {
   return (
     <>
-      <main className="min-h-screen overflow-hidden">
+      {/* Story 4.4 : le layout fournit déjà <main> (un seul repère principal). */}
+      <div className="min-h-screen overflow-hidden">
         <Breadcrumbs
           items={[
             { label: "Formations", href: "/formations" },
@@ -51,7 +52,7 @@ export default function AccompagnementProfessionnelPage() {
           ]}
         />
         {/* --- 1. Titre */}
-        <section id="formations-accompagnement" className="py-20 container">
+        <section id="formations-accompagnement" data-hero className="py-20 container">
           <div className="text-center mb-8">
             <h1>
               Accompagnement et{" "}
@@ -177,7 +178,7 @@ export default function AccompagnementProfessionnelPage() {
           contactType="institution"
           contactSujet="Formations « Accompagnement et pratiques professionnelles »"
         />
-      </main>
+      </div>
     </>
   );
 }

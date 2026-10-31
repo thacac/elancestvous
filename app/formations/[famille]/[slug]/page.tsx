@@ -2,11 +2,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import Breadcrumbs from "@/components/Breadcrumbs";
+import { Chip, PastelCard, Steps } from "@/components/charte";
 import { Button } from "@/components/ui/button";
 import { FORMATION_FAMILLES, getAllFormationsMeta, getFormationBySlug } from "@/lib/formations";
 import { OG_BANNER_IMAGES } from "@/lib/openGraph";
 
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 
 export function generateStaticParams() {
   return getAllFormationsMeta().map((formation) => ({
@@ -72,13 +74,33 @@ function ChampQualiopi({
 }) {
   return (
     <div>
-      <div className="text-xs font-semibold uppercase tracking-wide text-stone-500 mb-1">
+      <div className="text-xs font-semibold uppercase tracking-wide text-primary/80 mb-1">
         {label}
       </div>
       <div className="text-sm font-semibold text-primary">
-        {valeur ?? <span className="italic text-accent">[À confirmer]</span>}
+        {/* NFR3 : placeholder distinct d'une vraie valeur par l'italique et
+            un cadre pointillé, pas seulement par la couleur (accent : 5.1:1
+            sur le ciel). */}
+        {valeur ?? (
+          <span className="inline-block rounded-md border-2 border-dashed border-accent px-2 italic text-accent">
+            [À confirmer]
+          </span>
+        )}
       </div>
     </div>
+  );
+}
+
+// Titre de section de la fiche (Story 4.4) : un bandeau pleine largeur ne
+// tient pas dans la colonne de lecture, à côté de la fiche pratique sticky ;
+// on garde donc la barre orange et le Nunito des bandeaux, sans l'aplat
+// pétrole. Styles globaux h2 hors @layer : modificateurs `!`.
+function TitreSection({ children }: { children: ReactNode }) {
+  return (
+    <h2 className="flex items-stretch gap-3 font-display! text-2xl! font-black! text-primary! tracking-normal! mb-6!">
+      <span aria-hidden="true" className="w-1 shrink-0 rounded-full bg-orange" />
+      <span>{children}</span>
+    </h2>
   );
 }
 
@@ -127,68 +149,53 @@ export default async function FormationPage({
             dangerouslySetInnerHTML={{ __html: formationDetail.html }}
           />
 
-          <section className="mb-10">
-            <h2 className="text-xl font-bold text-primary mb-4">
-              Objectifs pédagogiques
-            </h2>
-            <ul className="space-y-2">
+          <section className="mb-12">
+            <TitreSection>Objectifs pédagogiques</TitreSection>
+            <ul role="list" className="list-none space-y-3 p-0">
               {formationDetail.objectifsPedagogiques.map((objectif) => (
-                <li key={objectif} className="flex gap-2 text-sm text-stone-700">
-                  <span aria-hidden="true" className="text-accent">
-                    —
-                  </span>
+                <li key={objectif} className="flex items-start gap-3 text-primary">
+                  <span aria-hidden="true" className="mt-2 size-2 shrink-0 rounded-full bg-accent" />
                   {objectif}
                 </li>
               ))}
             </ul>
           </section>
 
-          <section className="mb-10">
-            <h2 className="text-xl font-bold text-primary mb-4">Programme</h2>
-            <div className="flex flex-col">
-              {formationDetail.programme.map((module, i) => (
-                <div
-                  key={i}
-                  className="flex gap-5 py-4 border-t border-stone-200 last:border-b"
-                >
-                  <span className="font-display font-semibold text-lg text-logo w-8 shrink-0">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <div>
-                    <strong className="text-primary">{module.titre}</strong>
-                    <p className="mt-1.5 text-sm text-stone-600">{module.texte}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+          {/* Story 4.4 : modules enchaînés dans l'ordre → étapes numérotées
+              (Steps), un h3 par module (choix « structure d'abord » de
+              Cédric). */}
+          <section className="mb-12">
+            <TitreSection>Programme</TitreSection>
+            <Steps
+              steps={formationDetail.programme.map((module) => ({
+                title: module.titre,
+                description: module.texte,
+              }))}
+            />
           </section>
 
-          <section className="mb-10">
-            <h2 className="text-xl font-bold text-primary mb-4">Public visé</h2>
-            <div className="flex flex-wrap gap-2">
+          <section className="mb-12">
+            <TitreSection>Public visé</TitreSection>
+            <ul role="list" className="flex list-none flex-wrap gap-2 p-0">
               {formationDetail.publicVise.map((public_) => (
-                <span
-                  key={public_}
-                  className="text-xs bg-pastel text-primary rounded-full px-3 py-1"
-                >
-                  {public_}
-                </span>
+                <li key={public_}>
+                  <Chip tone="petrol" className="text-sm">
+                    {public_}
+                  </Chip>
+                </li>
               ))}
-            </div>
+            </ul>
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-primary mb-4">
-              Modalités pédagogiques et d&rsquo;évaluation
-            </h2>
-            <p className="text-sm text-stone-700">
-              {formationDetail.modalitesEvaluation}
-            </p>
+            <TitreSection>Modalités pédagogiques et d&rsquo;évaluation</TitreSection>
+            <p className="text-primary">{formationDetail.modalitesEvaluation}</p>
           </section>
         </div>
 
         <div className="sticky top-24 self-start">
-          <div className="border border-stone-200 rounded-xl p-8 flex flex-col gap-6">
+          {/* Fiche pratique Qualiopi en carte ciel (Story 4.4), toujours sticky. */}
+          <PastelCard as="div" tone="sky" className="p-8 flex flex-col gap-6">
             <ChampQualiopi label="Durée" valeur={formationDetail.duree} />
             <ChampQualiopi label="Format" valeur={formationDetail.format} />
             <ChampQualiopi label="Délai d'accès" valeur={formationDetail.delaiAcces} />
@@ -216,7 +223,7 @@ export default async function FormationPage({
                 Demander un devis
               </Link>
             </Button>
-          </div>
+          </PastelCard>
         </div>
       </div>
 

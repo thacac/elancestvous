@@ -75,15 +75,17 @@ describe("FormationPage — contenu principal (FR5)", () => {
     expect(screen.getByText(/Quiz de fin de session\./)).toBeInTheDocument();
   });
 
-  it("affiche le programme en modules numérotés (01, 02...), titre en gras et description, plutôt qu'un bloc de texte (rattrapage design)", async () => {
+  // Story 4.4 : étapes numérotées de la charte (Steps) — numéros décoratifs,
+  // l'ordre est porté par la liste ordonnée, un h3 par module.
+  it("affiche le programme en étapes numérotées (1, 2...), titre et description, plutôt qu'un bloc de texte", async () => {
     vi.mocked(getFormationBySlug).mockResolvedValue(formation());
 
     const jsx = await FormationPage({ params: PARAMS });
     render(jsx);
 
-    expect(screen.getByText("01")).toBeInTheDocument();
-    expect(screen.getByText("02")).toBeInTheDocument();
-    expect(screen.getByText("Cadre légal et obligation de sécurité")).toBeInTheDocument();
+    expect(screen.getByText("1")).toHaveAttribute("aria-hidden", "true");
+    expect(screen.getByText("2")).toHaveAttribute("aria-hidden", "true");
+    expect(screen.getByRole("heading", { level: 3, name: "Cadre légal et obligation de sécurité" })).toBeInTheDocument();
     expect(screen.getByText("Code du travail, jurisprudence.")).toBeInTheDocument();
     expect(screen.getByText("DUERP en pratique")).toBeInTheDocument();
     expect(screen.getByText("Méthode d'évaluation des risques, mise à jour.")).toBeInTheDocument();

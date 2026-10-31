@@ -188,7 +188,7 @@ describe("FormationsCataloguePage — état vide honnête par famille (rattrapag
     expect(cartesBientot).toHaveLength(2);
 
     const famillesEnAttente = cartesBientot.map(
-      (titre) => titre.closest("div")!.querySelector("span")!.textContent
+      (titre) => titre.closest("li")!.querySelector("span")!.textContent
     );
     expect(famillesEnAttente).toContain("Accompagnement et pratiques professionnelles");
     expect(famillesEnAttente).toContain("Dynamique d'équipe et développement professionnel");
@@ -202,7 +202,7 @@ describe("FormationsCataloguePage — état vide honnête par famille (rattrapag
 
     const cartesBientot = screen.getAllByRole("heading", { name: "Bientôt disponible" });
     const famillesEnBientot = cartesBientot.map(
-      (titre) => within(titre.closest("div")!).getByText(/^(Cadre légal|Prévention|Accompagnement|Dynamique)/).textContent
+      (titre) => within(titre.closest("li")!).getByText(/^(Cadre légal|Prévention|Accompagnement|Dynamique)/).textContent
     );
     expect(famillesEnBientot).not.toContain("Cadre légal, droits et éthique");
     expect(famillesEnBientot).not.toContain("Prévention des RPS et QVCT");
