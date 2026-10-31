@@ -1,9 +1,12 @@
-import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
+
+import { ArticleBody } from "@/components/blog/ArticleBody";
 import { parseDraftContent, renderMarkdownToSafeHtml } from "@/lib/blog";
 import { verifyReviewToken } from "@/lib/reviewToken";
 import { createGithubBlogRepo, parseGithubRepoEnv } from "@/services/blog/githubBlogRepo";
+
+import type { Metadata } from "next";
 
 // Le brouillon vit uniquement sur la branche GitHub blog-draft/<slug> — le
 // conteneur de production ne contient pas content/_drafts (voir
@@ -58,20 +61,20 @@ export default async function BlogReviewPage({
   return (
     <article className="pt-6 sm:pt-20 mb-40">
       <div className="container max-w-3xl">
-        <p className="mb-6 rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-800">
+        <p className="mb-6 rounded-lg bg-peach px-4 py-3 text-sm text-primary">
           🔒 Aperçu privé — brouillon non publié, réservé aux personnes ayant reçu ce
           lien.
         </p>
-        <p className="text-xs text-stone-500 uppercase tracking-wide mb-2">
+        <p className="text-xs text-stone-600 uppercase tracking-wide mb-2">
           {new Date(frontmatter.publishedAt).toLocaleDateString("fr-FR", {
             day: "numeric",
             month: "long",
             year: "numeric",
           })}
         </p>
-        <h1 className="mb-6">{frontmatter.title}</h1>
+        <h1 className="mb-6 text-3xl! sm:text-5xl! lg:text-6xl! break-words">{frontmatter.title}</h1>
         {coverDataUrl && (
-          <div className="relative aspect-[16/9] mb-8 rounded-xl overflow-hidden">
+          <div className="relative aspect-[16/9] mb-8 rounded-3xl overflow-hidden">
             <Image
               src={coverDataUrl}
               alt={frontmatter.coverImageAlt ?? frontmatter.title}
@@ -82,22 +85,8 @@ export default async function BlogReviewPage({
             />
           </div>
         )}
-        <div
-          className="prose prose-stone max-w-none"
-          dangerouslySetInnerHTML={{ __html: html }}
-        />
-        {frontmatter.tags.length > 0 && (
-          <ul className="flex flex-wrap gap-2 mt-10">
-            {frontmatter.tags.map((tag) => (
-              <li
-                key={tag}
-                className="text-xs bg-pastel text-primary rounded-full px-3 py-1"
-              >
-                {tag}
-              </li>
-            ))}
-          </ul>
-        )}
+        {/* Même rendu que l'article publié (components/blog/ArticleBody). */}
+        <ArticleBody html={html} keyMessage={frontmatter.keyMessage} tags={frontmatter.tags} />
       </div>
     </article>
   );

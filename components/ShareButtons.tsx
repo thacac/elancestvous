@@ -94,7 +94,7 @@ const ShareButtons: FC<ShareButtonsProps> = ({ url, title, className = "" }) => 
           target="_blank"
           rel="noopener noreferrer"
           title={`Partager sur ${link.name}`}
-          className="text-primary hover:text-gray-500"
+          className="text-primary hover:text-petrol"
         >
           <span className="sr-only">Partager sur {link.name}</span>
           {link.icon}
@@ -104,7 +104,7 @@ const ShareButtons: FC<ShareButtonsProps> = ({ url, title, className = "" }) => 
         type="button"
         onClick={copyLink}
         title="Copier le lien"
-        className="text-primary hover:text-gray-500"
+        className="text-primary hover:text-petrol"
       >
         <span className="sr-only">Copier le lien</span>
         {ICONS.link}
