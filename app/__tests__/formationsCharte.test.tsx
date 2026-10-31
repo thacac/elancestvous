@@ -6,6 +6,8 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/relatedArticles", () => ({ getRelatedArticleLinks: vi.fn(() => []) }));
 
+import { getRelatedArticleLinks } from "@/lib/relatedArticles";
+
 import FormationPage from "../formations/[famille]/[slug]/page";
 import AccompagnementPage, { metadata as metaAccompagnement } from "../formations/accompagnement-professionnel-etablissements-sante/page";
 import CadreLegalPage, { metadata as metaCadreLegal } from "../formations/cadre-legal-etablissements-sante/page";
@@ -196,6 +198,45 @@ describe.each(HUBS)("Hub Famille $nom", ({ rendu, meta, title, h1, sections, fic
     } else {
       expect(within(section).getByText(/arrivent bientôt/).closest(".bg-sky")).not.toBeNull();
     }
+  });
+});
+
+// Revue story 4.4 : branche « articles liés présents » (colonne latérale).
+describe("Hub Famille avec articles de blog liés", () => {
+  const ARTICLES = [{ href: "/blog/article-un", label: "Article lié" }];
+
+  it("garde « Formations disponibles » en premier, colonne « Pour aller plus loin » dans la même section", () => {
+    vi.mocked(getRelatedArticleLinks).mockReturnValue(ARTICLES);
+    render(<CadreLegalPage />);
+    const h2 = screen.getAllByRole("heading", { level: 2 }).filter((h) => !h.closest("[data-hero]"));
+    expect(h2[0]).toHaveTextContent("Formations disponibles");
+    expect(h2[1]).toHaveTextContent("Pour aller plus loin");
+    expect(h2[1].closest("section")).toBe(h2[0].closest("section"));
+    vi.mocked(getRelatedArticleLinks).mockReturnValue([]);
+  });
+
+  it("resserre la grille des cartes à côté de la colonne (pas de 3 colonnes de 120 px)", () => {
+    vi.mocked(getRelatedArticleLinks).mockReturnValue(ARTICLES);
+    render(<CadreLegalPage />);
+    const section = screen.getByRole("heading", { level: 2, name: "Formations disponibles" }).closest("section")!;
+    const grille = section.querySelector("ul")!;
+    expect(grille).not.toHaveClass("lg:grid-cols-3");
+    expect(grille).not.toHaveClass("sm:grid-cols-2");
+    expect(within(grille).getByRole("heading", { level: 3 })).toHaveClass("break-words", "hyphens-auto");
+    vi.mocked(getRelatedArticleLinks).mockReturnValue([]);
+  });
+
+  // overflow-hidden sur un ancêtre neutralise position: sticky.
+  it.each(HUBS)("$nom : aucun ancêtre en overflow-hidden ne bloque la colonne sticky", ({ rendu }) => {
+    vi.mocked(getRelatedArticleLinks).mockReturnValue(ARTICLES);
+    const { container } = rendu();
+    let el: HTMLElement | null = container.querySelector("aside");
+    expect(el).not.toBeNull();
+    while (el && el !== container) {
+      expect(el).not.toHaveClass("overflow-hidden");
+      el = el.parentElement;
+    }
+    vi.mocked(getRelatedArticleLinks).mockReturnValue([]);
   });
 });
 

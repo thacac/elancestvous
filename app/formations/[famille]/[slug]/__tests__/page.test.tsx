@@ -91,6 +91,31 @@ describe("FormationPage — contenu principal (FR5)", () => {
     expect(screen.getByText("Méthode d'évaluation des risques, mise à jour.")).toBeInTheDocument();
   });
 
+  // Revue story 4.4 : la colonne de lecture (≈ 574 px) ne loge pas plus de
+  // 3 étapes sur une ligne ; au-delà, grille de 2 colonnes sans flèches.
+  it("passe le programme en grille quand il compte plus de 3 modules", async () => {
+    vi.mocked(getFormationBySlug).mockResolvedValue(
+      formation({
+        programme: Array.from({ length: 5 }, (_, i) => ({ titre: `Module ${i + 1}`, texte: "Texte." })),
+      })
+    );
+
+    render(await FormationPage({ params: PARAMS }));
+
+    const liste = screen.getByRole("heading", { level: 2, name: "Programme" }).closest("section")!.querySelector("ol")!;
+    expect(liste).not.toHaveClass("lg:grid-flow-col");
+    expect(liste.querySelector("[data-arrow]")).toBeNull();
+  });
+
+  it("garde les étapes en ligne, reliées par des flèches, jusqu'à 3 modules", async () => {
+    vi.mocked(getFormationBySlug).mockResolvedValue(formation());
+
+    render(await FormationPage({ params: PARAMS }));
+
+    const liste = screen.getByRole("heading", { level: 2, name: "Programme" }).closest("section")!.querySelector("ol")!;
+    expect(liste).toHaveClass("lg:grid-flow-col");
+  });
+
   it("affiche le titre et le corps rendu depuis le markdown", async () => {
     vi.mocked(getFormationBySlug).mockResolvedValue(formation());
 

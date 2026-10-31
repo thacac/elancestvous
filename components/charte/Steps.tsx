@@ -15,8 +15,20 @@ interface StepsProps {
   steps: Step[];
   /** Niveau des titres d'étape, sous le titre de la section (h3 par défaut). */
   headingLevel?: "h3" | "h4";
+  /**
+   * « row » (défaut) : une ligne d'étapes reliées par des flèches à partir
+   * de lg. « grid » : 2 colonnes au plus, sans flèches, pour une colonne
+   * étroite ou une longue démarche (fiche formation à plus de 3 modules).
+   */
+  layout?: "row" | "grid";
   className?: string;
 }
+
+// Classes complètes (et non construites) pour que Tailwind les détecte.
+const LAYOUTS = {
+  row: "sm:grid-cols-2 lg:auto-cols-fr lg:grid-flow-col lg:grid-cols-none",
+  grid: "sm:grid-cols-2",
+};
 
 // Couleurs qui tournent comme dans les slides (1 orange foncé, 2 pétrole,
 // 3 bleu nuit) ; blanc dessus ≥ 5.7:1.
@@ -28,6 +40,7 @@ const CARD_TONES = ["bg-sky", "bg-peach"];
 export function Steps({
   steps,
   headingLevel: Heading = "h3",
+  layout = "row",
   className,
 }: StepsProps) {
   return (
@@ -36,7 +49,8 @@ export function Steps({
     <ol
       role="list"
       className={cn(
-        "grid list-none gap-6 p-0 sm:grid-cols-2 lg:auto-cols-fr lg:grid-flow-col lg:grid-cols-none",
+        "grid list-none gap-6 p-0",
+        LAYOUTS[layout],
         className,
       )}
     >
@@ -48,7 +62,7 @@ export function Steps({
             CARD_TONES[index % CARD_TONES.length],
           )}
         >
-          {index > 0 && (
+          {index > 0 && layout === "row" && (
             <svg
               data-arrow
               aria-hidden="true"
@@ -82,7 +96,7 @@ export function Steps({
           >
             {index + 1}
           </span>
-          <Heading className="font-display! text-lg! font-black! text-primary! m-0! max-w-none!">
+          <Heading className="font-display! text-lg! font-black! text-primary! m-0! max-w-none! break-words hyphens-auto">
             {step.title}
           </Heading>
           <div className="text-sm text-stone-600">{step.description}</div>

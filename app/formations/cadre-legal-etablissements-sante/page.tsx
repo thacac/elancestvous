@@ -47,8 +47,10 @@ export const metadata = {
 export default function CadreLegalPage() {
   return (
     <>
-      {/* Story 4.4 : le layout fournit déjà <main> (un seul repère principal). */}
-      <div className="min-h-screen overflow-hidden">
+      {/* Story 4.4 : le layout fournit déjà <main> (un seul repère principal).
+          overflow-x-clip plutôt qu'overflow-hidden, qui neutralisait le
+          sticky de la colonne « Pour aller plus loin ». */}
+      <div className="min-h-screen overflow-x-clip">
         <Breadcrumbs
           items={[
             { label: "Formations", href: "/formations" },

@@ -173,6 +173,9 @@ export default async function FormationPage({
                 title: module.titre,
                 description: module.texte,
               }))}
+              // La colonne de lecture (≈ 574 px) loge 3 étapes en ligne, pas
+              // plus : au-delà, grille de 2 colonnes.
+              layout={formationDetail.programme.length > 3 ? "grid" : "row"}
             />
           </section>
 

@@ -12,6 +12,9 @@ interface FormationsDisponiblesBlocProps {
   // disponibles » (pleine largeur, au-dessus des deux colonnes) ; ce bloc ne
   // rend plus que les cartes.
   bare?: boolean;
+  // Revue story 4.4 : à côté de la colonne d'articles liés (320 px), la
+  // grille n'a plus la place pour 2 ou 3 cartes par ligne avant xl.
+  compact?: boolean;
 }
 
 // Bloc partagé par les hubs Famille (Story 2.2/2.3) : liste les fiches
@@ -22,6 +25,7 @@ interface FormationsDisponiblesBlocProps {
 export default function FormationsDisponiblesBloc({
   famille,
   bare = false,
+  compact = false,
 }: FormationsDisponiblesBlocProps) {
   const formations = getAllFormationsMeta().filter((f) => f.famille === famille);
 
@@ -34,7 +38,14 @@ export default function FormationsDisponiblesBloc({
         </p>
       </PastelCard>
     ) : (
-      <ul role="list" className="grid list-none gap-6 p-0 sm:grid-cols-2 lg:grid-cols-3">
+      <ul
+        role="list"
+        className={
+          compact
+            ? "grid list-none gap-6 p-0 xl:grid-cols-2"
+            : "grid list-none gap-6 p-0 sm:grid-cols-2 lg:grid-cols-3"
+        }
+      >
         {formations.map((formation, i) => (
           <PastelCard
             key={formation.slug}
@@ -43,7 +54,7 @@ export default function FormationsDisponiblesBloc({
             className="flex flex-col gap-3"
           >
             {/* Styles globaux h3 hors @layer (gris, centré) : modificateurs `!`. */}
-            <h3 className="font-display! text-lg! font-black! text-primary! m-0! max-w-none! leading-snug">
+            <h3 className="font-display! text-lg! font-black! text-primary! m-0! max-w-none! leading-snug break-words hyphens-auto">
               {formation.titre}
             </h3>
             <p className="text-sm text-primary/80 mt-auto">{formation.duree}</p>

@@ -95,6 +95,6 @@ Pour savoir où en est votre formation, le plus simple est de demander directeme
 
 **Un champ Qualiopi (tarif, référent handicap, indicateurs de résultats) n'est pas encore connu, que faire ?** Laissez-le vide dans le Template. La fiche affiche automatiquement « À confirmer » — jamais une valeur inventée. Vous pourrez le compléter plus tard, via une mise à jour suivant le même circuit.
 
-**Le Programme doit-il être un seul paragraphe ?** Non — il doit compter au moins un module, chacun avec un titre court et une description. C'est ce qui permet l'affichage numéroté (01, 02…) sur la fiche.
+**Le Programme doit-il être un seul paragraphe ?** Non — il doit compter au moins un module, chacun avec un titre court et une description. C'est ce qui permet l'affichage en étapes numérotées (1, 2, 3…) sur la fiche.
 
 **Puis-je poser une question sur un champ précis pendant que je remplis le Template ?** Oui, commentez directement le passage concerné dans le Template — la personne qui publie (ou moi) peut y répondre sans attendre l'envoi complet.

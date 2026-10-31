@@ -36,7 +36,7 @@ Ce que les participants sauront faire concrètement à la fin de la formation. U
 
 ## Programme
 
-Découpez la formation en 2 à 4 grandes étapes. Pour chacune, un titre court et une description en une phrase. Elles s'afficheront numérotées (01, 02, 03…) sur la fiche.
+Découpez la formation en 2 à 4 grandes étapes. Pour chacune, un titre court et une description en une phrase. Elles s'afficheront en étapes numérotées (1, 2, 3…) sur la fiche.
 
 | Étape | Titre | Description |
 | --- | --- | --- |

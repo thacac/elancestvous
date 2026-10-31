@@ -36,7 +36,7 @@ export default function FormationsEtArticlesLiesBloc({
         }
       >
         <div>
-          <FormationsDisponiblesBloc famille={famille} bare />
+          <FormationsDisponiblesBloc famille={famille} bare compact={hasRelatedArticles} />
         </div>
         <ArticlesBlogLiesBloc targetPage={targetPage} variant="sidebar" liens={articlesLies} />
       </div>
