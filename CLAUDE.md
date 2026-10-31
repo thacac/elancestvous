@@ -9,6 +9,11 @@ cookbook de publication).
 ## Workflow Git
 
 - Une branche par tâche, une PR par branche. Jamais de commit direct sur `master`.
+- Chaque story se lance dans une **session Claude Code neuve**, jamais à la suite
+  d'une autre story dans la même session : un contexte propre évite de traîner
+  les hypothèses de la story précédente. La session qui lance la story (par
+  exemple via `create_session`) lui donne un brief autonome : règles,
+  décisions déjà prises, pièges connus, périmètre et déroulé attendu.
 - Les PR de feature ciblent **`validation`** (déployée sur la Val,
   https://val.elancestvous.fr), jamais `master` : seule une PR de promotion
   `validation` → `master` y est acceptée (check `guard-master.yml`). Voir
