@@ -63,7 +63,7 @@ Le site s'adresse au visiteur comme une formatrice à son groupe : il pose des q
 
 ## Accessibility Floor
 
-- Contraste d'au moins 4.5:1 pour tout texte de taille courante. Le blanc ne se pose jamais sur l'orange vif ; le texte orange utilise `accent` (orange foncé). Règle complète : section « Accessibilité » de `CLAUDE.md` (RGAA 4.1 / WCAG 2.2 AA).
+- Contraste d'au moins 4.5:1 pour tout texte de taille courante. Le blanc ne se pose jamais sur l'orange vif ; le texte orange utilise `accent` (orange foncé). Règle complète : `.claude/rules/accessibilite.md` (RGAA 4.1 / WCAG 2.2 AA).
 - Tout le décor est `aria-hidden`. Chaque section garde un titre Hn réel.
 - Aucune animation automatique de plus de 5 s ; les animations respectent `prefers-reduced-motion`.
 - Les listes ordonnées sans puces gardent `role="list"` (Safari / VoiceOver).

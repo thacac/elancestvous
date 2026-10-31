@@ -101,7 +101,7 @@ Deux règles fixées par Cédric le 2026-10-31 complètent ce principe :
 
 ## Colors
 
-La palette compte **8 couleurs, chacune avec un rôle unique**. Les valeurs ont été mesurées dans le PDF des slides et chaque contraste est calculé selon la formule WCAG (voir la règle « Accessibilité » de `CLAUDE.md`, RGAA 4.1 / WCAG 2.2 AA).
+La palette compte **8 couleurs, chacune avec un rôle unique**. Les valeurs ont été mesurées dans le PDF des slides et chaque contraste est calculé selon la formule WCAG (voir la règle `.claude/rules/accessibilite.md`, RGAA 4.1 / WCAG 2.2 AA).
 
 - **Bleu nuit `{colors.primary}`** : texte et titres. 18:1 sur blanc, plus de 16:1 sur les pastels.
 - **Pétrole `{colors.petrol}`** : bandeaux de section, pastilles, pied de page. Le texte posé dessus est blanc (8.4:1) ou `{colors.sky}` (7.5:1).

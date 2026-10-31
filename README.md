@@ -31,7 +31,7 @@ yarn test    # vitest
 Charte inspirée des slides de formation : 8 couleurs, un rôle chacune. Détail,
 contrastes et règles d'usage dans
 `_bmad-output/planning-artifacts/ux-designs/ux-elancestvous-2026-09-23/DESIGN.md`
-(accessibilité : section dédiée de `CLAUDE.md`).
+(accessibilité : `.claude/rules/accessibilite.md`).
 
 - Bleu nuit, texte et titres (`--color-primary`) : `#0A0C44`
 - Pétrole, bandeaux et pied de page (`--color-petrol`) : `#015566`
