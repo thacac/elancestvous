@@ -7,7 +7,6 @@ paths:
 
 # Accessibilité (obligatoire)
 
-
 Le site vise la conformité **RGAA 4.1** (référentiel français, aligné sur
 **WCAG 2.1 niveau AA**) et suit les critères ajoutés par **WCAG 2.2 AA**. Toute
 modification d'interface doit les respecter, et les tests doivent le vérifier

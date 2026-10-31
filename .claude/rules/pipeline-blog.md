@@ -1,6 +1,5 @@
 # Points d'attention connus (pipeline blog et Discord)
 
-
 - `/api/blog/generate` n'est pas idempotent : ne jamais lui ajouter de logique de
   retry côté `curl` (incident déjà survenu — 4 générations dupliquées pour un seul
   déclenchement).

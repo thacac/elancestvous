@@ -1,6 +1,5 @@
 # Revue avant PR (remplace GitHub Copilot)
 
-
 L'abonnement Copilot du dépôt a expiré — plus de revue automatique sur les PR.
 **Avant d'ouvrir une PR**, lancer une revue du diff dans un contexte isolé et
 propre (skill `code-review`, ou un subagent dédié) plutôt que de se relire

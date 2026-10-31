@@ -1,6 +1,5 @@
 # Workflow Git
 
-
 - Une branche par tâche, une PR par branche. Jamais de commit direct sur `master`.
 - Chaque story se lance dans une **session Claude Code neuve**, jamais à la suite
   d'une autre story dans la même session : un contexte propre évite de traîner

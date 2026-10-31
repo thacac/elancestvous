@@ -15,7 +15,7 @@ directement dans ce fichier.
 Toujours chargées :
 
 - `workflow-git.md` — une branche par tâche, une session neuve par story, PR
-  vers `validation` jamais `master`, TDD, validation préalable de Cédric avant
+  vers `validation` jamais `master`, TDD, demander validation avant
   d'écrire du code, tests à lancer avant de pousser ;
 - `revue-avant-pr.md` — revue du diff dans un contexte isolé avant toute PR ;
 - `secrets.md` — noms de secrets, jamais de valeur de secret dans une
@@ -27,6 +27,9 @@ modifié :
 
 - `accessibilite.md` — détail des critères RGAA 4.1 / WCAG 2.2 AA.
 
-**Rappel** : toute modification d'interface respecte RGAA 4.1 (WCAG 2.1 AA) et
-les critères ajoutés par WCAG 2.2 AA — voir `.claude/rules/accessibilite.md`
-avant de proposer ou de concevoir une interface.
+**Rappel** : le site vise la conformité **RGAA 4.1** (référentiel français,
+aligné sur **WCAG 2.1 niveau AA**) et suit les critères ajoutés par **WCAG 2.2
+AA**. Toute modification d'interface doit les respecter, et les tests doivent le
+vérifier quand c'est testable. Critères détaillés et charte visuelle de
+référence : `.claude/rules/accessibilite.md`, à consulter avant de proposer ou
+de concevoir une interface.
