@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import ArticulationBloc from "@/components/ArticulationBloc";
+import { PastelCard } from "@/components/charte";
 import { getRelatedArticleLinks, type RelatedArticleLink } from "@/lib/relatedArticles";
 
 interface ArticlesBlogLiesBlocProps {
@@ -32,8 +33,10 @@ export default function ArticlesBlogLiesBloc({
   if (variant === "sidebar") {
     return (
       <aside className="md:sticky md:top-24">
-        <div className="bg-stone-50 rounded-2xl border border-stone-100 p-6">
-          <h2 className="text-primary font-bold text-lg mb-4">Pour aller plus loin</h2>
+        {/* Story 4.4 : carte pêche de la charte ; liens `accent` à 5:1 sur
+            la pêche. Styles globaux h2 hors @layer : modificateurs `!`. */}
+        <PastelCard as="div" tone="peach">
+          <h2 className="font-display! text-lg! font-black! text-primary! mb-4!">Pour aller plus loin</h2>
           <ul className="space-y-3">
             {liens.map((lien) => (
               <li key={lien.href}>
@@ -46,7 +49,7 @@ export default function ArticlesBlogLiesBloc({
               </li>
             ))}
           </ul>
-        </div>
+        </PastelCard>
       </aside>
     );
   }

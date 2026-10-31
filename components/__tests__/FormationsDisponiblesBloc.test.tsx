@@ -80,7 +80,10 @@ describe("FormationsDisponiblesBloc — liste filtrée par famille", () => {
 });
 
 describe("FormationsDisponiblesBloc — mode bare (Story 3.2 : sidebar articles liés)", () => {
-  it("n'ajoute aucun wrapper de section/container en mode bare, pour s'intégrer dans une grille parente", () => {
+  // Story 4.4 : en mode bare, le parent porte la section et le bandeau
+  // « Formations disponibles » (pleine largeur, au-dessus de la colonne
+  // latérale) ; le bloc ne rend que les cartes.
+  it("n'ajoute ni section, ni container, ni titre en mode bare, pour s'intégrer dans une grille parente", () => {
     vi.mocked(getAllFormationsMeta).mockReturnValue([formationMeta()]);
 
     const { container } = render(
@@ -89,7 +92,10 @@ describe("FormationsDisponiblesBloc — mode bare (Story 3.2 : sidebar articles 
 
     expect(container.querySelector("section")).toBeNull();
     expect(
-      screen.getByRole("heading", { name: "Formations disponibles" })
+      screen.queryByRole("heading", { name: "Formations disponibles" })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Obligations légales des établissements" })
     ).toBeInTheDocument();
   });
 

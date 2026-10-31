@@ -1,12 +1,15 @@
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import Breadcrumbs from "@/components/Breadcrumbs";
+import { Chip, PastelCard, Steps } from "@/components/charte";
 import { Button } from "@/components/ui/button";
 import { FORMATION_FAMILLES, getAllFormationsMeta, getFormationBySlug } from "@/lib/formations";
 import { OG_BANNER_IMAGES } from "@/lib/openGraph";
 
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 
 export function generateStaticParams() {
   return getAllFormationsMeta().map((formation) => ({
@@ -72,13 +75,33 @@ function ChampQualiopi({
 }) {
   return (
     <div>
-      <div className="text-xs font-semibold uppercase tracking-wide text-stone-500 mb-1">
+      <div className="text-xs font-semibold uppercase tracking-wide text-primary/80 mb-1">
         {label}
       </div>
       <div className="text-sm font-semibold text-primary">
-        {valeur ?? <span className="italic text-accent">[À confirmer]</span>}
+        {/* NFR3 : placeholder distinct d'une vraie valeur par l'italique et
+            un cadre pointillé, pas seulement par la couleur (accent : 5.1:1
+            sur le ciel). */}
+        {valeur ?? (
+          <span className="inline-block rounded-md border-2 border-dashed border-accent px-2 italic text-accent">
+            [À confirmer]
+          </span>
+        )}
       </div>
     </div>
+  );
+}
+
+// Titre de section de la fiche (Story 4.4) : un bandeau pleine largeur ne
+// tient pas dans la colonne de lecture, à côté de la fiche pratique sticky ;
+// on garde donc la barre orange et le Nunito des bandeaux, sans l'aplat
+// pétrole. Styles globaux h2 hors @layer : modificateurs `!`.
+function TitreSection({ children }: { children: ReactNode }) {
+  return (
+    <h2 className="flex items-stretch gap-3 font-display! text-2xl! font-black! text-primary! tracking-normal! mb-6!">
+      <span aria-hidden="true" className="w-1 shrink-0 rounded-full bg-orange" />
+      <span>{children}</span>
+    </h2>
   );
 }
 
@@ -119,76 +142,34 @@ export default async function FormationPage({
           { label: formationDetail.titre },
         ]}
       />
-      <div className="container grid gap-12 lg:grid-cols-[1.7fr_1fr]">
-        <div>
-          <h1 className="mb-6">{formationDetail.titre}</h1>
+      <div className="container grid gap-x-12 gap-y-10 lg:grid-cols-[1.7fr_1fr]">
+        {/* min-w-0, titre réduit sur smartphone et break-words : un mot long
+            (« établissements » en 48 px) débordait à 320 px de large. */}
+        <div className="min-w-0 lg:col-start-1">
+          <h1 className="mb-6 text-3xl! sm:text-5xl! lg:text-6xl! break-words">{formationDetail.titre}</h1>
           <div
-            className="prose prose-stone max-w-none mb-10"
+            className="prose prose-stone max-w-none"
             dangerouslySetInnerHTML={{ __html: formationDetail.html }}
           />
-
-          <section className="mb-10">
-            <h2 className="text-xl font-bold text-primary mb-4">
-              Objectifs pédagogiques
-            </h2>
-            <ul className="space-y-2">
-              {formationDetail.objectifsPedagogiques.map((objectif) => (
-                <li key={objectif} className="flex gap-2 text-sm text-stone-700">
-                  <span aria-hidden="true" className="text-accent">
-                    —
-                  </span>
-                  {objectif}
-                </li>
-              ))}
-            </ul>
-          </section>
-
-          <section className="mb-10">
-            <h2 className="text-xl font-bold text-primary mb-4">Programme</h2>
-            <div className="flex flex-col">
-              {formationDetail.programme.map((module, i) => (
-                <div
-                  key={i}
-                  className="flex gap-5 py-4 border-t border-stone-200 last:border-b"
-                >
-                  <span className="font-display font-semibold text-lg text-logo w-8 shrink-0">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <div>
-                    <strong className="text-primary">{module.titre}</strong>
-                    <p className="mt-1.5 text-sm text-stone-600">{module.texte}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section className="mb-10">
-            <h2 className="text-xl font-bold text-primary mb-4">Public visé</h2>
-            <div className="flex flex-wrap gap-2">
-              {formationDetail.publicVise.map((public_) => (
-                <span
-                  key={public_}
-                  className="text-xs bg-pastel text-primary rounded-full px-3 py-1"
-                >
-                  {public_}
-                </span>
-              ))}
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-bold text-primary mb-4">
-              Modalités pédagogiques et d&rsquo;évaluation
-            </h2>
-            <p className="text-sm text-stone-700">
-              {formationDetail.modalitesEvaluation}
-            </p>
-          </section>
         </div>
 
-        <div className="sticky top-24 self-start">
-          <div className="border border-stone-200 rounded-xl p-8 flex flex-col gap-6">
+        {/* Fiche pratique Qualiopi en carte ciel (Story 4.4). Règle « UI
+            d'abord, efficace sur smartphone » : en une colonne, elle suit
+            l'introduction (au lieu d'attendre la fin de la page) et s'ouvre
+            par le CTA ; sur desktop, colonne de droite sur toute la hauteur,
+            sticky. */}
+        <div className="self-start lg:sticky lg:top-24 lg:col-start-2 lg:row-start-1 lg:row-span-2">
+          <PastelCard as="div" tone="sky" className="p-6 sm:p-8 flex flex-col gap-5">
+            <Button asChild variant="accent" size="lg">
+              <Link
+                href={`/contact?${new URLSearchParams({
+                  type: "institution",
+                  sujet: `Devis pour la formation « ${formationDetail.titre} »`,
+                }).toString()}`}
+              >
+                Demander un devis
+              </Link>
+            </Button>
             <ChampQualiopi label="Durée" valeur={formationDetail.duree} />
             <ChampQualiopi label="Format" valeur={formationDetail.format} />
             <ChampQualiopi label="Délai d'accès" valeur={formationDetail.delaiAcces} />
@@ -206,18 +187,69 @@ export default async function FormationPage({
               label="Indicateurs de résultats"
               valeur={formationDetail.indicateursResultats}
             />
-            <Button asChild variant="accent" size="lg">
-              <Link
-                href={`/contact?${new URLSearchParams({
-                  type: "institution",
-                  sujet: `Devis pour la formation « ${formationDetail.titre} »`,
-                }).toString()}`}
-              >
-                Demander un devis
-              </Link>
-            </Button>
-          </div>
+          </PastelCard>
         </div>
+
+        <div className="min-w-0 lg:col-start-1">
+
+          <section className="mb-12">
+            {/* Dessin décoratif des slides (cible), le titre porte l'information. */}
+            <div className="flex items-start justify-between gap-4">
+              <TitreSection>Objectifs pédagogiques</TitreSection>
+              <Image
+                src="/illustrations/cible-flechee.jpg"
+                alt=""
+                width={96}
+                height={96}
+                sizes="(min-width: 640px) 96px, 64px"
+                className="size-16 shrink-0 rounded-full border-4 border-sky object-cover sm:size-24"
+              />
+            </div>
+            <ul role="list" className="list-none space-y-3 p-0">
+              {formationDetail.objectifsPedagogiques.map((objectif) => (
+                <li key={objectif} className="flex items-start gap-3 text-primary">
+                  <span aria-hidden="true" className="mt-2 size-2 shrink-0 rounded-full bg-accent" />
+                  {objectif}
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          {/* Story 4.4 : modules enchaînés dans l'ordre → étapes numérotées
+              (Steps), un h3 par module (choix « structure d'abord » de
+              Cédric). */}
+          <section className="mb-12">
+            <TitreSection>Programme</TitreSection>
+            <Steps
+              steps={formationDetail.programme.map((module) => ({
+                title: module.titre,
+                description: module.texte,
+              }))}
+              // La colonne de lecture (≈ 574 px) loge 3 étapes en ligne, pas
+              // plus : au-delà, grille de 2 colonnes.
+              layout={formationDetail.programme.length > 3 ? "grid" : "row"}
+            />
+          </section>
+
+          <section className="mb-12">
+            <TitreSection>Public visé</TitreSection>
+            <ul role="list" className="flex list-none flex-wrap gap-2 p-0">
+              {formationDetail.publicVise.map((public_) => (
+                <li key={public_}>
+                  <Chip tone="petrol" className="text-sm">
+                    {public_}
+                  </Chip>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <section>
+            <TitreSection>Modalités pédagogiques et d&rsquo;évaluation</TitreSection>
+            <p className="text-primary">{formationDetail.modalitesEvaluation}</p>
+          </section>
+        </div>
+
       </div>
 
       <div className="container border-t border-stone-200 mt-14 pt-8">

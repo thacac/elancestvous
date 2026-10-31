@@ -123,3 +123,25 @@ describe("Steps — illustration facultative", () => {
   });
 });
 
+
+// Story 4.4 (revue) : dans une colonne étroite (fiche formation), plus de 3
+// étapes sur une seule ligne deviennent illisibles.
+describe("Steps — disposition en grille", () => {
+  it("par défaut, aligne les étapes sur une ligne à partir de lg, reliées par des flèches", () => {
+    render(<Steps steps={steps} />);
+    expect(screen.getByRole("list")).toHaveClass("lg:grid-flow-col");
+  });
+
+  it("en grille, garde 2 colonnes au plus et retire les flèches (elles n'ont plus de sens)", () => {
+    render(<Steps steps={steps} layout="grid" />);
+    const liste = screen.getByRole("list");
+    expect(liste).not.toHaveClass("lg:grid-flow-col");
+    expect(liste).toHaveClass("sm:grid-cols-2");
+    expect(liste.querySelector("[data-arrow]")).toBeNull();
+  });
+
+  it("laisse un titre d'étape se couper plutôt que déborder de sa carte", () => {
+    render(<Steps steps={steps} />);
+    expect(screen.getAllByRole("heading", { level: 3 })[0]).toHaveClass("break-words", "hyphens-auto");
+  });
+});

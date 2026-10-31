@@ -14,7 +14,9 @@ sources:
 
 Site vitrine web responsive en Next.js 16 et Tailwind CSS v4, avec des primitives shadcn/ui (`components/ui/`). `DESIGN.md` est la référence de l'identité visuelle. Ce document fixe le comportement des composants de la charte (`components/charte/`) et les règles d'expérience communes à toutes les pages.
 
-Priorité absolue, fixée par Cédric : **le SEO d'abord.** La charte habille le contenu sans jamais le modifier.
+Priorité absolue, fixée par Cédric : **le SEO d'abord.** La charte habille le contenu sans jamais le modifier. Le SEO, c'est d'abord le contenu : ajouter un titre utile est permis, modifier ou retirer un titre, un texte indexé ou une URL ne l'est pas.
+
+Deuxième règle, fixée par Cédric : **l'interface d'abord, efficace sur smartphone.** L'ordre de lecture en une colonne amène l'action principale tôt (voir « Responsive & Platform »).
 
 ## Information Architecture
 
@@ -85,6 +87,10 @@ Les parcours sont ceux de la PRD (§2.3). La charte les sert sans les modifier.
    2. *Moment clé :* la bulle-question finale et le bouton « Prendre contact ».
 
 ## Responsive & Platform
+
+- Conception en une colonne d'abord. L'action principale arrive tôt dans l'ordre de lecture mobile. Fiche formation : titre, introduction, puis la fiche pratique ouverte par « Demander un devis », puis le détail. Sur desktop, la fiche pratique passe dans la colonne de droite et reste collée au défilement.
+- Aucun défilement horizontal à 320 px. Les grands titres (H1) sont réduits sur smartphone (`text-3xl`) et gardent `break-words` en filet de sécurité, sans `hyphens-auto`, qui coupait des mots tenant sur la ligne. La césure (`hyphens-auto`) est réservée aux titres de cartes étroites.
+- Un filtre ou un lien interne ramène au contenu visé (ancre), pas en haut de page.
 
 - Rangées de cartes et d'étapes : 4 colonnes → 2 → 1.
 - Flèches entre étapes à partir de `lg` uniquement.

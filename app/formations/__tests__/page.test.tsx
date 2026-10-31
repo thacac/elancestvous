@@ -184,11 +184,11 @@ describe("FormationsCataloguePage — état vide honnête par famille (rattrapag
     const jsx = await FormationsCataloguePage({ searchParams: Promise.resolve({}) });
     render(jsx);
 
-    const cartesBientot = screen.getAllByRole("heading", { name: "Bientôt disponible" });
+    const cartesBientot = screen.getAllByRole("heading", { name: /^Bientôt disponible/ });
     expect(cartesBientot).toHaveLength(2);
 
     const famillesEnAttente = cartesBientot.map(
-      (titre) => titre.closest("div")!.querySelector("span")!.textContent
+      (titre) => titre.closest("li")!.querySelector("span")!.textContent
     );
     expect(famillesEnAttente).toContain("Accompagnement et pratiques professionnelles");
     expect(famillesEnAttente).toContain("Dynamique d'équipe et développement professionnel");
@@ -200,9 +200,9 @@ describe("FormationsCataloguePage — état vide honnête par famille (rattrapag
     const jsx = await FormationsCataloguePage({ searchParams: Promise.resolve({}) });
     render(jsx);
 
-    const cartesBientot = screen.getAllByRole("heading", { name: "Bientôt disponible" });
+    const cartesBientot = screen.getAllByRole("heading", { name: /^Bientôt disponible/ });
     const famillesEnBientot = cartesBientot.map(
-      (titre) => within(titre.closest("div")!).getByText(/^(Cadre légal|Prévention|Accompagnement|Dynamique)/).textContent
+      (titre) => within(titre.closest("li")!).getByText(/^(Cadre légal|Prévention|Accompagnement|Dynamique)/).textContent
     );
     expect(famillesEnBientot).not.toContain("Cadre légal, droits et éthique");
     expect(famillesEnBientot).not.toContain("Prévention des RPS et QVCT");
@@ -216,7 +216,7 @@ describe("FormationsCataloguePage — état vide honnête par famille (rattrapag
     });
     render(jsx);
 
-    expect(screen.getByRole("heading", { name: "Bientôt disponible" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /^Bientôt disponible/ })).toBeInTheDocument();
   });
 });
 
@@ -230,11 +230,11 @@ describe("FormationsCataloguePage — pastilles de filtre", () => {
     const filtres = screen.getByRole("navigation", { name: /filtre/i });
     expect(within(filtres).getByRole("link", { name: "Toutes" })).toHaveAttribute(
       "href",
-      "/formations"
+      "/formations#toutes-nos-formations"
     );
     expect(
       within(filtres).getByRole("link", { name: "Cadre légal, droits et éthique" })
-    ).toHaveAttribute("href", "/formations?famille=cadre-legal-etablissements-sante");
+    ).toHaveAttribute("href", "/formations?famille=cadre-legal-etablissements-sante#toutes-nos-formations");
   });
 
   it("marque la pastille Toutes comme active quand aucun filtre n'est appliqué", async () => {

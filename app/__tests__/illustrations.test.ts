@@ -39,6 +39,10 @@ describe.each([
   ["soignante-explique.jpg", 128],
   ["collegues-en-tension.jpg", 128],
   ["responsable-et-soignante.jpg", 160],
+  // Story 4.4 : objectifs des fiches (96 px) et cartes « Bientôt
+  // disponible » du catalogue (80 px).
+  ["cible-flechee.jpg", 96],
+  ["bloc-notes-stylo.jpg", 80],
 ])("public/illustrations/%s", (fichier, affichage) => {
   const { width, height } = jpegSize(`public/illustrations/${fichier}`);
 

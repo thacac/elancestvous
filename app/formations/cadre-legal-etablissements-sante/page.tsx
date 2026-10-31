@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 import ArticulationBloc from "@/components/ArticulationBloc";
 import BadgesBloc from "@/components/BadgesBloc";
 import Breadcrumbs from "@/components/Breadcrumbs";
@@ -47,7 +49,10 @@ export const metadata = {
 export default function CadreLegalPage() {
   return (
     <>
-      <main className="min-h-screen overflow-hidden">
+      {/* Story 4.4 : le layout fournit déjà <main> (un seul repère principal).
+          overflow-x-clip plutôt qu'overflow-hidden, qui neutralisait le
+          sticky de la colonne « Pour aller plus loin ». */}
+      <div className="min-h-screen overflow-x-clip">
         <Breadcrumbs
           items={[
             { label: "Formations", href: "/formations" },
@@ -55,9 +60,19 @@ export default function CadreLegalPage() {
           ]}
         />
         {/* --- 1. Titre */}
-        <section id="formations-cadre-legal" className="py-20 container">
+        <section id="formations-cadre-legal" data-hero className="py-20 container">
           <div className="text-center mb-8">
-            <h1>
+            {/* Story 4.4 : même médaillon que la tuile de la famille sur
+                /formations (décoratif, le titre porte l'information). */}
+            <Image
+              src="/illustrations/presse-papiers-coche.jpg"
+              alt=""
+              width={128}
+              height={128}
+              sizes="(min-width: 640px) 128px, 96px"
+              className="mx-auto mb-6 size-24 rounded-full border-4 border-sky object-cover sm:size-32"
+            />
+            <h1 className="text-3xl! sm:text-5xl! lg:text-6xl! break-words">
               Cadre légal,{" "}
               <span className="text-accent">
                 <strong>droits</strong>
@@ -183,7 +198,7 @@ export default function CadreLegalPage() {
           contactType="institution"
           contactSujet="Formations « Cadre légal, droits et éthique »"
         />
-      </main>
+      </div>
     </>
   );
 }

@@ -75,18 +75,45 @@ describe("FormationPage — contenu principal (FR5)", () => {
     expect(screen.getByText(/Quiz de fin de session\./)).toBeInTheDocument();
   });
 
-  it("affiche le programme en modules numérotés (01, 02...), titre en gras et description, plutôt qu'un bloc de texte (rattrapage design)", async () => {
+  // Story 4.4 : étapes numérotées de la charte (Steps) — numéros décoratifs,
+  // l'ordre est porté par la liste ordonnée, un h3 par module.
+  it("affiche le programme en étapes numérotées (1, 2...), titre et description, plutôt qu'un bloc de texte", async () => {
     vi.mocked(getFormationBySlug).mockResolvedValue(formation());
 
     const jsx = await FormationPage({ params: PARAMS });
     render(jsx);
 
-    expect(screen.getByText("01")).toBeInTheDocument();
-    expect(screen.getByText("02")).toBeInTheDocument();
-    expect(screen.getByText("Cadre légal et obligation de sécurité")).toBeInTheDocument();
+    expect(screen.getByText("1")).toHaveAttribute("aria-hidden", "true");
+    expect(screen.getByText("2")).toHaveAttribute("aria-hidden", "true");
+    expect(screen.getByRole("heading", { level: 3, name: "Cadre légal et obligation de sécurité" })).toBeInTheDocument();
     expect(screen.getByText("Code du travail, jurisprudence.")).toBeInTheDocument();
     expect(screen.getByText("DUERP en pratique")).toBeInTheDocument();
     expect(screen.getByText("Méthode d'évaluation des risques, mise à jour.")).toBeInTheDocument();
+  });
+
+  // Revue story 4.4 : la colonne de lecture (≈ 574 px) ne loge pas plus de
+  // 3 étapes sur une ligne ; au-delà, grille de 2 colonnes sans flèches.
+  it("passe le programme en grille quand il compte plus de 3 modules", async () => {
+    vi.mocked(getFormationBySlug).mockResolvedValue(
+      formation({
+        programme: Array.from({ length: 5 }, (_, i) => ({ titre: `Module ${i + 1}`, texte: "Texte." })),
+      })
+    );
+
+    render(await FormationPage({ params: PARAMS }));
+
+    const liste = screen.getByRole("heading", { level: 2, name: "Programme" }).closest("section")!.querySelector("ol")!;
+    expect(liste).not.toHaveClass("lg:grid-flow-col");
+    expect(liste.querySelector("[data-arrow]")).toBeNull();
+  });
+
+  it("garde les étapes en ligne, reliées par des flèches, jusqu'à 3 modules", async () => {
+    vi.mocked(getFormationBySlug).mockResolvedValue(formation());
+
+    render(await FormationPage({ params: PARAMS }));
+
+    const liste = screen.getByRole("heading", { level: 2, name: "Programme" }).closest("section")!.querySelector("ol")!;
+    expect(liste).toHaveClass("lg:grid-flow-col");
   });
 
   it("affiche le titre et le corps rendu depuis le markdown", async () => {
@@ -138,13 +165,13 @@ describe("FormationPage — fiche pratique Qualiopi", () => {
     expect(screen.getByText("Sur devis")).toBeInTheDocument();
   });
 
-  it("place la fiche pratique dans un conteneur sticky (reste visible pendant le défilement)", async () => {
+  it("place la fiche pratique dans un conteneur sticky sur desktop (reste visible pendant le défilement)", async () => {
     vi.mocked(getFormationBySlug).mockResolvedValue(formation());
 
     const jsx = await FormationPage({ params: PARAMS });
     const { container } = render(jsx);
 
-    expect(container.querySelector(".sticky")).not.toBeNull();
+    expect(container.querySelector(".lg\\:sticky")).not.toBeNull();
   });
 
   it("le CTA \"Demander un devis\" est un bouton plein, jamais un lien texte nu", async () => {
