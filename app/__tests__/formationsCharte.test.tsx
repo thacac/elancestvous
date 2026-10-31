@@ -164,6 +164,13 @@ describe.each(HUBS)("Hub Famille $nom", ({ rendu, meta, title, h1, sections, fic
     sansSaut(container);
   });
 
+  // Mesuré à 320 px : « professionnelles » / « développement » en 48 px
+  // débordaient de l'écran.
+  it("laisse son H1 se couper (pas de défilement horizontal à 320 px)", () => {
+    rendu();
+    expect(screen.getByRole("heading", { level: 1 })).toHaveClass("break-words", "hyphens-auto");
+  });
+
   it("ne rend pas de <main> propre (le layout le fournit)", () => {
     const { container } = rendu();
     expect(container.querySelector("main")).toBeNull();
@@ -220,6 +227,15 @@ describe("Fiche formation", () => {
     const { container } = await renderFiche(...FICHE);
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Diagnostic et plan d'action QVCT");
     sansSaut(container);
+  });
+
+  // Mesuré à 320 px : « établissements », en 48 px, ne tenait pas dans la
+  // colonne (344 px pour 320) et créait un défilement horizontal.
+  it("laisse le H1 se couper et la colonne de lecture rétrécir (pas de défilement à 320 px)", async () => {
+    await renderFiche("cadre-legal-etablissements-sante", "obligations-legales-des-etablissements");
+    const h1 = screen.getByRole("heading", { level: 1 });
+    expect(h1).toHaveClass("break-words", "hyphens-auto");
+    expect(h1.parentElement).toHaveClass("min-w-0");
   });
 
   it("présente le programme en étapes ordonnées, un h3 par module (Steps)", async () => {

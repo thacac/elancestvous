@@ -54,7 +54,7 @@ export default function AccompagnementProfessionnelPage() {
         {/* --- 1. Titre */}
         <section id="formations-accompagnement" data-hero className="py-20 container">
           <div className="text-center mb-8">
-            <h1>
+            <h1 className="break-words hyphens-auto">
               Accompagnement et{" "}
               <span className="text-accent">
                 <strong>pratiques professionnelles</strong>

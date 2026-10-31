@@ -142,8 +142,10 @@ export default async function FormationPage({
         ]}
       />
       <div className="container grid gap-12 lg:grid-cols-[1.7fr_1fr]">
-        <div>
-          <h1 className="mb-6">{formationDetail.titre}</h1>
+        {/* min-w-0 + césure : un mot long du titre (« établissements » en
+            48 px) débordait à 320 px de large. */}
+        <div className="min-w-0">
+          <h1 className="mb-6 break-words hyphens-auto">{formationDetail.titre}</h1>
           <div
             className="prose prose-stone max-w-none mb-10"
             dangerouslySetInnerHTML={{ __html: formationDetail.html }}

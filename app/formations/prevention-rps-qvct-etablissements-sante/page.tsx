@@ -67,7 +67,7 @@ export default function PreventionRpsQvctPage() {
         {/* --- 1. Titre */}
         <section id="formations-professionnelles" data-hero className="py-20 container">
           <div className="text-center mb-8">
-            <h1>Formations professionnelles.</h1>
+            <h1 className="break-words hyphens-auto">Formations professionnelles.</h1>
             <h2 className="py-5 ">
               Gestion du{" "}
               <span className="text-accent">

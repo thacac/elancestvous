@@ -54,7 +54,7 @@ export default function DynamiqueEquipePage() {
         {/* --- 1. Titre */}
         <section id="formations-dynamique-equipe" data-hero className="py-20 container">
           <div className="text-center mb-8">
-            <h1>
+            <h1 className="break-words hyphens-auto">
               Dynamique d&apos;équipe et{" "}
               <span className="text-accent">
                 <strong>développement professionnel</strong>

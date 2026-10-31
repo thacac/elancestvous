@@ -58,7 +58,7 @@ export default function CadreLegalPage() {
         {/* --- 1. Titre */}
         <section id="formations-cadre-legal" data-hero className="py-20 container">
           <div className="text-center mb-8">
-            <h1>
+            <h1 className="break-words hyphens-auto">
               Cadre légal,{" "}
               <span className="text-accent">
                 <strong>droits</strong>
