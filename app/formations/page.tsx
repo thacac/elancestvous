@@ -71,6 +71,10 @@ const FAMILLE_TUILE_DESCRIPTIONS: Record<FormationFamilleId, string> = {
     "Renforcer la coopération et la cohésion d'une équipe dans la durée.",
 };
 
+// Ancre de la liste : un filtre ramène au résultat, pas en haut de page
+// derrière les 4 tuiles Famille (règle « efficace sur smartphone »).
+const ANCRE_LISTE = "toutes-nos-formations";
+
 // Filtre en forme de bouton du site, libellé autorisé à passer à la ligne.
 const FILTRE_CLASSES = "h-auto min-h-9 whitespace-normal px-4 py-2 text-center";
 const TAG_CLASSES = "text-xs font-semibold uppercase tracking-wide rounded-full px-3 py-1 w-fit";
@@ -159,14 +163,14 @@ export default async function FormationsCataloguePage({
       {/* Story 4.4 : la liste des fiches s'ouvre par un bandeau (titre
           ajouté, validé par Cédric : « le SEO, c'est d'abord le contenu »),
           filtres et cartes dans la même section. */}
-      <section id="toutes-nos-formations" className="scroll-mt-20">
+      <section id={ANCRE_LISTE} className="scroll-mt-20">
         <SectionBanner title="Toutes nos formations" />
         <nav
           aria-label="Filtre par catégorie"
           className="container flex flex-wrap gap-2 mt-8 mb-10"
         >
           <Link
-            href="/formations"
+            href={`/formations#${ANCRE_LISTE}`}
             aria-current={activeFamille ? undefined : "page"}
             className={cn(
               buttonVariants({ variant: activeFamille ? "tinted" : "default" }),
@@ -178,7 +182,7 @@ export default async function FormationsCataloguePage({
           {FORMATION_FAMILLES.map((f) => (
             <Link
               key={f.id}
-              href={`/formations?famille=${f.id}`}
+              href={`/formations?famille=${f.id}#${ANCRE_LISTE}`}
               aria-current={activeFamille === f.id ? "page" : undefined}
               className={cn(
                 buttonVariants({ variant: activeFamille === f.id ? "default" : "tinted" }),

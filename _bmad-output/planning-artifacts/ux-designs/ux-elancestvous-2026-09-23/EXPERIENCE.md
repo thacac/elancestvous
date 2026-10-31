@@ -89,7 +89,8 @@ Les parcours sont ceux de la PRD (§2.3). La charte les sert sans les modifier.
 ## Responsive & Platform
 
 - Conception en une colonne d'abord. L'action principale arrive tôt dans l'ordre de lecture mobile. Fiche formation : titre, introduction, puis la fiche pratique ouverte par « Demander un devis », puis le détail. Sur desktop, la fiche pratique passe dans la colonne de droite et reste collée au défilement.
-- Aucun défilement horizontal à 320 px : les titres longs se coupent (`break-words hyphens-auto`).
+- Aucun défilement horizontal à 320 px. Les grands titres (H1) sont réduits sur smartphone (`text-3xl`) et gardent `break-words` en filet de sécurité, sans `hyphens-auto`, qui coupait des mots tenant sur la ligne. La césure (`hyphens-auto`) est réservée aux titres de cartes étroites.
+- Un filtre ou un lien interne ramène au contenu visé (ancre), pas en haut de page.
 
 - Rangées de cartes et d'étapes : 4 colonnes → 2 → 1.
 - Flèches entre étapes à partir de `lg` uniquement.

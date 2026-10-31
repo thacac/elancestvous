@@ -95,6 +95,33 @@ describe("/formations — bandeau de la liste des fiches", () => {
   });
 });
 
+// Revue : le bandeau ajouté et le passage des cartes en h3 touchent la
+// hiérarchie du catalogue, en vue complète comme filtrée.
+describe("/formations — hiérarchie Hn", () => {
+  it.each([undefined, "cadre-legal-etablissements-sante", "dynamique-equipe-etablissements-sante"])(
+    "un seul h1 et aucun saut de niveau (filtre : %s)",
+    async (famille) => {
+      const { container } = await renderCatalogue(famille);
+      sansSaut(container);
+    },
+  );
+});
+
+// Règle « efficace sur smartphone » (revue) : un filtre ramène à la liste,
+// pas en haut de page derrière les 4 tuiles Famille.
+describe("/formations — filtres ancrés sur la liste", () => {
+  it("chaque filtre pointe sur l'ancre de la liste des fiches", async () => {
+    await renderCatalogue();
+    expect(document.getElementById("toutes-nos-formations")).not.toBeNull();
+    const nav = screen.getByRole("navigation", { name: "Filtre par catégorie" });
+    expect(within(nav).getByRole("link", { name: "Toutes" })).toHaveAttribute("href", "/formations#toutes-nos-formations");
+    expect(within(nav).getByRole("link", { name: "Cadre légal, droits et éthique" })).toHaveAttribute(
+      "href",
+      "/formations?famille=cadre-legal-etablissements-sante#toutes-nos-formations",
+    );
+  });
+});
+
 describe("/formations — grille en cartes pastel", () => {
   it("liste fiches et familles à venir en cartes ciel / pêche alternées", async () => {
     await renderCatalogue();
@@ -326,7 +353,9 @@ describe("Fiche formation", () => {
   it("laisse le H1 se couper et la colonne de lecture rétrécir (pas de défilement à 320 px)", async () => {
     await renderFiche("cadre-legal-etablissements-sante", "obligations-legales-des-etablissements");
     const h1 = screen.getByRole("heading", { level: 1 });
-    expect(h1).toHaveClass("break-words", "text-4xl!", "sm:text-5xl!", "lg:text-6xl!");
+    // 30 px sur smartphone comme les hubs : en 36 px, « Accompagnement » ne
+    // tient pas à 320 px (revue).
+    expect(h1).toHaveClass("break-words", "text-3xl!", "sm:text-5xl!", "lg:text-6xl!");
     expect(h1).not.toHaveClass("hyphens-auto");
     expect(h1.parentElement).toHaveClass("min-w-0");
   });
@@ -375,7 +404,8 @@ describe("Fiche formation", () => {
     const h1 = screen.getByRole("heading", { level: 1 });
     expect(h1.compareDocumentPosition(fiche) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(fiche.compareDocumentPosition(objectifs) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    // Sur desktop, la carte reste dans la colonne de droite, sur toute la hauteur.
+    // Classes de placement desktop (colonne de droite, deux lignes) : jsdom
+    // ne calcule pas la grille, le rendu réel est vérifié en capture Playwright.
     expect(fiche).toHaveClass("lg:col-start-2", "lg:row-start-1", "lg:row-span-2");
   });
 

@@ -230,11 +230,11 @@ describe("FormationsCataloguePage — pastilles de filtre", () => {
     const filtres = screen.getByRole("navigation", { name: /filtre/i });
     expect(within(filtres).getByRole("link", { name: "Toutes" })).toHaveAttribute(
       "href",
-      "/formations"
+      "/formations#toutes-nos-formations"
     );
     expect(
       within(filtres).getByRole("link", { name: "Cadre légal, droits et éthique" })
-    ).toHaveAttribute("href", "/formations?famille=cadre-legal-etablissements-sante");
+    ).toHaveAttribute("href", "/formations?famille=cadre-legal-etablissements-sante#toutes-nos-formations");
   });
 
   it("marque la pastille Toutes comme active quand aucun filtre n'est appliqué", async () => {
