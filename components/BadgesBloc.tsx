@@ -1,34 +1,40 @@
-import { ReactNode } from "react";
+import { Chip, SectionBanner } from "@/components/charte";
+import { cn } from "@/lib/utils";
+
+import type { ReactNode } from "react";
 
 export interface BadgesBlocProps {
   titre: string;
   badges: string[];
   citation?: ReactNode;
+  /** Icône au trait du bandeau (décorative). */
+  icon?: ReactNode;
   className?: string;
 }
 
+// Story 4.3 : bandeau pétrole (vrai h2) puis pastilles de la charte, simples
+// étiquettes non cliquables, pétrole et orange foncé en alternance (blanc
+// dessus 8.4:1 et 5.7:1).
 export default function BadgesBloc({
   titre,
   badges,
   citation,
+  icon,
   className = "",
 }: BadgesBlocProps) {
   return (
-    <section className={`py-20 bg-stone-50 ${className}`}>
-      <div className="container mx-auto px-6 text-center">
-        <h2 className="text-primary font-display font-bold text-3xl mb-14!">
-          {titre}
-        </h2>
-        <div className="flex flex-wrap justify-center gap-6 mb-8">
+    <section className={cn("bg-white pb-15", className)}>
+      <SectionBanner title={titre} icon={icon} />
+      <div className="container wide mt-8 flex flex-col items-center gap-10">
+        <ul role="list" className="flex list-none flex-wrap justify-center gap-3 p-0">
           {badges.map((badge, i) => (
-            <div
-              key={i}
-              className="bg-white px-8 py-4 rounded-full border-2 border-primary text-primary font-bold shadow-sm hover:bg-primary hover:text-white transition cursor-default"
-            >
-              {badge}
-            </div>
+            <li key={i}>
+              <Chip tone={i % 2 === 0 ? "petrol" : "accent"} className="px-5 py-2">
+                {badge}
+              </Chip>
+            </li>
           ))}
-        </div>
+        </ul>
         {citation}
       </div>
     </section>

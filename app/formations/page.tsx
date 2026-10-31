@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import Breadcrumbs from "@/components/Breadcrumbs";
+import { BrushUnderline, PastelCard } from "@/components/charte";
 import { buttonVariants } from "@/components/ui/button";
 import { FORMATION_FAMILLES, getAllFormationsMeta, type FormationFamilleId } from "@/lib/formations";
 import { OG_BANNER_IMAGES } from "@/lib/openGraph";
@@ -88,8 +89,10 @@ export default async function FormationsCataloguePage({
     <div className="pt-6 sm:pt-20 mb-40">
       <Breadcrumbs items={[{ label: "Formations" }]} />
       <div className="container mb-10">
-        <h1 className="mb-4">Formations professionnelles</h1>
-        <p className="text-sm text-stone-600 max-w-2xl">
+        <h1 className="mb-4 text-4xl! sm:text-5xl! lg:text-6xl!">
+          Formations <BrushUnderline>professionnelles</BrushUnderline>
+        </h1>
+        <p className="text-sm text-primary/80 max-w-2xl">
           Un catalogue de formations sur-mesure pour les établissements de
           santé, conçues et animées par une ancienne soignante.
         </p>
@@ -97,19 +100,22 @@ export default async function FormationsCataloguePage({
 
       <section className="container mb-14" aria-label="Familles de formations">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          {FORMATION_FAMILLES.map((f) => (
-            <div
+          {/* Story 4.3 : tuiles en cartes pastel ciel / pêche alternées. */}
+          {FORMATION_FAMILLES.map((f, i) => (
+            <PastelCard
               key={f.id}
-              className="bg-stone-50 p-8 rounded-2xl border border-stone-100 hover:shadow-xl transition duration-300"
+              as="div"
+              tone={i % 2 === 0 ? "sky" : "peach"}
+              className="flex flex-col p-8"
             >
-              <h2 className="text-lg font-bold text-primary mb-3 break-words">{f.label}</h2>
-              <p className="text-stone-600 mb-4 text-sm leading-relaxed">
+              <h2 className="font-display! text-xl! font-black! text-primary! mb-3! break-words">{f.label}</h2>
+              <p className="text-primary/80 mb-4 text-sm leading-relaxed">
                 {FAMILLE_TUILE_DESCRIPTIONS[f.id]}
               </p>
-              <Link href={`/formations/${f.id}`} className={buttonVariants({ variant: "tinted" })}>
+              <Link href={`/formations/${f.id}`} className={cn(buttonVariants({ variant: "tinted" }), "mt-auto w-fit")}>
                 Découvrir
               </Link>
-            </div>
+            </PastelCard>
           ))}
         </div>
       </section>
