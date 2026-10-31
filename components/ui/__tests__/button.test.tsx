@@ -10,9 +10,9 @@ import { Button, buttonVariants } from "../button";
 // (texte/contour primary, fond primary légèrement teinté), `tintedOnDark`
 // sur fond navy (texte/contour blancs, fond blanc légèrement teinté) — cf.
 // tuile Coaching. Contrastes vérifiés par calcul WCAG (pas de lib
-// axe-core dans ce dépôt) : navy #112e40 sur fond ~blanc (teinte 10%
-// primary) ≈ 12.7:1 ; blanc sur fond ~navy (teinte 10% blanc sur #112e40)
-// ≈ 10.4:1 — les deux largement au-dessus du seuil 4.5:1 (NFR2).
+// axe-core dans ce dépôt) : bleu nuit #0a0c44 sur fond ~blanc (teinte 10%
+// primary) ≈ 14.8:1 ; blanc sur fond ~bleu nuit (teinte 10% blanc sur
+// #0a0c44) ≈ 14.4:1 — les deux largement au-dessus du seuil 4.5:1 (NFR2).
 describe("Button — variant tinted (CTA secondaire, FR12)", () => {
   it("renders a real button element, never a styled link-only span", () => {
     render(<Button variant="tinted">Découvrir</Button>);
@@ -59,21 +59,21 @@ describe("Button — variant tinted (CTA secondaire, FR12)", () => {
   });
 });
 
-// Charte slides : orange foncé (accent-ink) sous le texte blanc des boutons.
-// L'orange accent ne fait que ≈ 3.5:1 avec le blanc, insuffisant pour du
-// texte en text-sm (4.5:1 requis) ; accent-ink ≈ 5.7:1.
+// Charte slides : le token accent est l'orange foncé #a64d08 (blanc dessus
+// ≈ 5.7:1, ≥ 4.5:1 requis en text-sm). L'orange vif (token orange) ne sert
+// jamais de fond de bouton.
 describe("Button — boutons orange lisibles (contraste)", () => {
-  it("la variante accent utilise l'orange foncé, jamais l'orange accent", () => {
+  it("la variante accent utilise l'orange foncé, jamais l'orange vif", () => {
     render(<Button variant="accent">Prendre contact</Button>);
     const classes = screen.getByRole("button", { name: "Prendre contact" }).className.split(/\s+/);
-    expect(classes).toContain("bg-accent-ink");
-    expect(classes).not.toContain("bg-accent");
+    expect(classes).toContain("bg-accent");
+    expect(classes).not.toContain("bg-orange");
   });
 
   it("le survol de la variante ghost passe aussi en orange foncé", () => {
     const classes = buttonVariants({ variant: "ghost" }).split(/\s+/);
-    expect(classes).toContain("hover:bg-accent-ink");
-    expect(classes).not.toContain("hover:bg-accent");
+    expect(classes).toContain("hover:bg-accent");
+    expect(classes).not.toContain("hover:bg-orange");
   });
 });
 

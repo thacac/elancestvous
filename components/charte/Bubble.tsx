@@ -18,18 +18,18 @@ export function Bubble({
 }: BubbleProps) {
   return (
     <div className={cn("relative mb-8 w-fit max-w-md", className)}>
-      <Element className="rounded-[48%_52%_46%_54%/58%_50%_50%_42%] bg-sky px-8 py-7 text-center font-display! text-xl! font-black! tracking-normal! leading-tight text-primary! m-0! md:text-2xl!">
+      <Element className="rounded-full bg-sky px-8 py-7 text-center font-display! text-xl! font-black! tracking-normal! leading-tight text-primary! m-0! md:text-2xl!">
         {children}
       </Element>
       <span
         data-bubble-tail
         aria-hidden="true"
-        className="absolute -bottom-3 left-[18%] size-6 rounded-full bg-sky"
+        className="absolute -bottom-3 left-1/5 size-6 rounded-full bg-sky"
       />
       <span
         data-bubble-tail
         aria-hidden="true"
-        className="absolute -bottom-8 left-[12%] size-3 rounded-full bg-sky"
+        className="absolute -bottom-8 left-1/8 size-3 rounded-full bg-sky"
       />
     </div>
   );

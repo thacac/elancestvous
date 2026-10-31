@@ -28,14 +28,22 @@ yarn test    # vitest
 
 ## Palette
 
-- Texte principal (`text-primary`) : `#112E40`
-- Turquoise (logo, `--color-logo`) : `#29B5AD`
-- Accent (`--color-accent`) : `#FF5A3D`
-- Gris clair (`--color-accent-foreground`) : `#F1F5F9`
+Charte inspirée des slides de formation : 8 couleurs, un rôle chacune. Détail,
+contrastes et règles d'usage dans
+`_bmad-output/planning-artifacts/ux-designs/ux-elancestvous-2026-09-23/DESIGN.md`
+(accessibilité : section dédiée de `CLAUDE.md`).
+
+- Bleu nuit, texte et titres (`--color-primary`) : `#0A0C44`
+- Pétrole, bandeaux et pied de page (`--color-petrol`) : `#015566`
+- Turquoise vif, courbes et vagues (`--color-cyan`) : `#01A4B8`
+- Turquoise du logo (`--color-logo`) : `#29B5AD`
+- Orange vif, décor (`--color-orange`) : `#F28A1E`
+- Orange foncé, texte et boutons (`--color-accent`) : `#A64D08`
+- Pastels des cartes (`--color-sky`, `--color-peach`) : `#DFF7FA`, `#FDEFE2`
 
 ## Logo
 
-Le logo est dans `public/logo-elancestvous.jpg`.
+Le logo (variante C) est dans `public/logo_elancestvous.svg` (avec étincelles : `public/logo_elancestvous_etincelles.svg`) ; le PNG `public/logo_elancestvous.png` sert aux données structurées. Dans le code : composant `Logo` de `components/charte/`.
 
 ## Formulaire de contact
 

@@ -34,3 +34,14 @@ describe("Bubble — titre", () => {
     expect(screen.getByRole("heading")).toHaveClass("tracking-normal!");
   });
 });
+
+// Dette UX-DR7 / NFR1 résorbée en Story 4.2 (la bulle arrive sur l'accueil).
+describe("Bubble — échelle Tailwind par défaut", () => {
+  it("n'utilise aucune valeur arbitraire", () => {
+    const { container } = render(<Bubble>Question</Bubble>);
+    for (const element of container.querySelectorAll("*")) {
+      expect(element.getAttribute("class") ?? "").not.toMatch(/-\[[^\]]+\]/);
+    }
+  });
+});
+

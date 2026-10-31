@@ -57,3 +57,55 @@ describe("Hero — logo variante C", () => {
   });
 });
 
+describe("Hero — charte slides (Story 4.2)", () => {
+  it("garde le H1 mot pour mot, avec le trait de pinceau sous « ceux qui soignent »", () => {
+    render(<Hero />);
+    const h1 = screen.getByRole("heading", { level: 1 });
+    expect(h1).toHaveTextContent(/^Préserver la santé de\s?ceux qui soignent\.$/);
+    expect(h1.querySelector(".brush-underline")).toHaveTextContent("ceux qui soignent");
+  });
+
+  it("pose la question au visiteur dans une bulle, à partir du desktop seulement", () => {
+    render(<Hero />);
+    const question = screen.getByText("Et vous, comment allez-vous vraiment ?");
+    expect(question.tagName).toBe("P");
+    // Sur mobile la colonne visuelle passe avant le texte : la bulle y
+    // repousserait le H1 hors du premier écran.
+    expect(question.parentElement).toHaveClass("hidden", "lg:block");
+  });
+
+  it("rend le texte d'introduction lisible sur le fond pastel (plus de gris secondary)", () => {
+    render(<Hero />);
+    const intro = screen.getByText(/ancienne soignante basée à/i).closest("p")!;
+    expect(intro.className).not.toMatch(/\btext-secondary\b/);
+  });
+
+  it("ferme la section par une vague décorative", () => {
+    const { container } = render(<Hero />);
+    const vague = container.querySelector("section > svg[aria-hidden='true']");
+    expect(vague).not.toBeNull();
+  });
+});
+
+// Revue Story 4.2 : corrections de mise en page et de contraste.
+describe("Hero — espacements et contrastes (revue Story 4.2)", () => {
+  it("garde un espace sous le logo quand la bulle est masquée (mobile, tablette)", () => {
+    render(<Hero />);
+    const logo = screen.getByRole("img", { name: /coaching et formations/i });
+    expect(logo).toHaveClass("mb-10", "lg:mb-0");
+  });
+
+  it("réserve sous le contenu au moins la hauteur de la vague (h-12, md:h-16)", () => {
+    const { container } = render(<Hero />);
+    expect(container.querySelector("section")).toHaveClass("pb-16", "md:pb-16");
+  });
+
+  it("écrit le bloc « particulier » en couleurs lisibles sur le pastel (≥ 4.5:1)", () => {
+    render(<Hero />);
+    const texte = screen.getByText(/pour débloquer une situation/i);
+    expect(texte.className).not.toMatch(/\btext-secondary\b/);
+    const lien = screen.getByRole("link", { name: /accompagnement individuel/i });
+    expect(lien.closest("span")!.className.split(/\s+/)).toContain("text-accent");
+  });
+});
+

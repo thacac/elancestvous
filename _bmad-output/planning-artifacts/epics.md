@@ -75,7 +75,7 @@ Aucun document UX inclus dans cette extraction. Le run `bmad-ux` `ux-elancestvou
 
 UX-DR1: Chaque section restylée s'ouvre sur un `SectionBanner` qui rend un vrai titre Hn, au niveau imposé par la hiérarchie de la page.
 UX-DR2: Les groupes de contenus parallèles utilisent des `PastelCard` aux teintes alternées (ciel, pêche, vert d'eau, lilas), jamais une rangée uniforme.
-UX-DR3: Le texte orange de taille courante et les boutons orange utilisent `accent-ink` ; l'orange vif est réservé au décor (contraste ≥ 4.5:1).
+UX-DR3: Le texte orange et les boutons orange utilisent `accent` (orange foncé #a64d08) ; l'orange vif est réservé au décor (contraste ≥ 4.5:1). Palette limitée aux 8 couleurs de DESIGN.md.
 UX-DR4: Les démarches ordonnées utilisent `Steps` (`<ol role="list">`), les messages à retenir `KeyMessage` (`role="note"`), au plus un par section.
 UX-DR5: Le décor (vagues, étincelles, pinceau, flèches, icônes de bandeau) est `aria-hidden`, et aucune animation automatique ne dure plus de 5 s.
 UX-DR6: Aucun titre, texte indexé ni URL n'est modifié pour les besoins du style (SEO d'abord) ; un contenu ajouté (étapes, repères chiffrés) est sourcé et validé.
@@ -550,7 +550,7 @@ So that chaque page puisse ensuite être restylée de façon cohérente.
 
 **Given** `app/globals.css` et `app/fonts.ts`
 **When** le site se charge
-**Then** les tokens pétrole, orange, accent, accent-ink et pastels sont disponibles, et Nunito, Nunito Sans et Kalam sont auto-hébergées via next/font
+**Then** les 8 couleurs de la charte (bleu nuit, pétrole, turquoise, turquoise du logo, orange vif, orange foncé, ciel, pêche) sont disponibles, et Nunito, Nunito Sans et Kalam sont auto-hébergées via next/font
 
 **Given** `components/charte/`
 **When** une page les importe
@@ -608,7 +608,7 @@ So that le parcours reste cohérent de l'accueil jusqu'au devis.
 
 **Given** les blocs `CtaElan`, `Citation`, `CartesContrastBloc`, `BadgesBloc` et `PublicsCiblesBloc`
 **When** ils s'affichent
-**Then** ils utilisent la charte (pastels, pétrole, `accent-ink`) avec un contraste d'au moins 4.5:1
+**Then** ils utilisent la charte (pastels, pétrole, `accent`) avec un contraste d'au moins 4.5:1
 
 **Given** la page `/coaching/etablissements` ou le hub Formations
 **When** on y ajoute des repères chiffrés (DREES, TraCov2 2023, publication juin 2025)
@@ -656,7 +656,7 @@ So that aucun texte ne passe sous le seuil de contraste.
 
 **Given** les liens `text-accent` de taille courante (à propos, Hero, fiches)
 **When** on mesure leur contraste
-**Then** ils sont passés en `text-accent-ink` (≥ 4.5:1), et l'orange `accent` ne reste que sur les très grands textes
+**Then** ils utilisent l'orange foncé `accent` (≥ 4.5:1), et les anciennes couleurs `secondary`, `muted` et `pastel` ne sont plus utilisées
 
 **Given** `Bubble`
 **When** on inspecte ses classes

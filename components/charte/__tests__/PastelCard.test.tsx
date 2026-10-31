@@ -7,8 +7,6 @@ describe("PastelCard", () => {
   it.each([
     ["sky", "bg-sky"],
     ["peach", "bg-peach"],
-    ["sage", "bg-sage"],
-    ["lilac", "bg-lilac"],
   ] as const)("teinte %s → %s", (tone, className) => {
     render(<PastelCard tone={tone}>Contenu</PastelCard>);
     expect(screen.getByText("Contenu")).toHaveClass(className);
@@ -40,8 +38,7 @@ describe("PastelCard", () => {
 describe("Chip", () => {
   it.each([
     ["petrol", "bg-petrol"],
-    ["accent", "bg-accent-ink"],
-    ["sage", "bg-sage-ink"],
+    ["accent", "bg-accent"],
   ] as const)("pastille %s → %s, texte blanc", (tone, className) => {
     render(<Chip tone={tone}>Formations</Chip>);
     expect(screen.getByText("Formations")).toHaveClass(className, "text-white");
@@ -49,8 +46,8 @@ describe("Chip", () => {
 });
 
 describe("Chip — contraste", () => {
-  it("n'utilise jamais bg-accent (blanc dessus ≈ 3.5:1, insuffisant en 16px)", () => {
+  it("n'utilise jamais l'orange vif en fond (blanc dessus ≈ 2.5:1)", () => {
     render(<Chip tone="accent">Coaching</Chip>);
-    expect(screen.getByText("Coaching")).not.toHaveClass("bg-accent");
+    expect(screen.getByText("Coaching")).not.toHaveClass("bg-orange");
   });
 });

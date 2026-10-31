@@ -27,7 +27,7 @@ export function Wave({ position = "bottom", className }: WaveProps) {
         className,
       )}
     >
-      <path d="M0 22C220 4 420 40 700 54V64H0Z" className="fill-teal-soft" />
+      <path d="M0 22C220 4 420 40 700 54V64H0Z" className="fill-sky" />
       <path d="M460 64C780 56 1000 30 1200 6V64Z" className="fill-petrol" />
       <path
         d="M0 48C380 30 820 66 1200 18"
@@ -35,6 +35,7 @@ export function Wave({ position = "bottom", className }: WaveProps) {
         strokeWidth="4"
         className="stroke-orange"
       />
+      <path d="M0 58C400 44 840 72 1200 30" fill="none" strokeWidth="3" className="stroke-cyan" />
     </svg>
   );
 }
@@ -58,30 +59,10 @@ export function Sparkle({ className }: { className?: string }) {
   );
 }
 
-// Trait de pinceau orange sous un mot clé. Le texte reste un nœud texte
-// ordinaire dans le flux (indexé tel quel), le trait est un SVG masqué.
-export function BrushUnderline({
-  children,
-  className,
-}: {
-  children: ReactNode;
-  className?: string;
-}) {
-  return (
-    <span className={cn("relative inline-block", className)}>
-      {children}
-      <svg
-        aria-hidden="true"
-        focusable="false"
-        viewBox="0 0 200 12"
-        preserveAspectRatio="none"
-        fill="none"
-        strokeWidth="5"
-        strokeLinecap="round"
-        className="pointer-events-none absolute -bottom-2 left-0 h-3 w-full stroke-orange"
-      >
-        <path d="M3 8 C 50 3, 120 2, 197 6" />
-      </svg>
-    </span>
-  );
+// Trait de pinceau orange sous un mot clé. Simple <span> en ligne avec
+// l'utilitaire brush-underline (app/globals.css) : le texte reste un nœud
+// texte ordinaire (indexé tel quel), se coupe comme le reste du titre, et
+// chaque ligne garde son trait.
+export function BrushUnderline({ children, className }: { children: ReactNode; className?: string }) {
+  return <span className={cn("brush-underline", className)}>{children}</span>;
 }
