@@ -662,3 +662,33 @@ So that aucun texte ne passe sous le seuil de contraste.
 **When** on inspecte ses classes
 **Then** il n'utilise plus de valeur Tailwind arbitraire (UX-DR7, NFR1)
 
+
+### Story 4.7: Catalogue des formations resserré sur smartphone
+
+As a Sophie, cadre de santé qui consulte le catalogue sur son téléphone,
+I want voir les premières fiches de formation sans faire défiler plusieurs écrans,
+So that je trouve vite une formation à proposer à mon équipe.
+
+**Contexte (mesuré sur `validation` le 2026-11-01) :** la première fiche
+arrivait à 2 312 px à 390 px de large (2,7 écrans) et à 2 579 px à 320 px
+(3,1 écrans), derrière les 4 tuiles Famille (1 533 px) et 4 à 5 lignes de
+filtres. Pistes retenues par Cédric : liste avant les tuiles, filtres sur une
+ligne défilante, tuiles compactes, H1 réduit.
+
+**Acceptance Criteria:**
+
+**Given** `/formations` à 390 px et à 320 px
+**When** la page se charge
+**Then** la section « Toutes nos formations » (filtres et fiches) précède les tuiles Famille dans le HTML comme à l'écran, et la première fiche apparaît dans le premier écran
+
+**Given** les filtres de catégorie sur smartphone
+**When** on les consulte
+**Then** ils tiennent sur une ligne qui défile dans son propre conteneur (fondu décoratif au bord droit), utilisable au clavier, restent des `<Link>` (AD-5) en `rounded-md`, et retrouvent leur disposition sur plusieurs lignes à partir de `sm`
+
+**Given** les tuiles Famille
+**When** on les consulte
+**Then** elles s'ouvrent sur un bandeau h2 « Explorer les formations par famille » (titre ajouté, validé par Cédric), leurs titres passent en h3 sans changer de texte, et sur smartphone leur médaillon est réduit à côté du titre
+
+**Given** le SEO et l'accessibilité
+**When** on compare avant et après
+**Then** title, meta, H1, textes, `alt` et URL (y compris `?famille=…#toutes-nos-formations`) sont inchangés, le H1 est réduit sur smartphone (`text-3xl!`), la hiérarchie Hn est sans saut, et la page ne défile pas horizontalement à 320 px
