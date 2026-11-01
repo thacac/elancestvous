@@ -92,3 +92,13 @@ describe("buttonVariants — focus clavier visible", () => {
     expect(classes).not.toContain("focus-visible:ring-ring");
   });
 });
+
+// Story 4.6 : la variante `secondary` (gris #898c91, 3.4:1 sur blanc) n'était
+// utilisée nulle part ; elle disparaît avec le token.
+describe("buttonVariants — plus de variante secondary (Story 4.6)", () => {
+  it("ne propose plus la variante secondary", () => {
+    const classes = buttonVariants({ variant: "secondary" as never });
+    expect(classes).not.toMatch(/\bbg-secondary\b/);
+    expect(classes).not.toMatch(/secondary-foreground/);
+  });
+});

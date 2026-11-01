@@ -109,3 +109,26 @@ describe("Hero — espacements et contrastes (revue Story 4.2)", () => {
   });
 });
 
+
+// Story 4.6 : l'accueil quitte l'ancien pastel pour le ciel de la charte ; la
+// bulle passe en blanc pour s'en détacher (décision de Cédric, 2026-11-01).
+describe("Hero — palette de la charte (Story 4.6)", () => {
+  it("pose son fond en ciel, plus en pastel", () => {
+    const { container } = render(<Hero />);
+    const section = container.querySelector("section")!;
+    expect(section).toHaveClass("bg-sky");
+    expect(section.className).not.toMatch(/\bbg-pastel\b/);
+  });
+
+  it("met la bulle en blanc pour qu'elle reste visible sur le ciel", () => {
+    render(<Hero />);
+    expect(screen.getByText("Et vous, comment allez-vous vraiment ?")).toHaveClass("bg-white");
+  });
+
+  it("trace le séparateur du bloc « particulier » en bleu nuit atténué, plus en muted", () => {
+    render(<Hero />);
+    const bloc = screen.getByText(/vous êtes un particulier/i).closest("div")!;
+    expect(bloc).toHaveClass("border-t-primary/20");
+    expect(bloc.className).not.toMatch(/\bborder-t-muted\b/);
+  });
+});

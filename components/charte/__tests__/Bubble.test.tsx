@@ -45,3 +45,33 @@ describe("Bubble — échelle Tailwind par défaut", () => {
   });
 });
 
+
+// Story 4.6 : dette UX-DR7 soldée, y compris sous forme de style inline.
+describe("Bubble — aucun style inline", () => {
+  it("ne pose aucun attribut style", () => {
+    const { container } = render(<Bubble tone="white">Question</Bubble>);
+    expect(container.querySelector("[style]")).toBeNull();
+  });
+});
+
+// Story 4.6 : sur un fond ciel (accueil), la bulle passe en blanc pour rester
+// visible. Le ciel reste la teinte par défaut (DESIGN.md).
+describe("Bubble — teinte", () => {
+  it("est ciel par défaut, queue comprise", () => {
+    const { container } = render(<Bubble>Question</Bubble>);
+    expect(screen.getByText("Question")).toHaveClass("bg-sky");
+    for (const queue of container.querySelectorAll("[data-bubble-tail]")) {
+      expect(queue).toHaveClass("bg-sky");
+    }
+  });
+
+  it("passe en blanc sur un fond ciel, queue comprise", () => {
+    const { container } = render(<Bubble tone="white">Question</Bubble>);
+    expect(screen.getByText("Question")).toHaveClass("bg-white");
+    expect(screen.getByText("Question")).not.toHaveClass("bg-sky");
+    for (const queue of container.querySelectorAll("[data-bubble-tail]")) {
+      expect(queue).toHaveClass("bg-white");
+      expect(queue).not.toHaveClass("bg-sky");
+    }
+  });
+});

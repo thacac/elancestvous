@@ -7,8 +7,8 @@ import { buttonVariants } from "@/components/ui/button";
 
 export default function Hero() {
   return (
-    <section className="relative bg-pastel flex flex-col md:flex-row md:items-center px-6 min-h-screen h-fit -mt-20 pt-20 pb-16 md:pb-16">
-      <div className="bg-light flex flex-col lg:flex-row justify-between items-center mx-auto max-w-5xl">
+    <section className="relative bg-sky flex flex-col md:flex-row md:items-center px-6 min-h-screen h-fit -mt-20 pt-20 pb-16 md:pb-16">
+      <div className="flex flex-col lg:flex-row justify-between items-center mx-auto max-w-5xl">
         <div className="order-last flex-1 flex flex-col justify-center text-center md:my-0 lg:order-first md:text-left">
           <span className="inline-block py-1 px-3 rounded-full bg-petrol text-white text-xs font-bold mb-6 tracking-wide uppercase w-fit mx-auto md:mx-0">
             Santé au travail & Performance Humaine
@@ -34,7 +34,7 @@ export default function Hero() {
               Solutions pour les établissements
             </Link>
           </div>
-          <div className="border-t border-t-muted text-center md:text-left py-6">
+          <div className="border-t border-t-primary/20 text-center md:text-left py-6">
             <p className="text-sm text-primary leading-relaxed">
               Vous êtes un particulier&nbsp;?
             </p>
@@ -56,7 +56,7 @@ export default function Hero() {
             title="Élan C’est Vous – coaching et formations pour les professionnels de santé"
             className="w-1/2 max-w-md h-auto mb-10 lg:mb-0 md:w-2/3 md:mt-0"
           />
-          <Bubble className="hidden lg:block mb-10">Et vous, comment allez-vous vraiment&nbsp;?</Bubble>
+          <Bubble tone="white" className="hidden lg:block mb-10">Et vous, comment allez-vous vraiment&nbsp;?</Bubble>
         </div>
       </div>
       <Wave className="absolute inset-x-0 bottom-0" />

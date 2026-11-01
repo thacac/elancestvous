@@ -70,7 +70,7 @@ components:
     foreground: '{colors.white}'
     radius: '{rounded.full}'
   bubble:
-    background: '{colors.sky}'
+    background: '{colors.sky} | {colors.white}'
     text: '{typography.display}'
   button-accent:
     background: '{colors.accent}'
@@ -111,7 +111,7 @@ La palette compte **8 couleurs, chacune avec un rôle unique**. Les valeurs ont 
   - `{colors.orange}` (vif) est **décoratif uniquement** sur fond clair : trait de pinceau, étincelles, flèches, barres verticales. Jamais de texte en orange vif sur fond clair, ni de texte posé dessus. Exception : sur bleu nuit, l'orange vif peut servir au grand texte (6.6:1), là où l'orange foncé ne passe pas (2.9:1).
   - `{colors.accent}` (foncé) sert au texte orange, au mot mis en avant dans un titre et aux fonds de boutons orange, avec un texte blanc (5.7:1). Sur les pastels, il fait 5:1.
 - **Pastels `{colors.sky}` et `{colors.peach}`** : fonds de cartes, en alternance dans une même rangée. Le texte posé dessus est `{colors.primary}`.
-- Les couleurs de catégorie du catalogue (`cat-*` dans `globals.css`) restent à part : elles distinguent les 4 familles de formation. Les anciennes couleurs (`secondary`, `muted`, `pastel`) disparaîtront au fil des stories 4.3 à 4.6.
+- Les couleurs de catégorie du catalogue (`cat-*` dans `globals.css`) restent à part : elles distinguent les 4 familles de formation. Les anciennes couleurs (`secondary`, `muted`, `pastel`) ont disparu avec la story 4.6 ; les textes secondaires gris (placeholders, aides de formulaire) utilisent `stone-600` (≥ 6.8:1 sur blanc et pastels).
 
 À éviter : toute couleur hors de cette liste ; un texte sur l'orange vif ou le turquoise vif ; une couleur comme seul porteur d'information ; tout dégradé.
 
@@ -142,7 +142,7 @@ Tous ces composants se trouvent dans `components/charte/`. Leur comportement est
 - **Carte pastel (`PastelCard`)** et **pastille (`Chip`)** : fond pastel en `{rounded.3xl}`. La pastille de titre est blanche sur `{colors.petrol}` ou `{colors.accent}`.
 - **Message clé (`KeyMessage`)** : fond `{colors.sky}` avec une ampoule pétrole aux rayons orange, une barre orange et une phrase en Nunito extra-gras. Au maximum un par section.
 - **Étapes (`Steps`)** : cartes ciel et pêche en alternance, numéro dans un cercle (`{colors.accent}`, `{colors.petrol}`, `{colors.primary}`), flèches orange entre les cartes.
-- **Bulle (`Bubble`)** : nuage `{colors.sky}` avec deux petites bulles de queue, texte en Nunito 900.
+- **Bulle (`Bubble`)** : nuage `{colors.sky}` avec deux petites bulles de queue, texte en Nunito 900. Posée sur un fond ciel (accueil), elle passe en blanc (`tone="white"`).
 - **Décor (`Wave`, `Sparkle`, `BrushUnderline`)** : uniquement en `{colors.orange}`, `{colors.cyan}`, `{colors.petrol}` et `{colors.sky}`.
 - **Logo (`Logo`)** : cercle `{colors.logo}`, lettre blanche, point `{colors.orange}`. La variante avec étincelles est réservée aux grands formats (accueil, supports). Fichiers source : `public/logo_elancestvous.svg` et `public/logo_elancestvous_etincelles.svg`.
 - **Bouton orange** (variante `accent` de `components/ui/button.tsx`) : fond `{colors.accent}`, texte blanc, `{rounded.md}`. Le bouton secondaire teinté (FR12) est inchangé.
