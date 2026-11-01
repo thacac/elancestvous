@@ -8,6 +8,7 @@ coverImage: "/og-banner.jpg"
 coverImageAlt: "Illustration provisoire — sera remplacée par une image générée une fois le pipeline d'illustration branché"
 tags: ["RPS", "burnout", "soignants"]
 pillar: "C"
+keyMessage: "Pris isolément, un signe semble anodin : c'est la répétition et l'accumulation des signaux qui doivent alerter."
 ---
 
 Dans les métiers du soin, l'épuisement professionnel s'installe rarement du jour au lendemain. Il progresse par étapes, souvent masquées par l'engagement même qui pousse à « tenir » pour l'équipe et pour les patients.
