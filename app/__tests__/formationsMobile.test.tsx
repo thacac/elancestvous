@@ -120,36 +120,16 @@ describe("/formations — filtres visibles au clavier (Story 4.7)", () => {
   });
 });
 
-// Mesuré à 390 px : sur /formations?famille=prevention…, le filtre actif était
-// hors de l'écran, à droite ; on ne voyait pas quel filtre s'appliquait.
-describe("/formations — filtre actif visible au chargement (Story 4.7)", () => {
+// Filtre actif ramené à l'écran : testé dans
+// components/formations/__tests__/FiltresDefilants.test.tsx (géométrie simulée).
 
-  it("fait défiler la rangée jusqu'au filtre actif s'il dépasse à droite", async () => {
-    const offsetLeft = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "offsetLeft");
-    const offsetWidth = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "offsetWidth");
-    const clientWidth = Object.getOwnPropertyDescriptor(Element.prototype, "clientWidth");
-    // Géométrie à 390 px : rangée de 358 px, filtre actif à 330 px du bord.
-    Object.defineProperty(HTMLElement.prototype, "offsetLeft", {
-      configurable: true,
-      get(this: HTMLElement) { return this.getAttribute("aria-current") === "page" ? 330 : 0; },
-    });
-    Object.defineProperty(HTMLElement.prototype, "offsetWidth", { configurable: true, get: () => 220 });
-    Object.defineProperty(Element.prototype, "clientWidth", { configurable: true, get: () => 358 });
-    try {
-      await renderCatalogue("prevention-rps-qvct-etablissements-sante");
-      const nav = screen.getByRole("navigation", { name: "Filtre par catégorie" });
-      const actif = within(nav).getByRole("link", { name: "Prévention des RPS et QVCT" });
-      expect(actif.parentElement!.scrollLeft).toBe(330);
-    } finally {
-      Object.defineProperty(HTMLElement.prototype, "offsetLeft", offsetLeft!);
-      Object.defineProperty(HTMLElement.prototype, "offsetWidth", offsetWidth!);
-      Object.defineProperty(Element.prototype, "clientWidth", clientWidth!);
-    }
-  });
-
-  it("ne bouge pas la rangée si le filtre actif est déjà visible", async () => {
+// Revue : la région des tuiles s'annonçait « Familles de formations » alors
+// que son titre visible est « Explorer les formations par famille ».
+describe("/formations — région des tuiles nommée par son titre (Story 4.7)", () => {
+  it("prend le nom de son bandeau h2", async () => {
     await renderCatalogue();
-    const nav = screen.getByRole("navigation", { name: "Filtre par catégorie" });
-    expect(within(nav).getByRole("link", { name: "Toutes" }).parentElement!.scrollLeft).toBe(0);
+    const region = screen.getByRole("region", { name: "Explorer les formations par famille" });
+    expect(within(region).getAllByRole("link", { name: "Découvrir" })).toHaveLength(4);
+    expect(region).not.toHaveAttribute("aria-label");
   });
 });

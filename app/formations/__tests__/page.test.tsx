@@ -118,7 +118,7 @@ describe("FormationsCataloguePage — tuiles vers les 4 familles (Story 2.4)", (
     const jsx = await FormationsCataloguePage({ searchParams: Promise.resolve({}) });
     const { container } = render(jsx);
 
-    const grille = container.querySelector('[aria-label="Familles de formations"] .grid')!;
+    const grille = container.querySelector('[aria-labelledby="explorer-par-famille"] .grid')!;
     expect(grille.className).toContain("sm:grid-cols-2");
     expect(grille.className).not.toMatch(/lg:grid-cols-4|grid-cols-3|grid-cols-4/);
   });

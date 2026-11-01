@@ -147,7 +147,7 @@ export default async function FormationsCataloguePage({
             un filtre le fait défiler à l'écran. Plusieurs lignes dès sm. */}
         <nav aria-label="Filtre par catégorie" className="container mt-6 mb-8 sm:mt-8 sm:mb-10">
           <div className="relative -mx-1">
-            <FiltresDefilants>
+            <FiltresDefilants actif={activeFamille ?? "toutes"}>
               <Link
                 href={`/formations#${ANCRE_LISTE}`}
                 aria-current={activeFamille ? undefined : "page"}
@@ -251,8 +251,9 @@ export default async function FormationsCataloguePage({
           que la première fiche arrive dans le premier écran mobile. Leur
           bandeau est un titre ajouté, validé par Cédric ; les titres des
           tuiles passent en h3 sous lui, textes inchangés. */}
-      <section className="mt-16" aria-label="Familles de formations">
-        <SectionBanner title="Explorer les formations par famille" />
+      {/* Revue : la région prend le nom de son titre visible. */}
+      <section className="mt-16" aria-labelledby="explorer-par-famille">
+        <SectionBanner id="explorer-par-famille" title="Explorer les formations par famille" />
         <div className="container mt-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             {/* Story 4.3 : tuiles en cartes pastel ciel / pêche alternées.
