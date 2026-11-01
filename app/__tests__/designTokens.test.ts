@@ -178,7 +178,12 @@ describe("globals.css — anciennes couleurs retirées (Story 4.6)", () => {
 
   it("aucun fichier n'utilise secondary, muted ou pastel comme couleur", () => {
     const classe =
-      /(?:^|[\s"'`:])(?:bg|text|border(?:-[trblxy])?|ring|fill|stroke|from|via|to|outline|decoration|divide|shadow)-(?:secondary|muted|pastel)(?:-foreground)?(?:\/\d+)?(?=$|[\s"'`])/m;
+      /(?:^|[\s"'`:])(?:bg|text|border(?:-[trblxy])?|ring|fill|stroke|from|via|to|outline|decoration|divide|shadow)-(?:secondary|muted|pastel)(?:-foreground)?(?:\/(?:\d+|\[[^\]]+\]))?!?(?=$|[\s"'`])/m;
+    // Revue 4.6 : le motif doit aussi voir les classes !important (v4) et
+    // les opacités arbitraires.
+    for (const exemple of ["text-muted-foreground!", "bg-pastel/[.5]", "hover:bg-secondary/80"]) {
+      expect(` ${exemple} `).toMatch(classe);
+    }
     const variable = /var\(--(?:color-)?(?:secondary|muted|pastel)\b/;
     const fichiers = ["app", "components", "lib"].flatMap((dossier) =>
       sourceFiles(join(root, dossier)),
