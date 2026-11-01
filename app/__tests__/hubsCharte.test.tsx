@@ -184,7 +184,7 @@ describe("/coaching/etablissements — repères chiffrés DREES (NFR3)", () => {
 describe("/formations — tuiles Famille en cartes pastel", () => {
   it("alterne ciel et pêche, titres de famille inchangés", async () => {
     await renderFormations();
-    const grille = document.querySelector('[aria-label="Familles de formations"] > div')!;
+    const grille = document.querySelector('[aria-label="Familles de formations"] .grid')!;
     const tuiles = Array.from(grille.children);
     expect(tuiles).toHaveLength(4);
     expect(tuiles.map((t) => (t.className.includes("bg-sky") ? "sky" : t.className.includes("bg-peach") ? "peach" : "?"))).toEqual([
@@ -225,7 +225,7 @@ describe("Médaillons dessinés", () => {
 
   it("/formations : un dessin décoratif par tuile Famille", async () => {
     await renderFormations();
-    const tuiles = Array.from(document.querySelector('[aria-label="Familles de formations"] > div')!.children);
+    const tuiles = Array.from(document.querySelector('[aria-label="Familles de formations"] .grid')!.children);
     const sources = tuiles.map((tuile) => {
       const image = tuile.querySelector("img")!;
       expect(image).toHaveAttribute("alt", "");

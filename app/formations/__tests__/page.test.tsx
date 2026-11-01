@@ -118,12 +118,14 @@ describe("FormationsCataloguePage — tuiles vers les 4 familles (Story 2.4)", (
     const jsx = await FormationsCataloguePage({ searchParams: Promise.resolve({}) });
     const { container } = render(jsx);
 
-    const grille = container.querySelector('[aria-label="Familles de formations"] > div')!;
+    const grille = container.querySelector('[aria-label="Familles de formations"] .grid')!;
     expect(grille.className).toContain("sm:grid-cols-2");
     expect(grille.className).not.toMatch(/lg:grid-cols-4|grid-cols-3|grid-cols-4/);
   });
 
-  it("positionne les tuiles au-dessus de la grille filtrable, sans la modifier", async () => {
+  // Story 4.7 (Cédric, 2026-11-01) : la liste filtrable passe avant les
+  // tuiles, pour que la première fiche arrive dans le premier écran mobile.
+  it("positionne les tuiles sous la grille filtrable (Story 4.7)", async () => {
     vi.mocked(getAllFormationsMeta).mockReturnValue(ALL_FORMATIONS);
 
     const jsx = await FormationsCataloguePage({ searchParams: Promise.resolve({}) });
@@ -135,7 +137,7 @@ describe("FormationsCataloguePage — tuiles vers les 4 familles (Story 2.4)", (
     const filtres = screen.getByRole("navigation", { name: /filtre/i });
 
     expect(
-      tuile.compareDocumentPosition(filtres) & Node.DOCUMENT_POSITION_FOLLOWING
+      filtres.compareDocumentPosition(tuile) & Node.DOCUMENT_POSITION_FOLLOWING
     ).toBeTruthy();
   });
 });
