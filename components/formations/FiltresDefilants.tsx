@@ -13,7 +13,8 @@ const FONDU_PX = 40;
 //   hors du fondu).
 // - Clic ou toucher : pas de défilement. Le focus arrive au mousedown ; en
 //   déplaçant le filtre avant le mouseup, le clic tombait sur la rangée et le
-//   filtre ne s'appliquait pas (revue).
+//   filtre ne s'appliquait pas (revue). Le drapeau retombe au focus, au
+//   click et au pointercancel (glissement tactile, revue Copilot).
 // - Filtre actif : amené au début de la rangée s'il est caché à droite (ou
 //   sous le fondu) ou à gauche, au chargement et à chaque changement (le
 //   composant survit à une navigation <Link>, Retour navigateur compris).
@@ -49,6 +50,8 @@ export function FiltresDefilants({ actif, children }: { actif: string; children:
       ref={rangee}
       onPointerDown={() => (viaPointeur.current = true)}
       onClick={() => (viaPointeur.current = false)}
+      // Glissement tactile : pointercancel arrive sans focus ni click.
+      onPointerCancel={() => (viaPointeur.current = false)}
       onFocus={montrer}
       className="relative flex gap-2 overflow-x-auto scroll-pl-1 scroll-pr-10 px-1 py-1 pr-10 sm:flex-wrap sm:overflow-x-visible sm:pr-1"
     >

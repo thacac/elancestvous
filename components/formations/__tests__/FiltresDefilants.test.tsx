@@ -92,6 +92,20 @@ describe("FiltresDefilants — focus", () => {
   });
 });
 
+// Revue Copilot (PR #146) : un glissement tactile sur la rangée envoie
+// pointercancel, sans focus ni click ; le drapeau restait levé et le focus
+// clavier suivant ne faisait pas défiler la rangée.
+describe("FiltresDefilants — glissement tactile annulé", () => {
+  it("fait défiler la rangée au focus clavier qui suit un pointercancel", () => {
+    render(rangee("A"));
+    const [a, c] = ["A", "C"].map((nom) => screen.getByRole("link", { name: nom }));
+    fireEvent.pointerDown(a);
+    fireEvent.pointerCancel(a);
+    fireEvent.focus(c);
+    expect(vi.mocked(Element.prototype.scrollIntoView).mock.contexts).toEqual([c]);
+  });
+});
+
 describe("FiltresDefilants — filtre actif", () => {
   it("se mesure depuis la rangée elle-même (positionnée), quel que soit son défilement", () => {
     render(rangee("A"));
