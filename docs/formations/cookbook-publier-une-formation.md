@@ -7,7 +7,7 @@
 Ce cookbook explique comment une nouvelle formation passe du [Template — Nouvelle formation](./template-nouvelle-formation.md) rempli par Coralie jusqu'à sa mise en ligne réelle sur elancestvous.fr. Il couvre les deux rôles du circuit :
 
 - **Coralie** : remplit le Template, une formation à la fois, et l'envoie.
-- **La personne qui publie** (généralement un développeur du projet) : convertit le contenu envoyé en fichier technique et le met en ligne en suivant le circuit Git habituel du dépôt (voir `CLAUDE.md`).
+- **La personne qui publie** (généralement un développeur du projet) : convertit le contenu envoyé en fichier technique et le met en ligne en suivant le circuit Git habituel du dépôt (voir `.claude/rules/workflow-git.md` et `.claude/rules/revue-avant-pr.md`).
 
 Chaque étape ci-dessous précise qui agit et ce qu'il fait.
 
@@ -69,7 +69,7 @@ Créez le fichier sous `content/formations/<slug>.md`, avec ce frontmatter YAML 
 
 ## Étape 3 — Circuit Git : TDD, revue isolée, PR vers `validation`
 
-Suivez exactement le workflow défini dans `CLAUDE.md` :
+Suivez exactement le workflow défini dans `.claude/rules/workflow-git.md` et `.claude/rules/revue-avant-pr.md` :
 
 1. Créez une branche dédiée à cette formation (jamais de commit direct sur `master`).
 2. TDD obligatoire : ajoutez d'abord un test qui échoue (par exemple dans `lib/__tests__/formations.test.ts` ou dans les tests de la page catalogue/fiche concernée), vérifiez qu'il échoue, puis ajoutez le fichier `.md` pour le faire passer.
