@@ -564,7 +564,7 @@ So that chaque page puisse ensuite être restylée de façon cohérente.
 **When** on mesure le contraste du texte
 **Then** il est d'au moins 4.5:1 (UX-DR3)
 
-**Reste à faire (dette UX-DR7)** : la forme et les petites bulles de `Bubble` utilisent encore 3 valeurs arbitraires.
+**Dette UX-DR7 soldée** : `Bubble` n'utilise plus de valeur arbitraire (revue de la story 4.1, vérifié et verrouillé par test en story 4.6).
 
 ### Story 4.2: Accueil aux couleurs des slides
 

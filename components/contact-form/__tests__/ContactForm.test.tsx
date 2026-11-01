@@ -143,3 +143,20 @@ describe("ContactForm — bouton d'envoi lisible au survol", () => {
   });
 });
 
+
+// Story 4.6 : à 320 px, /contact défilait horizontalement (WCAG 1.4.10) : le
+// bouton d'envoi, en whitespace-nowrap avec px-8, imposait 306 px à la grille
+// du formulaire (« Remplissez le formulaire pour envoyer »).
+describe("ContactForm — sans débordement à 320 px (Story 4.6)", () => {
+  it("laisse le libellé du bouton d'envoi passer à la ligne, sans hauteur fixe", () => {
+    render(<ContactForm />);
+    const bouton = screen.getByRole("button", { name: /remplissez le formulaire|envoyer/i });
+    const classes = bouton.className.split(/\s+/);
+    expect(classes).toContain("whitespace-normal");
+    expect(classes).not.toContain("whitespace-nowrap");
+    expect(classes).toContain("h-auto");
+    expect(classes).not.toContain("h-10");
+    // Garde la hauteur d'origine (56 px) quand le libellé tient sur une ligne.
+    expect(classes).toContain("min-h-14");
+  });
+});

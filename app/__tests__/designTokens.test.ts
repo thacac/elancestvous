@@ -155,3 +155,81 @@ describe("globals.css — palette resserrée", () => {
   });
 });
 
+
+// Story 4.6 : fin des anciennes couleurs (secondary, muted, pastel), y
+// compris les tokens shadcn de components/ui (validé par Cédric le 2026-11-01).
+describe("globals.css — anciennes couleurs retirées (Story 4.6)", () => {
+  const anciennes = [
+    "color-secondary",
+    "color-secondary-foreground",
+    "color-muted",
+    "color-muted-foreground",
+    "color-pastel",
+  ];
+
+  it.each(anciennes)("ne définit plus %s", (name) => {
+    expect(themeToken(name)).toBeUndefined();
+  });
+
+  it("ne garde plus l'ancien bloc de variables shadcn commenté", () => {
+    expect(globalsCss).not.toMatch(/--(?:secondary|muted)(?:-foreground)?:/);
+    expect(globalsCss).not.toMatch(/brand-pastel/);
+  });
+
+  it("aucun fichier n'utilise secondary, muted ou pastel comme couleur", () => {
+    const classe =
+      /(?:^|[\s"'`:])(?:bg|text|border(?:-[trblxy])?|ring|fill|stroke|from|via|to|outline|decoration|divide|shadow)-(?:secondary|muted|pastel)(?:-foreground)?(?:\/(?:\d+|\[[^\]]+\]))?!?(?=$|[\s"'`])/m;
+    // Revue 4.6 : le motif doit aussi voir les classes !important (v4) et
+    // les opacités arbitraires.
+    for (const exemple of ["text-muted-foreground!", "bg-pastel/[.5]", "hover:bg-secondary/80"]) {
+      expect(` ${exemple} `).toMatch(classe);
+    }
+    const variable = /var\(--(?:color-)?(?:secondary|muted|pastel)\b/;
+    const fichiers = ["app", "components", "lib"].flatMap((dossier) =>
+      sourceFiles(join(root, dossier)),
+    );
+    const fautifs = fichiers.filter((file) => {
+      if (file.includes("__tests__")) return false;
+      const source = readFileSync(file, "utf8");
+      return classe.test(source) || variable.test(source);
+    });
+    expect(fautifs).toEqual([]);
+  });
+});
+
+// Story 4.6 : le texte orange (liens compris) reste lisible sur tous les
+// fonds clairs du site, et l'orange vif ne porte jamais de texte.
+describe("globals.css — contraste du texte orange (Story 4.6)", () => {
+  function luminance(hex: string): number {
+    const [r, g, b] = [1, 3, 5].map((i) => {
+      const v = parseInt(hex.slice(i, i + 2), 16) / 255;
+      return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+    });
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  }
+  function ratio(a: string, b: string): number {
+    const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+    return (hi + 0.05) / (lo + 0.05);
+  }
+
+  it.each([
+    ["blanc", "#ffffff"],
+    ["ciel", themeToken("color-sky")!],
+    ["pêche", themeToken("color-peach")!],
+    ["stone-50 (formulaire de contact)", "#fafaf9"],
+  ])("accent atteint au moins 4.5:1 sur %s", (_fond, fond) => {
+    expect(ratio(themeToken("color-accent")!, fond)).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it("aucun texte n'est écrit en orange vif", () => {
+    const fichiers = ["app", "components"].flatMap((dossier) =>
+      tsxFiles(join(root, dossier)),
+    );
+    const fautifs = fichiers.filter(
+      (file) =>
+        !file.includes("__tests__") &&
+        /(?:^|[\s"'`:])text-orange\b/m.test(readFileSync(file, "utf8")),
+    );
+    expect(fautifs).toEqual([]);
+  });
+});

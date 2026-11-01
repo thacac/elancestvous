@@ -102,7 +102,7 @@ export const Navbar: FC<NavbarProps> = ({ blogEnabled = false }) => {
         <div className="fixed inset-0 z-50" />
         <DialogPanel
           id="mobile-menu-panel"
-          className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-pastel p-6 sm:max-w-sm sm:ring-1 sm:ring-gray-100/10"
+          className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-sky p-6 sm:max-w-sm sm:ring-1 sm:ring-gray-100/10"
         >
           <div className="flex items-center justify-between">
             <Logo title="Élan C’est Vous" className="size-14" />

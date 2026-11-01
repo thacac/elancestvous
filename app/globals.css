@@ -14,26 +14,6 @@
   }
 }
 
-:root {
-  /* --header: var(--color-brand-pastel);
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent-foreground: #f1f5f9;
-  --destructive: oklch(0.577 0.245 27.325); */
-  /* --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0); */
-  /* Personnal vars */
-}
 html {
   scroll-behavior: smooth;
 }
@@ -98,8 +78,6 @@ h3,
   /* Personnal vars */
   --color-primary: #0a0c44;
   --color-primary-foreground: oklch(0.985 0 0);
-  --color-secondary: #898c91;
-  --color-secondary-foreground: oklch(0.205 0 0);
   /* Palette de la charte : 8 couleurs, un rôle chacune (DESIGN.md).
      Deux oranges seulement : accent = orange foncé pour le texte et les
      fonds de boutons (blanc dessus ≈ 5.7:1, ≈ 5:1 sur les pastels) ;
@@ -108,9 +86,6 @@ h3,
   --color-accent: #a64d08;
   --color-orange: #f28a1e;
   --color-accent-foreground: #f1f5f9;
-  --color-muted: #93999b;
-  --color-muted-foreground: oklch(0.556 0 0);
-  --color-pastel: #d1faf9;
   --color-logo: #29b5ad;
   /* Bandeaux de section, pied de page et pastilles. */
   --color-petrol: #015566;
@@ -157,10 +132,6 @@ h3,
   --popover-foreground: oklch(0.985 0 0);
   --primary: oklch(0.922 0 0);
   --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
   --accent: oklch(0.269 0 0);
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);

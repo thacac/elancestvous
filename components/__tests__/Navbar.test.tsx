@@ -133,3 +133,14 @@ describe("Navbar mobile drawer (bug: rien ne se passe au clic/tap sur mobile)", 
     expect(closeButton.className).toMatch(/active:/);
   });
 });
+
+// Story 4.6 : le menu mobile quitte l'ancien pastel pour le ciel de la charte.
+describe("Navbar — menu mobile aux couleurs de la charte (Story 4.6)", () => {
+  it("pose le panneau sur le ciel, plus sur le pastel", () => {
+    render(<Navbar />);
+    fireEvent.click(screen.getByRole("button", { name: /open main menu/i }));
+    const panneau = document.getElementById("mobile-menu-panel")!;
+    expect(panneau).toHaveClass("bg-sky");
+    expect(panneau.className).not.toMatch(/\bbg-pastel\b/);
+  });
+});
