@@ -43,11 +43,14 @@ describe("/a-propos — SEO inchangé (UX-DR6)", () => {
   });
 
   it("garde le H1, le sous-titre et l'alt de la photo", () => {
-    const { container } = render(<About />);
+    render(<About />);
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Coralie Mathorel – Coach certifiée à Toulouse");
-    expect(container.querySelector("h2.h3-like")).toHaveTextContent(
-      "Ancienne soignante, j'accompagne aujourd'hui la santé de ceux qui soignent.",
-    );
+    expect(
+      screen.getByRole("heading", {
+        level: 2,
+        name: "Ancienne soignante, j'accompagne aujourd'hui la santé de ceux qui soignent.",
+      }),
+    ).toBeInTheDocument();
     expect(
       screen.getByAltText("Coralie Mathorel, coach professionnelle certifiée et ancienne soignante, à Toulouse"),
     ).toBeInTheDocument();
@@ -127,9 +130,12 @@ describe("/contact — SEO inchangé (UX-DR6)", () => {
   it("garde le H1, le sous-titre et une hiérarchie sans saut", async () => {
     const { container } = await renderContact();
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Parlons de vos besoins");
-    expect(container.querySelector("h2.h3-like")).toHaveTextContent(
-      "Un premier échange pour comprendre votre situation et définir ensemble la réponse la plus adaptée.",
-    );
+    expect(
+      screen.getByRole("heading", {
+        level: 2,
+        name: "Un premier échange pour comprendre votre situation et définir ensemble la réponse la plus adaptée.",
+      }),
+    ).toBeInTheDocument();
     sansSaut(container);
   });
 });
@@ -183,6 +189,10 @@ describe("Formulaire de contact — charte et contrastes", () => {
     expect(bouton.className).toContain("disabled:bg-stone-600");
     expect(bouton.className).toContain("disabled:opacity-100");
     expect(bouton.className).not.toMatch(/shadow-lg|hover:bg-accent/);
+    // Conflits résolus par tailwind-merge : la base du bouton ne doit pas subsister.
+    const classes = bouton.className.split(/\s+/);
+    expect(classes).not.toContain("disabled:opacity-50");
+    expect(classes).not.toContain("h-10");
   });
 
   it("borde les champs en stone-600 sur fond blanc (≥ 3:1, WCAG 1.4.11)", async () => {
@@ -195,6 +205,23 @@ describe("Formulaire de contact — charte et contrastes", () => {
     ]) {
       expect(champ.className).toContain("border-stone-600");
       expect(champ.className).toContain("bg-white");
+    }
+  });
+
+  // Revue story 4.9 : `ring-ring` ne génère rien (pas de --color-ring) ; avec
+  // des bordures sombres, le focus devenait à peine perceptible (RGAA 10.7).
+  it("affiche un focus net (anneau bleu nuit détaché) sur les champs et les radios", async () => {
+    await renderContact();
+    for (const element of [
+      screen.getByRole("textbox", { name: "Prénom" }),
+      screen.getByRole("textbox", { name: /exprimez votre besoin/i }),
+      screen.getByRole("radio", { name: /particulier/i }),
+    ]) {
+      const classes = element.className.split(/\s+/);
+      expect(classes).toEqual(
+        expect.arrayContaining(["focus-visible:ring-2", "focus-visible:ring-primary", "focus-visible:ring-offset-2"]),
+      );
+      expect(classes).not.toContain("focus-visible:ring-ring");
     }
   });
 
