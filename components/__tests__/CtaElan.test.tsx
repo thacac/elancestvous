@@ -67,11 +67,12 @@ describe("CtaElan — charte des slides (Story 4.3)", () => {
     expect(phrase.className).not.toMatch(/text-primary\/\d+/);
   });
 
-  it("se termine par une vague décorative vers le pied de page", () => {
+  // Story 4.8 : la vague vit dans le pied de page partagé (Footer), sinon elle
+  // n'apparaissait que sur les pages qui finissent par ce bloc et se
+  // doublerait avec celle du pied de page.
+  it("ne contient plus de vague : elle appartient au pied de page", () => {
     const { container } = render(<CtaElan />);
-    const section = container.querySelector("section")!;
-    expect(section.lastElementChild!.tagName.toLowerCase()).toBe("svg");
-    expect(section.lastElementChild).toHaveAttribute("aria-hidden", "true");
+    expect(container.querySelector("svg")).toBeNull();
   });
 
   // Supprimé sur décision de Cédric (2026-10-31) : il chargeait la bulle et

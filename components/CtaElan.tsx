@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { Bubble, Wave } from "@/components/charte";
+import { Bubble } from "@/components/charte";
 import { buttonVariants } from "@/components/ui/button";
 
 interface CtaElanProps {
@@ -14,8 +14,8 @@ interface CtaElanProps {
 
 // Story 4.3 : CTA final aux couleurs des slides. La question devient une
 // bulle (vrai h2, texte inchangé), le bouton est le bouton orange foncé de
-// la charte (blanc dessus 5.7:1, jamais une pilule — PRD §4.7) et une vague
-// fait la transition vers le pied de page pétrole.
+// la charte (blanc dessus 5.7:1, jamais une pilule — PRD §4.7). La vague vers
+// le pied de page vit dans Footer depuis la story 4.8.
 export default function CtaElan({ contactType, contactSujet }: CtaElanProps = {}) {
   const params = new URLSearchParams();
   if (contactType) params.set("type", contactType);
@@ -34,7 +34,6 @@ export default function CtaElan({ contactType, contactSujet }: CtaElanProps = {}
         </Link>
         <p className="font-medium text-primary">Premier échange pour comprendre votre contexte.</p>
       </div>
-      <Wave />
     </section>
   );
 }

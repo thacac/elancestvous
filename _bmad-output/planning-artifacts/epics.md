@@ -692,3 +692,34 @@ ligne défilante, tuiles compactes, H1 réduit.
 **Given** le SEO et l'accessibilité
 **When** on compare avant et après
 **Then** title, meta, H1, textes, `alt` et URL (y compris `?famille=…#toutes-nos-formations`) sont inchangés, le H1 est réduit sur smartphone (`text-3xl!`), la hiérarchie Hn est sans saut, et la page ne défile pas horizontalement à 320 px
+
+### Story 4.8: Vague du pied de page sur toutes les pages
+
+As a visiteur qui passe d'une page à l'autre,
+I want retrouver la même transition en vague avant le pied de page,
+So that le site paraisse cohérent, quelle que soit la page où je finis ma lecture.
+
+**Contexte (constat de Cédric, 2026-11-01) :** la vague était posée dans les
+blocs `CtaElan` et `AppelContact` ; elle n'apparaissait que sur les 9 pages qui
+finissent par l'un d'eux. Le pied de page lui-même était déjà un composant
+unique, posé une fois dans le layout. Les marges basses des pages (`mb-40` du
+catalogue, des fiches et du blog, etc.) restent inchangées dans cette story
+(décision de Cédric, 2026-11-02).
+
+**Acceptance Criteria:**
+
+**Given** n'importe quelle page du site (accueil, hubs, catalogue, fiches, blog, contact, mentions légales)
+**When** on arrive en bas de la page
+**Then** le pied de page pétrole est précédé d'une seule `Wave`, et `CtaElan` et `AppelContact` n'en contiennent plus
+
+**Given** la vague
+**When** on inspecte le pied de page
+**Then** elle fait partie de `Footer`, sur un fond transparent (elle prend le fond de la page), reste décorative (`aria-hidden`, `focusable="false"`), et le repère `footer` (contentinfo) est conservé avec ses liens inchangés
+
+**Given** la jonction contenu / pied de page
+**When** on la compare avant et après à 1280, 390 et 320 px
+**Then** les pages qui avaient déjà la vague sont identiques, aucune page n'a de bande d'une autre couleur ni de double transition, et la page ne défile pas horizontalement à 320 px
+
+**Given** la vague du Hero de l'accueil
+**When** l'accueil se charge
+**Then** elle est inchangée

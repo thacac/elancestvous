@@ -146,7 +146,7 @@ Tous ces composants se trouvent dans `components/charte/`. Leur comportement est
 - **Décor (`Wave`, `Sparkle`, `BrushUnderline`)** : uniquement en `{colors.orange}`, `{colors.cyan}`, `{colors.petrol}` et `{colors.sky}`.
 - **Logo (`Logo`)** : cercle `{colors.logo}`, lettre blanche, point `{colors.orange}`. La variante avec étincelles est réservée aux grands formats (accueil, supports). Fichiers source : `public/logo_elancestvous.svg` et `public/logo_elancestvous_etincelles.svg`.
 - **Bouton orange** (variante `accent` de `components/ui/button.tsx`) : fond `{colors.accent}`, texte blanc, `{rounded.md}`. Le bouton secondaire teinté (FR12) est inchangé.
-- **Pied de page** : fond `{colors.petrol}`, liens blancs, mentions en `{colors.sky}`.
+- **Pied de page** : s'ouvre sur la vague (`Wave`, fond transparent) sur toutes les pages, puis aplat `{colors.petrol}`, liens blancs, mentions en `{colors.sky}` (Story 4.8).
 
 Les maquettes de référence sont la proposition de charte (https://claude.ai/artifact/T8zuRxkaB6sh87BtkJmUv2) et la planche logo (https://claude.ai/artifact/Vew5ADwHUXiV9msQJbV7Mx). En cas de conflit, ce document l'emporte.
 
