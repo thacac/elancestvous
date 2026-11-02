@@ -42,7 +42,7 @@ export default async function ContactPage({
   return (
     <section id="contact" className="pt-6 pb-20 sm:pt-20 container">
       <div className="text-center mb-8">
-        <h1>
+        <h1 className="text-3xl! sm:text-5xl! lg:text-6xl! break-words">
           Parlons de{" "}
           <span className="text-accent">
             <strong>vos besoins</strong>

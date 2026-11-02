@@ -806,12 +806,22 @@ légal ; il est dans le premier écran sur l'accueil et sur les fiches. Aucune
 page ne défile horizontalement à 320 px. `/blog` répond 404 en local : à
 mesurer sur la Val. Découpage décidé par Cédric (2026-11-02) : audit et H1
 dans cette story, déplacements de CTA dans des stories issues du rapport.
+Ajouts décidés par Cédric après l'audit (2026-11-02) : le H1 de `/contact`,
+encore à 48 px, et l'alignement du haut de page des pages de service sur le
+modèle du catalogue `/formations` (fil d'Ariane collé au menu puis 80 px de
+blanc avant le H1 sur `/coaching`, ses deux sous-pages, GAPP et les hubs
+Famille ; à 320 px, « professionnelles » était coupé dans le H1 de GAPP,
+masqué par `overflow-hidden`). Les H1 restent centrés.
 
 **Acceptance Criteria:**
 
-**Given** l'accueil, `/coaching`, `/coaching/particuliers`, `/coaching/etablissements`, GAPP et les mentions légales
+**Given** l'accueil, `/coaching`, `/coaching/particuliers`, `/coaching/etablissements`, GAPP, `/contact` et les mentions légales
 **When** on les ouvre à 390 et 320 px
 **Then** le H1 est réduit sur smartphone (`text-3xl! sm:text-5xl! lg:text-6xl!`, `break-words`, sans `hyphens-auto`), sans changement de texte, et reste inchangé à partir de `sm`
+
+**Given** `/coaching`, ses deux sous-pages, GAPP et les 4 hubs Famille
+**When** on les ouvre
+**Then** le haut de page suit le modèle du catalogue : le blanc (`pt-6 sm:pt-20`) précède le fil d'Ariane et le H1 (ou le médaillon des hubs) le suit directement, le premier bloc ne garde que son blanc du bas (`pb-20`) ; le H1 remonte de 56 px sur smartphone, reste à la même hauteur à partir de `sm`, reste centré, et aucun texte ni Hn n'est modifié
 
 **Given** toutes les pages publiques, blog compris (mesuré sur la Val)
 **When** on les mesure à 390 et 320 px
