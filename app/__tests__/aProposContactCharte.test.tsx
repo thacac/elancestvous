@@ -73,7 +73,7 @@ describe("/a-propos — charte des slides", () => {
   it("ouvre la biographie sur un bandeau h2 « Mon parcours » (titre ajouté, validé)", () => {
     render(<About />);
     const titre = screen.getByRole("heading", { level: 2, name: "Mon parcours" });
-    expect(titre.closest("header")?.querySelector(".bg-petrol")).not.toBeNull();
+    expect(titre.closest(".bg-petrol")).not.toBeNull();
   });
 
   it("présente la photo en médaillon rond, sans ombre ni valeur arbitraire", () => {
