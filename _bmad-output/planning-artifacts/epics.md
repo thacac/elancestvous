@@ -723,3 +723,41 @@ catalogue, des fiches et du blog, etc.) restent inchangées dans cette story
 **Given** la vague du Hero de l'accueil
 **When** l'accueil se charge
 **Then** elle est inchangée
+
+### Story 4.9: À propos et Contact dans la charte
+
+As a visiteur qui veut connaître Coralie puis lui écrire,
+I want retrouver la charte des slides jusqu'au formulaire de contact,
+So that je fasse confiance et que j'envoie ma demande sans effort, même sur mon téléphone.
+
+**Contexte (mesuré sur `validation` le 2026-11-02) :** les deux pages étaient
+restées dans le registre d'avant la charte. Sur `/contact`, les bordures des
+champs faisaient 1.19:1 (WCAG 1.4.11), le contour des boutons radio 1.26:1,
+l'aide du bouton radio coché 4.14:1, le point séparateur 2.59:1, et le bouton
+d'envoi désactivé, qui porte la consigne « Remplissez le formulaire pour
+envoyer », 2.02:1 ; le lien téléphone ne se distinguait du texte qu'au survol.
+Sur `/a-propos`, environ 250 px de blanc précédaient le bloc final, la grille
+des encarts portait une classe invalide et la photo une valeur arbitraire.
+Décisions de Cédric (2026-11-02) : bandeau h2 « Mon parcours » ajouté,
+paragraphes non justifiés, bloc commenté de prise de rendez-vous supprimé,
+affichage des erreurs du formulaire renvoyé à une story dédiée.
+
+**Acceptance Criteria:**
+
+**Given** `/a-propos`
+**When** on la consulte
+**Then** title, meta, H1, sous-titre, textes, liens, `alt` de la photo et URL sont inchangés ; la biographie s'ouvre sur un `SectionBanner` h2 « Mon parcours » (titre ajouté, validé) ; la photo de Coralie est un médaillon rond sans ombre ni valeur arbitraire ; « Accompagnement humain. » est une annotation Kalam ; les encarts « 10+ » et « Coach » sont des `PastelCard` ciel et pêche, libellés en `stone-600` ; la phrase finale est un `KeyMessage` ; les paragraphes ne sont plus justifiés ; le H1 est réduit sur smartphone (`text-3xl!`)
+
+**Given** `/contact`, avec ou sans `?type=&sujet=`
+**When** on la consulte
+**Then** title, meta, H1 et sous-titre sont inchangés ; le formulaire est dans une `PastelCard` ciel sans ombre et remonte sur smartphone (`pt-6 sm:pt-20`) ; le bouton d'envoi est en variante `accent`, son état désactivé reste lisible (fond `stone-600` opaque, 7.6:1) ; les bordures des champs font au moins 3:1 (`stone-600`) et le contour des boutons radio est bleu nuit ; aucun texte gris n'est sous `stone-600` ; le lien téléphone est souligné en `accent` ; le pré-remplissage, la validation et l'envoi sont inchangés
+
+**Given** les deux pages à 1280, 390 et 320 px
+**When** on compare avant et après
+**Then** la hiérarchie Hn est sans saut, il n'y a ni double vague ni débordement horizontal à 320 px, et le blanc avant le bloc final de `/a-propos` passe d'environ 250 à 110 px (`mb-40` → `mb-12`), sans changer la jonction avec le pied de page
+
+**À suivre (story dédiée, décision de Cédric) :** les messages d'erreur du
+formulaire de contact ne s'affichent jamais (validation à l'envoi, bouton
+désactivé tant que le formulaire est invalide, RGAA 11.10) ; le champ e-mail
+affiche l'erreur de `lastName` ; chaque erreur est rendue deux fois ; les
+exemples « Jean » / « Dupont » ressemblent à des valeurs saisies.

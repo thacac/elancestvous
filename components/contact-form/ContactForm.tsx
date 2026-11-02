@@ -8,7 +8,6 @@ import { toast } from "sonner";
 
 import {
   Button,
-  buttonVariants,
   Form,
   FormControl,
   FormField,
@@ -122,10 +121,10 @@ export default function ContactForm({
                   />
                   <FieldLabel
                     htmlFor="project-type-institution"
-                    className="font-normal"
+                    className="font-normal flex-col items-start gap-1"
                   >
                     Établissement / DRH
-                    <span className="block text-xs text-stone-500 font-normal ml-2">
+                    <span className="block text-xs text-stone-600 font-normal">
                       Formation, Coaching d&apos;équipe ou individuel, GAPP
                     </span>
                   </FieldLabel>
@@ -140,10 +139,10 @@ export default function ContactForm({
                   />
                   <FieldLabel
                     htmlFor="project-type-particulier"
-                    className="font-normal"
+                    className="font-normal flex-col items-start gap-1"
                   >
                     Particulier
-                    <span className="block text-xs text-stone-500 font-normal ml-2">
+                    <span className="block text-xs text-stone-600 font-normal">
                       Equilibre vie pro/perso, Confiance en soi, Stress
                     </span>
                   </FieldLabel>
@@ -256,7 +255,11 @@ export default function ContactForm({
         <Button
           type="submit"
           disabled={!isValid || isSubmitting}
-          className={`  ${buttonVariants({ size: "lg" })} w-full h-auto min-h-14 py-4 whitespace-normal hover:bg-accent transition shadow-lg`}
+          variant="accent"
+          size="lg"
+          // Désactivé, le bouton porte une consigne : fond stone-600 opaque
+          // (blanc dessus 7.6:1) plutôt que l'opacité 50 % (2:1).
+          className="w-full h-auto min-h-14 py-4 whitespace-normal disabled:bg-stone-600 disabled:opacity-100"
         >
           {isSubmitting ? (
             "Envoi…"
@@ -271,7 +274,7 @@ export default function ContactForm({
             "Remplissez le formulaire pour envoyer"
           )}
         </Button>
-        <p className="text-xs opacity-70">
+        <p className="text-xs text-stone-600">
           En soumettant ce formulaire, vous acceptez d’être recontacté(e).
           Aucune donnée n’est partagée.
         </p>
