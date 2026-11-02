@@ -39,7 +39,11 @@ describe("Story 4.11 — H1 réduits sur smartphone", () => {
     expect(h1).toHaveClass("text-3xl!", "sm:text-5xl!", "lg:text-6xl!", "break-words");
     // Sans césure (elle coupait des mots qui tenaient sur la ligne), et sans
     // classe de taille concurrente.
-    expect(h1).not.toHaveClass("hyphens-auto", "text-5xl", "lg:text-6xl");
+    // Une assertion par classe : avec plusieurs classes, `not.toHaveClass`
+    // n'échoue que si elles sont toutes présentes.
+    for (const classe of ["hyphens-auto", "text-5xl", "lg:text-6xl"]) {
+      expect(h1).not.toHaveClass(classe);
+    }
   });
 });
 

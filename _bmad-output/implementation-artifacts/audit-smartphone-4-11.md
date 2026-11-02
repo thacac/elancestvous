@@ -72,29 +72,37 @@ Décision de Cédric (2026-11-02) : les pages B suivent le modèle A, H1 centré
 
 ## Détail par page
 
+Constats faits avant la story ; chaque recommandation indique si elle est
+faite dans la 4.11 ou renvoyée à une story de suivi.
+
 - **Accueil** — Décor avant le H1 : logo animé (moitié de la largeur, ~170 px,
   + `mb-10`) et badge. À 320 px, le bouton du Hero est coupé en bas du premier
-  écran. *Reco* : H1 réduit (cette story) ; il remonte le bouton d'environ
-  90 px. Logo laissé à la moitié de la largeur (règle déjà fixée).
+  écran. *Reco* : H1 réduit — **fait dans la 4.11** (bouton remonté de
+  105 à 128 px). Logo laissé à la moitié de la largeur (règle déjà fixée).
 - **`/coaching`** — Hero `py-20` (80 px de blanc au-dessus du H1), cartes en
   `p-10` avec médaillons de 160 px : le 2e bouton arrive à 1,5 écran. *Reco* :
-  H1 réduit ; hero en `pt-6 sm:pt-20` et médaillons réduits sur smartphone
-  (story « décor »).
+  H1 réduit et haut de page sur le modèle du catalogue (blanc `pt-6 sm:pt-20`
+  au-dessus du fil d'Ariane, hero en `pb-20`) — **faits dans la 4.11** ;
+  médaillons réduits sur smartphone — story de suivi.
 - **`/coaching/particuliers`, `/coaching/etablissements`, GAPP** — Même hero
   `py-20` ; ensuite 4 à 6 sections h2 (bandeaux, cartes, étapes) avant le seul
-  « Prendre contact », en fin de page. *Reco* : H1 réduit ; action de contact
+  « Prendre contact », en fin de page. *Reco* : H1 réduit et haut de page
+  sur le modèle du catalogue — **faits dans la 4.11** ; action de contact
   tôt (après l'introduction du hero, sur le modèle de « Demander un devis » des
   fiches) — story dédiée.
 - **Hubs Famille** — Médaillon de 96 px au-dessus du H1 ; les fiches arrivent
   vers 1,2 écran, le contact entre 4,8 et 7 écrans ; Dynamique d'équipe et
   Accompagnement n'ont pas de fiche, leur seule action est à ~5 écrans.
-  *Reco* : action de contact tôt (même story que ci-dessus).
+  *Reco* : haut de page sur le modèle du catalogue — **fait dans la
+  4.11** (H1 remonté de 56 px sur smartphone) ; action de contact tôt (même
+  story de suivi que ci-dessus).
 - **`/formations`, fiches, `/blog`** — Conformes (action dans le premier écran).
 - **`/a-propos`** — 2,1 à 2,4 écrans, juste au-delà du seuil ; le lien
   « coaching individuel » arrive à 1,2 écran. *Reco* : rien pour l'instant.
-- **`/contact`** — H1 encore à 48 px (hors de la liste de la story). Formulaire
-  dans le premier écran. *Reco* : H1 réduit (à arbitrer : dans cette story ?).
-- **Mentions légales** — H1 réduit (cette story) ; rien d'autre.
+- **`/contact`** — H1 à 48 px, absent de la liste initiale de la story.
+  Formulaire dans le premier écran. *Reco* : H1 réduit — **ajouté à la 4.11
+  par Cédric et fait**.
+- **Mentions légales** — H1 réduit — **fait dans la 4.11** ; rien d'autre.
 - **Article de blog** — Aucun lien vers le contact ; les liens « À lire aussi »
   arrivent après 5 écrans. *Reco* : à arbitrer (le gabarit d'article est hors
   pipeline, mais un CTA d'article est un ajout de texte).
