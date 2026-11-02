@@ -28,11 +28,11 @@ export const metadata = {
 // bleu nuit ≥ 9:1), boutons orange foncé de la charte.
 export default function CoachingHubPage() {
   return (
-    <div className="min-h-screen overflow-hidden">
+    <div className="min-h-screen overflow-hidden pt-6 sm:pt-20">
       <Breadcrumbs items={[{ label: "Coaching" }]} />
-      <section data-hero className="py-20 container">
+      <section data-hero className="pb-20 container">
         <div className="text-center mb-12">
-          <h1>
+          <h1 className="text-3xl! sm:text-5xl! lg:text-6xl! break-words">
             <BrushUnderline>Coaching</BrushUnderline>.
           </h1>
           <h2 className="py-5">

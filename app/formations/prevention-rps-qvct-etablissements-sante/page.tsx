@@ -61,7 +61,7 @@ export default function PreventionRpsQvctPage() {
       {/* Story 4.4 : le layout fournit déjà <main> (un seul repère principal).
           overflow-x-clip plutôt qu'overflow-hidden, qui neutralisait le
           sticky de la colonne « Pour aller plus loin ». */}
-      <div className="min-h-screen overflow-x-clip">
+      <div className="min-h-screen overflow-x-clip pt-6 sm:pt-20">
         <Breadcrumbs
           items={[
             { label: "Formations", href: "/formations" },
@@ -69,7 +69,7 @@ export default function PreventionRpsQvctPage() {
           ]}
         />
         {/* --- 1. Titre */}
-        <section id="formations-professionnelles" data-hero className="py-20 container">
+        <section id="formations-professionnelles" data-hero className="pb-20 container">
           <div className="text-center mb-8">
             {/* Story 4.4 : même médaillon que la tuile de la famille sur
                 /formations (décoratif, le titre porte l'information). */}

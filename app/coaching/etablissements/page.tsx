@@ -92,7 +92,7 @@ function IconChart() {
 export default function CoachingEtablissementsPage() {
   return (
     <>
-      <div className="min-h-screen overflow-hidden">
+      <div className="min-h-screen overflow-hidden pt-6 sm:pt-20">
         <Breadcrumbs
           items={[
             { label: "Coaching", href: "/coaching" },
@@ -100,9 +100,9 @@ export default function CoachingEtablissementsPage() {
           ]}
         />
         {/* --- 1. Titre */}
-        <section id="coaching" data-hero className="py-20 container">
+        <section id="coaching" data-hero className="pb-20 container">
           <div className="text-center mb-8">
-            <h1>
+            <h1 className="text-3xl! sm:text-5xl! lg:text-6xl! break-words">
               Coaching{" "}
               <span className="text-accent">
                 <strong>individuel</strong>

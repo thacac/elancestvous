@@ -18,7 +18,7 @@ export default function MentionsLegales() {
   return (
     <section id="mentions-legales" className="pt-6 sm:pt-20 mb-20">
       <div className="container text-center">
-        <h1>
+        <h1 className="text-3xl! sm:text-5xl! lg:text-6xl! break-words">
           Mentions{" "}
           <span className="text-accent">
             <strong>Légales</strong>
