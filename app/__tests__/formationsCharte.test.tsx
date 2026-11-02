@@ -6,6 +6,7 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/relatedArticles", () => ({ getRelatedArticleLinks: vi.fn(() => []) }));
 
+import { getAllFormationsMeta } from "@/lib/formations";
 import { getRelatedArticleLinks } from "@/lib/relatedArticles";
 
 import FormationPage from "../formations/[famille]/[slug]/page";
@@ -158,7 +159,8 @@ describe("/formations — liens explicites (Story 4.10)", () => {
     await renderCatalogue();
     const liste = screen.getByRole("list", { name: "Formations du catalogue" });
     const liens = within(liste).getAllByRole("link", { name: /^Voir la fiche/ });
-    expect(liens).toHaveLength(2);
+    // Revue : une fiche publiée = un lien, sans constante à mettre à jour.
+    expect(liens).toHaveLength(getAllFormationsMeta().length);
     liens.forEach((lien) => {
       const titre = lien.closest("li")!.querySelector("h3")!.textContent;
       expect(lien.textContent).toBe(`Voir la fiche : ${titre}`);
