@@ -40,4 +40,14 @@ describe("messages clés des articles publiés (content/blog)", () => {
       ).toBeLessThanOrEqual(MAX_KEY_MESSAGE_LENGTH);
     }
   });
+
+  // Typographie française : espace insécable (U+00A0) avant « : » et à
+  // l'intérieur des guillemets « », pour qu'un deux-points ou un guillemet ne
+  // se retrouve jamais seul en début ou en fin de ligne dans la bulle.
+  it("chaque message clé garde ses deux-points et guillemets attachés (espaces insécables)", () => {
+    for (const post of posts) {
+      if (post.keyMessage === undefined) continue;
+      expect(post.keyMessage, post.slug).not.toMatch(/ [:»]|« /);
+    }
+  });
 });
