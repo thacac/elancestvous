@@ -181,10 +181,13 @@ describe("/contact — charte des slides", () => {
 });
 
 describe("Formulaire de contact — charte et contrastes", () => {
-  it("envoie avec le bouton orange foncé, désactivé lisible (fond stone-600 opaque)", async () => {
+  // Story 4.12 : le bouton reste actif même formulaire incomplet (l'envoi
+  // affiche les erreurs) ; il n'est désactivé que pendant « Envoi… », où le
+  // fond stone-600 opaque garde le libellé lisible.
+  it("envoie avec le bouton orange foncé, actif, désactivé lisible pendant l'envoi (fond stone-600 opaque)", async () => {
     await renderContact();
-    const bouton = screen.getByRole("button", { name: /remplissez le formulaire pour envoyer/i });
-    expect(bouton).toBeDisabled();
+    const bouton = screen.getByRole("button", { name: "Envoyer ma demande" });
+    expect(bouton).toBeEnabled();
     expect(bouton.className).toContain("bg-accent");
     expect(bouton.className).toContain("disabled:bg-stone-600");
     expect(bouton.className).toContain("disabled:opacity-100");
