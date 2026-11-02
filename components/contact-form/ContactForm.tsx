@@ -117,7 +117,7 @@ export default function ContactForm({
               >
                 <Field
                   orientation="horizontal"
-                  className="relative flex cursor-pointer rounded-lg border bg-white p-4 shadow-sm transition-colors focus:outline-none has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5"
+                  className="relative flex cursor-pointer rounded-lg border bg-white p-4 shadow-sm transition-colors focus:outline-none has-[[data-state=checked]]:border-primary"
                 >
                   <RadioGroupItem
                     value="institution"
@@ -135,7 +135,7 @@ export default function ContactForm({
                 </Field>
                 <Field
                   orientation="horizontal"
-                  className="relative flex cursor-pointer rounded-lg border bg-white p-4 shadow-sm transition-colors focus:outline-none has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5"
+                  className="relative flex cursor-pointer rounded-lg border bg-white p-4 shadow-sm transition-colors focus:outline-none has-[[data-state=checked]]:border-primary"
                 >
                   <RadioGroupItem
                     value="particulier"
