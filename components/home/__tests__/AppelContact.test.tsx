@@ -18,10 +18,9 @@ describe("AppelContact — fin de l'accueil (Story 4.2)", () => {
     expect(lien.className.split(/\s+/)).toContain("bg-accent");
   });
 
-  it("se termine par une vague décorative avant le pied de page", () => {
+  // Story 4.8 : la vague vit dans le pied de page partagé (Footer).
+  it("ne contient plus de vague : elle appartient au pied de page", () => {
     const { container } = render(<AppelContact />);
-    const section = container.querySelector("section")!;
-    expect(section.lastElementChild?.tagName.toLowerCase()).toBe("svg");
-    expect(section.lastElementChild).toHaveAttribute("aria-hidden", "true");
+    expect(container.querySelector('svg[viewBox="0 0 1200 64"]')).toBeNull();
   });
 });

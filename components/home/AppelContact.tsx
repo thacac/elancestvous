@@ -1,10 +1,10 @@
 import Link from "next/link";
 
-import { KeyMessage, Wave } from "@/components/charte";
+import { KeyMessage } from "@/components/charte";
 import { buttonVariants } from "@/components/ui/button";
 
 // Fin de l'accueil (Story 4.2) : message clé validé par Cédric, appel au
-// contact, puis vague de transition vers le pied de page pétrole.
+// contact. La vague vers le pied de page vit dans Footer (Story 4.8).
 export default function AppelContact() {
   return (
     <section className="bg-white pt-5">
@@ -16,7 +16,6 @@ export default function AppelContact() {
           Prendre contact
         </Link>
       </div>
-      <Wave />
     </section>
   );
 }
