@@ -26,7 +26,7 @@ pillar: C
 localAngle: true
 sourceUrl: >-
   https://www.legisocial.fr/actualites-sociales/8091-burn-out-risques-psychosociaux-obligation-securite-simpose-employeur.html
-keyMessage: "Une formation RPS ne change rien toute seule : tout se joue dans les six semaines qui suivent, à planifier d'avance."
+keyMessage: "Une formation RPS ne change rien toute seule : tout se joue dans les six semaines qui suivent, à planifier d'avance."
 ---
 Vous avez financé une journée de formation RPS. Les participants sont revenus motivés, avec des notes, quelques idées, un support PDF. Trois mois plus tard, quand vous demandez ce qui a changé dans le service, on vous répond « on n'a pas eu le temps ». Ce n'est pas un échec de la formation. C'est un manque d'ancrage.
 

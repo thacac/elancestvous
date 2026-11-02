@@ -29,7 +29,7 @@ pillar: C
 localAngle: false
 sourceUrl: >-
   https://www.legisocial.fr/actualites-sociales/8091-burn-out-risques-psychosociaux-obligation-securite-simpose-employeur.html
-keyMessage: "Passer de « on gère » à « on prévient » : chercher ce qui, dans l'organisation, produit les situations à risque."
+keyMessage: "Passer de « on gère » à « on prévient » : chercher ce qui, dans l'organisation, produit les situations à risque."
 ---
 Je ne parle pas de théorie, je parle de votre réalité : une équipe en sous-effectif, un planning qui se répare à la journée, une collègue qui « tient » depuis six mois et dont tout le monde sait qu'elle ne tient plus vraiment. Et, en face, une direction qui sait que le sujet est sérieux mais ne sait pas toujours par quel bout le prendre.
 
