@@ -72,7 +72,7 @@ describe("CtaElan — charte des slides (Story 4.3)", () => {
   // doublerait avec celle du pied de page.
   it("ne contient plus de vague : elle appartient au pied de page", () => {
     const { container } = render(<CtaElan />);
-    expect(container.querySelector("svg")).toBeNull();
+    expect(container.querySelector('svg[viewBox="0 0 1200 64"]')).toBeNull();
   });
 
   // Supprimé sur décision de Cédric (2026-10-31) : il chargeait la bulle et

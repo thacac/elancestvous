@@ -45,7 +45,7 @@ describe("Footer on a non-home page (audit: crawlable links everywhere)", () => 
 describe("Footer — charte slides (contraste)", () => {
   it("utilise le fond pétrole, plus l'orange", () => {
     const { container } = render(<Footer />);
-    const bloc = container.querySelector("footer > div");
+    const bloc = container.querySelector("footer")!.lastElementChild;
     expect(bloc).toHaveClass("bg-petrol");
     expect(container.innerHTML).not.toMatch(/bg-accent/);
   });
@@ -62,7 +62,6 @@ describe("Footer — charte slides (contraste)", () => {
     }
   });
 });
-
 
 // Story 4.8 : la vague décorative fait partie du pied de page partagé, posé une
 // seule fois dans le layout, pour qu'elle apparaisse sur toutes les pages.
