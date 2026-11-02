@@ -90,6 +90,22 @@ describe("ContactForm — erreurs visibles dès la sortie d'un champ (Story 4.12
     );
   });
 
+  // Revue story 4.12 : .max(50) sans message affichait le texte anglais par
+  // défaut de zod (dérogation à validation.ts validée par Cédric).
+  it("signale en français un prénom de plus de 50 caractères", async () => {
+    render(<ContactForm />);
+    quitter(champ.prenom(), "a".repeat(51));
+    await waitFor(() =>
+      attendreErreur(champ.prenom(), "Le prénom ne peut pas dépasser 50 caractères")
+    );
+  });
+
+  it("signale en français un nom de plus de 50 caractères", async () => {
+    render(<ContactForm />);
+    quitter(champ.nom(), "a".repeat(51));
+    await waitFor(() => attendreErreur(champ.nom(), "Le nom ne peut pas dépasser 50 caractères"));
+  });
+
   it("efface l'erreur dès que le champ est corrigé", async () => {
     render(<ContactForm />);
     quitter(champ.prenom());

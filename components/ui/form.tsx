@@ -112,12 +112,12 @@ const FormControl = React.forwardRef<
   const { error, formItemId, formMessageId } = useFormField()
 
   // Story 4.12 : ne relier le champ qu'à un message réellement affiché
-  // (l'ancien id de description pointait vers un élément absent).
+  // (FormMessage ne rend rien pour une erreur sans message).
   return (
     <Slot
       ref={ref}
       id={formItemId}
-      aria-describedby={error ? formMessageId : undefined}
+      aria-describedby={error?.message ? formMessageId : undefined}
       aria-invalid={!!error}
       {...props}
     />
