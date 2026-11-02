@@ -44,7 +44,7 @@ describe("/formations — tuiles Famille sous leur bandeau (Story 4.7)", () => {
       "Accompagnement et pratiques professionnelles",
       "Dynamique d'équipe et développement professionnel",
     ]);
-    expect(within(section).getAllByRole("link", { name: "Découvrir" })).toHaveLength(4);
+    expect(within(section).getAllByRole("link", { name: /^Découvrir/ })).toHaveLength(4);
   });
 
   it("réduit les médaillons sur smartphone (décor), taille d'origine dès sm", async () => {
@@ -129,7 +129,7 @@ describe("/formations — région des tuiles nommée par son titre (Story 4.7)",
   it("prend le nom de son bandeau h2", async () => {
     await renderCatalogue();
     const region = screen.getByRole("region", { name: "Explorer les formations par famille" });
-    expect(within(region).getAllByRole("link", { name: "Découvrir" })).toHaveLength(4);
+    expect(within(region).getAllByRole("link", { name: /^Découvrir/ })).toHaveLength(4);
     expect(region).not.toHaveAttribute("aria-label");
   });
 });
