@@ -46,7 +46,9 @@ describe("ContactForm — valeurs par défaut (provenance de la demande)", () =>
 });
 
 describe("ContactForm — UX : carte de type de projet mise en évidence à la sélection", () => {
-  it("chaque carte réagit à la sélection de son radio (has-[[data-state=checked]])", () => {
+  // Retour de Cédric (2026-11-02) : la carte sélectionnée reste blanche, le
+  // point orange du radio et la bordure bleu nuit suffisent à marquer le choix.
+  it("chaque carte réagit à la sélection de son radio (bordure bleu nuit, fond blanc)", () => {
     render(<ContactForm />);
 
     const carteEtablissement = screen.getByRole("radio", {
@@ -57,9 +59,11 @@ describe("ContactForm — UX : carte de type de projet mise en évidence à la s
     }).closest('[role="group"]')!;
 
     expect(carteEtablissement.className).toContain("has-[[data-state=checked]]:border-primary");
-    expect(carteEtablissement.className).toContain("has-[[data-state=checked]]:bg-primary/5");
+    expect(carteEtablissement.className).toContain("bg-white");
+    expect(carteEtablissement.className).not.toMatch(/has-\[\[data-state=checked\]\]:bg-/);
     expect(carteParticulier.className).toContain("has-[[data-state=checked]]:border-primary");
-    expect(carteParticulier.className).toContain("has-[[data-state=checked]]:bg-primary/5");
+    expect(carteParticulier.className).toContain("bg-white");
+    expect(carteParticulier.className).not.toMatch(/has-\[\[data-state=checked\]\]:bg-/);
   });
 
   it("chaque carte a une transition douce au survol/à la sélection", () => {
