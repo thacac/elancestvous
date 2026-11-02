@@ -135,10 +135,13 @@ describe("ContactForm — UX : confirmation visuelle après envoi", () => {
 });
 
 describe("ContactForm — bouton d'envoi lisible au survol", () => {
-  it("passe en orange foncé au survol (texte blanc ≥ 4.5:1)", () => {
+  // Story 4.9 : le bouton est orange foncé (variante accent) et passe au
+  // bleu nuit au survol, comme tous les boutons accent (blanc dessus 14:1).
+  it("reste lisible au survol (bleu nuit, texte blanc ≥ 4.5:1)", () => {
     render(<ContactForm />);
     const classes = screen.getByRole("button", { name: /envoyer/i }).className.split(/\s+/);
-    expect(classes).toContain("hover:bg-accent");
+    expect(classes).toContain("bg-accent");
+    expect(classes).toContain("hover:bg-primary/90");
     expect(classes).not.toContain("hover:bg-orange");
   });
 });
