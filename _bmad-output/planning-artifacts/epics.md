@@ -761,3 +761,100 @@ formulaire de contact ne s'affichent jamais (validation à l'envoi, bouton
 désactivé tant que le formulaire est invalide, RGAA 11.10) ; le champ e-mail
 affiche l'erreur de `lastName` ; chaque erreur est rendue deux fois ; les
 exemples « Jean » / « Dupont » ressemblent à des valeurs saisies.
+
+### Story 4.10: Liens explicites sur les cartes du catalogue
+
+As a Amandine, qui navigue au lecteur d'écran dans la liste des liens,
+I want que chaque lien « Découvrir » ou « Voir la fiche » dise où il mène,
+So that je choisisse une famille ou une fiche sans revenir au contexte de la carte.
+
+**Contexte (mesuré sur `validation` le 2026-11-02) :** le hub `/formations`
+affiche 4 liens « Découvrir » vers 4 familles différentes, et chaque carte de
+formation (catalogue et hubs Famille via `FormationsDisponiblesBloc`) un lien
+« Voir la fiche » : dans une liste de liens, ces intitulés sont identiques
+pour des destinations différentes (RGAA 6.1, WCAG 2.4.4). Les liens de
+l'accueil (`Axes.tsx`, « Découvrir les formations »…) sont déjà explicites.
+Périmètre élargi à « Voir la fiche » par Cédric (2026-11-02).
+
+**Acceptance Criteria:**
+
+**Given** les tuiles Famille du hub `/formations`
+**When** on liste les liens au lecteur d'écran
+**Then** chaque « Découvrir » a un nom accessible unique qui commence par le texte visible et se complète du nom de la famille en `sr-only` (« Découvrir : Prévention des RPS et QVCT »), sur le modèle des titres « Bientôt disponible » de la story 4.4 (WCAG 2.5.3 : le nom accessible contient le texte visible)
+
+**Given** les cartes de formation du catalogue et des hubs Famille
+**When** on liste les liens
+**Then** chaque « Voir la fiche » se complète de la même façon du titre de la formation
+
+**Given** le SEO et l'affichage
+**When** on compare avant et après à 1280, 390 et 320 px
+**Then** le texte visible, les URL et la mise en page sont inchangés, aucun `aria-label` n'est ajouté, et la page ne défile pas horizontalement à 320 px
+
+### Story 4.11: Audit « smartphone d'abord » des autres pages et H1 réduits
+
+As a Sophie, cadre de santé qui découvre le site sur son téléphone,
+I want lire chaque page sans titre géant et trouver vite comment contacter Coralie,
+So that je n'abandonne pas avant d'avoir trouvé l'action utile.
+
+**Contexte (mesuré sur `validation` le 2026-11-02, à 390 px) :** le H1 fait
+encore 48 px sur l'accueil (180 px de haut, 240 à 320 px), `/coaching`,
+`/coaching/particuliers`, `/coaching/etablissements`, GAPP (240 px de haut à
+320 px) et les mentions légales. Le premier « Prendre contact » arrive à
+5,7 écrans sur `/coaching/particuliers`, 7 sur `/coaching/etablissements`,
+5,2 sur GAPP, 5,9 sur le hub Prévention RPS/QVCT et 4,8 sur le hub Cadre
+légal ; il est dans le premier écran sur l'accueil et sur les fiches. Aucune
+page ne défile horizontalement à 320 px. `/blog` répond 404 en local : à
+mesurer sur la Val. Découpage décidé par Cédric (2026-11-02) : audit et H1
+dans cette story, déplacements de CTA dans des stories issues du rapport.
+
+**Acceptance Criteria:**
+
+**Given** l'accueil, `/coaching`, `/coaching/particuliers`, `/coaching/etablissements`, GAPP et les mentions légales
+**When** on les ouvre à 390 et 320 px
+**Then** le H1 est réduit sur smartphone (`text-3xl! sm:text-5xl! lg:text-6xl!`, `break-words`, sans `hyphens-auto`), sans changement de texte, et reste inchangé à partir de `sm`
+
+**Given** toutes les pages publiques, blog compris (mesuré sur la Val)
+**When** on les mesure à 390 et 320 px
+**Then** un rapport donne pour chaque page la hauteur du H1, la position de l'action principale en nombre d'écrans, le décor qui repousse le contenu et l'absence de débordement, avec une recommandation par page
+
+**Given** les pages où l'action principale arrive au-delà de 2 écrans
+**When** Cédric a arbitré le rapport
+**Then** chaque déplacement ou ajout retenu fait l'objet d'une story dédiée ; aucun CTA ni texte n'est ajouté dans cette story
+
+### Story 4.12: Erreurs du formulaire de contact visibles et reliées aux champs
+
+As a visiteur qui remplit le formulaire de contact,
+I want voir tout de suite quel champ pose problème et pourquoi,
+So that j'envoie ma demande sans rester bloqué devant un bouton désactivé.
+
+**Contexte (constaté en story 4.9, 2026-11-02) :** la validation se fait à
+l'envoi (mode par défaut de react-hook-form) et le bouton reste désactivé tant
+que le formulaire est invalide : l'envoi n'a jamais lieu, donc aucun message
+d'erreur ne s'affiche (RGAA 11.10, WCAG 3.3.1). Le visiteur ne voit que
+« Remplissez le formulaire pour envoyer », sans savoir quel champ corriger.
+Par ailleurs, le champ e-mail affiche l'erreur de `lastName`, chaque erreur
+est rendue deux fois (`FormMessage` et un `span.text-error` sans style), et
+les exemples « Jean » / « Dupont » ressemblent à des valeurs déjà saisies.
+Story dédiée décidée par Cédric (2026-11-02).
+
+**Acceptance Criteria:**
+
+**Given** un champ invalide (vide, e-mail mal formé, message trop long)
+**When** le visiteur quitte le champ ou tente d'envoyer
+**Then** un seul message d'erreur, celui du schéma `contactFormSchema` (textes inchangés), s'affiche sous ce champ, relié par `aria-describedby`, avec `aria-invalid="true"` sur le champ, en couleur lisible (≥ 4.5:1 sur le fond ciel) et accompagné d'un repère non coloré (icône ou texte)
+
+**Given** le bouton d'envoi
+**When** le formulaire est incomplet
+**Then** le visiteur peut comprendre ce qui manque : soit le bouton reste actif et l'envoi déclenche la validation avec le focus placé sur le premier champ en erreur, soit l'état désactivé est conservé et les erreurs apparaissent dès la sortie de chaque champ (choix à arbitrer par Cédric)
+
+**Given** le champ e-mail
+**When** il est invalide
+**Then** il affiche sa propre erreur, et non celle du nom
+
+**Given** les exemples des champs
+**When** le formulaire est vide
+**Then** ils ne peuvent pas être pris pour des valeurs saisies (format d'exemple à valider par Cédric)
+
+**Given** l'envoi et le pré-remplissage `?type=&sujet=`
+**When** on compare avant et après
+**Then** le schéma de validation, l'action serveur `submit_contact_form` et le pré-remplissage sont inchangés
