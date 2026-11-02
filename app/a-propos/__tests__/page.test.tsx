@@ -33,3 +33,31 @@ describe("About page — espacement sous la navbar (mobile)", () => {
     expect(section.className).toContain("sm:pt-20");
   });
 });
+
+describe("About page — phrase clé dans la bulle (story 4.13)", () => {
+  const PHRASE = "je ne parle pas de théorie, je parle de votre réalité.";
+
+  it("affiche la phrase, mot pour mot, dans un Bubble ciel en <p>", () => {
+    render(<About />);
+    const phrase = screen.getByText(PHRASE);
+
+    expect(phrase.tagName).toBe("P");
+    expect(phrase.className).toContain("bg-sky");
+    expect(phrase.className).toContain("rounded-full");
+    expect(phrase.className).not.toContain("italic");
+    expect(phrase.closest("strong")).toBeNull();
+    // Hors styles prose, sinon la couleur et la graisse de prose l'emportent.
+    expect(phrase.parentElement!.className).toContain("not-prose");
+  });
+
+  it("garde « C'est ce qui fait aujourd'hui ma force : » en gras, seul sur sa ligne", () => {
+    render(<About />);
+    const debut = screen.getByText(/C.est ce qui fait aujourd.hui ma force/);
+
+    expect(debut.tagName).toBe("STRONG");
+    expect(debut.textContent?.trim()).toBe(
+      "C'est ce qui fait aujourd'hui ma force :",
+    );
+    expect(debut.textContent).not.toContain("théorie");
+  });
+});

@@ -1,7 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { KeyMessage, PastelCard, SectionBanner } from "@/components/charte";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import { Bubble, KeyMessage, PastelCard, SectionBanner } from "@/components/charte";
 import CtaElan from "@/components/CtaElan";
 import { IconStethoscope } from "@/components/ui/icons-publics";
 import { OG_BANNER_IMAGES } from "@/lib/openGraph";
@@ -27,6 +28,7 @@ export const metadata: Metadata = {
 export default function About() {
   return (
     <>
+      <Breadcrumbs items={[{ label: "À propos" }]} />
       <section id="apropos" className="pt-6 sm:pt-20 mb-12">
         <div className="container text-center mb-12">
           <h1 className="text-3xl! sm:text-5xl! lg:text-6xl! break-words">
@@ -67,13 +69,13 @@ export default function About() {
                 pression du quotidien.
               </p>
               <p>
-                <strong>
-                  C&apos;est ce qui fait aujourd&apos;hui ma force :&nbsp;
-                  <span className="text-accent font-display font-extrabold text-2xl italic">
-                    je ne parle pas de théorie, je parle de votre réalité.
-                  </span>
-                </strong>
+                <strong>C&apos;est ce qui fait aujourd&apos;hui ma force :</strong>
               </p>
+              {/* Story 4.13 : phrase de Coralie adressée au visiteur, dans la
+                  bulle des slides (variante A retenue par Cédric). */}
+              <Bubble className="not-prose mb-12">
+                je ne parle pas de théorie, je parle de votre réalité.
+              </Bubble>
               <p>
                 Formée au coaching et forte de mon expérience du soin, j&apos;ai
                 construit à Toulouse une approche qui s&apos;appuie sur l&apos;écoute,

@@ -858,3 +858,46 @@ Story dédiée décidée par Cédric (2026-11-02).
 **Given** l'envoi et le pré-remplissage `?type=&sujet=`
 **When** on compare avant et après
 **Then** le schéma de validation, l'action serveur `submit_contact_form` et le pré-remplissage sont inchangés
+
+### Story 4.13: Retouches À propos, Contact et fil d'Ariane
+
+As a visiteur qui découvre Coralie,
+I want retrouver la phrase clé de sa démarche dans la bulle des slides, et savoir où je suis sur chaque page,
+So that le message me parle directement et que je puisse remonter facilement dans le site.
+
+**Contexte (Cédric, 2026-11-02) :** sur `/a-propos`, la phrase « je ne parle
+pas de théorie, je parle de votre réalité. » était un gros italique orange
+collé à « C'est ce qui fait aujourd'hui ma force : », jugé peu réussi ; deux
+maquettes ont été présentées (bulle ciel, manuscrit Kalam) et Cédric a retenu
+**la bulle (A)**. Le fil d'Ariane (`Breadcrumbs`, posé page par page avec son
+JSON-LD `BreadcrumbList`) manquait sur `/a-propos`, `/contact` et
+`/mentions-legales` (mesuré sur `validation` : les 12 autres pages publiques
+l'ont). Il reste posé page par page et non dans le layout, car les libellés et
+le JSON-LD dépendent de chaque page. Sur les hubs Coaching, 80 px séparent le
+fil d'Ariane du H1 (`py-20`) ; les trois pages gardent `pt-6 sm:pt-20`
+(80 px à partir de `sm`, 24 px sur smartphone, décision de Cédric). La bulle
+de la bio et la bulle-question du `CtaElan` sont visibles ensemble à 1280 px :
+accepté par Cédric, la règle « une bulle par écran » visant les
+bulles-questions.
+
+**Acceptance Criteria:**
+
+**Given** `/a-propos`
+**When** on lit la biographie
+**Then** « C'est ce qui fait aujourd'hui ma force : » reste en gras sur sa ligne, et la phrase « je ne parle pas de théorie, je parle de votre réalité. » s'affiche dans un `Bubble` (ton ciel, `as="p"`), texte inchangé mot pour mot. Sur smartphone, la bulle tient dans la colonne sans débordement à 320 px
+
+**Given** `/a-propos`, `/contact` et `/mentions-legales`
+**When** la page se charge
+**Then** un fil d'Ariane « Accueil / À propos », « Accueil / Contact » ou « Accueil / Mentions légales » (libellés du menu) précède le contenu, avec la page courante en `aria-current="page"` et son JSON-LD `BreadcrumbList`
+
+**Given** toutes les pages publiques (`app/**/page.tsx`, hors accueil, `api` et `blog-review`)
+**When** les tests tournent
+**Then** un test de garde échoue si l'une d'elles n'utilise pas `Breadcrumbs`
+
+**Given** le SEO et la mise en page
+**When** on compare avant et après à 1280, 390 et 320 px
+**Then** title, meta, H1, Hn, textes, `alt` et URL sont inchangés (seuls ajouts : les fils d'Ariane), l'espacement entre le fil d'Ariane et le H1 est cohérent avec les hubs Coaching, et la page ne défile pas horizontalement à 320 px
+
+**Given** `EXPERIENCE.md`
+**When** on lit la ligne `Bubble`
+**Then** son usage couvre aussi « une phrase de Coralie adressée au visiteur » (au plus une par section), sans plus d'une bulle-question par écran

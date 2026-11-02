@@ -41,7 +41,7 @@ Le site s'adresse au visiteur comme une formatrice à son groupe : il pose des q
 | `KeyMessage` | Clôt une section ou un article | `role="note"` avec un nom (« À retenir » par défaut), jamais `<aside>` : il ne crée pas de repère de navigation. |
 | `Steps` | Démarche ordonnée uniquement | `<ol role="list">` ; un titre h3 (ou h4) par étape ; numéros et flèches en `aria-hidden` ; la description accepte un bloc (liste). |
 | `PastelCard` / `Chip` | Groupes de contenus parallèles | La carte est un `<article>` par défaut (ou `li`/`div`/`section`). La pastille est une simple étiquette, jamais cliquable. |
-| `Bubble` | Question posée au visiteur | `<p>` par défaut ; peut être un vrai titre quand la question structure la section. |
+| `Bubble` | Question posée au visiteur, ou phrase de Coralie adressée au visiteur (au plus une par section) | `<p>` par défaut ; peut être un vrai titre quand la question structure la section. Au plus une bulle-question par écran. |
 | `Wave` / `Sparkle` / `BrushUnderline` | Décor | Toujours `aria-hidden`. Le texte souligné reste un texte ordinaire, indexé tel quel. |
 | `Logo` | Barre de navigation, accueil | Décoratif à côté du nom (navbar) ; image nommée quand il est seul ; étincelles réservées aux grands formats. |
 
