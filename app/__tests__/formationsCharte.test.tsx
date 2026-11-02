@@ -109,6 +109,68 @@ describe("/formations — bandeau de la liste des fiches", () => {
   });
 });
 
+// Story 4.10 (RGAA 6.1, WCAG 2.4.4 et 2.5.3, validé par Cédric) : des liens
+// « Découvrir » / « Voir la fiche » identiques menaient à des pages
+// différentes. Chaque lien se complète, pour les lecteurs d'écran, du nom de
+// la famille ou du titre de la fiche ; texte visible et URL inchangés, aucun
+// aria-label.
+function texteVisible(lien: HTMLElement) {
+  const copie = lien.cloneNode(true) as HTMLElement;
+  copie.querySelectorAll(".sr-only").forEach((e) => e.remove());
+  return copie.textContent;
+}
+
+// jsdom (dom-accessibility-api) retire l'espace en tête du sr-only en
+// calculant le nom (« Voir la fiche: … ») ; Chromium donne bien « Voir la
+// fiche : … » (mesuré). Le texte exact est vérifié par textContent.
+function nomLien(visible: string, complement: string) {
+  const echappe = (t: string) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`^${echappe(visible)} ?: ${echappe(complement)}$`);
+}
+
+function verifieComplement(liens: HTMLElement[], visible: string) {
+  liens.forEach((lien) => {
+    expect(texteVisible(lien)).toBe(visible);
+    expect(lien.querySelector(".sr-only")?.textContent).toMatch(/^ : /);
+    expect(lien).not.toHaveAttribute("aria-label");
+  });
+}
+
+describe("/formations — liens explicites (Story 4.10)", () => {
+  it("nomme la famille dans chaque lien « Découvrir » des tuiles, texte visible et URL inchangés", async () => {
+    await renderCatalogue();
+    const region = screen.getByRole("region", { name: "Explorer les formations par famille" });
+    const liens = within(region).getAllByRole("link", { name: /^Découvrir/ });
+    expect(liens.map((l) => [l.textContent, l.getAttribute("href")])).toEqual([
+      ["Découvrir : Cadre légal, droits et éthique", "/formations/cadre-legal-etablissements-sante"],
+      ["Découvrir : Prévention des RPS et QVCT", "/formations/prevention-rps-qvct-etablissements-sante"],
+      ["Découvrir : Accompagnement et pratiques professionnelles", "/formations/accompagnement-professionnel-etablissements-sante"],
+      ["Découvrir : Dynamique d'équipe et développement professionnel", "/formations/dynamique-equipe-etablissements-sante"],
+    ]);
+    expect(screen.getByRole("link", { name: nomLien("Découvrir", "Prévention des RPS et QVCT") })).toHaveAttribute(
+      "href",
+      "/formations/prevention-rps-qvct-etablissements-sante",
+    );
+    verifieComplement(liens, "Découvrir");
+  });
+
+  it("nomme la formation dans chaque lien « Voir la fiche » du catalogue, texte visible et URL inchangés", async () => {
+    await renderCatalogue();
+    const liste = screen.getByRole("list", { name: "Formations du catalogue" });
+    const liens = within(liste).getAllByRole("link", { name: /^Voir la fiche/ });
+    expect(liens).toHaveLength(2);
+    liens.forEach((lien) => {
+      const titre = lien.closest("li")!.querySelector("h3")!.textContent;
+      expect(lien.textContent).toBe(`Voir la fiche : ${titre}`);
+      expect(lien).toHaveAccessibleName(nomLien("Voir la fiche", titre!));
+    });
+    expect(
+      screen.getByRole("link", { name: nomLien("Voir la fiche", "Diagnostic et plan d'action QVCT") })
+    ).toHaveAttribute("href", "/formations/prevention-rps-qvct-etablissements-sante/diagnostic-plan-action-qvct");
+    verifieComplement(liens, "Voir la fiche");
+  });
+});
+
 // Revue : le bandeau ajouté et le passage des cartes en h3 touchent la
 // hiérarchie du catalogue, en vue complète comme filtrée.
 describe("/formations — hiérarchie Hn", () => {
@@ -258,6 +320,19 @@ describe.each(HUBS)("Hub Famille $nom", ({ rendu, meta, title, h1, sections, fic
     expect(screen.getByRole("heading", { level: 1 })).toHaveClass("text-3xl!", "sm:text-5xl!", "lg:text-6xl!");
   });
 
+  // Story 4.10 : chaque « Voir la fiche » du hub nomme sa formation.
+  it("nomme la formation dans chaque lien « Voir la fiche », texte visible inchangé", () => {
+    rendu();
+    const liens = screen.queryAllByRole("link", { name: /^Voir la fiche/ });
+    expect(liens).toHaveLength(fiches);
+    liens.forEach((lien) => {
+      const titre = lien.closest("li")!.querySelector("h3")!.textContent;
+      expect(lien.textContent).toBe(`Voir la fiche : ${titre}`);
+      expect(lien).toHaveAccessibleName(nomLien("Voir la fiche", titre!));
+    });
+    verifieComplement(liens, "Voir la fiche");
+  });
+
   it("affiche dans son titre le médaillon de sa tuile du catalogue, en décor", () => {
     rendu();
     const image = document.querySelector("[data-hero] img")!;
@@ -286,7 +361,7 @@ describe.each(HUBS)("Hub Famille $nom", ({ rendu, meta, title, h1, sections, fic
       const cartes = within(within(section).getByRole("list")).getAllByRole("listitem");
       expect(cartes).toHaveLength(fiches);
       expect(tons(cartes)).toEqual(["sky"]);
-      expect(within(cartes[0]).getByRole("link", { name: "Voir la fiche" })).toHaveClass("bg-primary/10");
+      expect(within(cartes[0]).getByRole("link", { name: /^Voir la fiche/ })).toHaveClass("bg-primary/10");
     } else {
       expect(within(section).getByText(/arrivent bientôt/).closest(".bg-sky")).not.toBeNull();
     }

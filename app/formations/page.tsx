@@ -208,7 +208,10 @@ export default async function FormationsCataloguePage({
                     href={`/formations/${formation.famille}/${formation.slug}`}
                     className={buttonVariants({ variant: "accent" })}
                   >
-                    Voir la fiche
+                    {/* Story 4.10 (RGAA 6.1, validé par Cédric) : titre de la
+                        fiche ajouté pour les lecteurs d'écran, texte visible
+                        inchangé, jamais d'aria-label (WCAG 2.5.3). */}
+                    Voir la fiche<span className="sr-only"> : {formation.titre}</span>
                   </Link>
                 </PastelCard>
               );
@@ -283,7 +286,8 @@ export default async function FormationsCataloguePage({
                   {FAMILLE_TUILE_DESCRIPTIONS[f.id]}
                 </p>
                 <Link href={`/formations/${f.id}`} className={cn(buttonVariants({ variant: "tinted" }), "mt-auto w-fit")}>
-                  Découvrir
+                  {/* Story 4.10 : famille ajoutée pour les lecteurs d'écran. */}
+                  Découvrir<span className="sr-only"> : {f.label}</span>
                 </Link>
               </PastelCard>
             ))}

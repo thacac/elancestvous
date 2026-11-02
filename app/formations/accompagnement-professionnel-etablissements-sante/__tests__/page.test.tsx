@@ -34,7 +34,7 @@ describe("AccompagnementProfessionnelPage — état vide honnête (UJ-1)", () =>
     expect(
       screen.getByRole("heading", { name: "Formations disponibles" })
     ).toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "Voir la fiche" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /^Voir la fiche/ })).not.toBeInTheDocument();
   });
 });
 

@@ -89,7 +89,7 @@ describe("FormationsCataloguePage — tuiles vers les 4 familles (Story 2.4)", (
     const jsx = await FormationsCataloguePage({ searchParams: Promise.resolve({}) });
     render(jsx);
 
-    const tuiles = screen.getAllByRole("link", { name: "Découvrir" });
+    const tuiles = screen.getAllByRole("link", { name: /^Découvrir/ });
     expect(
       tuiles.some((lien) => lien.getAttribute("href") === "/formations/cadre-legal-etablissements-sante")
     ).toBe(true);
@@ -132,7 +132,7 @@ describe("FormationsCataloguePage — tuiles vers les 4 familles (Story 2.4)", (
     render(jsx);
 
     const tuile = screen
-      .getAllByRole("link", { name: "Découvrir" })
+      .getAllByRole("link", { name: /^Découvrir/ })
       .find((lien) => lien.getAttribute("href") === "/formations/cadre-legal-etablissements-sante")!;
     const filtres = screen.getByRole("navigation", { name: /filtre/i });
 
@@ -170,7 +170,7 @@ describe("FormationsCataloguePage — grille sans filtre (FR4)", () => {
     const pastille = within(carte).getByText("Cadre légal, droits et éthique");
     expect(pastille.className).toContain("bg-cat-legal");
     expect(within(carte).getByText("1 journée")).toBeInTheDocument();
-    const lien = within(carte).getByRole("link", { name: "Voir la fiche" });
+    const lien = within(carte).getByRole("link", { name: /^Voir la fiche/ });
     expect(lien).toHaveAttribute(
       "href",
       "/formations/cadre-legal-etablissements-sante/obligations-legales-des-etablissements"
