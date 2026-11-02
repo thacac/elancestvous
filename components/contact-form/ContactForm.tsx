@@ -42,6 +42,10 @@ export default function ContactForm({
 }: ContactFormProps = {}) {
   const form = useForm<ContactFormValues>({
     resolver: zodResolver(contactFormSchema),
+    // Story 4.12 : erreur affichée dès la sortie d'un champ, puis mise à jour
+    // à la frappe ; à l'envoi, focus sur le premier champ en erreur
+    // (shouldFocusError, par défaut).
+    mode: "onTouched",
     defaultValues: {
       firstName: "",
       lastName: "",
@@ -54,7 +58,7 @@ export default function ContactForm({
   const {
     handleSubmit,
     setError,
-    formState: { errors, isValid, isSubmitting },
+    formState: { isSubmitting },
     reset,
     watch,
   } = form;
@@ -162,15 +166,9 @@ export default function ContactForm({
                   <Input
                     {...field}
                     className="input input-bordered rounded-md w-full"
-                    placeholder="Jean"
                   />
                 </FormControl>
                 <FormMessage />
-                {errors.firstName && (
-                  <span className="text-error text-xs">
-                    {errors.firstName.message}
-                  </span>
-                )}
               </FormItem>
             )}
           />
@@ -184,15 +182,9 @@ export default function ContactForm({
                   <Input
                     {...field}
                     className="input input-bordered rounded-md w-full"
-                    placeholder="Dupont"
                   />
                 </FormControl>
                 <FormMessage />
-                {errors.lastName && (
-                  <span className="text-error text-xs">
-                    {errors.lastName.message}
-                  </span>
-                )}
               </FormItem>
             )}
           />
@@ -209,16 +201,11 @@ export default function ContactForm({
                 <FormControl>
                   <Input
                     {...field}
-                    placeholder="bonjour@elancestvous.fr"
+                    placeholder="ex. : jean.dupont@exemple.fr"
                     className="input input-bordered rounded-md w-full"
                   />
                 </FormControl>
                 <FormMessage />
-                {errors.lastName && (
-                  <span className="text-error text-xs">
-                    {errors.lastName.message}
-                  </span>
-                )}
               </FormItem>
             )}
           />
@@ -238,15 +225,10 @@ export default function ContactForm({
                     {...field}
                     rows={6}
                     className="textarea textarea-bordered rounded-md w-full"
-                    placeholder="Bonjour, je souhaite discuter de..."
+                    placeholder="ex. : Bonjour, je souhaite discuter de…"
                   />
                 </FormControl>
                 <FormMessage />
-                {errors.message && (
-                  <span className="text-error text-xs">
-                    {errors.message.message}
-                  </span>
-                )}
               </FormItem>
             )}
           />
@@ -254,11 +236,12 @@ export default function ContactForm({
 
         <Button
           type="submit"
-          disabled={!isValid || isSubmitting}
+          // Story 4.12 : toujours actif (sinon ni focalisable ni explicite) ;
+          // un envoi incomplet affiche les erreurs. Désactivé seulement
+          // pendant « Envoi… » : fond stone-600 opaque (blanc dessus 7.6:1).
+          disabled={isSubmitting}
           variant="accent"
           size="lg"
-          // Désactivé, le bouton porte une consigne : fond stone-600 opaque
-          // (blanc dessus 7.6:1) plutôt que l'opacité 50 % (2:1).
           className="w-full h-auto min-h-14 py-4 whitespace-normal disabled:bg-stone-600 disabled:opacity-100"
         >
           {isSubmitting ? (
@@ -268,10 +251,8 @@ export default function ContactForm({
               <CheckCircleIcon aria-hidden="true" className="size-4" />
               Message envoyé
             </>
-          ) : isValid ? (
-            "Envoyer ma demande"
           ) : (
-            "Remplissez le formulaire pour envoyer"
+            "Envoyer ma demande"
           )}
         </Button>
         <p className="text-xs text-stone-600">

@@ -2,8 +2,16 @@ import { z } from "zod";
 
 export const contactFormSchema = z.object({
   // .trim() retire les espaces inutiles au début et à la fin
-  firstName: z.string().trim().min(1, "Le prénom est requis").max(50),
-  lastName: z.string().trim().min(1, "Le nom est requis").max(50),
+  firstName: z
+    .string()
+    .trim()
+    .min(1, "Le prénom est requis")
+    .max(50, "Le prénom ne peut pas dépasser 50 caractères"),
+  lastName: z
+    .string()
+    .trim()
+    .min(1, "Le nom est requis")
+    .max(50, "Le nom ne peut pas dépasser 50 caractères"),
   email: z
     .string()
     .trim()
