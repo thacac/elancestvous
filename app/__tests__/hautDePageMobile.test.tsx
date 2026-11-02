@@ -1,5 +1,4 @@
 import { render, screen } from "@testing-library/react";
-import type { ReactElement } from "react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/relatedArticles", () => ({ getRelatedArticleLinks: vi.fn(() => []) }));
@@ -16,6 +15,8 @@ import PreventionRpsPage from "../formations/prevention-rps-qvct-etablissements-
 import GappPage from "../gapp-analyse-pratiques-professionnelles/page";
 import MentionsLegales from "../mentions-legales/page";
 import Home from "../page";
+
+import type { ReactElement } from "react";
 
 // Story 4.11 : « l'interface d'abord, efficace sur smartphone ». H1 réduits
 // sur smartphone (motif du catalogue, des fiches, du blog et de /a-propos),
