@@ -52,6 +52,38 @@ describe("FormationsDisponiblesBloc — liste filtrée par famille", () => {
     ).not.toBeInTheDocument();
   });
 
+  // Story 4.10 (RGAA 6.1, WCAG 2.4.4 / 2.5.3) : chaque « Voir la fiche »
+  // nomme sa formation pour les lecteurs d'écran, texte visible inchangé,
+  // sans aria-label.
+  it("complète chaque « Voir la fiche » du titre de la formation (sr-only)", () => {
+    vi.mocked(getAllFormationsMeta).mockReturnValue([
+      formationMeta(),
+      formationMeta({ titre: "Seconde fiche", slug: "seconde-fiche" }),
+    ]);
+
+    render(<FormationsDisponiblesBloc famille="cadre-legal-etablissements-sante" />);
+
+    const liens = screen.getAllByRole("link", { name: /^Voir la fiche/ });
+    expect(liens.map((l) => [l.textContent, l.getAttribute("href")])).toEqual([
+      [
+        "Voir la fiche : Obligations légales des établissements",
+        "/formations/cadre-legal-etablissements-sante/obligations-legales-des-etablissements",
+      ],
+      ["Voir la fiche : Seconde fiche", "/formations/cadre-legal-etablissements-sante/seconde-fiche"],
+    ]);
+    // jsdom retire l'espace en tête du sr-only dans le nom calculé
+    // (« Voir la fiche: … ») ; Chromium donne « Voir la fiche : … » (mesuré).
+    expect(
+      screen.getByRole("link", { name: /^Voir la fiche ?: Seconde fiche$/ })
+    ).toHaveAttribute("href", "/formations/cadre-legal-etablissements-sante/seconde-fiche");
+    liens.forEach((lien) => {
+      const sr = lien.querySelector(".sr-only")!;
+      expect(sr.textContent).toMatch(/^ : /);
+      expect(lien.textContent!.slice(0, lien.textContent!.length - sr.textContent!.length)).toBe("Voir la fiche");
+      expect(lien).not.toHaveAttribute("aria-label");
+    });
+  });
+
   it("chaque fiche lie vers sa page, avec sa durée affichée", () => {
     vi.mocked(getAllFormationsMeta).mockReturnValue([formationMeta()]);
 
@@ -62,7 +94,7 @@ describe("FormationsDisponiblesBloc — liste filtrée par famille", () => {
       .closest("div")!;
 
     expect(within(carte).getByText("1 journée")).toBeInTheDocument();
-    expect(within(carte).getByRole("link", { name: "Voir la fiche" })).toHaveAttribute(
+    expect(within(carte).getByRole("link", { name: /^Voir la fiche/ })).toHaveAttribute(
       "href",
       "/formations/cadre-legal-etablissements-sante/obligations-legales-des-etablissements"
     );
@@ -121,7 +153,7 @@ describe("FormationsDisponiblesBloc — état vide honnête (UJ-1)", () => {
     expect(
       screen.getByRole("heading", { name: "Formations disponibles" })
     ).toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "Voir la fiche" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /^Voir la fiche/ })).not.toBeInTheDocument();
     expect(screen.getByText(/bientôt/i)).toBeInTheDocument();
   });
 });

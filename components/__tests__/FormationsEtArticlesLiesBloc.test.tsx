@@ -144,7 +144,7 @@ describe("FormationsEtArticlesLiesBloc — bloc partagé par tous les hubs Famil
     );
 
     expect(
-      screen.getByRole("link", { name: "Voir la fiche" })
+      screen.getByRole("link", { name: /^Voir la fiche/ })
     ).toHaveAttribute(
       "href",
       "/formations/cadre-legal-etablissements-sante/obligations-legales-des-etablissements"

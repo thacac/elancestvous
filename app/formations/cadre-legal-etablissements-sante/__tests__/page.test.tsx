@@ -58,7 +58,7 @@ describe("CadreLegalPage — ordre du DOM (FR: formations avant réassurance)", 
   it("liste la fiche réelle de cette famille", () => {
     render(<CadreLegalPage />);
     expect(
-      screen.getByRole("link", { name: "Voir la fiche" })
+      screen.getByRole("link", { name: /^Voir la fiche/ })
     ).toHaveAttribute(
       "href",
       "/formations/cadre-legal-etablissements-sante/obligations-legales-des-etablissements"
