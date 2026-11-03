@@ -6,7 +6,6 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/relatedArticles", () => ({ getRelatedArticleLinks: vi.fn(() => []) }));
 
-import { getAllFormationsMeta } from "@/lib/formations";
 import { getRelatedArticleLinks } from "@/lib/relatedArticles";
 
 import FormationPage from "../formations/[famille]/[slug]/page";
@@ -37,80 +36,13 @@ function tons(elements: Element[]) {
   return elements.map((e) => (e.classList.contains("bg-sky") ? "sky" : e.classList.contains("bg-peach") ? "peach" : "?"));
 }
 
-async function renderCatalogue(famille?: string) {
-  return render(await FormationsCataloguePage({ searchParams: Promise.resolve(famille ? { famille } : {}) }));
+function renderCatalogue() {
+  return render(<FormationsCataloguePage />);
 }
 
 async function renderFiche(famille: string, slug: string) {
   return render(await FormationPage({ params: Promise.resolve({ famille, slug }) }));
 }
-
-describe("/formations — pastilles de filtre", () => {
-  it("restent des liens, sans forme de pilule, et peuvent passer à la ligne (pas de défilement horizontal à 320 px)", async () => {
-    await renderCatalogue();
-    const liens = within(screen.getByRole("navigation", { name: "Filtre par catégorie" })).getAllByRole("link");
-    expect(liens).toHaveLength(5);
-    liens.forEach((lien) => {
-      expect(lien).not.toHaveClass("rounded-full", "whitespace-nowrap");
-      expect(lien).toHaveClass("rounded-md", "whitespace-normal", "h-auto");
-    });
-  });
-
-  it("signalent le filtre actif autrement que par la couleur (aria-current)", async () => {
-    await renderCatalogue("cadre-legal-etablissements-sante");
-    const nav = screen.getByRole("navigation", { name: "Filtre par catégorie" });
-    expect(within(nav).getByRole("link", { name: "Cadre légal, droits et éthique" })).toHaveAttribute("aria-current", "page");
-    expect(within(nav).getByRole("link", { name: "Toutes" })).not.toHaveAttribute("aria-current");
-  });
-
-  it("marquent « Toutes » comme actif sans filtre", async () => {
-    await renderCatalogue();
-    const nav = screen.getByRole("navigation", { name: "Filtre par catégorie" });
-    expect(within(nav).getByRole("link", { name: "Toutes" })).toHaveAttribute("aria-current", "page");
-  });
-});
-
-// Règle « le SEO, c'est d'abord le contenu » (Cédric, 2026-10-31) : on peut
-// ajouter un titre utile, jamais modifier un titre existant.
-describe("/formations — bandeau de la liste des fiches", () => {
-  it("ouvre la liste par un bandeau « Toutes nos formations » (h2), filtres et cartes dans la même section", async () => {
-    await renderCatalogue();
-    const titre = screen.getByRole("heading", { level: 2, name: "Toutes nos formations" });
-    expect(titre.closest("header")?.querySelector(".bg-petrol")).not.toBeNull();
-    const section = titre.closest("section")!;
-    expect(within(section).getByRole("navigation", { name: "Filtre par catégorie" })).toBeInTheDocument();
-    expect(within(section).getByRole("list", { name: "Formations du catalogue" })).toBeInTheDocument();
-  });
-
-  it("passe les titres de carte en h3 sous ce bandeau, textes inchangés", async () => {
-    await renderCatalogue();
-    expect(screen.getByRole("heading", { level: 3, name: "Diagnostic et plan d'action QVCT" })).toBeInTheDocument();
-    expect(screen.getAllByRole("heading", { level: 3, name: /^Bientôt disponible/ })).toHaveLength(2);
-  });
-
-  // RGAA 9.1 / WCAG 2.4.6 (validé par Cédric) : deux titres « Bientôt
-  // disponible » identiques ne disaient pas de quelle famille il s'agit en
-  // navigation par titres. Le nom de la famille est ajouté pour les lecteurs
-  // d'écran ; le texte visible ne change pas.
-  it("nomme la famille dans le titre de chaque carte « Bientôt disponible », texte visible inchangé", async () => {
-    await renderCatalogue();
-    const titres = screen.getAllByRole("heading", { level: 3, name: /^Bientôt disponible/ });
-    expect(titres.map((h) => h.textContent)).toEqual([
-      "Bientôt disponible : Accompagnement et pratiques professionnelles",
-      "Bientôt disponible : Dynamique d'équipe et développement professionnel",
-    ]);
-    titres.forEach((h) => expect(h.querySelector(".sr-only")?.textContent).toMatch(/^ : /));
-  });
-
-  it("illustre les cartes « Bientôt disponible » du bloc-notes, en décor", async () => {
-    await renderCatalogue();
-    screen.getAllByRole("heading", { level: 3, name: /^Bientôt disponible/ }).forEach((h) => {
-      const image = h.closest("li")!.querySelector("img")!;
-      expect(image).toHaveAttribute("alt", "");
-      expect(decodeURIComponent(image.getAttribute("src")!)).toContain("bloc-notes-stylo.jpg");
-    });
-  });
-});
 
 // Story 4.10 (RGAA 6.1, WCAG 2.4.4 et 2.5.3, validé par Cédric) : des liens
 // « Découvrir » / « Voir la fiche » identiques menaient à des pages
@@ -155,81 +87,6 @@ describe("/formations — liens explicites (Story 4.10)", () => {
       "/formations/prevention-rps-qvct-etablissements-sante",
     );
     verifieComplement(liens, "Découvrir");
-  });
-
-  it("nomme la formation dans chaque lien « Voir la fiche » du catalogue, texte visible et URL inchangés", async () => {
-    await renderCatalogue();
-    const liste = screen.getByRole("list", { name: "Formations du catalogue" });
-    const liens = within(liste).getAllByRole("link", { name: /^Voir la fiche/ });
-    // Revue : une fiche publiée = un lien, sans constante à mettre à jour.
-    expect(liens).toHaveLength(getAllFormationsMeta().length);
-    liens.forEach((lien) => {
-      const titre = lien.closest("li")!.querySelector("h3")!.textContent;
-      expect(lien.textContent).toBe(`Voir la fiche : ${titre}`);
-      expect(lien).toHaveAccessibleName(nomLien("Voir la fiche", titre!));
-    });
-    expect(
-      screen.getByRole("link", { name: nomLien("Voir la fiche", "Diagnostic et plan d'action QVCT") })
-    ).toHaveAttribute("href", "/formations/prevention-rps-qvct-etablissements-sante/diagnostic-plan-action-qvct");
-    verifieComplement(liens, "Voir la fiche");
-  });
-});
-
-// Revue : le bandeau ajouté et le passage des cartes en h3 touchent la
-// hiérarchie du catalogue, en vue complète comme filtrée.
-describe("/formations — hiérarchie Hn", () => {
-  it.each([undefined, "cadre-legal-etablissements-sante", "dynamique-equipe-etablissements-sante"])(
-    "un seul h1 et aucun saut de niveau (filtre : %s)",
-    async (famille) => {
-      const { container } = await renderCatalogue(famille);
-      sansSaut(container);
-    },
-  );
-});
-
-// Règle « efficace sur smartphone » (revue) : un filtre ramène à la liste,
-// pas en haut de page derrière les 4 tuiles Famille.
-describe("/formations — filtres ancrés sur la liste", () => {
-  it("chaque filtre pointe sur l'ancre de la liste des fiches", async () => {
-    await renderCatalogue();
-    expect(document.getElementById("toutes-nos-formations")).not.toBeNull();
-    const nav = screen.getByRole("navigation", { name: "Filtre par catégorie" });
-    expect(within(nav).getByRole("link", { name: "Toutes" })).toHaveAttribute("href", "/formations#toutes-nos-formations");
-    expect(within(nav).getByRole("link", { name: "Cadre légal, droits et éthique" })).toHaveAttribute(
-      "href",
-      "/formations?famille=cadre-legal-etablissements-sante#toutes-nos-formations",
-    );
-  });
-});
-
-describe("/formations — grille en cartes pastel", () => {
-  it("liste fiches et familles à venir en cartes ciel / pêche alternées", async () => {
-    await renderCatalogue();
-    const grille = screen.getByRole("list", { name: "Formations du catalogue" });
-    const cartes = within(grille).getAllByRole("listitem");
-    // 2 fiches réelles + 2 familles encore vides.
-    expect(cartes).toHaveLength(4);
-    expect(tons(cartes)).toEqual(["sky", "peach", "sky", "peach"]);
-  });
-
-  it("garde la pastille de famille visible sur le pastel (bordure de sa couleur de texte)", async () => {
-    await renderCatalogue();
-    const carte = screen.getByRole("heading", { level: 3, name: "Diagnostic et plan d'action QVCT" }).closest("li")!;
-    const pastille = within(carte).getByText("Prévention des RPS et QVCT");
-    expect(pastille).toHaveClass("bg-cat-prevention", "border", "border-cat-prevention-foreground");
-  });
-
-  it("affiche la durée dans une couleur lisible sur pastel (≥ 4.5:1)", async () => {
-    await renderCatalogue();
-    const carte = screen.getByRole("heading", { level: 3, name: "Diagnostic et plan d'action QVCT" }).closest("li")!;
-    expect(within(carte).getByText("2 jours")).toHaveClass("text-primary/80");
-  });
-
-  it("distingue la carte « Bientôt disponible » d'une vraie fiche (bordure pointillée)", async () => {
-    await renderCatalogue();
-    const cartes = screen.getAllByRole("heading", { level: 3, name: /^Bientôt disponible/ }).map((h) => h.closest("li")!);
-    expect(cartes).toHaveLength(2);
-    cartes.forEach((carte) => expect(carte).toHaveClass("border-dashed", "border-petrol"));
   });
 });
 

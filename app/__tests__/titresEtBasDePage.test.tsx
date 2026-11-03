@@ -34,7 +34,7 @@ import type { ReactElement } from "react";
 // bandeaux) et le mot clé du H1 est en orange, souligné du trait de pinceau.
 const PAGES: [string, () => ReactElement | Promise<ReactElement>][] = [
   ["/blog", () => <BlogIndex />],
-  ["/formations", () => FormationsCataloguePage({ searchParams: Promise.resolve({}) })],
+  ["/formations", () => <FormationsCataloguePage />],
   ["/coaching", () => <CoachingHubPage />],
   ["/coaching/particuliers", () => <CoachingParticuliersPage />],
   ["/coaching/etablissements", () => <CoachingEtablissementsPage />],

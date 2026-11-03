@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/formations", () => ({
@@ -57,11 +57,10 @@ const ALL_FORMATIONS = [
 ];
 
 describe("FormationsCataloguePage — espacement sous la navbar (mobile, rattrapage design)", () => {
-  it("réduit le padding-top mobile plutôt que le padding desktop fixe (pt-20)", async () => {
+  it("réduit le padding-top mobile plutôt que le padding desktop fixe (pt-20)", () => {
     vi.mocked(getAllFormationsMeta).mockReturnValue(ALL_FORMATIONS);
 
-    const jsx = await FormationsCataloguePage({ searchParams: Promise.resolve({}) });
-    const { container } = render(jsx);
+    const { container } = render(<FormationsCataloguePage />);
     const wrapper = container.firstElementChild!;
 
     expect(wrapper.className).toContain("pt-6");
@@ -70,11 +69,10 @@ describe("FormationsCataloguePage — espacement sous la navbar (mobile, rattrap
 });
 
 describe("FormationsCataloguePage — fil d'Ariane (rattrapage design)", () => {
-  it("affiche un fil d'Ariane Accueil / Formations", async () => {
+  it("affiche un fil d'Ariane Accueil / Formations", () => {
     vi.mocked(getAllFormationsMeta).mockReturnValue(ALL_FORMATIONS);
 
-    const jsx = await FormationsCataloguePage({ searchParams: Promise.resolve({}) });
-    render(jsx);
+    render(<FormationsCataloguePage />);
 
     expect(screen.getByRole("link", { name: "Accueil" })).toHaveAttribute("href", "/");
     // Élément courant du fil d'Ariane (le H1 contient aussi « Formations »).
@@ -83,11 +81,10 @@ describe("FormationsCataloguePage — fil d'Ariane (rattrapage design)", () => {
 });
 
 describe("FormationsCataloguePage — tuiles vers les 4 familles (Story 2.4)", () => {
-  it("affiche une tuile cliquable par famille, menant vers son hub", async () => {
+  it("affiche une tuile cliquable par famille, menant vers son hub", () => {
     vi.mocked(getAllFormationsMeta).mockReturnValue(ALL_FORMATIONS);
 
-    const jsx = await FormationsCataloguePage({ searchParams: Promise.resolve({}) });
-    render(jsx);
+    render(<FormationsCataloguePage />);
 
     const tuiles = screen.getAllByRole("link", { name: /^Découvrir/ });
     expect(
@@ -100,11 +97,10 @@ describe("FormationsCataloguePage — tuiles vers les 4 familles (Story 2.4)", (
     ).toBe(true);
   });
 
-  it("autorise le titre d'une tuile à se couper si besoin (filet de sécurité pour un libellé long)", async () => {
+  it("autorise le titre d'une tuile à se couper si besoin (filet de sécurité pour un libellé long)", () => {
     vi.mocked(getAllFormationsMeta).mockReturnValue(ALL_FORMATIONS);
 
-    const jsx = await FormationsCataloguePage({ searchParams: Promise.resolve({}) });
-    render(jsx);
+    render(<FormationsCataloguePage />);
 
     const titre = screen.getByRole("heading", {
       name: "Accompagnement et pratiques professionnelles",
@@ -112,155 +108,14 @@ describe("FormationsCataloguePage — tuiles vers les 4 familles (Story 2.4)", (
     expect(titre.className).toContain("break-words");
   });
 
-  it("reste en 2 colonnes même sur grand écran, jamais 4 (retour visuel : 4 colonnes ne laissait pas assez de place au titre des tuiles)", async () => {
+  it("reste en 2 colonnes même sur grand écran, jamais 4 (retour visuel : 4 colonnes ne laissait pas assez de place au titre des tuiles)", () => {
     vi.mocked(getAllFormationsMeta).mockReturnValue(ALL_FORMATIONS);
 
-    const jsx = await FormationsCataloguePage({ searchParams: Promise.resolve({}) });
-    const { container } = render(jsx);
+    const { container } = render(<FormationsCataloguePage />);
 
     const grille = container.querySelector('[aria-labelledby="explorer-par-famille"] .grid')!;
     expect(grille.className).toContain("sm:grid-cols-2");
     expect(grille.className).not.toMatch(/lg:grid-cols-4|grid-cols-3|grid-cols-4/);
-  });
-
-  // Story 4.7 (Cédric, 2026-11-01) : la liste filtrable passe avant les
-  // tuiles, pour que la première fiche arrive dans le premier écran mobile.
-  it("positionne les tuiles sous la grille filtrable (Story 4.7)", async () => {
-    vi.mocked(getAllFormationsMeta).mockReturnValue(ALL_FORMATIONS);
-
-    const jsx = await FormationsCataloguePage({ searchParams: Promise.resolve({}) });
-    render(jsx);
-
-    const tuile = screen
-      .getAllByRole("link", { name: /^Découvrir/ })
-      .find((lien) => lien.getAttribute("href") === "/formations/cadre-legal-etablissements-sante")!;
-    const filtres = screen.getByRole("navigation", { name: /filtre/i });
-
-    expect(
-      filtres.compareDocumentPosition(tuile) & Node.DOCUMENT_POSITION_FOLLOWING
-    ).toBeTruthy();
-  });
-});
-
-describe("FormationsCataloguePage — grille sans filtre (FR4)", () => {
-  it("liste toutes les fiches, toutes familles confondues", async () => {
-    vi.mocked(getAllFormationsMeta).mockReturnValue(ALL_FORMATIONS);
-
-    const jsx = await FormationsCataloguePage({ searchParams: Promise.resolve({}) });
-    render(jsx);
-
-    expect(
-      screen.getByRole("heading", { name: "Obligations légales des établissements" })
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { name: "Diagnostic et plan d'action QVCT" })
-    ).toBeInTheDocument();
-  });
-
-  it("chaque carte affiche sa pastille de famille colorée, sa durée et un CTA accent Voir la fiche", async () => {
-    vi.mocked(getAllFormationsMeta).mockReturnValue([formationMeta()]);
-
-    const jsx = await FormationsCataloguePage({ searchParams: Promise.resolve({}) });
-    render(jsx);
-
-    const carte = screen
-      .getByRole("heading", { name: "Obligations légales des établissements" })
-      .closest("div")!;
-
-    const pastille = within(carte).getByText("Cadre légal, droits et éthique");
-    expect(pastille.className).toContain("bg-cat-legal");
-    expect(within(carte).getByText("1 journée")).toBeInTheDocument();
-    const lien = within(carte).getByRole("link", { name: /^Voir la fiche/ });
-    expect(lien).toHaveAttribute(
-      "href",
-      "/formations/cadre-legal-etablissements-sante/obligations-legales-des-etablissements"
-    );
-    expect(lien.className).toContain("bg-accent");
-  });
-});
-
-describe("FormationsCataloguePage — état vide honnête par famille (rattrapage design)", () => {
-  it("affiche une carte 'Bientôt disponible' pour chaque famille sans fiche encore publiée, en vue Toutes", async () => {
-    vi.mocked(getAllFormationsMeta).mockReturnValue(ALL_FORMATIONS);
-
-    const jsx = await FormationsCataloguePage({ searchParams: Promise.resolve({}) });
-    render(jsx);
-
-    const cartesBientot = screen.getAllByRole("heading", { name: /^Bientôt disponible/ });
-    expect(cartesBientot).toHaveLength(2);
-
-    const famillesEnAttente = cartesBientot.map(
-      (titre) => titre.closest("li")!.querySelector("span")!.textContent
-    );
-    expect(famillesEnAttente).toContain("Accompagnement et pratiques professionnelles");
-    expect(famillesEnAttente).toContain("Dynamique d'équipe et développement professionnel");
-  });
-
-  it("n'affiche aucune carte 'Bientôt disponible' pour une famille qui a des fiches publiées", async () => {
-    vi.mocked(getAllFormationsMeta).mockReturnValue(ALL_FORMATIONS);
-
-    const jsx = await FormationsCataloguePage({ searchParams: Promise.resolve({}) });
-    render(jsx);
-
-    const cartesBientot = screen.getAllByRole("heading", { name: /^Bientôt disponible/ });
-    const famillesEnBientot = cartesBientot.map(
-      (titre) => within(titre.closest("li")!).getByText(/^(Cadre légal|Prévention|Accompagnement|Dynamique)/).textContent
-    );
-    expect(famillesEnBientot).not.toContain("Cadre légal, droits et éthique");
-    expect(famillesEnBientot).not.toContain("Prévention des RPS et QVCT");
-  });
-
-  it("filtré sur une famille vide, affiche sa carte 'Bientôt disponible' plutôt qu'une grille vide", async () => {
-    vi.mocked(getAllFormationsMeta).mockReturnValue(ALL_FORMATIONS);
-
-    const jsx = await FormationsCataloguePage({
-      searchParams: Promise.resolve({ famille: "dynamique-equipe-etablissements-sante" }),
-    });
-    render(jsx);
-
-    expect(screen.getByRole("heading", { name: /^Bientôt disponible/ })).toBeInTheDocument();
-  });
-});
-
-describe("FormationsCataloguePage — pastilles de filtre", () => {
-  it("affiche une pastille Toutes et une par famille, chacune liée à la bonne URL", async () => {
-    vi.mocked(getAllFormationsMeta).mockReturnValue(ALL_FORMATIONS);
-
-    const jsx = await FormationsCataloguePage({ searchParams: Promise.resolve({}) });
-    render(jsx);
-
-    const filtres = screen.getByRole("navigation", { name: /filtre/i });
-    expect(within(filtres).getByRole("link", { name: "Toutes" })).toHaveAttribute(
-      "href",
-      "/formations#toutes-nos-formations"
-    );
-    expect(
-      within(filtres).getByRole("link", { name: "Cadre légal, droits et éthique" })
-    ).toHaveAttribute("href", "/formations?famille=cadre-legal-etablissements-sante#toutes-nos-formations");
-  });
-
-  it("marque la pastille Toutes comme active quand aucun filtre n'est appliqué", async () => {
-    vi.mocked(getAllFormationsMeta).mockReturnValue(ALL_FORMATIONS);
-
-    const jsx = await FormationsCataloguePage({ searchParams: Promise.resolve({}) });
-    render(jsx);
-
-    const toutes = screen.getByRole("link", { name: "Toutes" });
-    expect(toutes.className.split(" ")).toContain("bg-primary");
-  });
-
-  it("marque la pastille de la famille active quand un filtre est appliqué", async () => {
-    vi.mocked(getAllFormationsMeta).mockReturnValue(ALL_FORMATIONS);
-
-    const jsx = await FormationsCataloguePage({
-      searchParams: Promise.resolve({ famille: "cadre-legal-etablissements-sante" }),
-    });
-    render(jsx);
-
-    const pastille = screen.getByRole("link", { name: "Cadre légal, droits et éthique" });
-    expect(pastille.className.split(" ")).toContain("bg-primary");
-    const toutes = screen.getByRole("link", { name: "Toutes" });
-    expect(toutes.className.split(" ")).not.toContain("bg-primary");
   });
 });
 
@@ -282,36 +137,29 @@ describe("FormationsCataloguePage — metadata (audit SEO, finding #1 : canonica
   });
 });
 
-describe("FormationsCataloguePage — filtre par famille via searchParams (AD-5)", () => {
-  it("n'affiche que les fiches de la famille demandée quand ?famille= est présent", async () => {
+// Cédric, 2026-11-03 : la double sélection (barre de filtres + tuiles) était
+// une mauvaise décision. Le catalogue ne garde que les 4 tuiles Famille ;
+// chaque hub Famille liste ses propres fiches.
+describe("FormationsCataloguePage — uniquement les tuiles Famille", () => {
+  it("n'affiche plus de barre de filtres ni de liste de fiches", () => {
     vi.mocked(getAllFormationsMeta).mockReturnValue(ALL_FORMATIONS);
+    render(<FormationsCataloguePage />);
 
-    const jsx = await FormationsCataloguePage({
-      searchParams: Promise.resolve({ famille: "prevention-rps-qvct-etablissements-sante" }),
-    });
-    render(jsx);
-
-    expect(
-      screen.getByRole("heading", { name: "Diagnostic et plan d'action QVCT" })
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByRole("heading", { name: "Obligations légales des établissements" })
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("navigation", { name: /filtre/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("list", { name: "Formations du catalogue" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Toutes nos formations" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /^Voir la fiche/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: /^Bientôt disponible/ })).not.toBeInTheDocument();
   });
 
-  it("restaure la liste complète pour un ?famille= inconnu plutôt que de planter", async () => {
-    vi.mocked(getAllFormationsMeta).mockReturnValue(ALL_FORMATIONS);
+  it("enchaîne le titre de page et le bandeau des tuiles, avec une hiérarchie Hn sans saut", () => {
+    const { container } = render(<FormationsCataloguePage />);
+    const niveaux = Array.from(container.querySelectorAll("h1, h2, h3, h4, h5, h6")).map((h) => h.tagName);
+    expect(niveaux).toEqual(["H1", "H2", "H3", "H3", "H3", "H3"]);
+    expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent("Explorer les formations par famille");
+  });
 
-    const jsx = await FormationsCataloguePage({
-      searchParams: Promise.resolve({ famille: "famille-inexistante" }),
-    });
-    render(jsx);
-
-    expect(
-      screen.getByRole("heading", { name: "Obligations légales des établissements" })
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { name: "Diagnostic et plan d'action QVCT" })
-    ).toBeInTheDocument();
+  it("ignore un ancien ?famille= : la page ne lit plus les paramètres d'URL", () => {
+    expect(FormationsCataloguePage.length).toBe(0);
   });
 });
