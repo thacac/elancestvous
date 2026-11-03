@@ -105,6 +105,23 @@ function TitreSection({ children }: { children: ReactNode }) {
   );
 }
 
+// CTA de la fiche, pré-rempli avec la formation (provenance) : un seul
+// rendu pour le haut de la fiche pratique et la répétition de bas de fiche.
+function CtaDevis({ titre }: { titre: string }) {
+  return (
+    <Button asChild variant="accent" size="lg">
+      <Link
+        href={`/contact?${new URLSearchParams({
+          type: "institution",
+          sujet: `Devis pour la formation « ${titre} »`,
+        }).toString()}`}
+      >
+        Demander un devis
+      </Link>
+    </Button>
+  );
+}
+
 export default async function FormationPage({
   params,
 }: {
@@ -162,16 +179,7 @@ export default async function FormationPage({
             sticky. */}
         <div className="self-start lg:sticky lg:top-24 lg:col-start-2 lg:row-start-1 lg:row-span-2">
           <PastelCard as="div" tone="sky" className="p-6 sm:p-8 flex flex-col gap-5">
-            <Button asChild variant="accent" size="lg">
-              <Link
-                href={`/contact?${new URLSearchParams({
-                  type: "institution",
-                  sujet: `Devis pour la formation « ${formationDetail.titre} »`,
-                }).toString()}`}
-              >
-                Demander un devis
-              </Link>
-            </Button>
+            <CtaDevis titre={formationDetail.titre} />
             <ChampQualiopi label="Durée" valeur={formationDetail.duree} />
             <ChampQualiopi label="Format" valeur={formationDetail.format} />
             <ChampQualiopi label="Délai d'accès" valeur={formationDetail.delaiAcces} />
@@ -250,6 +258,13 @@ export default async function FormationPage({
             <TitreSection>Modalités pédagogiques et d&rsquo;évaluation</TitreSection>
             <p className="text-primary">{formationDetail.modalitesEvaluation}</p>
           </section>
+
+          {/* Sur mobile, la fiche pratique (et son CTA) est loin au-dessus une
+              fois la lecture finie : on répète le CTA ici. Inutile sur
+              desktop, où la fiche pratique sticky reste à l'écran. */}
+          <div className="mt-12 flex justify-center lg:hidden">
+            <CtaDevis titre={formationDetail.titre} />
+          </div>
         </div>
 
       </div>

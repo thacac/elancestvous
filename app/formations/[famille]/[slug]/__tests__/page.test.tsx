@@ -180,8 +180,10 @@ describe("FormationPage — fiche pratique Qualiopi", () => {
     const jsx = await FormationPage({ params: PARAMS });
     render(jsx);
 
-    const cta = screen.getByRole("link", { name: "Demander un devis" });
-    expect(cta.className).toContain("bg-accent");
+    const ctas = screen.getAllByRole("link", { name: "Demander un devis" });
+    for (const cta of ctas) {
+      expect(cta.className).toContain("bg-accent");
+    }
   });
 
   it("le CTA \"Demander un devis\" pré-remplit le formulaire de contact avec cette formation (provenance)", async () => {
@@ -190,14 +192,52 @@ describe("FormationPage — fiche pratique Qualiopi", () => {
     const jsx = await FormationPage({ params: PARAMS });
     render(jsx);
 
-    const cta = screen.getByRole("link", { name: "Demander un devis" });
-    const href = cta.getAttribute("href")!;
-    const url = new URL(href, "https://elancestvous.fr");
-    expect(url.pathname).toBe("/contact");
-    expect(url.searchParams.get("type")).toBe("institution");
-    expect(url.searchParams.get("sujet")).toBe(
-      "Devis pour la formation « Obligations légales des établissements »"
-    );
+    const ctas = screen.getAllByRole("link", { name: "Demander un devis" });
+    for (const cta of ctas) {
+      const href = cta.getAttribute("href")!;
+      const url = new URL(href, "https://elancestvous.fr");
+      expect(url.pathname).toBe("/contact");
+      expect(url.searchParams.get("type")).toBe("institution");
+      expect(url.searchParams.get("sujet")).toBe(
+        "Devis pour la formation « Obligations légales des établissements »"
+      );
+    }
+  });
+
+  it("répète le CTA \"Demander un devis\" en bas de fiche, après la lecture (mobile)", async () => {
+    vi.mocked(getFormationBySlug).mockResolvedValue(formation());
+
+    const jsx = await FormationPage({ params: PARAMS });
+    render(jsx);
+
+    const ctas = screen.getAllByRole("link", { name: "Demander un devis" });
+    expect(ctas).toHaveLength(2);
+    const [, ctaBas] = ctas;
+
+    const modalites = screen.getByRole("heading", {
+      name: /modalités pédagogiques et d.évaluation/i,
+    });
+    const retour = screen.getByRole("link", { name: /retour au catalogue/i });
+    // Après le dernier contenu lu, avant le lien de retour au catalogue.
+    expect(
+      modalites.compareDocumentPosition(ctaBas) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+    expect(
+      ctaBas.compareDocumentPosition(retour) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+  });
+
+  it("masque le CTA de bas de fiche sur desktop, où la fiche pratique sticky reste visible", async () => {
+    vi.mocked(getFormationBySlug).mockResolvedValue(formation());
+
+    const jsx = await FormationPage({ params: PARAMS });
+    render(jsx);
+
+    const [ctaHaut, ctaBas] = screen.getAllByRole("link", {
+      name: "Demander un devis",
+    });
+    expect(ctaBas.closest(".lg\\:hidden")).not.toBeNull();
+    expect(ctaHaut.closest(".lg\\:hidden")).toBeNull();
   });
 });
 
