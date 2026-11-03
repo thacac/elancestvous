@@ -10,6 +10,7 @@ import {
   parseDraftContent,
   renderMarkdownToSafeHtml,
 } from "../blog";
+import { getFormationBySlug, getFormationSlugs } from "../formations";
 
 const FIXTURES = path.join(__dirname, "fixtures", "blog");
 const VALID = path.join(FIXTURES, "valid");
@@ -125,6 +126,51 @@ describe("renderMarkdownToSafeHtml", () => {
       "Découvrez notre [accompagnement individuel](/particuliers/coaching-individuel)."
     );
     expect(html).toContain('href="/particuliers/coaching-individuel"');
+  });
+
+  // Story 4.14 : la page porte déjà son H1 (titre de l'article ou de la
+  // fiche) ; un titre `# …` du Markdown sort en h2 pour garder un seul H1
+  // (RGAA 9.1), sans décaler les autres niveaux.
+  describe("titre de niveau 1 du Markdown (story 4.14)", () => {
+    it("rend un titre `# …` en h2, texte inchangé", async () => {
+      const html = await renderMarkdownToSafeHtml("# Titre de l'article");
+      expect(html).toBe("<h2>Titre de l'article</h2>");
+    });
+
+    it("rend un titre de niveau 1 souligné par === en h2", async () => {
+      const html = await renderMarkdownToSafeHtml("Titre souligné\n===");
+      expect(html).toBe("<h2>Titre souligné</h2>");
+    });
+
+    it("garde l'emphase et les liens du titre", async () => {
+      const html = await renderMarkdownToSafeHtml("# Titre *important* et [lien](/contact)");
+      expect(html).toBe('<h2>Titre <em>important</em> et <a href="/contact">lien</a></h2>');
+    });
+
+    it("rend aussi en h2 un titre `# …` dans une citation ou une liste", async () => {
+      const html = await renderMarkdownToSafeHtml("> # Dans une citation\n\n- # Dans une liste");
+      expect(html).not.toContain("<h1");
+      expect(html).toContain("<h2>Dans une citation</h2>");
+      expect(html).toContain("<h2>Dans une liste</h2>");
+    });
+
+    it("laisse les titres ## à ###### inchangés", async () => {
+      const html = await renderMarkdownToSafeHtml(
+        "## Deux\n\n### Trois\n\n#### Quatre\n\n##### Cinq\n\n###### Six"
+      );
+      expect(html).toBe(
+        "<h2>Deux</h2>\n<h3>Trois</h3>\n<h4>Quatre</h4>\n<h5>Cinq</h5>\n<h6>Six</h6>"
+      );
+    });
+
+    it("ne produit aucun h1 dans les articles et fiches publiés", async () => {
+      for (const slug of getPostSlugs()) {
+        expect((await getPostBySlug(slug)).html).not.toContain("<h1");
+      }
+      for (const slug of getFormationSlugs()) {
+        expect((await getFormationBySlug(slug)).html).not.toContain("<h1");
+      }
+    });
   });
 });
 

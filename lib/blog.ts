@@ -97,10 +97,27 @@ function loadAllMeta(dir: string): Array<PostMeta & { content: string }> {
   );
 }
 
+// Nœud minimal de l'arbre Markdown (mdast) : seuls les titres et les enfants
+// sont lus, ce qui évite une dépendance directe à @types/mdast.
+type NoeudMarkdown = { type: string; depth?: number; children?: NoeudMarkdown[] };
+
+// Story 4.14 : la page (article, aperçu blog-review, fiche formation) porte
+// déjà son H1. Un titre de niveau 1 du Markdown (`# …` ou souligné par `===`),
+// même dans une citation ou une liste, sort en h2 pour garder un seul H1
+// (RGAA 9.1) ; les niveaux 2 à 6 ne bougent pas.
+function titresNiveau1EnNiveau2() {
+  const parcourir = (noeud: NoeudMarkdown): void => {
+    if (noeud.type === "heading" && noeud.depth === 1) noeud.depth = 2;
+    noeud.children?.forEach(parcourir);
+  };
+  return parcourir;
+}
+
 export async function renderMarkdownToSafeHtml(markdown: string): Promise<string> {
   const file = await unified()
     .use(remarkParse)
     .use(remarkGfm)
+    .use(titresNiveau1EnNiveau2)
     .use(remarkRehype)
     .use(rehypeSanitize)
     .use(rehypeStringify)
