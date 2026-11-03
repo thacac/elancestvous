@@ -60,8 +60,10 @@ export const metadata: Metadata = {
   },
 };
 
+// Barre du navigateur en pétrole (--color-petrol, Cédric 2026-11-03). Safari
+// iOS 26 ignore theme-color : il suit le fond pétrole plein du menu sticky.
 export const viewport: Viewport = {
-  themeColor: "#29b5ad",
+  themeColor: "#015566",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
