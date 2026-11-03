@@ -16,7 +16,7 @@ export function ArticleBody({ html, keyMessage, tags }: ArticleBodyProps) {
       {/* Lecture en Nunito Sans ; intertitres h2/h3 aux tailles de l'échelle
           globale (globals.css, hors @layer, l'emporte sur `prose`). */}
       <div
-        className="prose prose-stone max-w-none font-sans"
+        className="prose prose-lg prose-stone max-w-none font-sans"
         dangerouslySetInnerHTML={{ __html: html }}
       />
       {keyMessage && <KeyMessage className="mt-10">{keyMessage}</KeyMessage>}

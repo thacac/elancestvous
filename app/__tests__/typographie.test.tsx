@@ -160,6 +160,27 @@ describe("Typographie : une seule définition par niveau", () => {
     }
   });
 
+  // Cédric, 2026-11-03 : texte courant à 18 px, défini une fois sur <body>.
+  it("pose le texte courant à 18 px une seule fois, sur body", () => {
+    const body = css.match(/^body\s*\{([^}]*)\}/m)?.[1] ?? "";
+    expect(body).toMatch(/\btext-lg\b/);
+  });
+
+  it("aligne le corps des blocs `prose` (articles, fiches) sur 18 px", () => {
+    const sources = [
+      "components/blog/ArticleBody.tsx",
+      "app/formations/[famille]/[slug]/page.tsx",
+      "app/mentions-legales/page.tsx",
+      "app/a-propos/page.tsx",
+    ];
+    for (const fichier of sources) {
+      const source = readFileSync(join(__dirname, "..", "..", fichier), "utf8");
+      for (const m of source.matchAll(/className="([^"]*\bprose\b[^"]*)"/g)) {
+        expect(m[1], fichier).toMatch(/\bprose-lg\b/);
+      }
+    }
+  });
+
   it("nomme les deux seules exceptions : la mention et le chiffre clé", () => {
     expect(css).toMatch(/@utility texte-mention\s*\{/);
     expect(css).toMatch(/@utility chiffre-cle\s*\{/);

@@ -18,8 +18,10 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Texte courant à 18 px (Cédric, 2026-11-03), défini ici seulement : tous
+   les paragraphes en héritent ; les blocs `prose` s'alignent via prose-lg. */
 body {
-  @apply bg-white font-sans antialiased;
+  @apply bg-white font-sans antialiased text-lg;
 }
 
 .container {

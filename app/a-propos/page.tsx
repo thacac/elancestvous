@@ -61,7 +61,7 @@ export default function About() {
             </p>
           </div>
           <div className="w-full md:w-8/12">
-            <div className="prose text-stone-600 mb-5 space-y-4">
+            <div className="prose prose-lg text-stone-600 mb-5 space-y-4">
               <p>
                 Mon parcours a débuté au cœur du soin. Cette réalité du
                 terrain, je la connais : l&apos;urgence, la charge mentale, la
@@ -77,7 +77,7 @@ export default function About() {
             <Bubble className="mb-12">
               <strong>je ne parle pas de théorie, je parle de votre réalité.</strong>
             </Bubble>
-            <div className="prose text-stone-600 mb-8">
+            <div className="prose prose-lg text-stone-600 mb-8">
               <p>
                 Formée au coaching et forte de mon expérience du soin, j&apos;ai
                 construit à Toulouse une approche qui s&apos;appuie sur l&apos;écoute,

@@ -150,7 +150,7 @@ export default async function FormationPage({
         <div className="min-w-0 lg:col-start-1">
           <h1 className="mb-6">{formationDetail.titre}</h1>
           <div
-            className="prose prose-stone max-w-none"
+            className="prose prose-lg prose-stone max-w-none"
             dangerouslySetInnerHTML={{ __html: formationDetail.html }}
           />
         </div>
