@@ -79,7 +79,7 @@ export default function AccompagnementProfessionnelPage() {
                 </BrushUnderline>
                 .
               </h1>
-              <h2 className="py-5">
+              <p className="mt-5 text-primary/80">
                 Outiller l&apos;encadrement pour{" "}
                 <span className="text-accent">
                   <strong>accompagner</strong>
@@ -89,11 +89,11 @@ export default function AccompagnementProfessionnelPage() {
                   <strong>évoluer</strong>
                 </span>{" "}
                 durablement les pratiques.
-              </h2>
-              <h3 className="mx-0!">
+              </p>
+              <p className="mt-3 text-primary/80">
                 Intégration, tutorat, montée en compétences : des repères
                 concrets pour l&apos;encadrement de proximité.
-              </h3>
+              </p>
             </div>
           </div>
         </section>

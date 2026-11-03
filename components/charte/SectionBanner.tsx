@@ -56,12 +56,12 @@ export function SectionBanner({
           <div className="min-w-0">
             <Heading
               id={id}
-              className="font-display! text-2xl! font-black! leading-tight text-white! tracking-normal! m-0! lg:text-3xl!"
+              className="font-black! leading-tight text-white! tracking-normal! m-0!"
             >
               {title}
             </Heading>
             {subtitle && (
-              <p className="font-hand text-base text-sky md:text-lg">
+              <p className="font-hand text-sky">
                 {subtitle}
               </p>
             )}

@@ -61,11 +61,11 @@ export default async function BlogReviewPage({
   return (
     <article className="pt-6 sm:pt-20 mb-40">
       <div className="container max-w-3xl">
-        <p className="mb-6 rounded-lg bg-peach px-4 py-3 text-sm text-primary">
+        <p className="mb-6 rounded-lg bg-peach px-4 py-3 text-primary">
           🔒 Aperçu privé — brouillon non publié, réservé aux personnes ayant reçu ce
           lien.
         </p>
-        <p className="text-xs text-stone-600 uppercase tracking-wide mb-2">
+        <p className="texte-mention text-stone-600 uppercase tracking-wide mb-2">
           {new Date(frontmatter.publishedAt).toLocaleDateString("fr-FR", {
             day: "numeric",
             month: "long",

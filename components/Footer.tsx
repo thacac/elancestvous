@@ -18,7 +18,7 @@ export default function Footer() {
             <div className="px-5 py-2">
               <Link
                 href="/mentions-legales#protection-des-donnees-personnelles"
-                className="leading-6 text-sm text-white hover:text-sky"
+                className="leading-6 texte-mention text-white hover:text-sky"
               >
                 Politique de confidentialité
               </Link>
@@ -26,7 +26,7 @@ export default function Footer() {
             <div className="px-5 py-2">
               <Link
                 href="/mentions-legales"
-                className="leading-6 text-sm text-white hover:text-sky"
+                className="leading-6 texte-mention text-white hover:text-sky"
               >
                 Mentions légales
               </Link>
@@ -37,13 +37,13 @@ export default function Footer() {
             />
           </nav>
 
-          <p className="mt-2 text-xs leading-6 text-center text-sky">
+          <p className="mt-2 texte-mention leading-6 text-center text-sky">
             Toulouse (31) · Haute-Garonne · Occitanie ·{" "}
             <a href="tel:+33695991922" className="hover:underline">
               06 95 99 19 22
             </a>
           </p>
-          <p className="mt-2 text-xs leading-6 text-center text-sky">
+          <p className="mt-2 texte-mention leading-6 text-center text-sky">
             {`${new Date().getFullYear()} - Élan C’est Vous - Coaching & Formations - Tous droits réservés.`}
           </p>
         </div>

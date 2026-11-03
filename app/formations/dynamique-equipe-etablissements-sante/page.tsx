@@ -79,7 +79,7 @@ export default function DynamiqueEquipePage() {
                 </BrushUnderline>
                 .
               </h1>
-              <h2 className="py-5">
+              <p className="mt-5 text-primary/80">
                 Renforcer la{" "}
                 <span className="text-accent">
                   <strong>coopération</strong>
@@ -89,12 +89,12 @@ export default function DynamiqueEquipePage() {
                   <strong>cohésion</strong>
                 </span>{" "}
                 d&apos;une équipe, dans la durée.
-              </h2>
-              <h3 className="mx-0!">
+              </p>
+              <p className="mt-3 text-primary/80">
                 Des formations pour travailler collectivement les fonctionnements
                 d&apos;équipe et soutenir le développement professionnel de
                 chacun.
-              </h3>
+              </p>
             </div>
           </div>
         </section>

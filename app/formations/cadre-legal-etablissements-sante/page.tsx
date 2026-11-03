@@ -87,7 +87,7 @@ export default function CadreLegalPage() {
                 </BrushUnderline>
                 .
               </h1>
-              <h2 className="py-5">
+              <p className="mt-5 text-primary/80">
                 Sécuriser les{" "}
                 <span className="text-accent">
                   <strong>obligations légales</strong>
@@ -97,11 +97,11 @@ export default function CadreLegalPage() {
                   <strong>responsabilités</strong>
                 </span>
                 .
-              </h2>
-              <h3 className="mx-0!">
+              </p>
+              <p className="mt-3 text-primary/80">
                 Un cadre juridique clarifié, pour agir avant que le risque ne
                 devienne un contentieux.
-              </h3>
+              </p>
             </div>
           </div>
         </section>

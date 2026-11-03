@@ -10,7 +10,7 @@ export default function Hero() {
     <section className="relative bg-sky flex flex-col md:flex-row md:items-center px-6 min-h-screen h-fit -mt-20 pt-20 pb-16 md:pb-16">
       <div className="flex flex-col lg:flex-row justify-between items-center mx-auto max-w-5xl">
         <div className="order-last flex-1 flex flex-col justify-center text-center md:my-0 lg:order-first md:text-left">
-          <span className="inline-block py-1 px-3 rounded-full bg-petrol text-white text-xs font-bold mb-6 tracking-wide uppercase w-fit mx-auto md:mx-0">
+          <span className="inline-block py-1 px-3 rounded-full bg-petrol text-white texte-mention font-bold mb-6 tracking-wide uppercase w-fit mx-auto md:mx-0">
             Santé au travail & Performance Humaine
           </span>
           <h1 className="mb-6 leading-tight">
@@ -18,7 +18,7 @@ export default function Hero() {
             <BrushUnderline className="text-accent italic">ceux qui soignent</BrushUnderline>
             .
           </h1>
-          <p className="text-md md:text-lg text-primary/80 leading-relaxed max-w-2xl">
+          <p className="text-primary/80 leading-relaxed max-w-2xl">
             Ancienne soignante basée à <strong>Toulouse</strong>, j&apos;accompagne les établissements et les
             professionnels de santé à prévenir l&apos;épuisement, réguler la charge
             émotionnelle et soutenir des pratiques de travail durables.
@@ -35,10 +35,10 @@ export default function Hero() {
             </Link>
           </div>
           <div className="border-t border-t-primary/20 text-center md:text-left py-6">
-            <p className="text-sm text-primary leading-relaxed">
+            <p className="text-primary leading-relaxed">
               Vous êtes un particulier&nbsp;?
             </p>
-            <p className="text-sm text-primary/80">
+            <p className="text-primary/80">
               Pour débloquer une situation ou travailler un objectif, découvrez
               l&apos;<span className="font-display text-accent italic underline cursor-alias">
                 <Link href="/coaching/particuliers">

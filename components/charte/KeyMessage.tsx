@@ -48,7 +48,7 @@ export function KeyMessage({
         aria-hidden="true"
         className="w-1 self-stretch rounded-full bg-orange"
       />
-      <p className="min-w-0 font-display text-base font-extrabold leading-snug text-primary md:text-lg">
+      <p className="min-w-0 font-display font-extrabold leading-snug text-primary">
         {children}
       </p>
     </div>

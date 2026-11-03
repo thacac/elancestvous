@@ -13,11 +13,10 @@ interface ArticleBodyProps {
 export function ArticleBody({ html, keyMessage, tags }: ArticleBodyProps) {
   return (
     <>
-      {/* Lecture en Nunito Sans. Les règles globales h2/h3 de globals.css
-          sont hors @layer : le h3 y est gris, centré et limité en largeur,
-          d'où les modificateurs `!` pour les intertitres générés. */}
+      {/* Lecture en Nunito Sans ; intertitres h2/h3 aux tailles de l'échelle
+          globale (globals.css, hors @layer, l'emporte sur `prose`). */}
       <div
-        className="prose prose-stone max-w-none font-sans prose-headings:font-display prose-headings:text-primary prose-h3:mx-0! prose-h3:max-w-none! prose-h3:font-display! prose-h3:text-xl! prose-h3:font-extrabold! prose-h3:text-primary!"
+        className="prose prose-lg prose-stone max-w-none font-sans"
         dangerouslySetInnerHTML={{ __html: html }}
       />
       {keyMessage && <KeyMessage className="mt-10">{keyMessage}</KeyMessage>}
@@ -25,7 +24,7 @@ export function ArticleBody({ html, keyMessage, tags }: ArticleBodyProps) {
         <ul className="flex flex-wrap gap-2 mt-10">
           {tags.map((tag) => (
             // Pastille d'étiquette, jamais un bouton (DESIGN.md).
-            <li key={tag} className="text-xs bg-sky text-primary rounded-full px-3 py-1">
+            <li key={tag} className="texte-mention bg-sky text-primary rounded-full px-3 py-1">
               {tag}
             </li>
           ))}

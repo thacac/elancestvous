@@ -178,8 +178,9 @@ describe("Article", () => {
     await renderArticle(post());
     const corps = screen.getByText("Contenu de l'article.").parentElement!;
     expect(corps).toHaveClass("prose", "font-sans");
-    // La règle globale h3 (hors @layer) centre et grise : modificateurs `!`.
-    expect(corps).toHaveClass("prose-h3:text-primary!", "prose-h3:mx-0!", "prose-h3:max-w-none!");
+    // Intertitres aux tailles de l'échelle globale (globals.css), sans
+    // surcharge propre à l'article.
+    expect(corps.className).not.toMatch(/prose-h[1-6]:/);
   });
 
   it("clôt l'article par un message clé quand l'en-tête en fournit un", async () => {
@@ -228,7 +229,7 @@ describe("Article", () => {
 describe("Aperçu de relecture (Discord)", () => {
   it("partage le rendu de l'article : corps, message clé et étiquettes", async () => {
     await renderRelecture({ keyMessage: "Idée clé du brouillon." });
-    expect(screen.getByText("Contenu.").parentElement).toHaveClass("prose", "font-sans", "prose-h3:text-primary!");
+    expect(screen.getByText("Contenu.").parentElement).toHaveClass("prose", "font-sans");
     expect(screen.getByRole("note", { name: "À retenir" })).toHaveTextContent("Idée clé du brouillon.");
     expect(screen.getByText("GAPP")).toHaveClass("bg-sky", "text-primary");
   });

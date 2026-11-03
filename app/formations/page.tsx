@@ -64,7 +64,7 @@ export default function FormationsCataloguePage() {
         <h1 className="mb-4">
           Formations <BrushUnderline className="text-accent">professionnelles</BrushUnderline>
         </h1>
-        <p className="text-sm text-primary/80 max-w-2xl">
+        <p className="text-primary/80 max-w-2xl">
           Un catalogue de formations sur-mesure pour les établissements de
           santé, conçues et animées par une ancienne soignante.
         </p>
@@ -94,11 +94,11 @@ export default function FormationsCataloguePage() {
                     sizes="(min-width: 640px) 128px, 56px"
                     className="size-14 shrink-0 rounded-full border-2 border-white object-cover sm:mb-4 sm:size-32 sm:border-4"
                   />
-                  <h3 className="font-display! text-xl! font-black! text-primary! m-0! max-w-none! leading-snug break-words min-w-0">
+                  <h3 className="m-0 break-words min-w-0">
                     {f.label}
                   </h3>
                 </div>
-                <p className="text-primary/80 mb-4 text-sm leading-relaxed">
+                <p className="text-primary/80 mb-4 leading-relaxed">
                   {FAMILLE_TUILE_DESCRIPTIONS[f.id]}
                 </p>
                 <Link href={`/formations/${f.id}`} className={cn(buttonVariants({ variant: "tinted" }), "mt-auto w-fit")}>

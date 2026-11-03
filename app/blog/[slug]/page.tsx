@@ -83,7 +83,7 @@ export default async function BlogPost({
     >
       <PostJsonLd post={post} />
       <div className="container max-w-3xl">
-        <p className="text-xs text-stone-600 uppercase tracking-wide mb-2">
+        <p className="texte-mention text-stone-600 uppercase tracking-wide mb-2">
           {new Date(post.publishedAt).toLocaleDateString("fr-FR", {
             day: "numeric",
             month: "long",
@@ -110,7 +110,7 @@ export default async function BlogPost({
         <ArticleBody html={post.html} keyMessage={post.keyMessage} tags={post.tags} />
         {post.relatedPosts.length > 0 && (
           <div className="mt-12 border-t border-stone-200 pt-8">
-            <h2 className="text-xl! lg:text-2xl!">
+            <h2>
               À lire aussi{pillarLabel ? ` — ${pillarLabel}` : ""}
             </h2>
             {/* Cartes pastel alternées (UX-DR2) ; seul le lien est interactif. */}

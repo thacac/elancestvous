@@ -36,10 +36,10 @@ export default function About() {
               <strong>Coach certifiée à Toulouse</strong>
             </BrushUnderline>
           </h1>
-          <h2 className="h3-like mx-0!">
+          <p className="mt-5 text-primary/80">
             Ancienne soignante, j&apos;accompagne aujourd&apos;hui la santé de ceux qui
             soignent.
-          </h2>
+          </p>
         </div>
 
         {/* Story 4.9 : bandeau ajouté (titre validé par Cédric). */}
@@ -56,12 +56,12 @@ export default function About() {
               className="rounded-full object-cover size-48 md:size-64"
               alt="Coralie Mathorel, coach professionnelle certifiée et ancienne soignante, à Toulouse"
             />
-            <p className="mt-4 text-center font-hand text-xl text-primary">
+            <p className="mt-4 text-center font-hand text-primary">
               &quot;Accompagnement humain.&quot;
             </p>
           </div>
           <div className="w-full md:w-8/12">
-            <div className="prose text-stone-600 mb-5 space-y-4">
+            <div className="prose prose-lg text-stone-600 mb-5 space-y-4">
               <p>
                 Mon parcours a débuté au cœur du soin. Cette réalité du
                 terrain, je la connais : l&apos;urgence, la charge mentale, la
@@ -77,7 +77,7 @@ export default function About() {
             <Bubble className="mb-12">
               <strong>je ne parle pas de théorie, je parle de votre réalité.</strong>
             </Bubble>
-            <div className="prose text-stone-600 mb-8">
+            <div className="prose prose-lg text-stone-600 mb-8">
               <p>
                 Formée au coaching et forte de mon expérience du soin, j&apos;ai
                 construit à Toulouse une approche qui s&apos;appuie sur l&apos;écoute,
@@ -116,18 +116,18 @@ export default function About() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <PastelCard tone="sky" as="div" className="p-4 text-center">
-                <span className="block font-display text-2xl font-black text-primary mb-1">
+                <span className="block chiffre-cle mb-1">
                   10+
                 </span>
-                <span className="text-xs text-stone-600 uppercase tracking-wide">
+                <span className="texte-mention text-stone-600 uppercase tracking-wide">
                   Années d&apos;expérience
                 </span>
               </PastelCard>
               <PastelCard tone="peach" as="div" className="p-4 text-center">
-                <span className="block font-display text-2xl font-black text-primary mb-1">
+                <span className="block chiffre-cle mb-1">
                   Coach
                 </span>
-                <span className="text-xs text-stone-600 uppercase tracking-wide">
+                <span className="texte-mention text-stone-600 uppercase tracking-wide">
                   Certifiée d&apos;État
                 </span>
               </PastelCard>

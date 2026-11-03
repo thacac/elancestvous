@@ -34,9 +34,9 @@ export default function ArticlesBlogLiesBloc({
     return (
       <aside className="md:sticky md:top-24">
         {/* Story 4.4 : carte pêche de la charte ; liens `accent` à 5:1 sur
-            la pêche. Styles globaux h2 hors @layer : modificateurs `!`. */}
+            la pêche. Titre à la taille h2 de l'échelle globale. */}
         <PastelCard as="div" tone="peach">
-          <h2 className="font-display! text-lg! font-black! text-primary! mb-4!">Pour aller plus loin</h2>
+          <h2>Pour aller plus loin</h2>
           <ul className="space-y-3">
             {liens.map((lien) => (
               <li key={lien.href}>

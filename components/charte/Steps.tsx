@@ -14,7 +14,7 @@ export interface Step {
 interface StepsProps {
   steps: Step[];
   /** Niveau des titres d'étape, sous le titre de la section (h3 par défaut). */
-  headingLevel?: "h3" | "h4";
+  headingLevel?: "h3";
   /**
    * « row » (défaut) : une ligne d'étapes reliées par des flèches à partir
    * de lg. « grid » : 2 colonnes au plus, sans flèches, pour une colonne
@@ -90,16 +90,16 @@ export function Steps({
           <span
             aria-hidden="true"
             className={cn(
-              "flex size-9 items-center justify-center rounded-full font-display text-lg font-black text-white",
+              "flex size-9 items-center justify-center rounded-full font-display font-black text-white",
               BADGE_TONES[index % BADGE_TONES.length],
             )}
           >
             {index + 1}
           </span>
-          <Heading className="font-display! text-lg! font-black! text-primary! m-0! max-w-none! break-words hyphens-auto">
+          <Heading className="m-0 break-words">
             {step.title}
           </Heading>
-          <div className="text-sm text-stone-600">{step.description}</div>
+          <div className="text-stone-600">{step.description}</div>
         </li>
       ))}
     </ol>

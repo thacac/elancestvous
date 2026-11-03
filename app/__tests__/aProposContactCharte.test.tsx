@@ -47,12 +47,11 @@ describe("/a-propos — SEO inchangé (UX-DR6)", () => {
   it("garde le H1, le sous-titre et l'alt de la photo", () => {
     render(<About />);
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Coralie Mathorel – Coach certifiée à Toulouse");
+    // Sous-titre en paragraphe, texte inchangé (typographie h1 h2 h3 p,
+    // Cédric 2026-11-03 : une accroche n'est pas un titre).
     expect(
-      screen.getByRole("heading", {
-        level: 2,
-        name: "Ancienne soignante, j'accompagne aujourd'hui la santé de ceux qui soignent.",
-      }),
-    ).toBeInTheDocument();
+      screen.getByText("Ancienne soignante, j'accompagne aujourd'hui la santé de ceux qui soignent.").tagName,
+    ).toBe("P");
     expect(
       screen.getByAltText("Coralie Mathorel, coach professionnelle certifiée et ancienne soignante, à Toulouse"),
     ).toBeInTheDocument();
@@ -132,11 +131,10 @@ describe("/contact — SEO inchangé (UX-DR6)", () => {
     const { container } = await renderContact();
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Parlons de vos besoins");
     expect(
-      screen.getByRole("heading", {
-        level: 2,
-        name: "Un premier échange pour comprendre votre situation et définir ensemble la réponse la plus adaptée.",
-      }),
-    ).toBeInTheDocument();
+      screen.getByText(
+        "Un premier échange pour comprendre votre situation et définir ensemble la réponse la plus adaptée.",
+      ).tagName,
+    ).toBe("P");
     sansSaut(container);
   });
 });

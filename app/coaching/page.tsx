@@ -34,10 +34,10 @@ export default function CoachingHubPage() {
           <h1>
             <BrushUnderline className="text-accent">Coaching</BrushUnderline>.
           </h1>
-          <h2 className="py-5">
+          <p className="mt-5 text-primary/80">
             Un accompagnement <span className="text-accent"><strong>individuel</strong></span> ou{" "}
             <span className="text-accent"><strong>collectif</strong></span>, adapté à votre situation.
-          </h2>
+          </p>
         </div>
 
         <ul role="list" className="grid list-none gap-8 p-0 md:grid-cols-2 max-w-4xl">
@@ -50,7 +50,7 @@ export default function CoachingHubPage() {
               sizes="160px"
               className="size-40 rounded-full border-4 border-white object-cover"
             />
-            <h3 className="font-display! text-2xl! font-black! text-primary! m-0! max-w-none!">Particuliers</h3>
+            <h2 className="m-0!">Particuliers</h2>
             <p className="text-primary/80">
               Un espace pour faire le point, prendre du recul et avancer à
               partir de votre situation.
@@ -69,7 +69,7 @@ export default function CoachingHubPage() {
               sizes="160px"
               className="size-40 rounded-full border-4 border-white object-cover"
             />
-            <h3 className="font-display! text-2xl! font-black! text-primary! m-0! max-w-none!">Établissements</h3>
+            <h2 className="m-0!">Établissements</h2>
             <p className="text-primary/80">
               Un accompagnement pour soutenir les dynamiques d&apos;équipe et
               les professionnels des établissements de santé.

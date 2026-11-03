@@ -72,7 +72,7 @@ export default function CoachingParticuliersPage() {
             <h1>
               Coaching <BrushUnderline className="text-accent">individuel</BrushUnderline>.
             </h1>
-            <h2 className="py-5">
+            <p className="mt-5 text-primary/80">
               Un espace pour{" "}
               <span className="text-accent">
                 <strong>faire le point</strong>
@@ -86,11 +86,11 @@ export default function CoachingParticuliersPage() {
                 <strong>avancer</strong>
               </span>{" "}
               à partir de votre situation.
-            </h2>
-            <h3 className="mx-0!">
+            </p>
+            <p className="mt-3 text-primary/80">
               Un accompagnement pour clarifier, débloquer et avancer vers vos
               objectifs, dans un cadre sécurisant et confidentiel.
-            </h3>
+            </p>
           </div>
         </section>
 
@@ -158,31 +158,31 @@ export default function CoachingParticuliersPage() {
                   <span
                     aria-hidden="true"
                     className={cn(
-                      "flex size-9 shrink-0 items-center justify-center rounded-full font-display text-lg font-black text-white",
+                      "flex size-9 shrink-0 items-center justify-center rounded-full font-display font-black text-white",
                       BADGE_TONES[i % BADGE_TONES.length],
                     )}
                   >
                     {i + 1}
                   </span>
-                  <p className="text-lg font-semibold text-primary">{item}</p>
+                  <p className="font-semibold text-primary">{item}</p>
                 </li>
               ))}
             </ol>
 
             {/* Cadre de l'accompagnement */}
             <PastelCard as="div" tone="peach" className="h-fit p-8">
-              <h3 className="font-display! text-2xl! font-black! text-primary! m-0! mb-4! max-w-none!">
+              <h3 className="m-0 mb-4">
                 Cadre de l&apos;accompagnement
               </h3>
-              <h4 className="text-accent font-black text-2xl mb-4 uppercase italic">
+              <p className="text-accent font-black mb-4 uppercase italic">
                 Modalités pratiques
-              </h4>
-              <p className="text-primary text-lg leading-relaxed mb-6">
+              </p>
+              <p className="text-primary leading-relaxed mb-6">
                 L&apos;accompagnement se déroule généralement sur{" "}
                 <strong>environ huit séances</strong>, permettant un travail
                 progressif, en profondeur, et respectueux de votre rythme.
               </p>
-              <p className="text-primary/80 text-base leading-relaxed mb-6">
+              <p className="text-primary/80 leading-relaxed mb-6">
                 Les séances se déroulent <strong>à distance</strong>, dans un
                 cadre <strong>sécurisé et confidentiel</strong>.
               </p>

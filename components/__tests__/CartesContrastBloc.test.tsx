@@ -34,13 +34,15 @@ describe("CartesContrastBloc — charte des slides (Story 4.3)", () => {
   it("écrit le numéro en orange foncé (accent), jamais en orange vif", () => {
     render(<CartesContrastBloc titre="Titre" cartes={cartes} />);
     const numero = screen.getByText("01").className.split(/\s+/);
-    expect(numero).toContain("text-accent");
+    // chiffre-cle (globals.css) = text-accent, la seule taille de chiffre.
+    expect(numero).toContain("chiffre-cle");
     expect(numero).not.toContain("text-orange");
   });
 
-  it("titre de carte h3 en bleu nuit (le style global des h3 est gris)", () => {
+  it("titre de carte h3 au style global des h3 (bleu nuit), sans taille propre", () => {
     render(<CartesContrastBloc titre="Titre" cartes={cartes} />);
-    expect(screen.getByRole("heading", { level: 3, name: "Prévenir" })).toHaveClass("text-primary!");
+    const titre = screen.getByRole("heading", { level: 3, name: "Prévenir" });
+    expect(titre.className).not.toMatch(/text-(?:xs|sm|base|lg|\d?xl)|text-primary/);
   });
 
   it("n'utilise plus le fond bleu nuit ni les anciennes couleurs", () => {

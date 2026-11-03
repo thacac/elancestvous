@@ -75,10 +75,10 @@ function ChampQualiopi({
 }) {
   return (
     <div>
-      <div className="text-xs font-semibold uppercase tracking-wide text-primary/80 mb-1">
+      <div className="texte-mention font-semibold uppercase tracking-wide text-primary/80 mb-1">
         {label}
       </div>
-      <div className="text-sm font-semibold text-primary">
+      <div className="font-semibold text-primary">
         {/* NFR3 : placeholder distinct d'une vraie valeur par l'italique et
             un cadre pointillé, pas seulement par la couleur (accent : 5.1:1
             sur le ciel). */}
@@ -95,10 +95,10 @@ function ChampQualiopi({
 // Titre de section de la fiche (Story 4.4) : un bandeau pleine largeur ne
 // tient pas dans la colonne de lecture, à côté de la fiche pratique sticky ;
 // on garde donc la barre orange et le Nunito des bandeaux, sans l'aplat
-// pétrole. Styles globaux h2 hors @layer : modificateurs `!`.
+// pétrole. Taille h2 de l'échelle globale (globals.css), marge propre en `!`.
 function TitreSection({ children }: { children: ReactNode }) {
   return (
-    <h2 className="flex items-stretch gap-3 font-display! text-2xl! font-black! text-primary! tracking-normal! mb-6!">
+    <h2 className="flex items-stretch gap-3 font-black! tracking-normal! mb-6!">
       <span aria-hidden="true" className="w-1 shrink-0 rounded-full bg-orange" />
       <span>{children}</span>
     </h2>
@@ -150,7 +150,7 @@ export default async function FormationPage({
         <div className="min-w-0 lg:col-start-1">
           <h1 className="mb-6">{formationDetail.titre}</h1>
           <div
-            className="prose prose-stone max-w-none"
+            className="prose prose-lg prose-stone max-w-none"
             dangerouslySetInnerHTML={{ __html: formationDetail.html }}
           />
         </div>
@@ -238,7 +238,7 @@ export default async function FormationPage({
             <ul role="list" className="flex list-none flex-wrap gap-2 p-0">
               {formationDetail.publicVise.map((public_) => (
                 <li key={public_}>
-                  <Chip tone="petrol" className="text-sm">
+                  <Chip tone="petrol">
                     {public_}
                   </Chip>
                 </li>
@@ -257,7 +257,7 @@ export default async function FormationPage({
       <div className="container border-t border-stone-200 mt-14 pt-8">
         <Link
           href="/formations"
-          className="text-sm font-semibold text-primary hover:underline underline-offset-2"
+          className="font-semibold text-primary hover:underline underline-offset-2"
         >
           &larr; Retour au catalogue des formations
         </Link>

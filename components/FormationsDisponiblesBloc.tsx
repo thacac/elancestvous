@@ -32,7 +32,7 @@ export default function FormationsDisponiblesBloc({
   const content =
     formations.length === 0 ? (
       <PastelCard as="div" tone="sky" className="p-8">
-        <p className="text-lg text-primary">
+        <p className="text-primary">
           Les formations de cette famille arrivent bientôt. Revenez prochainement,
           ou contactez-nous pour en discuter dès maintenant.
         </p>
@@ -53,11 +53,10 @@ export default function FormationsDisponiblesBloc({
             tone={i % 2 === 0 ? "sky" : "peach"}
             className="flex flex-col gap-3"
           >
-            {/* Styles globaux h3 hors @layer (gris, centré) : modificateurs `!`. */}
-            <h3 className="font-display! text-lg! font-black! text-primary! m-0! max-w-none! leading-snug break-words hyphens-auto">
+            <h3 className="m-0 break-words">
               {formation.titre}
             </h3>
-            <p className="text-sm text-primary/80 mt-auto">{formation.duree}</p>
+            <p className="texte-mention text-primary/80 mt-auto">{formation.duree}</p>
             <Link
               href={`/formations/${formation.famille}/${formation.slug}`}
               className={buttonVariants({ variant: "tinted" })}
