@@ -121,7 +121,7 @@ export default async function FormationsCataloguePage({
     <GabaritPage className="mb-40" filAriane={[{ label: "Formations" }]}>
       <div className="container mb-10">
         <h1 className="mb-4">
-          Formations <BrushUnderline>professionnelles</BrushUnderline>
+          Formations <BrushUnderline className="text-accent">professionnelles</BrushUnderline>
         </h1>
         <p className="text-sm text-primary/80 max-w-2xl">
           Un catalogue de formations sur-mesure pour les établissements de

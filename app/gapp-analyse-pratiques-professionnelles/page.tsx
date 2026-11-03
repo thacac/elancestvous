@@ -47,7 +47,7 @@ export default function GappPage() {
       <GabaritPage className="min-h-screen overflow-hidden" filAriane={[{ label: "GAPP" }]}>
         {/* --- 1. Titre --- */}
         <section id="gapp-titre" data-hero className="pb-20 container">
-          <div className="text-center mb-8">
+          <div className="mb-8">
             <h1>
               Groupe d&apos;analyse des{" "}
               <BrushUnderline className="text-accent">
@@ -70,7 +70,7 @@ export default function GappPage() {
               </span>{" "}
               les pratiques professionnelles en équipe.
             </h2>
-            <h3>
+            <h3 className="mx-0!">
               Animé par une coach certifiée, pour une{" "}
               <strong>qualité des soins</strong> renforcée et un{" "}
               <strong>accompagnement</strong> sur-mesure.
@@ -79,7 +79,7 @@ export default function GappPage() {
         </section>
 
         <section>
-          <div className="container mx-auto text-center -mt-20 mb-20">
+          <div className="container -mt-20 mb-20">
             <p className="text-md italic text-primary/80 mb-2">
               (En cours de certification, animation de groupe d’analyse des pratiques professionnelles.)
             </p>

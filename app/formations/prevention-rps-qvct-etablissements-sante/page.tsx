@@ -3,7 +3,7 @@ import Image from "next/image";
 import ArticulationBloc from "@/components/ArticulationBloc";
 import BadgesBloc from "@/components/BadgesBloc";
 import CartesContrastBloc from "@/components/CartesContrastBloc";
-import { PastelCard, SectionBanner } from "@/components/charte";
+import { BrushUnderline, PastelCard, SectionBanner } from "@/components/charte";
 import Citation from "@/components/Citation";
 import CtaElan from "@/components/CtaElan";
 import FormationsEtArticlesLiesBloc from "@/components/FormationsEtArticlesLiesBloc";
@@ -70,37 +70,47 @@ export default function PreventionRpsQvctPage() {
       >
         {/* --- 1. Titre */}
         <section id="formations-professionnelles" data-hero className="pb-20 container">
-          <div className="text-center mb-8">
+          <div className="mb-8 flex flex-col gap-6 sm:flex-row-reverse sm:items-start sm:justify-between">
             {/* Story 4.4 : même médaillon que la tuile de la famille sur
-                /formations (décoratif, le titre porte l'information). */}
+                /formations (décoratif, le titre porte l'information). Titre
+                aligné à gauche (2026-11-03) : médaillon au-dessus sur
+                smartphone, à droite du titre à partir de `sm`. */}
             <Image
               src="/illustrations/soignante-stressee.jpg"
               alt=""
               width={128}
               height={128}
               sizes="(min-width: 640px) 128px, 96px"
-              className="mx-auto mb-6 size-24 rounded-full border-4 border-sky object-cover sm:size-32"
+              className="size-24 shrink-0 rounded-full border-4 border-sky object-cover sm:size-32"
             />
-            <h1>Formations professionnelles.</h1>
-            <h2 className="py-5 ">
-              Gestion du{" "}
-              <span className="text-accent">
-                <strong>stress</strong>
-              </span>
-              , des{" "}
-              <span className="text-accent">
-                <strong>émotions</strong>
-              </span>{" "}
-              et{" "}
-              <span className="text-accent">
-                <strong>prévention</strong>
-              </span>{" "}
-              de l&apos;usure professionnelle.
-            </h2>
-            <h3>
-              QVCT, prévention des risques psycho-sociaux (RPS), stress et
-              charge émotionnelle en établissements de santé.
-            </h3>
+            <div className="min-w-0">
+              <h1>
+                Formations{" "}
+                <BrushUnderline className="text-accent">
+                  <strong>professionnelles</strong>
+                </BrushUnderline>
+                .
+              </h1>
+              <h2 className="py-5 ">
+                Gestion du{" "}
+                <span className="text-accent">
+                  <strong>stress</strong>
+                </span>
+                , des{" "}
+                <span className="text-accent">
+                  <strong>émotions</strong>
+                </span>{" "}
+                et{" "}
+                <span className="text-accent">
+                  <strong>prévention</strong>
+                </span>{" "}
+                de l&apos;usure professionnelle.
+              </h2>
+              <h3 className="mx-0!">
+                QVCT, prévention des risques psycho-sociaux (RPS), stress et
+                charge émotionnelle en établissements de santé.
+              </h3>
+            </div>
           </div>
         </section>
 

@@ -42,7 +42,7 @@ export default function ArticlesBlogLiesBloc({
               <li key={lien.href}>
                 <Link
                   href={lien.href}
-                  className="text-accent font-semibold text-sm underline underline-offset-2 hover:text-primary"
+                  className="text-accent font-semibold underline underline-offset-2 hover:text-primary"
                 >
                   {lien.label}
                 </Link>

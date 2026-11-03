@@ -20,7 +20,9 @@ function IconTarget() {
 const Axes: FC = () => {
   return (
     <section id="axes-de-travail" className="scroll-mt-20 pb-15 bg-white">
+      {/* La vague du hero, juste au-dessus, ouvre déjà ce bandeau. */}
       <SectionBanner
+        vagueHaute={false}
         title="Mes 3 Axes d'Intervention"
         subtitle="Une approche globale, avec des modalités d'intervention adaptables aux besoins des équipes."
         icon={<IconTarget />}

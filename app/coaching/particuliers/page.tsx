@@ -68,9 +68,9 @@ export default function CoachingParticuliersPage() {
       >
         {/* --- 1. Titre */}
         <section id="coaching-individuel" data-hero className="pb-20 container">
-          <div className="text-center mb-8">
+          <div className="mb-8">
             <h1>
-              Coaching <BrushUnderline>individuel</BrushUnderline>.
+              Coaching <BrushUnderline className="text-accent">individuel</BrushUnderline>.
             </h1>
             <h2 className="py-5">
               Un espace pour{" "}
@@ -87,7 +87,7 @@ export default function CoachingParticuliersPage() {
               </span>{" "}
               à partir de votre situation.
             </h2>
-            <h3>
+            <h3 className="mx-0!">
               Un accompagnement pour clarifier, débloquer et avancer vers vos
               objectifs, dans un cadre sécurisant et confidentiel.
             </h3>
@@ -220,7 +220,7 @@ export default function CoachingParticuliersPage() {
         />
 
         {/* --- 6. Lien avec les autres accompagnements --- */}
-        <p className="container text-center text-primary/80 text-sm mb-20">
+        <p className="container text-primary/80 mb-20">
           Un premier échange permet de vérifier ensemble si le coaching individuel est adapté à votre situation.
         </p>
 
