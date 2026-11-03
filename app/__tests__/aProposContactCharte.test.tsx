@@ -58,7 +58,7 @@ describe("/a-propos — SEO inchangé (UX-DR6)", () => {
     ).toBeInTheDocument();
   });
 
-  it("réduit le H1 sur smartphone par la règle h1 globale", () => {
+  it("ne surcharge pas la règle h1 globale", () => {
     render(<About />);
     const h1 = screen.getByRole("heading", { level: 1 });
     expectH1StyleGlobal(h1);

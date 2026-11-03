@@ -106,7 +106,7 @@ async function renderRelecture(frontmatter: Record<string, unknown> = {}) {
   return render(jsx);
 }
 
-function h1Reduit() {
+function h1SansSurcharge() {
   const h1 = screen.getByRole("heading", { level: 1 });
   // Story 4.13 : taille et coupure portées par la règle h1 globale.
   expectH1StyleGlobal(h1);
@@ -129,9 +129,9 @@ describe("Liste du blog", () => {
     sansSaut(container);
   });
 
-  it("réduit son H1 sur smartphone sans césure", () => {
+  it("ne surcharge pas la règle h1 globale", () => {
     render(<BlogIndex />);
-    h1Reduit();
+    h1SansSurcharge();
   });
 
   it("garde les titres et les URLs des articles", () => {
@@ -169,9 +169,9 @@ describe("Article", () => {
     sansSaut(container);
   });
 
-  it("réduit son H1 sur smartphone sans césure", async () => {
+  it("ne surcharge pas la règle h1 globale", async () => {
     await renderArticle(post());
-    h1Reduit();
+    h1SansSurcharge();
   });
 
   it("lit le corps en Nunito Sans, titres internes en bleu nuit alignés à gauche", async () => {
@@ -239,10 +239,10 @@ describe("Aperçu de relecture (Discord)", () => {
     expect(bandeau).toHaveClass("bg-peach", "text-primary");
   });
 
-  it("garde un seul H1, réduit sur smartphone", async () => {
+  it("garde un seul H1, sans surcharge de la règle h1 globale", async () => {
     const { container } = await renderRelecture();
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Brouillon en relecture");
-    h1Reduit();
+    h1SansSurcharge();
     sansSaut(container);
   });
 

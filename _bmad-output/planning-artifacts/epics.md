@@ -918,3 +918,34 @@ bulles-questions.
 **Given** `EXPERIENCE.md`
 **When** on lit la ligne `Bubble`
 **Then** son usage couvre aussi « une phrase de Coralie adressée au visiteur » (au plus une par section), sans plus d'une bulle-question par écran
+
+### Story 4.14: Un seul H1 par page, même si le Markdown en contient un
+
+As a Amandine, qui navigue au lecteur d'écran par les titres,
+I want ne trouver qu'un seul H1 sur chaque article et chaque fiche formation,
+So that je sache tout de suite quel est le sujet de la page.
+
+**Contexte (revue de la story 4.13, 2026-11-03) :** les articles du blog,
+l'aperçu `blog-review` et les fiches formation affichent du Markdown rendu
+par `renderMarkdownToSafeHtml` (`lib/blog.ts`), qui transmet tel quel un
+titre `# …`. Le prompt de génération (`services/blog/generateDraft.ts`)
+interdit le titre `#`, mais rien ne l'impose : un `# …` produirait un
+deuxième H1 (RGAA 9.1). Depuis la story 4.13 (règle `h1` en `@layer base`),
+ce H1 prendrait en plus le style `prose` (environ 36 px fixes, sans coupure),
+avec un risque de débordement à 320 px. Aucun contenu actuel n'en contient
+(vérifié le 2026-11-03). Story dédiée décidée par Cédric (2026-11-03), hors
+de la story 4.13 qui ne touche pas au pipeline du blog.
+
+**Acceptance Criteria:**
+
+**Given** un Markdown (article, brouillon `blog-review` ou fiche formation) qui contient un titre `# …`
+**When** il est rendu par `renderMarkdownToSafeHtml`
+**Then** ce titre sort en `<h2>`, texte inchangé, et la page garde un seul H1 (test unitaire du rendu)
+
+**Given** les titres `##` à `######`
+**When** ils sont rendus
+**Then** ils sont inchangés (pas de décalage de toute la hiérarchie)
+
+**Given** le pipeline de génération et le flux Discord
+**When** on compare avant et après
+**Then** ils sont inchangés (seul le rendu Markdown évolue), et les articles et fiches actuels ont un rendu identique

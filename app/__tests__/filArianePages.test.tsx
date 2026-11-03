@@ -29,6 +29,20 @@ function breadcrumbJsonLd() {
   return scripts.filter((d) => d["@type"] === "BreadcrumbList");
 }
 
+// Padding ou marge haute (y compris négative) ; les marges basses sont libres.
+const ESPACE_HAUT = /^(?:[\w-]+:)*-?(?:p[ty]|m[ty])-(?!0$)/;
+
+describe("ESPACE_HAUT", () => {
+  it("repère paddings et marges hautes, négatives comprises", () => {
+    for (const c of ["pt-4", "py-2", "mt-6", "my-1", "-mt-4", "sm:-mt-2", "lg:pt-px"]) {
+      expect(c).toMatch(ESPACE_HAUT);
+    }
+    for (const c of ["mb-8", "pb-20", "mt-0", "px-4", "mx-auto"]) {
+      expect(c).not.toMatch(ESPACE_HAUT);
+    }
+  });
+});
+
 describe.each(PAGES)("Fil d'Ariane — %s", (label, renderPage) => {
   it(`affiche « Accueil / ${label} », page courante en aria-current`, async () => {
     render(await renderPage());
@@ -71,7 +85,7 @@ describe.each(PAGES)("Fil d'Ariane — %s", (label, renderPage) => {
     // (les marges basses restent libres).
     for (let e: Element | null = h1; e && e !== enTete; e = e.parentElement) {
       for (const classe of e.classList) {
-        expect(classe).not.toMatch(/^(?:[\w-]+:)*(?:p[ty]|m[ty])-(?!0$)/);
+        expect(classe).not.toMatch(ESPACE_HAUT);
       }
     }
   });

@@ -92,7 +92,7 @@ describe("/formations — filtres sur une ligne défilante (Story 4.7)", () => {
 });
 
 describe("/formations — H1 réduit sur smartphone (Story 4.7)", () => {
-  it("réduit le H1 sur smartphone par la règle h1 globale, sans toucher au texte", async () => {
+  it("ne surcharge pas la règle h1 globale, texte inchangé", async () => {
     await renderCatalogue();
     const h1 = screen.getByRole("heading", { level: 1 });
     expect(h1).toHaveTextContent("Formations professionnelles");

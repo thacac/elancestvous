@@ -8,8 +8,9 @@ interface SectionBannerProps {
   subtitle?: ReactNode;
   /** Icône au trait (décorative), ex. une icône de icons-publics.tsx. */
   icon?: ReactNode;
-  /** Niveau du titre dans la hiérarchie Hn de la page (h2 par défaut). */
-  as?: "h1" | "h2" | "h3";
+  /** Niveau du titre dans la hiérarchie Hn de la page (h2 par défaut). Jamais
+   *  h1 : le titre de page suit la règle h1 globale (story 4.13). */
+  as?: "h2" | "h3";
   /** Id posé sur le titre, pour les ancres internes (#axes-de-travail…). */
   id?: string;
   className?: string;
@@ -17,9 +18,9 @@ interface SectionBannerProps {
 
 // Bandeau de section des slides de formation : aplat pétrole prolongé d'une
 // vague, icône, barre
-// orange, titre en Nunito et sous-titre manuscrit. Les styles globaux h1/h2/h3
+// orange, titre en Nunito et sous-titre manuscrit. Les styles globaux h2/h3
 // de globals.css sont hors @layer et l'emportent sur les utilitaires, d'où
-// les modificateurs `!` sur le titre.
+// les modificateurs `!` sur le titre (h1, lui, est en @layer base).
 export function SectionBanner({
   title,
   subtitle,

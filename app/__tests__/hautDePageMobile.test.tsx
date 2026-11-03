@@ -34,7 +34,7 @@ const H1_REDUITS: [string, () => ReactElement | Promise<ReactElement>, string][]
 ];
 
 describe("Story 4.11 — H1 réduits sur smartphone", () => {
-  it.each(H1_REDUITS)("réduit le H1 de %s sans changer son texte", async (_page, rendu, texte) => {
+  it.each(H1_REDUITS)("ne surcharge pas la règle h1 globale sur %s, texte inchangé", async (_page, rendu, texte) => {
     render(await rendu());
     const h1 = screen.getByRole("heading", { level: 1 });
     expect(h1.textContent?.replace(/\s+/g, " ").trim()).toBe(texte);

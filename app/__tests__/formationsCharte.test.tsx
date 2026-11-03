@@ -307,7 +307,7 @@ describe.each(HUBS)("Hub Famille $nom", ({ rendu, meta, title, h1, sections, fic
 
   // Mesuré à 320 px : « professionnelles » / « développement » en 48 px
   // débordaient de l'écran.
-  it("laisse son H1 se couper (pas de défilement horizontal à 320 px)", () => {
+  it("ne surcharge pas la coupure de la règle h1 globale (pas de défilement à 320 px)", () => {
     rendu();
     // break-words seul : hyphens-auto coupait à 320 px des mots qui tenaient
     // sur la ligne (« Accompagne-ment »).
@@ -319,7 +319,7 @@ describe.each(HUBS)("Hub Famille $nom", ({ rendu, meta, title, h1, sections, fic
   // profession-nelles » : taille réduite sur mobile, comme le catalogue.
   // En 36 px, « Accompagnement » ne tenait pas à 320 px (« Accompagnemen/t ») :
   // 30 px sur smartphone, sous lequel tous les mots des 4 titres tiennent.
-  it("réduit son H1 sur smartphone", () => {
+  it("ne surcharge pas la taille de la règle h1 globale", () => {
     rendu();
     // Story 4.13 : taille réduite portée par la règle h1 globale.
     expectH1StyleGlobal(screen.getByRole("heading", { level: 1 }));
@@ -444,7 +444,7 @@ describe("Fiche formation", () => {
 
   // Mesuré à 320 px : « établissements », en 48 px, ne tenait pas dans la
   // colonne (344 px pour 320) et créait un défilement horizontal.
-  it("laisse le H1 se couper et la colonne de lecture rétrécir (pas de défilement à 320 px)", async () => {
+  it("ne surcharge pas la règle h1 globale et laisse la colonne de lecture rétrécir (pas de défilement à 320 px)", async () => {
     await renderFiche("cadre-legal-etablissements-sante", "obligations-legales-des-etablissements");
     const h1 = screen.getByRole("heading", { level: 1 });
     // 30 px sur smartphone comme les hubs : en 36 px, « Accompagnement » ne
