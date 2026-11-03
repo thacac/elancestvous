@@ -43,13 +43,28 @@ body {
   }
 }
 
+/* Échelle typographique unique (Cédric, 2026-11-03 : « h1 h2 h3 p et
+   basta ») : une taille par niveau, définie ici seulement. h2 = titre de
+   section, h3 = titre de carte ou de sous-partie, tout le reste du contenu
+   en paragraphe à la taille du texte courant (16 px). Hors @layer : ces
+   règles l'emportent sur les utilitaires et sur `prose`. Jamais de taille
+   au cas par cas dans le contenu (app/__tests__/typographie.test.tsx). */
 h2 {
   @apply font-display text-primary text-2xl font-extrabold tracking-tight lg:text-3xl mb-4;
 }
 
-h3,
-.h3-like {
-  @apply font-sans text-base font-normal  text-stone-600 mx-auto max-w-2xl mt-5;
+h3 {
+  @apply font-display text-primary text-xl font-extrabold leading-snug;
+}
+
+/* Les deux seules exceptions nommées : la mention (petite info : source,
+   date, étiquette) et le chiffre clé (repères chiffrés, numéros). */
+@utility texte-mention {
+  @apply text-sm;
+}
+
+@utility chiffre-cle {
+  @apply font-display text-4xl font-black leading-none text-accent;
 }
 
 /* Trait de pinceau orange sous un mot clé (charte slides). Fond CSS plutôt

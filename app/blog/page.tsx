@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { BrushUnderline, PastelCard } from "@/components/charte";
+import { BrushUnderline, PastelCard, SectionBanner } from "@/components/charte";
 import GabaritPage from "@/components/GabaritPage";
 import { getAllPostsMeta } from "@/lib/blog";
 import { isBlogPublic } from "@/lib/featureFlags";
@@ -40,10 +40,10 @@ export default function BlogIndex() {
         <h1>
           Le <BrushUnderline className="text-accent">blog</BrushUnderline>
         </h1>
-        <h2 className="h3-like mx-0!">
+        <p className="mt-5 text-primary/80">
           Ressources et réflexions autour de la santé au travail et de
           l&apos;accompagnement des soignants.
-        </h2>
+        </p>
       </div>
 
       {posts.length === 0 ? (
@@ -51,7 +51,11 @@ export default function BlogIndex() {
           Les premiers articles arrivent bientôt.
         </p>
       ) : (
-        <div className="container wide grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        // Bandeau h2 ajouté (Cédric, 2026-11-03 : h1 h2 h3 sans saut) : les
+        // titres d'article des cartes passent en h3 sous lui.
+        <section aria-labelledby="tous-les-articles">
+          <SectionBanner id="tous-les-articles" title="Tous les articles" className="mb-8" />
+          <div className="container wide grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {posts.map((post, i) => (
             <Link
               key={post.slug}
@@ -73,11 +77,9 @@ export default function BlogIndex() {
                   />
                 </div>
                 <div className="p-6">
-                  <div className="font-display text-xl font-extrabold leading-tight text-primary break-words group-hover:underline">
-                    {post.title}
-                  </div>
-                  <p className="mt-2 text-sm text-primary">{post.excerpt}</p>
-                  <p className="mt-4 text-xs text-stone-600">
+                  <h3 className="m-0 break-words group-hover:underline">{post.title}</h3>
+                  <p className="mt-2 text-primary">{post.excerpt}</p>
+                  <p className="mt-4 texte-mention text-stone-600">
                     {new Date(post.publishedAt).toLocaleDateString("fr-FR", {
                       day: "numeric",
                       month: "long",
@@ -90,7 +92,8 @@ export default function BlogIndex() {
               </PastelCard>
             </Link>
           ))}
-        </div>
+          </div>
+        </section>
       )}
     </GabaritPage>
   );

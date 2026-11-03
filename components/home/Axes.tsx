@@ -44,8 +44,8 @@ const Axes: FC = () => {
             />
           </div>
           <div className="bg-sky p-6 flex flex-col gap-2.5 flex-1">
-            <h3 className="font-display! font-extrabold! text-2xl! text-primary! m-0! max-w-none!">Formations</h3>
-            <p className="text-sm leading-relaxed text-primary/90">
+            <h3 className="m-0">Formations</h3>
+            <p className="leading-relaxed text-primary/90">
               Des formations sur-mesure pour prévenir l&apos;épuisement professionnel,
               mieux comprendre le stress et la charge émotionnelle, et renforcer
               les ressources individuelles et collectives.
@@ -72,10 +72,10 @@ const Axes: FC = () => {
             />
           </div>
           <div className="bg-peach p-6 flex flex-col gap-2.5 flex-1">
-            <h3 className="font-display! font-extrabold! text-2xl! text-primary! m-0! max-w-none!">
+            <h3 className="m-0">
               Coaching d&apos;équipe ou individuel
             </h3>
-            <p className="text-sm leading-relaxed text-primary/90">
+            <p className="leading-relaxed text-primary/90">
               Des accompagnements de coaching, individuels ou collectifs,
               lorsqu&rsquo;un objectif précis est identifié : évolution des pratiques,
               ajustement des fonctionnements, réorganisation ou période de
@@ -103,10 +103,10 @@ const Axes: FC = () => {
             />
           </div>
           <div className="bg-sky p-6 flex flex-col gap-2.5 flex-1">
-            <h3 className="font-display! font-extrabold! text-2xl! text-primary! m-0! max-w-none!">
+            <h3 className="m-0">
               GAPP (Groupe d&apos;analyse des pratiques professionnelles)
             </h3>
-            <p className="text-sm leading-relaxed text-primary/90">
+            <p className="leading-relaxed text-primary/90">
               Des espaces réguliers de réflexion collective pour prendre du recul
               sur les situations vécues, réguler la charge émotionnelle et
               soutenir les pratiques dans la durée.

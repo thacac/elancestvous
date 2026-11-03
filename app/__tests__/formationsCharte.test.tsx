@@ -251,7 +251,7 @@ describe("Hub Famille avec articles de blog liés", () => {
     const grille = section.querySelector("ul")!;
     expect(grille).not.toHaveClass("lg:grid-cols-3");
     expect(grille).not.toHaveClass("sm:grid-cols-2");
-    expect(within(grille).getByRole("heading", { level: 3 })).toHaveClass("break-words", "hyphens-auto");
+    expect(within(grille).getByRole("heading", { level: 3 })).toHaveClass("break-words");
     vi.mocked(getRelatedArticleLinks).mockReturnValue([]);
   });
 
@@ -284,9 +284,12 @@ describe("Hub Prévention — « Un cycle structuré & cohérent »", () => {
     expect(items).toHaveLength(6);
     expect(items[0]).toHaveTextContent("Mécanismes du stress et de la charge émotionnelle");
     expect(items[0].closest(".bg-sky")).not.toBeNull();
-    const kit = within(section).getByRole("heading", { level: 4, name: "Le Kit de Prévention" });
+    // « Le Kit de Prévention » : ancien h4 (saut de niveau), désormais un
+    // paragraphe en exergue, texte inchangé.
+    const kit = within(section).getByText("Le Kit de Prévention");
+    expect(kit.tagName).toBe("P");
     expect(kit.closest(".bg-peach")).not.toBeNull();
-    expect(within(section).getByRole("heading", { level: 3, name: "Assimilation durable" })).toHaveClass("text-primary!");
+    expect(within(section).getByRole("heading", { level: 3, name: "Assimilation durable" })).toBeInTheDocument();
   });
 });
 

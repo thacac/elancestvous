@@ -50,11 +50,11 @@ export default async function ContactPage({
               <strong>vos besoins</strong>
             </BrushUnderline>
           </h1>
-          <h2 className="h3-like mx-0!">
+          <p className="mt-5 text-primary/80">
             Un premier échange pour comprendre votre situation et définir ensemble
             la réponse la plus adaptée.
-          </h2>
-          <p className="text-sm text-stone-600 mt-3">
+          </p>
+          <p className="text-stone-600 mt-3">
             Coaching, formations QVCT/RPS et GAPP à{" "}
             <strong>Toulouse</strong> et en Occitanie.{" "}
             <span aria-hidden="true">·</span>{" "}

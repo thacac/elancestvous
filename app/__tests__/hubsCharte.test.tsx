@@ -130,8 +130,10 @@ describe("/coaching — cartes pastel vers les deux publics", () => {
     expect(items).toHaveLength(2);
     expect(items[0]).toHaveClass("bg-sky");
     expect(items[1]).toHaveClass("bg-peach");
-    expect(within(items[0]).getByRole("heading", { level: 3, name: "Particuliers" })).toBeInTheDocument();
-    expect(within(items[1]).getByRole("heading", { level: 3, name: "Établissements" })).toBeInTheDocument();
+    // h2 : le sous-titre du haut de page n'est plus un titre, les cartes
+    // ouvrent donc les sections directement sous le H1 (sans saut).
+    expect(within(items[0]).getByRole("heading", { level: 2, name: "Particuliers" })).toBeInTheDocument();
+    expect(within(items[1]).getByRole("heading", { level: 2, name: "Établissements" })).toBeInTheDocument();
   });
 });
 

@@ -36,10 +36,10 @@ export default function About() {
               <strong>Coach certifiée à Toulouse</strong>
             </BrushUnderline>
           </h1>
-          <h2 className="h3-like mx-0!">
+          <p className="mt-5 text-primary/80">
             Ancienne soignante, j&apos;accompagne aujourd&apos;hui la santé de ceux qui
             soignent.
-          </h2>
+          </p>
         </div>
 
         {/* Story 4.9 : bandeau ajouté (titre validé par Cédric). */}
@@ -56,7 +56,7 @@ export default function About() {
               className="rounded-full object-cover size-48 md:size-64"
               alt="Coralie Mathorel, coach professionnelle certifiée et ancienne soignante, à Toulouse"
             />
-            <p className="mt-4 text-center font-hand text-xl text-primary">
+            <p className="mt-4 text-center font-hand text-primary">
               &quot;Accompagnement humain.&quot;
             </p>
           </div>
@@ -116,18 +116,18 @@ export default function About() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <PastelCard tone="sky" as="div" className="p-4 text-center">
-                <span className="block font-display text-2xl font-black text-primary mb-1">
+                <span className="block chiffre-cle mb-1">
                   10+
                 </span>
-                <span className="text-xs text-stone-600 uppercase tracking-wide">
+                <span className="texte-mention text-stone-600 uppercase tracking-wide">
                   Années d&apos;expérience
                 </span>
               </PastelCard>
               <PastelCard tone="peach" as="div" className="p-4 text-center">
-                <span className="block font-display text-2xl font-black text-primary mb-1">
+                <span className="block chiffre-cle mb-1">
                   Coach
                 </span>
-                <span className="text-xs text-stone-600 uppercase tracking-wide">
+                <span className="texte-mention text-stone-600 uppercase tracking-wide">
                   Certifiée d&apos;État
                 </span>
               </PastelCard>

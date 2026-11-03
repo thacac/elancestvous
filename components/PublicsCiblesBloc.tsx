@@ -31,7 +31,7 @@ export default function PublicsCiblesBloc({
     <section className={cn("bg-white pb-15", className)}>
       <SectionBanner title={titre} icon={icon} />
       <div className="container wide mt-8">
-        {sousTitre && <p className="mb-6 text-lg text-primary/80">{sousTitre}</p>}
+        {sousTitre && <p className="mb-6 text-primary/80">{sousTitre}</p>}
         <ul
           role="list"
           className={cn("grid list-none grid-cols-1 gap-4 p-0", cartes.length > 1 && "sm:grid-cols-2")}

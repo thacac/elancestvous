@@ -28,8 +28,8 @@ const GRID_COLS: Record<number, string> = {
 
 // Story 4.3 : bandeau pétrole (vrai h2), puis cartes pastel ciel / pêche en
 // alternance. Numéro en orange foncé `accent` (≥ 5:1 sur les deux pastels),
-// texte en bleu nuit. Les styles globaux h2/h3 (globals.css) sont hors
-// @layer, d'où les modificateurs `!` sur le titre de carte.
+// texte en bleu nuit. Numéro en chiffre clé, titre de carte à la taille h3
+// de l'échelle globale (globals.css).
 export default function CartesContrastBloc({
   titre,
   sousTitre,
@@ -56,11 +56,11 @@ export default function CartesContrastBloc({
               className="flex flex-col gap-3 p-8"
             >
               {carte.numero && (
-                <span className="font-display text-4xl font-black leading-none text-accent">
+                <span className="chiffre-cle">
                   {carte.numero}
                 </span>
               )}
-              <h3 className="font-display! text-xl! font-black! text-primary! m-0! max-w-none! lg:text-2xl!">
+              <h3 className="m-0">
                 {carte.titre}
               </h3>
               <p className="leading-relaxed text-primary/80">{carte.texte}</p>

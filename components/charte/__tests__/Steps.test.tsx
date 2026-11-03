@@ -142,6 +142,6 @@ describe("Steps — disposition en grille", () => {
 
   it("laisse un titre d'étape se couper plutôt que déborder de sa carte", () => {
     render(<Steps steps={steps} />);
-    expect(screen.getAllByRole("heading", { level: 3 })[0]).toHaveClass("break-words", "hyphens-auto");
+    expect(screen.getAllByRole("heading", { level: 3 })[0]).toHaveClass("break-words");
   });
 });

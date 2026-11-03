@@ -55,7 +55,7 @@ export default function GappPage() {
               </BrushUnderline>
               .
             </h1>
-            <h2 className="py-5 ">
+            <p className="mt-5 text-primary/80">
               Un espace sécurisé pour{" "}
               <span className="text-accent">
                 <strong>partager</strong>
@@ -69,18 +69,18 @@ export default function GappPage() {
                 <strong>améliorer</strong>
               </span>{" "}
               les pratiques professionnelles en équipe.
-            </h2>
-            <h3 className="mx-0!">
+            </p>
+            <p className="mt-3 text-primary/80">
               Animé par une coach certifiée, pour une{" "}
               <strong>qualité des soins</strong> renforcée et un{" "}
               <strong>accompagnement</strong> sur-mesure.
-            </h3>
+            </p>
           </div>
         </section>
 
         <section>
           <div className="container -mt-20 mb-20">
-            <p className="text-md italic text-primary/80 mb-2">
+            <p className="italic text-primary/80 mb-2">
               (En cours de certification, animation de groupe d’analyse des pratiques professionnelles.)
             </p>
           </div>
@@ -132,12 +132,12 @@ export default function GappPage() {
           <SectionBanner title="Une démarche inscrite dans la durée" icon={<IconWatch />} />
           <div className="container mt-8">
             <PastelCard as="div" tone="sky" className="mx-auto max-w-3xl p-8 md:p-10">
-              <p className="text-lg text-primary mb-4">
+              <p className="text-primary mb-4">
                 Les groupes d’analyse de la pratique s’inscrivent dans une logique
                 de durée, avec une régularité définie en fonction des besoins et
                 du contexte des équipes.
               </p>
-              <p className="text-lg text-primary">
+              <p className="text-primary">
                 Ils constituent un espace de respiration professionnelle,
                 complémentaire aux actions de formation ou de coaching, sans
                 objectif de performance ni injonction au changement.

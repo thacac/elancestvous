@@ -86,7 +86,7 @@ const ShareButtons: FC<ShareButtonsProps> = ({ url, title, className = "" }) => 
 
   return (
     <div className={`flex items-center gap-4 ${className}`}>
-      <span className="text-xs uppercase tracking-wide text-stone-500">Partager</span>
+      <span className="texte-mention uppercase tracking-wide text-stone-500">Partager</span>
       {links.map((link) => (
         <a
           key={link.name}
@@ -109,7 +109,7 @@ const ShareButtons: FC<ShareButtonsProps> = ({ url, title, className = "" }) => 
         <span className="sr-only">Copier le lien</span>
         {ICONS.link}
       </button>
-      <span aria-live="polite" className="text-xs text-stone-500">
+      <span aria-live="polite" className="texte-mention text-stone-500">
         {copied ? "Lien copié !" : ""}
       </span>
     </div>

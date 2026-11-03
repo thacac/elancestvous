@@ -113,7 +113,7 @@ export default function CoachingEtablissementsPage() {
               </BrushUnderline>
               .
             </h1>
-            <h2 className="py-5">
+            <p className="mt-5 text-primary/80">
               Un espace structuré de{" "}
               <span className="text-accent">
                 <strong>réflexion</strong>
@@ -123,12 +123,12 @@ export default function CoachingEtablissementsPage() {
                 <strong>mise en mouvement</strong>
               </span>
               , au service d&apos;un objectif clairement défini.
-            </h2>
-            <h3 className="mx-0!">
+            </p>
+            <p className="mt-3 text-primary/80">
               Issu de mon expérience du soin et de la pratique du coaching, cet
               accompagnement s&apos;inscrit dans une approche respectueuse du travail
               réel et des contraintes organisationnelles.
-            </h3>
+            </p>
           </div>
         </section>
 
@@ -148,11 +148,11 @@ export default function CoachingEtablissementsPage() {
                 tone={i % 2 === 0 ? "sky" : "peach"}
                 className="flex flex-col gap-3 p-8"
               >
-                <p className="font-display text-5xl font-black leading-none text-accent">
+                <p className="chiffre-cle">
                   {repere.chiffre}
                 </p>
-                <p className="text-lg text-primary">{repere.texte}</p>
-                <p className="mt-auto text-sm text-primary/80">{SOURCE_DREES}</p>
+                <p className="text-primary">{repere.texte}</p>
+                <p className="mt-auto texte-mention text-primary/80">{SOURCE_DREES}</p>
               </PastelCard>
             ))}
           </ul>
@@ -213,14 +213,14 @@ export default function CoachingEtablissementsPage() {
                 tone={i % 2 === 0 ? "sky" : "peach"}
                 className="p-8"
               >
-                <h3 className="font-display! text-xl! font-black! text-accent! m-0! mb-4! max-w-none!">
+                <h3 className="m-0 mb-4 text-accent!">
                   {accompagnement.titre}
                 </h3>
                 <ul role="list" className="list-none space-y-3 p-0">
                   {accompagnement.items.map((item) => (
                     <li key={item} className="flex items-start gap-3">
                       <span aria-hidden="true" className="mt-2.5 size-2 shrink-0 rounded-full bg-accent" />
-                      <p className="text-lg text-primary font-medium">{item}</p>
+                      <p className="text-primary font-medium">{item}</p>
                     </li>
                   ))}
                 </ul>
@@ -229,19 +229,19 @@ export default function CoachingEtablissementsPage() {
 
             {/* Modalités pratiques */}
             <PastelCard as="div" tone="sky" className="p-8">
-              <h3 className="font-display! text-2xl! font-black! text-primary! m-0! mb-4! max-w-none!">
+              <h3 className="m-0 mb-4">
                 Modalités pratiques
               </h3>
-              <h4 className="text-accent font-black text-2xl mb-4 uppercase italic">
+              <p className="text-accent font-black mb-4 uppercase italic">
                 Cadre sur-mesure
-              </h4>
-              <p className="text-primary text-lg leading-relaxed mb-6">
+              </p>
+              <p className="text-primary leading-relaxed mb-6">
                 Les modalités sont définies en fonction des besoins et du
                 contexte : accompagnement{" "}
                 <strong>individuel ou collectif</strong>, interventions{" "}
                 <strong>ponctuelles ou inscrites dans la durée</strong>.
               </p>
-              <p className="text-primary/80 text-base leading-relaxed mb-6">
+              <p className="text-primary/80 leading-relaxed mb-6">
                 Les séances se déroulent en{" "}
                 <strong>présentiel ou à distance</strong>. Le cadre est posé
                 en amont, de manière claire et partagée.

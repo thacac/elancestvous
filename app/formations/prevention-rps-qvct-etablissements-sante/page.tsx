@@ -91,7 +91,7 @@ export default function PreventionRpsQvctPage() {
                 </BrushUnderline>
                 .
               </h1>
-              <h2 className="py-5 ">
+              <p className="mt-5 text-primary/80">
                 Gestion du{" "}
                 <span className="text-accent">
                   <strong>stress</strong>
@@ -105,11 +105,11 @@ export default function PreventionRpsQvctPage() {
                   <strong>prévention</strong>
                 </span>{" "}
                 de l&apos;usure professionnelle.
-              </h2>
-              <h3 className="mx-0!">
+              </p>
+              <p className="mt-3 text-primary/80">
                 QVCT, prévention des risques psycho-sociaux (RPS), stress et
                 charge émotionnelle en établissements de santé.
-              </h3>
+              </p>
             </div>
           </div>
         </section>
@@ -177,7 +177,7 @@ export default function PreventionRpsQvctPage() {
                 {THEMES_DU_CYCLE.map((item) => (
                   <li key={item} className="flex items-start gap-3">
                     <span aria-hidden="true" className="mt-2.5 size-2 shrink-0 rounded-full bg-accent" />
-                    <p className="text-lg text-primary font-medium">{item}</p>
+                    <p className="text-primary font-medium">{item}</p>
                   </li>
                 ))}
               </ul>
@@ -185,13 +185,13 @@ export default function PreventionRpsQvctPage() {
 
             {/* Le kit durable */}
             <PastelCard as="div" tone="peach" className="p-8">
-              <h3 className="font-display! text-2xl! font-black! text-primary! m-0! mb-4! max-w-none!">
+              <h3 className="m-0 mb-4">
                 Assimilation durable
               </h3>
-              <h4 className="text-accent font-black text-2xl mb-4 uppercase italic">
+              <p className="text-accent font-black mb-4 uppercase italic">
                 Le Kit de Prévention
-              </h4>
-              <p className="text-primary text-lg leading-relaxed mb-6">
+              </p>
+              <p className="text-primary leading-relaxed mb-6">
                 À l&apos;issue du cycle, les participants repartent avec des
                 repères et des outils concrets, mobilisables{" "}
                 <strong>individuellement</strong> et{" "}

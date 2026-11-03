@@ -90,16 +90,16 @@ export function Steps({
           <span
             aria-hidden="true"
             className={cn(
-              "flex size-9 items-center justify-center rounded-full font-display text-lg font-black text-white",
+              "flex size-9 items-center justify-center rounded-full font-display font-black text-white",
               BADGE_TONES[index % BADGE_TONES.length],
             )}
           >
             {index + 1}
           </span>
-          <Heading className="font-display! text-lg! font-black! text-primary! m-0! max-w-none! break-words hyphens-auto">
+          <Heading className="m-0 break-words">
             {step.title}
           </Heading>
-          <div className="text-sm text-stone-600">{step.description}</div>
+          <div className="text-stone-600">{step.description}</div>
         </li>
       ))}
     </ol>

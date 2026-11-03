@@ -25,7 +25,7 @@ export function Bubble({
   const toneClass = TONE_CLASSES[tone];
   return (
     <div className={cn("relative mb-8 w-fit max-w-md", className)}>
-      <Element className={cn("rounded-full px-8 py-7 text-center font-display! text-xl! font-black! tracking-normal! leading-tight text-primary! m-0! md:text-2xl!", toneClass)}>
+      <Element className={cn("rounded-full px-8 py-7 text-center font-display! font-black! tracking-normal! leading-tight text-primary! m-0!", toneClass)}>
         {children}
       </Element>
       <span

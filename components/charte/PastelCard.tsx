@@ -54,7 +54,7 @@ export function Chip({
   return (
     <span
       className={cn(
-        "inline-block rounded-full px-4 py-1 font-display text-base font-extrabold text-white",
+        "inline-block rounded-full px-4 py-1 font-display font-extrabold text-white",
         CHIP_TONES[tone],
         className,
       )}
