@@ -44,12 +44,12 @@ export const metadata = {
 export default function GappPage() {
   return (
     <>
-      <div className="min-h-screen overflow-hidden">
+      <div className="min-h-screen overflow-hidden pt-6 sm:pt-20">
         <Breadcrumbs items={[{ label: "GAPP" }]} />
         {/* --- 1. Titre --- */}
-        <section id="gapp-titre" data-hero className="py-20 container">
+        <section id="gapp-titre" data-hero className="pb-20 container">
           <div className="text-center mb-8">
-            <h1>
+            <h1 className="text-3xl! sm:text-5xl! lg:text-6xl! break-words">
               Groupe d&apos;analyse des{" "}
               <BrushUnderline className="text-accent">
                 <strong>pratiques professionnelles</strong>

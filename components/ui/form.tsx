@@ -1,5 +1,6 @@
 "use client"
 
+import { ExclamationCircleIcon } from "@heroicons/react/20/solid"
 import * as LabelPrimitive from "@radix-ui/react-label"
 import { Slot } from "@radix-ui/react-slot"
 import * as React from "react"
@@ -60,7 +61,6 @@ const useFormField = () => {
     id,
     name: fieldContext.name,
     formItemId: `${id}-form-item`,
-    formDescriptionId: `${id}-form-item-description`,
     formMessageId: `${id}-form-item-message`,
     ...fieldState,
   }
@@ -90,12 +90,14 @@ const FormLabel = React.forwardRef<
   React.ElementRef<typeof LabelPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root>
 >(({ className, ...props }, ref) => {
-  const { error, formItemId } = useFormField()
+  const { formItemId } = useFormField()
 
+  // Story 4.12 : l'étiquette garde sa couleur en cas d'erreur ; le message
+  // (texte + icône) et la bordure du champ signalent l'erreur.
   return (
     <Label
       ref={ref}
-      className={cn(error && "text-destructive", className)}
+      className={className}
       htmlFor={formItemId}
       {...props}
     />
@@ -107,40 +109,21 @@ const FormControl = React.forwardRef<
   React.ElementRef<typeof Slot>,
   React.ComponentPropsWithoutRef<typeof Slot>
 >(({ ...props }, ref) => {
-  const { error, formItemId, formDescriptionId, formMessageId } = useFormField()
+  const { error, formItemId, formMessageId } = useFormField()
 
+  // Story 4.12 : ne relier le champ qu'à un message réellement affiché
+  // (FormMessage ne rend rien pour une erreur sans message).
   return (
     <Slot
       ref={ref}
       id={formItemId}
-      aria-describedby={
-        !error
-          ? `${formDescriptionId}`
-          : `${formDescriptionId} ${formMessageId}`
-      }
+      aria-describedby={error?.message ? formMessageId : undefined}
       aria-invalid={!!error}
       {...props}
     />
   )
 })
 FormControl.displayName = "FormControl"
-
-const FormDescription = React.forwardRef<
-  HTMLParagraphElement,
-  React.HTMLAttributes<HTMLParagraphElement>
->(({ className, ...props }, ref) => {
-  const { formDescriptionId } = useFormField()
-
-  return (
-    <p
-      ref={ref}
-      id={formDescriptionId}
-      className={cn("text-xs text-stone-600", className)}
-      {...props}
-    />
-  )
-})
-FormDescription.displayName = "FormDescription"
 
 const FormMessage = React.forwardRef<
   HTMLParagraphElement,
@@ -157,10 +140,13 @@ const FormMessage = React.forwardRef<
     <p
       ref={ref}
       id={formMessageId}
-      className={cn("text-[0.8rem] font-medium text-destructive", className)}
+      // Story 4.12 : orange foncé de la charte (5.7:1 sur blanc, 5.1:1 sur
+      // le ciel), précédé d'une icône pour ne pas reposer sur la couleur seule.
+      className={cn("flex items-start gap-1.5 text-sm font-semibold text-accent", className)}
       {...props}
     >
-      {body}
+      <ExclamationCircleIcon aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
+      <span>{body}</span>
     </p>
   )
 })
@@ -172,7 +158,6 @@ export {
   FormItem,
   FormLabel,
   FormControl,
-  FormDescription,
   FormMessage,
   FormField,
 }

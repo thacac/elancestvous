@@ -62,7 +62,9 @@ export default function FormationsDisponiblesBloc({
               href={`/formations/${formation.famille}/${formation.slug}`}
               className={buttonVariants({ variant: "tinted" })}
             >
-              Voir la fiche
+              {/* Story 4.10 (RGAA 6.1, validé par Cédric) : titre de la fiche
+                  ajouté pour les lecteurs d'écran, texte visible inchangé. */}
+              Voir la fiche<span className="sr-only"> : {formation.titre}</span>
             </Link>
           </PastelCard>
         ))}

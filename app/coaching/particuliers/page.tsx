@@ -59,7 +59,7 @@ const BADGE_TONES = ["bg-accent", "bg-petrol", "bg-primary"];
 export default function CoachingParticuliersPage() {
   return (
     <>
-      <div className="min-h-screen overflow-hidden">
+      <div className="min-h-screen overflow-hidden pt-6 sm:pt-20">
         <Breadcrumbs
           items={[
             { label: "Coaching", href: "/coaching" },
@@ -67,9 +67,9 @@ export default function CoachingParticuliersPage() {
           ]}
         />
         {/* --- 1. Titre */}
-        <section id="coaching-individuel" data-hero className="py-20 container">
+        <section id="coaching-individuel" data-hero className="pb-20 container">
           <div className="text-center mb-8">
-            <h1>
+            <h1 className="text-3xl! sm:text-5xl! lg:text-6xl! break-words">
               Coaching <BrushUnderline>individuel</BrushUnderline>.
             </h1>
             <h2 className="py-5">

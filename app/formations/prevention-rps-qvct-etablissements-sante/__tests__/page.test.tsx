@@ -60,7 +60,7 @@ describe("PreventionRpsQvctPage — ordre du DOM (FR: formations avant réassura
 
   it("liste la fiche réelle de cette famille", () => {
     render(<PreventionRpsQvctPage />);
-    expect(screen.getByRole("link", { name: "Voir la fiche" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: /^Voir la fiche/ })).toHaveAttribute(
       "href",
       "/formations/prevention-rps-qvct-etablissements-sante/diagnostic-plan-action-qvct"
     );
