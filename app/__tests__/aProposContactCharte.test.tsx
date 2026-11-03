@@ -11,6 +11,8 @@ vi.mock("@/components/contact-form/action", () => ({
 import About, { metadata as metaAPropos } from "../a-propos/page";
 import ContactPage, { metadata as metaContact } from "../contact/page";
 
+import { expectH1StyleGlobal } from "./outils/h1";
+
 // Story 4.9 : /a-propos et /contact dans la charte des slides, sans toucher
 // au SEO (UX-DR6) : title, description, H1, sous-titres, textes, alt et URL
 // inchangés ; un seul titre ajouté (bandeau « Mon parcours », validé par
@@ -56,11 +58,10 @@ describe("/a-propos — SEO inchangé (UX-DR6)", () => {
     ).toBeInTheDocument();
   });
 
-  it("réduit le H1 sur smartphone (text-3xl!) sans changer son texte", () => {
+  it("réduit le H1 sur smartphone par la règle h1 globale", () => {
     render(<About />);
     const h1 = screen.getByRole("heading", { level: 1 });
-    expect(h1.className).toContain("text-3xl!");
-    expect(h1.className).toContain("sm:text-5xl!");
+    expectH1StyleGlobal(h1);
   });
 
   it("garde une hiérarchie Hn sans saut", () => {

@@ -1,11 +1,11 @@
 import ArticlesBlogLiesBloc from "@/components/ArticlesBlogLiesBloc";
 import ArticulationBloc from "@/components/ArticulationBloc";
 import BadgesBloc from "@/components/BadgesBloc";
-import Breadcrumbs from "@/components/Breadcrumbs";
 import CartesContrastBloc from "@/components/CartesContrastBloc";
 import { BrushUnderline, PastelCard, SectionBanner } from "@/components/charte";
 import Citation from "@/components/Citation";
 import CtaElan from "@/components/CtaElan";
+import GabaritPage from "@/components/GabaritPage";
 import PublicsCiblesBloc from "@/components/PublicsCiblesBloc";
 import { IconBuilding, IconHand, IconManager, IconStethoscope, IconWatch } from "@/components/ui/icons-publics";
 import { OG_BANNER_IMAGES } from "@/lib/openGraph";
@@ -44,12 +44,11 @@ export const metadata = {
 export default function GappPage() {
   return (
     <>
-      <div className="min-h-screen overflow-hidden pt-6 sm:pt-20">
-        <Breadcrumbs items={[{ label: "GAPP" }]} />
+      <GabaritPage className="min-h-screen overflow-hidden" filAriane={[{ label: "GAPP" }]}>
         {/* --- 1. Titre --- */}
         <section id="gapp-titre" data-hero className="pb-20 container">
           <div className="text-center mb-8">
-            <h1 className="text-3xl! sm:text-5xl! lg:text-6xl! break-words">
+            <h1>
               Groupe d&apos;analyse des{" "}
               <BrushUnderline className="text-accent">
                 <strong>pratiques professionnelles</strong>
@@ -196,7 +195,7 @@ export default function GappPage() {
           contactType="institution"
           contactSujet="GAPP – Analyse des pratiques professionnelles"
         />
-      </div>
+      </GabaritPage>
     </>
   );
 }

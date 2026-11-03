@@ -16,6 +16,8 @@ import GappPage from "../gapp-analyse-pratiques-professionnelles/page";
 import MentionsLegales from "../mentions-legales/page";
 import Home from "../page";
 
+import { expectH1StyleGlobal } from "./outils/h1";
+
 import type { ReactElement } from "react";
 
 // Story 4.11 : « l'interface d'abord, efficace sur smartphone ». H1 réduits
@@ -36,14 +38,10 @@ describe("Story 4.11 — H1 réduits sur smartphone", () => {
     render(await rendu());
     const h1 = screen.getByRole("heading", { level: 1 });
     expect(h1.textContent?.replace(/\s+/g, " ").trim()).toBe(texte);
-    expect(h1).toHaveClass("text-3xl!", "sm:text-5xl!", "lg:text-6xl!", "break-words");
-    // Sans césure (elle coupait des mots qui tenaient sur la ligne), et sans
-    // classe de taille concurrente.
-    // Une assertion par classe : avec plusieurs classes, `not.toHaveClass`
-    // n'échoue que si elles sont toutes présentes.
-    for (const classe of ["hyphens-auto", "text-5xl", "lg:text-6xl"]) {
-      expect(h1).not.toHaveClass(classe);
-    }
+    // Story 4.13 : taille réduite, coupure sans césure et police viennent de
+    // la seule règle h1 de globals.css (titreH1Global.test.ts) ; le H1 ne
+    // porte aucune classe de style concurrente.
+    expectH1StyleGlobal(h1);
   });
 });
 

@@ -37,15 +37,18 @@ describe("About page — espacement sous la navbar (mobile)", () => {
 describe("About page — phrase clé dans la bulle (story 4.13)", () => {
   const PHRASE = "je ne parle pas de théorie, je parle de votre réalité.";
 
-  it("affiche la phrase, mot pour mot, dans un Bubble ciel en <p>", () => {
+  it("affiche la phrase, mot pour mot, dans un Bubble ciel en <p>, en <strong>", () => {
     render(<About />);
-    const phrase = screen.getByText(PHRASE);
+    // L'emphase sémantique d'origine (<strong>) est conservée dans la bulle.
+    const fort = screen.getByText(PHRASE);
+    expect(fort.tagName).toBe("STRONG");
+    const phrase = fort.parentElement!;
 
     expect(phrase.tagName).toBe("P");
+    expect(phrase.textContent).toBe(PHRASE);
     expect(phrase.className).toContain("bg-sky");
     expect(phrase.className).toContain("rounded-full");
     expect(phrase.className).not.toContain("italic");
-    expect(phrase.closest("strong")).toBeNull();
     // Hors bloc prose : ses styles (couleur, graisse, marges) ne s'appliquent
     // pas à la bulle, sans recourir à not-prose ni à des `!`.
     expect(phrase.closest(".prose")).toBeNull();

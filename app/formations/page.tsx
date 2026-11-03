@@ -1,9 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import Breadcrumbs from "@/components/Breadcrumbs";
 import { BrushUnderline, PastelCard, SectionBanner } from "@/components/charte";
 import { FiltresDefilants } from "@/components/formations/FiltresDefilants";
+import GabaritPage from "@/components/GabaritPage";
 import { buttonVariants } from "@/components/ui/button";
 import { FORMATION_FAMILLES, getAllFormationsMeta, type FormationFamilleId } from "@/lib/formations";
 import { OG_BANNER_IMAGES } from "@/lib/openGraph";
@@ -118,10 +118,9 @@ export default async function FormationsCataloguePage({
   );
 
   return (
-    <div className="pt-6 sm:pt-20 mb-40">
-      <Breadcrumbs items={[{ label: "Formations" }]} />
+    <GabaritPage className="mb-40" filAriane={[{ label: "Formations" }]}>
       <div className="container mb-10">
-        <h1 className="mb-4 text-3xl! sm:text-5xl! lg:text-6xl! break-words">
+        <h1 className="mb-4">
           Formations <BrushUnderline>professionnelles</BrushUnderline>
         </h1>
         <p className="text-sm text-primary/80 max-w-2xl">
@@ -294,6 +293,6 @@ export default async function FormationsCataloguePage({
           </div>
         </div>
       </section>
-    </div>
+    </GabaritPage>
   );
 }

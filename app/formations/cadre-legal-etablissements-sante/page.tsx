@@ -2,11 +2,11 @@ import Image from "next/image";
 
 import ArticulationBloc from "@/components/ArticulationBloc";
 import BadgesBloc from "@/components/BadgesBloc";
-import Breadcrumbs from "@/components/Breadcrumbs";
 import CartesContrastBloc from "@/components/CartesContrastBloc";
 import Citation from "@/components/Citation";
 import CtaElan from "@/components/CtaElan";
 import FormationsEtArticlesLiesBloc from "@/components/FormationsEtArticlesLiesBloc";
+import GabaritPage from "@/components/GabaritPage";
 import PublicsCiblesBloc from "@/components/PublicsCiblesBloc";
 import {
   IconBuilding,
@@ -52,13 +52,13 @@ export default function CadreLegalPage() {
       {/* Story 4.4 : le layout fournit déjà <main> (un seul repère principal).
           overflow-x-clip plutôt qu'overflow-hidden, qui neutralisait le
           sticky de la colonne « Pour aller plus loin ». */}
-      <div className="min-h-screen overflow-x-clip pt-6 sm:pt-20">
-        <Breadcrumbs
-          items={[
-            { label: "Formations", href: "/formations" },
-            { label: "Cadre légal, droits et éthique" },
-          ]}
-        />
+      <GabaritPage
+        className="min-h-screen overflow-x-clip"
+        filAriane={[
+          { label: "Formations", href: "/formations" },
+          { label: "Cadre légal, droits et éthique" },
+        ]}
+      >
         {/* --- 1. Titre */}
         <section id="formations-cadre-legal" data-hero className="pb-20 container">
           <div className="text-center mb-8">
@@ -72,7 +72,7 @@ export default function CadreLegalPage() {
               sizes="(min-width: 640px) 128px, 96px"
               className="mx-auto mb-6 size-24 rounded-full border-4 border-sky object-cover sm:size-32"
             />
-            <h1 className="text-3xl! sm:text-5xl! lg:text-6xl! break-words">
+            <h1>
               Cadre légal,{" "}
               <span className="text-accent">
                 <strong>droits</strong>
@@ -198,7 +198,7 @@ export default function CadreLegalPage() {
           contactType="institution"
           contactSujet="Formations « Cadre légal, droits et éthique »"
         />
-      </div>
+      </GabaritPage>
     </>
   );
 }

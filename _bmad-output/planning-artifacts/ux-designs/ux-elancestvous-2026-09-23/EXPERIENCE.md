@@ -42,6 +42,7 @@ Le site s'adresse au visiteur comme une formatrice à son groupe : il pose des q
 | `Steps` | Démarche ordonnée uniquement | `<ol role="list">` ; un titre h3 (ou h4) par étape ; numéros et flèches en `aria-hidden` ; la description accepte un bloc (liste). |
 | `PastelCard` / `Chip` | Groupes de contenus parallèles | La carte est un `<article>` par défaut (ou `li`/`div`/`section`). La pastille est une simple étiquette, jamais cliquable. |
 | `Bubble` | Question posée au visiteur, ou phrase de Coralie adressée au visiteur (au plus une par section) | `<p>` par défaut ; peut être un vrai titre quand la question structure la section. Au plus une bulle-question par écran. |
+| `GabaritPage` | Haut de toute page publique (hors accueil) | Seul endroit qui pose le blanc sous le menu (`pt-6 sm:pt-20`) puis le fil d'Ariane (`Breadcrumbs`, libellés du menu, page courante en `aria-current`, JSON-LD `BreadcrumbList`) ; le H1 suit directement, sans padding ni marge haute intermédiaire. Aucune page n'importe `Breadcrumbs` en direct (test de garde). |
 | `Wave` / `Sparkle` / `BrushUnderline` | Décor | Toujours `aria-hidden`. Le texte souligné reste un texte ordinaire, indexé tel quel. |
 | `Logo` | Barre de navigation, accueil | Décoratif à côté du nom (navbar) ; image nommée quand il est seul ; étincelles réservées aux grands formats. |
 
@@ -89,7 +90,7 @@ Les parcours sont ceux de la PRD (§2.3). La charte les sert sans les modifier.
 ## Responsive & Platform
 
 - Conception en une colonne d'abord. L'action principale arrive tôt dans l'ordre de lecture mobile. Fiche formation : titre, introduction, puis la fiche pratique ouverte par « Demander un devis », puis le détail. Sur desktop, la fiche pratique passe dans la colonne de droite et reste collée au défilement.
-- Aucun défilement horizontal à 320 px. Les grands titres (H1) sont réduits sur smartphone (`text-3xl`) et gardent `break-words` en filet de sécurité, sans `hyphens-auto`, qui coupait des mots tenant sur la ligne. La césure (`hyphens-auto`) est réservée aux titres de cartes étroites.
+- Aucun défilement horizontal à 320 px. Les grands titres (H1) sont réduits sur smartphone (`text-3xl`) et gardent `break-words` en filet de sécurité, sans `hyphens-auto`, qui coupait des mots tenant sur la ligne ; ce style est défini une seule fois, par la règle `h1` de `app/globals.css` en `@layer base` (aucune classe de taille ni `!` sur les H1). La césure (`hyphens-auto`) est réservée aux titres de cartes étroites.
 - Un filtre ou un lien interne ramène au contenu visé (ancre), pas en haut de page.
 
 - Rangées de cartes et d'étapes : 4 colonnes → 2 → 1.

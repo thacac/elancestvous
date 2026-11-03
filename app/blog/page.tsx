@@ -2,8 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import Breadcrumbs from "@/components/Breadcrumbs";
 import { PastelCard } from "@/components/charte";
+import GabaritPage from "@/components/GabaritPage";
 import { getAllPostsMeta } from "@/lib/blog";
 import { isBlogPublic } from "@/lib/featureFlags";
 import { OG_BANNER_IMAGES } from "@/lib/openGraph";
@@ -35,11 +35,9 @@ export default function BlogIndex() {
   const posts = getAllPostsMeta();
 
   return (
-    <section className="pt-6 sm:pt-20 mb-40">
-      <Breadcrumbs items={[{ label: "Blog" }]} />
+    <GabaritPage as="section" className="mb-40" filAriane={[{ label: "Blog" }]}>
       <div className="container text-center mb-16">
-        {/* Réduit sur smartphone, coupé sans césure à 320 px. */}
-        <h1 className="text-3xl! sm:text-5xl! lg:text-6xl! break-words">Le blog</h1>
+        <h1>Le blog</h1>
         <h2 className="h3-like">
           Ressources et réflexions autour de la santé au travail et de
           l&apos;accompagnement des soignants.
@@ -92,6 +90,6 @@ export default function BlogIndex() {
           ))}
         </div>
       )}
-    </section>
+    </GabaritPage>
   );
 }

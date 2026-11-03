@@ -2,11 +2,11 @@ import Image from "next/image";
 
 import ArticulationBloc from "@/components/ArticulationBloc";
 import BadgesBloc from "@/components/BadgesBloc";
-import Breadcrumbs from "@/components/Breadcrumbs";
 import CartesContrastBloc from "@/components/CartesContrastBloc";
 import Citation from "@/components/Citation";
 import CtaElan from "@/components/CtaElan";
 import FormationsEtArticlesLiesBloc from "@/components/FormationsEtArticlesLiesBloc";
+import GabaritPage from "@/components/GabaritPage";
 import PublicsCiblesBloc from "@/components/PublicsCiblesBloc";
 import {
   IconBuilding,
@@ -48,13 +48,13 @@ export default function AccompagnementProfessionnelPage() {
       {/* Story 4.4 : le layout fournit déjà <main> (un seul repère principal).
           overflow-x-clip plutôt qu'overflow-hidden, qui neutralisait le
           sticky de la colonne « Pour aller plus loin ». */}
-      <div className="min-h-screen overflow-x-clip pt-6 sm:pt-20">
-        <Breadcrumbs
-          items={[
-            { label: "Formations", href: "/formations" },
-            { label: "Accompagnement et pratiques professionnelles" },
-          ]}
-        />
+      <GabaritPage
+        className="min-h-screen overflow-x-clip"
+        filAriane={[
+          { label: "Formations", href: "/formations" },
+          { label: "Accompagnement et pratiques professionnelles" },
+        ]}
+      >
         {/* --- 1. Titre */}
         <section id="formations-accompagnement" data-hero className="pb-20 container">
           <div className="text-center mb-8">
@@ -68,7 +68,7 @@ export default function AccompagnementProfessionnelPage() {
               sizes="(min-width: 640px) 128px, 96px"
               className="mx-auto mb-6 size-24 rounded-full border-4 border-sky object-cover sm:size-32"
             />
-            <h1 className="text-3xl! sm:text-5xl! lg:text-6xl! break-words">
+            <h1>
               Accompagnement et{" "}
               <span className="text-accent">
                 <strong>pratiques professionnelles</strong>
@@ -192,7 +192,7 @@ export default function AccompagnementProfessionnelPage() {
           contactType="institution"
           contactSujet="Formations « Accompagnement et pratiques professionnelles »"
         />
-      </div>
+      </GabaritPage>
     </>
   );
 }

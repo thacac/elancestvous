@@ -2,12 +2,12 @@ import Image from "next/image";
 
 import ArticulationBloc from "@/components/ArticulationBloc";
 import BadgesBloc from "@/components/BadgesBloc";
-import Breadcrumbs from "@/components/Breadcrumbs";
 import CartesContrastBloc from "@/components/CartesContrastBloc";
 import { PastelCard, SectionBanner } from "@/components/charte";
 import Citation from "@/components/Citation";
 import CtaElan from "@/components/CtaElan";
 import FormationsEtArticlesLiesBloc from "@/components/FormationsEtArticlesLiesBloc";
+import GabaritPage from "@/components/GabaritPage";
 import PublicsCiblesBloc from "@/components/PublicsCiblesBloc";
 import { IconBuilding, IconEscalier, IconHand, IconHeart, IconManager, IconStethoscope } from "@/components/ui/icons-publics";
 import { OG_BANNER_IMAGES } from "@/lib/openGraph";
@@ -61,13 +61,13 @@ export default function PreventionRpsQvctPage() {
       {/* Story 4.4 : le layout fournit déjà <main> (un seul repère principal).
           overflow-x-clip plutôt qu'overflow-hidden, qui neutralisait le
           sticky de la colonne « Pour aller plus loin ». */}
-      <div className="min-h-screen overflow-x-clip pt-6 sm:pt-20">
-        <Breadcrumbs
-          items={[
-            { label: "Formations", href: "/formations" },
-            { label: "Prévention des RPS et QVCT" },
-          ]}
-        />
+      <GabaritPage
+        className="min-h-screen overflow-x-clip"
+        filAriane={[
+          { label: "Formations", href: "/formations" },
+          { label: "Prévention des RPS et QVCT" },
+        ]}
+      >
         {/* --- 1. Titre */}
         <section id="formations-professionnelles" data-hero className="pb-20 container">
           <div className="text-center mb-8">
@@ -81,7 +81,7 @@ export default function PreventionRpsQvctPage() {
               sizes="(min-width: 640px) 128px, 96px"
               className="mx-auto mb-6 size-24 rounded-full border-4 border-sky object-cover sm:size-32"
             />
-            <h1 className="text-3xl! sm:text-5xl! lg:text-6xl! break-words">Formations professionnelles.</h1>
+            <h1>Formations professionnelles.</h1>
             <h2 className="py-5 ">
               Gestion du{" "}
               <span className="text-accent">
@@ -240,7 +240,7 @@ export default function PreventionRpsQvctPage() {
           contactType="institution"
           contactSujet="Formations « Prévention des RPS et QVCT »"
         />
-      </div>
+      </GabaritPage>
     </>
   );
 }

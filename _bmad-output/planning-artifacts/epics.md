@@ -883,10 +883,12 @@ maquettes ont été présentées (bulle ciel, manuscrit Kalam) et Cédric a rete
 JSON-LD `BreadcrumbList`) manquait sur `/a-propos`, `/contact` et
 `/mentions-legales` (mesuré sur `validation` : les 12 autres pages publiques
 l'ont). Il reste posé page par page et non dans le layout, car les libellés et
-le JSON-LD dépendent de chaque page. Un seul modèle de haut de page sur
-toutes les pages (Cédric, 2026-11-03), celui des hubs depuis la story 4.11 :
-le blanc `pt-6 sm:pt-20` au-dessus du fil d'Ariane, puis le H1 dans un
-`.container`, sans padding haut entre les deux ni CSS de contournement. La bulle
+le JSON-LD dépendent de chaque page. Un seul haut de page, propre en SEO et
+en code, sur toutes les pages (Cédric, 2026-11-03), celui des hubs depuis la
+story 4.11 : le composant `GabaritPage` pose le blanc `pt-6 sm:pt-20` puis le
+fil d'Ariane, et le H1 suit directement ; le style du H1 (répété sur 17 H1 en
+`text-3xl! sm:text-5xl! lg:text-6xl! break-words`, les `!` contournant une
+règle globale hors `@layer`) est défini une seule fois en `@layer base`. La bulle
 de la bio et la bulle-question du `CtaElan` sont visibles ensemble à 1280 px :
 accepté par Cédric, la règle « une bulle par écran » visant les
 bulles-questions.
@@ -903,7 +905,11 @@ bulles-questions.
 
 **Given** toutes les pages publiques (`app/**/page.tsx`, hors accueil, `api` et `blog-review`)
 **When** les tests tournent
-**Then** un test de garde échoue si l'une d'elles n'utilise pas `Breadcrumbs`
+**Then** un test de garde échoue si l'une d'elles n'utilise pas `GabaritPage` ou importe `Breadcrumbs` en direct
+
+**Given** les 17 H1 du site
+**When** on lit le code
+**Then** leur taille réduite sur smartphone, leur coupure sans césure, leur police et leur graisse viennent de la seule règle `h1` de `app/globals.css`, en `@layer base` ; aucun H1 ne porte de classe de taille ni de `!` (test), et le rendu est identique avant et après (style calculé et position des H1, fil d'Ariane, title, meta, Hn, JSON-LD, `alt`, hauteur des pages, mesurés sur 16 pages à 1280, 390 et 320 px)
 
 **Given** le SEO et la mise en page
 **When** on compare avant et après à 1280, 390 et 320 px

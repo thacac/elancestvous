@@ -1,7 +1,7 @@
-import Breadcrumbs from "@/components/Breadcrumbs";
 import { PastelCard } from "@/components/charte";
 import ContactForm from "@/components/contact-form/ContactForm";
 import type { ContactFormValues } from "@/components/contact-form/validation";
+import GabaritPage from "@/components/GabaritPage";
 import { OG_BANNER_IMAGES } from "@/lib/openGraph";
 
 import type { Metadata } from "next";
@@ -41,11 +41,10 @@ export default async function ContactPage({
   const { type, sujet } = await searchParams;
 
   return (
-    <section id="contact" className="pt-6 pb-20 sm:pt-20">
-      <Breadcrumbs items={[{ label: "Contact" }]} />
+    <GabaritPage as="section" id="contact" className="pb-20" filAriane={[{ label: "Contact" }]}>
       <div className="container">
         <div className="text-center mb-8">
-          <h1 className="text-3xl! sm:text-5xl! lg:text-6xl! break-words">
+          <h1>
             Parlons de{" "}
             <span className="text-accent">
               <strong>vos besoins</strong>
@@ -77,6 +76,6 @@ export default async function ContactPage({
           />
         </PastelCard>
       </div>
-    </section>
+    </GabaritPage>
   );
 }

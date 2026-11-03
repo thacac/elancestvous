@@ -1,4 +1,4 @@
-import Breadcrumbs from "@/components/Breadcrumbs";
+import GabaritPage from "@/components/GabaritPage";
 import { OG_BANNER_IMAGES } from "@/lib/openGraph";
 
 import type { Metadata } from "next";
@@ -17,10 +17,14 @@ export const metadata: Metadata = {
 
 export default function MentionsLegales() {
   return (
-    <section id="mentions-legales" className="pt-6 sm:pt-20 mb-20">
-      <Breadcrumbs items={[{ label: "Mentions légales" }]} />
+    <GabaritPage
+      as="section"
+      id="mentions-legales"
+      className="mb-20"
+      filAriane={[{ label: "Mentions légales" }]}
+    >
       <div className="container text-center">
-        <h1 className="text-3xl! sm:text-5xl! lg:text-6xl! break-words">
+        <h1>
           Mentions{" "}
           <span className="text-accent">
             <strong>Légales</strong>
@@ -104,6 +108,6 @@ export default function MentionsLegales() {
           </p>
         </div>
       </div>
-    </section>
+    </GabaritPage>
   );
 }

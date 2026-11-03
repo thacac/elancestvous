@@ -1,9 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import Breadcrumbs from "@/components/Breadcrumbs";
 import { Bubble, KeyMessage, PastelCard, SectionBanner } from "@/components/charte";
 import CtaElan from "@/components/CtaElan";
+import GabaritPage from "@/components/GabaritPage";
 import { IconStethoscope } from "@/components/ui/icons-publics";
 import { OG_BANNER_IMAGES } from "@/lib/openGraph";
 
@@ -28,10 +28,9 @@ export const metadata: Metadata = {
 export default function About() {
   return (
     <>
-      <section id="apropos" className="pt-6 sm:pt-20 mb-12">
-        <Breadcrumbs items={[{ label: "À propos" }]} />
+      <GabaritPage as="section" id="apropos" className="mb-12" filAriane={[{ label: "À propos" }]}>
         <div className="container text-center mb-12">
-          <h1 className="text-3xl! sm:text-5xl! lg:text-6xl! break-words">
+          <h1>
             Coralie Mathorel –{" "}
             <span className="text-accent">
               <strong>Coach certifiée à Toulouse</strong>
@@ -76,7 +75,7 @@ export default function About() {
                 bulle des slides (variante A retenue par Cédric), hors des
                 blocs prose. mb-12 : la queue descend de 32 px sous la bulle. */}
             <Bubble className="mb-12">
-              je ne parle pas de théorie, je parle de votre réalité.
+              <strong>je ne parle pas de théorie, je parle de votre réalité.</strong>
             </Bubble>
             <div className="prose text-stone-600 mb-8">
               <p>
@@ -135,7 +134,7 @@ export default function About() {
             </div>
           </div>
         </div>
-      </section>
+      </GabaritPage>
       <CtaElan />
     </>
   );

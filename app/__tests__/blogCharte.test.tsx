@@ -30,6 +30,8 @@ import BlogPost from "../blog/[slug]/page";
 import BlogIndex, { metadata as metaBlog } from "../blog/page";
 import BlogReviewPage from "../blog-review/[slug]/page";
 
+import { expectH1StyleGlobal } from "./outils/h1";
+
 // Story 4.5 : la charte des slides habille le blog (liste, article, aperçu
 // de relecture Discord) sans toucher au SEO ni au pipeline de génération.
 const root = join(__dirname, "..", "..");
@@ -106,8 +108,8 @@ async function renderRelecture(frontmatter: Record<string, unknown> = {}) {
 
 function h1Reduit() {
   const h1 = screen.getByRole("heading", { level: 1 });
-  expect(h1).toHaveClass("text-3xl!", "sm:text-5xl!", "lg:text-6xl!", "break-words");
-  expect(h1).not.toHaveClass("hyphens-auto");
+  // Story 4.13 : taille et coupure portées par la règle h1 globale.
+  expectH1StyleGlobal(h1);
 }
 
 describe("Liste du blog", () => {

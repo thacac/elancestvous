@@ -67,8 +67,12 @@ describe.each(PAGES)("Fil d'Ariane — %s", (label, renderPage) => {
     ).toBe(nav);
     expect(enTete.contains(h1)).toBe(true);
     expect(h1.closest(".container")).not.toBeNull();
-    for (let e = h1.parentElement; e && e !== enTete; e = e.parentElement) {
-      expect(e.className).not.toMatch(/\b(?:pt|py)-\d+\b/);
+    // Ni padding ni marge haute entre le fil d'Ariane et le H1, H1 compris
+    // (les marges basses restent libres).
+    for (let e: Element | null = h1; e && e !== enTete; e = e.parentElement) {
+      for (const classe of e.classList) {
+        expect(classe).not.toMatch(/^(?:[\w-]+:)*(?:p[ty]|m[ty])-(?!0$)/);
+      }
     }
   });
 

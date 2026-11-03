@@ -34,8 +34,13 @@ body {
   @apply transition-transform duration-150 hover:scale-120 active:scale-120;
 }
 
-h1 {
-  @apply font-display text-primary text-5xl font-extrabold tracking-tight lg:text-6xl;
+/* Story 4.13 : seule définition du style du H1, en @layer base pour que les
+   utilitaires (marges) s'appliquent sans `!`. Réduit sur smartphone, coupé
+   sans césure (story 4.11 : hyphens-auto coupait des mots qui tenaient). */
+@layer base {
+  h1 {
+    @apply font-display text-primary text-3xl font-extrabold tracking-tight break-words sm:text-5xl lg:text-6xl;
+  }
 }
 
 h2 {

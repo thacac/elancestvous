@@ -1,8 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import Breadcrumbs from "@/components/Breadcrumbs";
 import { BrushUnderline, PastelCard } from "@/components/charte";
+import GabaritPage from "@/components/GabaritPage";
 import { Button } from "@/components/ui/button";
 import { OG_BANNER_IMAGES } from "@/lib/openGraph";
 
@@ -28,11 +28,10 @@ export const metadata = {
 // bleu nuit ≥ 9:1), boutons orange foncé de la charte.
 export default function CoachingHubPage() {
   return (
-    <div className="min-h-screen overflow-hidden pt-6 sm:pt-20">
-      <Breadcrumbs items={[{ label: "Coaching" }]} />
+    <GabaritPage className="min-h-screen overflow-hidden" filAriane={[{ label: "Coaching" }]}>
       <section data-hero className="pb-20 container">
         <div className="text-center mb-12">
-          <h1 className="text-3xl! sm:text-5xl! lg:text-6xl! break-words">
+          <h1>
             <BrushUnderline>Coaching</BrushUnderline>.
           </h1>
           <h2 className="py-5">
@@ -81,6 +80,6 @@ export default function CoachingHubPage() {
           </PastelCard>
         </ul>
       </section>
-    </div>
+    </GabaritPage>
   );
 }

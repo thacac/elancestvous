@@ -3,8 +3,14 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-// Story 4.13 : garde — toute page publique pose son fil d'Ariane. Exclus :
+// Story 4.13 : garde — toute page publique pose son haut de page (blanc puis
+// fil d'Ariane) avec GabaritPage, seul composant qui rend Breadcrumbs. Exclus :
 // l'accueil (racine du fil), les routes API et l'outil interne blog-review.
+//
+// Garde textuelle, limites connues : une balise écrite dans une chaîne, un
+// `/*` ou `//` à l'intérieur d'une chaîne, ou un GabaritPage jamais rendu
+// (fonction locale non appelée) peuvent la tromper. Le rendu réel est vérifié
+// page par page (filArianePages.test.tsx, hautDePageMobile.test.tsx).
 const APP_DIR = path.resolve(__dirname, "..");
 const EXCLUS = ["api", "blog-review"];
 
@@ -20,47 +26,56 @@ function pagesPubliques(dir: string): string[] {
   });
 }
 
-// Un appel commenté ne compte pas (revue 4.13) : on retire les commentaires
-// JSX `{/* … */}`, de bloc et de ligne avant de chercher l'import et l'appel.
+// Retire les commentaires JSX `{/* … */}`, de bloc, et de ligne (y compris en
+// fin de ligne, sans toucher aux `://` des URL).
 function sansCommentaires(source: string): string {
   return source
     .replace(/\{\/\*[\s\S]*?\*\/\}/g, "")
     .replace(/\/\*[\s\S]*?\*\//g, "")
-    .replace(/^\s*\/\/.*$/gm, "");
+    .replace(/(^|[^:])\/\/.*$/gm, "$1");
 }
 
 // Import par alias ou relatif, guillemets simples ou doubles, puis appel JSX.
-const UTILISE_BREADCRUMBS =
-  /import\s+Breadcrumbs\s+from\s+["'][^"']*\/Breadcrumbs["'][\s\S]*<Breadcrumbs\b/;
+const utilise = (composant: string) =>
+  new RegExp(
+    `import\\s+${composant}\\s+from\\s+["'][^"']*/${composant}["'][\\s\\S]*<${composant}\\b`,
+  );
+const UTILISE_GABARIT = utilise("GabaritPage");
+const IMPORTE_BREADCRUMBS = /from\s+["'][^"']*\/Breadcrumbs["']/;
 
-describe("sansCommentaires / UTILISE_BREADCRUMBS", () => {
-  const IMPORT = 'import Breadcrumbs from "@/components/Breadcrumbs";\n';
+describe("sansCommentaires / UTILISE_GABARIT", () => {
+  const IMPORT = 'import GabaritPage from "@/components/GabaritPage";\n';
 
   it("reconnaît un import par alias ou relatif, guillemets simples ou doubles", () => {
     for (const imp of [
       IMPORT,
-      "import Breadcrumbs from '../../components/Breadcrumbs';\n",
+      "import GabaritPage from '../../components/GabaritPage';\n",
     ]) {
-      expect(sansCommentaires(`${imp}<Breadcrumbs items={[]} />`)).toMatch(
-        UTILISE_BREADCRUMBS,
-      );
+      expect(
+        sansCommentaires(`${imp}<GabaritPage filAriane={[]}>x</GabaritPage>`),
+      ).toMatch(UTILISE_GABARIT);
     }
   });
 
-  it("ignore un appel commenté", () => {
+  it("ignore un appel commenté, y compris en fin de ligne", () => {
     for (const appel of [
-      "{/* <Breadcrumbs items={[]} /> */}",
-      "/* <Breadcrumbs items={[]} /> */",
-      "// <Breadcrumbs items={[]} />",
+      "{/* <GabaritPage filAriane={[]} /> */}",
+      "/* <GabaritPage filAriane={[]} /> */",
+      "// <GabaritPage filAriane={[]} />",
+      "const x = 1; // <GabaritPage filAriane={[]} />",
     ]) {
-      expect(sansCommentaires(`${IMPORT}${appel}`)).not.toMatch(
-        UTILISE_BREADCRUMBS,
-      );
+      expect(sansCommentaires(`${IMPORT}${appel}`)).not.toMatch(UTILISE_GABARIT);
     }
+  });
+
+  it("garde les URL intactes", () => {
+    expect(sansCommentaires('const u = "https://elancestvous.fr";')).toBe(
+      'const u = "https://elancestvous.fr";',
+    );
   });
 });
 
-describe("Fil d'Ariane sur toutes les pages publiques", () => {
+describe("Haut de page commun sur toutes les pages publiques", () => {
   const pages = pagesPubliques(APP_DIR);
 
   it("trouve les pages publiques", () => {
@@ -68,11 +83,11 @@ describe("Fil d'Ariane sur toutes les pages publiques", () => {
   });
 
   it.each(pages.map((p) => [path.relative(APP_DIR, p), p]))(
-    "%s utilise Breadcrumbs",
+    "%s utilise GabaritPage, sans Breadcrumbs en direct",
     (_relatif, chemin) => {
-      expect(sansCommentaires(readFileSync(chemin, "utf8"))).toMatch(
-        UTILISE_BREADCRUMBS,
-      );
+      const source = sansCommentaires(readFileSync(chemin, "utf8"));
+      expect(source).toMatch(UTILISE_GABARIT);
+      expect(source).not.toMatch(IMPORTE_BREADCRUMBS);
     },
   );
 });
