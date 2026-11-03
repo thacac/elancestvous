@@ -28,9 +28,10 @@ describe("Steps", () => {
     expect(items[0]).toHaveTextContent("Un premier appel pour comprendre votre contexte.");
   });
 
-  it("permet d'adapter le niveau de titre des étapes", () => {
+  it("n'accepte pas h4 : rien au-delà de h3 (typographie h1 h2 h3 p)", () => {
+    // Vérifié par `tsc --noEmit` : `headingLevel="h4"` est une erreur de type.
+    // @ts-expect-error h4 retiré de l'échelle.
     render(<Steps steps={steps} headingLevel="h4" />);
-    expect(screen.getAllByRole("heading", { level: 4 })).toHaveLength(4);
   });
 
   it("affiche les numéros 1 à n, masqués des lecteurs d'écran (déjà portés par la liste)", () => {

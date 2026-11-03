@@ -14,7 +14,7 @@ export interface Step {
 interface StepsProps {
   steps: Step[];
   /** Niveau des titres d'étape, sous le titre de la section (h3 par défaut). */
-  headingLevel?: "h3" | "h4";
+  headingLevel?: "h3";
   /**
    * « row » (défaut) : une ligne d'étapes reliées par des flèches à partir
    * de lg. « grid » : 2 colonnes au plus, sans flèches, pour une colonne

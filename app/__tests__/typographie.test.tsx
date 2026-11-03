@@ -89,7 +89,16 @@ const PAGES: [string, () => ReactElement | Promise<ReactElement>][] = [
   ["les mentions légales", () => <MentionsLegales />],
 ];
 
-const TAILLE = /^(?:[a-z0-9]+:)*text-(?:xs|sm|base|md|lg|[2-9]?xl)(?:\/\d+)?!?$/;
+const TAILLE = /^(?:[a-z0-9]+:)*text-(?:xs|sm|base|md|lg|[2-9]?xl|\[[^\]]*\]|\([^)]*\))(?:\/\d+)?!?$/;
+
+// Revue : du texte justifié étire les espaces (titres compris), pénible à
+// lire (RGAA 10.x, WCAG 1.4.8) ; jamais dans le contenu.
+describe("Typographie : pas de texte justifié", () => {
+  it.each(PAGES)("n'en a pas sur %s", async (_page, rendu) => {
+    const { container } = render(await rendu());
+    expect(container.querySelector(".text-justify")).toBeNull();
+  });
+});
 
 // Interface hors contenu : fil d'Ariane, formulaire, boutons (buttonVariants).
 function horsContenu(el: Element) {
@@ -141,6 +150,14 @@ describe("Typographie : une seule définition par niveau", () => {
     expect(css.match(/^h2\s*\{/gm)).toHaveLength(1);
     expect(css.match(/^h3\s*\{/gm)).toHaveLength(1);
     expect(css).not.toContain("h3-like");
+  });
+
+  it("donne aux h2 et h3 la police des titres en bleu nuit", () => {
+    for (const niveau of ["h2", "h3"]) {
+      const regle = css.match(new RegExp(`^${niveau}\\s*\\{([^}]*)\\}`, "m"))?.[1] ?? "";
+      expect(regle).toContain("font-display");
+      expect(regle).toContain("text-primary");
+    }
   });
 
   it("nomme les deux seules exceptions : la mention et le chiffre clé", () => {

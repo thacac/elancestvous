@@ -38,7 +38,7 @@ export default function MentionsLegales() {
       </div>
 
       <div className="container pt-18">
-        <div className="prose text-stone-600 mb-8 space-y-4 text-justify">
+        <div className="prose text-stone-600 mb-8 space-y-4">
           <h2>Éditeur du site</h2>
           <p>
             <strong>Raison sociale :</strong> Elancestvous
