@@ -52,6 +52,26 @@ describe.each(PAGES)("Fil d'Ariane — %s", (label, renderPage) => {
     ).toBeTruthy();
   });
 
+  // Modèle unique de haut de page (story 4.11, catalogue /formations) : le
+  // blanc est au-dessus du fil d'Ariane, puis le H1 suit dans un .container,
+  // sans autre padding haut entre les deux.
+  it("suit le modèle de haut de page : blanc au-dessus du fil d'Ariane, H1 juste après", async () => {
+    render(await renderPage());
+    const nav = screen.getByRole("navigation", { name: "Fil d'Ariane" });
+    const enTete = nav.parentElement!;
+    const h1 = screen.getByRole("heading", { level: 1 });
+
+    expect(enTete).toHaveClass("pt-6", "sm:pt-20");
+    expect(
+      [...enTete.children].find((e) => e.tagName !== "SCRIPT"),
+    ).toBe(nav);
+    expect(enTete.contains(h1)).toBe(true);
+    expect(h1.closest(".container")).not.toBeNull();
+    for (let e = h1.parentElement; e && e !== enTete; e = e.parentElement) {
+      expect(e.className).not.toMatch(/\b(?:pt|py)-\d+\b/);
+    }
+  });
+
   it("émet un JSON-LD BreadcrumbList à deux éléments", async () => {
     render(await renderPage());
     const listes = breadcrumbJsonLd();

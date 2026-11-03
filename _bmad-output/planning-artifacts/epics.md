@@ -883,9 +883,10 @@ maquettes ont été présentées (bulle ciel, manuscrit Kalam) et Cédric a rete
 JSON-LD `BreadcrumbList`) manquait sur `/a-propos`, `/contact` et
 `/mentions-legales` (mesuré sur `validation` : les 12 autres pages publiques
 l'ont). Il reste posé page par page et non dans le layout, car les libellés et
-le JSON-LD dépendent de chaque page. Sur les hubs Coaching, 80 px séparent le
-fil d'Ariane du H1 (`py-20`) ; les trois pages gardent `pt-6 sm:pt-20`
-(80 px à partir de `sm`, 24 px sur smartphone, décision de Cédric). La bulle
+le JSON-LD dépendent de chaque page. Un seul modèle de haut de page sur
+toutes les pages (Cédric, 2026-11-03), celui des hubs depuis la story 4.11 :
+le blanc `pt-6 sm:pt-20` au-dessus du fil d'Ariane, puis le H1 dans un
+`.container`, sans padding haut entre les deux ni CSS de contournement. La bulle
 de la bio et la bulle-question du `CtaElan` sont visibles ensemble à 1280 px :
 accepté par Cédric, la règle « une bulle par écran » visant les
 bulles-questions.
@@ -906,7 +907,7 @@ bulles-questions.
 
 **Given** le SEO et la mise en page
 **When** on compare avant et après à 1280, 390 et 320 px
-**Then** title, meta, H1, Hn, textes, `alt` et URL sont inchangés (seuls ajouts : les fils d'Ariane), l'espacement entre le fil d'Ariane et le H1 est cohérent avec les hubs Coaching, et la page ne défile pas horizontalement à 320 px
+**Then** title, meta, H1, Hn, textes, `alt` et URL sont inchangés (seuls ajouts : les fils d'Ariane), le fil d'Ariane et le H1 sont aux mêmes positions que sur les hubs Coaching (même modèle de haut de page, vérifié par test), et la page ne défile pas horizontalement à 320 px
 
 **Given** `EXPERIENCE.md`
 **When** on lit la ligne `Bubble`

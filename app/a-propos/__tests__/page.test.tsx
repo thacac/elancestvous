@@ -46,8 +46,9 @@ describe("About page — phrase clé dans la bulle (story 4.13)", () => {
     expect(phrase.className).toContain("rounded-full");
     expect(phrase.className).not.toContain("italic");
     expect(phrase.closest("strong")).toBeNull();
-    // Hors styles prose, sinon la couleur et la graisse de prose l'emportent.
-    expect(phrase.parentElement!.className).toContain("not-prose");
+    // Hors bloc prose : ses styles (couleur, graisse, marges) ne s'appliquent
+    // pas à la bulle, sans recourir à not-prose ni à des `!`.
+    expect(phrase.closest(".prose")).toBeNull();
   });
 
   it("garde « C'est ce qui fait aujourd'hui ma force : » en gras, seul sur sa ligne", () => {
@@ -55,9 +56,10 @@ describe("About page — phrase clé dans la bulle (story 4.13)", () => {
     const debut = screen.getByText(/C.est ce qui fait aujourd.hui ma force/);
 
     expect(debut.tagName).toBe("STRONG");
-    expect(debut.textContent?.trim()).toBe(
+    // Le paragraphe entier ne contient que ce début de phrase.
+    expect(debut.parentElement!.tagName).toBe("P");
+    expect(debut.parentElement!.textContent?.trim()).toBe(
       "C'est ce qui fait aujourd'hui ma force :",
     );
-    expect(debut.textContent).not.toContain("théorie");
   });
 });

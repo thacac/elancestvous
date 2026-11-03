@@ -1,3 +1,4 @@
+import Breadcrumbs from "@/components/Breadcrumbs";
 import { PastelCard } from "@/components/charte";
 import ContactForm from "@/components/contact-form/ContactForm";
 import type { ContactFormValues } from "@/components/contact-form/validation";
@@ -40,39 +41,42 @@ export default async function ContactPage({
   const { type, sujet } = await searchParams;
 
   return (
-    <section id="contact" className="pt-6 pb-20 sm:pt-20 container">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl! sm:text-5xl! lg:text-6xl! break-words">
-          Parlons de{" "}
-          <span className="text-accent">
-            <strong>vos besoins</strong>
-          </span>
-        </h1>
-        <h2 className="h3-like">
-          Un premier échange pour comprendre votre situation et définir ensemble
-          la réponse la plus adaptée.
-        </h2>
-        <p className="text-sm text-stone-600 mt-3">
-          Coaching, formations QVCT/RPS et GAPP à{" "}
-          <strong>Toulouse</strong> et en Occitanie.{" "}
-          <span aria-hidden="true">·</span>{" "}
-          <a
-            href="tel:+33695991922"
-            className="text-accent underline underline-offset-2 hover:text-primary"
-          >
-            06 95 99 19 22
-          </a>
-        </p>
-      </div>
+    <section id="contact" className="pt-6 pb-20 sm:pt-20">
+      <Breadcrumbs items={[{ label: "Contact" }]} />
+      <div className="container">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl! sm:text-5xl! lg:text-6xl! break-words">
+            Parlons de{" "}
+            <span className="text-accent">
+              <strong>vos besoins</strong>
+            </span>
+          </h1>
+          <h2 className="h3-like">
+            Un premier échange pour comprendre votre situation et définir ensemble
+            la réponse la plus adaptée.
+          </h2>
+          <p className="text-sm text-stone-600 mt-3">
+            Coaching, formations QVCT/RPS et GAPP à{" "}
+            <strong>Toulouse</strong> et en Occitanie.{" "}
+            <span aria-hidden="true">·</span>{" "}
+            <a
+              href="tel:+33695991922"
+              className="text-accent underline underline-offset-2 hover:text-primary"
+            >
+              06 95 99 19 22
+            </a>
+          </p>
+        </div>
 
-      {/* Story 4.9 : carte ciel de la charte, sans ombre (profondeur par
-          les aplats, DESIGN.md). */}
-      <PastelCard tone="sky" as="div" className="p-5 sm:p-8 md:p-12">
-        <ContactForm
-          defaultProjectType={parseProjectType(type)}
-          defaultMessage={sujet}
-        />
-      </PastelCard>
+        {/* Story 4.9 : carte ciel de la charte, sans ombre (profondeur par
+            les aplats, DESIGN.md). */}
+        <PastelCard tone="sky" as="div" className="p-5 sm:p-8 md:p-12">
+          <ContactForm
+            defaultProjectType={parseProjectType(type)}
+            defaultMessage={sujet}
+          />
+        </PastelCard>
+      </div>
     </section>
   );
 }

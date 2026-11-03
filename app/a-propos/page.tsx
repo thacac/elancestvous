@@ -28,8 +28,8 @@ export const metadata: Metadata = {
 export default function About() {
   return (
     <>
-      <Breadcrumbs items={[{ label: "À propos" }]} />
       <section id="apropos" className="pt-6 sm:pt-20 mb-12">
+        <Breadcrumbs items={[{ label: "À propos" }]} />
         <div className="container text-center mb-12">
           <h1 className="text-3xl! sm:text-5xl! lg:text-6xl! break-words">
             Coralie Mathorel –{" "}
@@ -62,7 +62,7 @@ export default function About() {
             </p>
           </div>
           <div className="w-full md:w-8/12">
-            <div className="prose text-stone-600 mb-8 space-y-4">
+            <div className="prose text-stone-600 mb-5 space-y-4">
               <p>
                 Mon parcours a débuté au cœur du soin. Cette réalité du
                 terrain, je la connais : l&apos;urgence, la charge mentale, la
@@ -71,11 +71,14 @@ export default function About() {
               <p>
                 <strong>C&apos;est ce qui fait aujourd&apos;hui ma force :</strong>
               </p>
-              {/* Story 4.13 : phrase de Coralie adressée au visiteur, dans la
-                  bulle des slides (variante A retenue par Cédric). */}
-              <Bubble className="not-prose mb-12">
-                je ne parle pas de théorie, je parle de votre réalité.
-              </Bubble>
+            </div>
+            {/* Story 4.13 : phrase de Coralie adressée au visiteur, dans la
+                bulle des slides (variante A retenue par Cédric), hors des
+                blocs prose. mb-12 : la queue descend de 32 px sous la bulle. */}
+            <Bubble className="mb-12">
+              je ne parle pas de théorie, je parle de votre réalité.
+            </Bubble>
+            <div className="prose text-stone-600 mb-8">
               <p>
                 Formée au coaching et forte de mon expérience du soin, j&apos;ai
                 construit à Toulouse une approche qui s&apos;appuie sur l&apos;écoute,
