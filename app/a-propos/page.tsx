@@ -135,7 +135,12 @@ export default function About() {
                   chiffre-cle débordait des cartes étroites (~142 px à 768 px). */}
               <PastelCard tone="sky" as="div" className="p-4 text-center">
                 <span className="block chiffre-cle mb-1">
-                  GAPP
+                  <abbr
+                    title="Groupe d'analyse des pratiques professionnelles"
+                    className="no-underline"
+                  >
+                    GAPP
+                  </abbr>
                 </span>
                 <span className="texte-mention text-stone-600 uppercase tracking-wide">
                   Animatrice en cours de certification
