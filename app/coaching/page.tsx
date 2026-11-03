@@ -40,7 +40,7 @@ export default function CoachingHubPage() {
           </h2>
         </div>
 
-        <ul role="list" className="grid list-none gap-8 p-0 md:grid-cols-2 max-w-4xl mx-auto">
+        <ul role="list" className="grid list-none gap-8 p-0 md:grid-cols-2 max-w-4xl">
           <PastelCard as="li" tone="sky" className="p-10 text-center flex flex-col items-center gap-4">
             <Image
               src="/illustrations/soignante-pensive-coaching.jpg"

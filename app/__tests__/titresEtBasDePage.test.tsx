@@ -8,6 +8,7 @@ vi.mock("@/lib/blog", () => ({ getAllPostsMeta: vi.fn(() => []) }));
 
 import ArticlesBlogLiesBloc from "@/components/ArticlesBlogLiesBloc";
 import ArticulationBloc from "@/components/ArticulationBloc";
+import CartesContrastBloc from "@/components/CartesContrastBloc";
 import Accompagnement from "@/components/home/Accompagnement";
 import Axes from "@/components/home/Axes";
 
@@ -88,12 +89,23 @@ describe("Médaillon des hubs Famille", () => {
     expect(medaillon).not.toBeNull();
     expect(medaillon).not.toHaveClass("mx-auto");
     expect(medaillon.parentElement).toHaveClass("sm:flex-row-reverse");
+    // Au-dessus du titre sur smartphone : le médaillon le précède dans le DOM.
+    const h1 = screen.getByRole("heading", { level: 1 });
+    expect(medaillon.compareDocumentPosition(h1) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });
 
 // Vague au-dessus de chaque bandeau pétrole, comme sur l'accueil où la vague
 // du hero coiffe « Mes 3 axes » (qui n'en reçoit donc pas une seconde).
-describe("Vague au-dessus des bandeaux de l'accueil", () => {
+describe("Vague au-dessus des bandeaux", () => {
+  it("coiffe aussi les bandeaux des pages de service", () => {
+    const { container } = render(
+      <CartesContrastBloc titre="Quand faire appel ?" cartes={[{ titre: "Un item", texte: "Un texte" }]} />,
+    );
+    expect(container.querySelector("header")?.firstElementChild?.tagName.toLowerCase()).toBe("svg");
+  });
+
+
   it("ne double pas la vague du hero au-dessus de « Mes 3 axes »", () => {
     const { container } = render(<Axes />);
     expect(container.querySelector("header")?.firstElementChild).toHaveClass("bg-petrol");
@@ -102,6 +114,22 @@ describe("Vague au-dessus des bandeaux de l'accueil", () => {
   it("coiffe « Comment se passe un accompagnement ? » d'une vague", () => {
     const { container } = render(<Accompagnement />);
     expect(container.querySelector("header")?.firstElementChild?.tagName.toLowerCase()).toBe("svg");
+  });
+});
+
+// Revue : avec un titre aligné à gauche, un bloc recentré juste dessous
+// décale les bords gauches.
+describe("Bords gauches alignés sous les titres", () => {
+  it("ne recentre pas les cartes du hub /coaching", () => {
+    render(<CoachingHubPage />);
+    const cartes = screen.getByRole("heading", { name: "Particuliers" }).closest("ul");
+    expect(cartes).not.toBeNull();
+    expect(cartes).not.toHaveClass("mx-auto");
+  });
+
+  it("ne recentre pas « Lien avec les autres accompagnements »", () => {
+    const { container } = render(<ArticulationBloc />);
+    expect(container.innerHTML).not.toContain("mx-auto");
   });
 });
 
