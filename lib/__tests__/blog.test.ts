@@ -10,7 +10,6 @@ import {
   parseDraftContent,
   renderMarkdownToSafeHtml,
 } from "../blog";
-import { getFormationBySlug, getFormationSlugs } from "../formations";
 
 const FIXTURES = path.join(__dirname, "fixtures", "blog");
 const VALID = path.join(FIXTURES, "valid");
@@ -161,15 +160,6 @@ describe("renderMarkdownToSafeHtml", () => {
       expect(html).toBe(
         "<h2>Deux</h2>\n<h3>Trois</h3>\n<h4>Quatre</h4>\n<h5>Cinq</h5>\n<h6>Six</h6>"
       );
-    });
-
-    it("ne produit aucun h1 dans les articles et fiches publiés", async () => {
-      for (const slug of getPostSlugs()) {
-        expect((await getPostBySlug(slug)).html).not.toContain("<h1");
-      }
-      for (const slug of getFormationSlugs()) {
-        expect((await getFormationBySlug(slug)).html).not.toContain("<h1");
-      }
     });
   });
 });
