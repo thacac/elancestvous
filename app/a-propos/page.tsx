@@ -114,7 +114,7 @@ export default function About() {
               </strong>
             </KeyMessage>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <PastelCard tone="sky" as="div" className="p-4 text-center">
                 <span className="block chiffre-cle mb-1">
                   10+
@@ -129,6 +129,16 @@ export default function About() {
                 </span>
                 <span className="texte-mention text-stone-600 uppercase tracking-wide">
                   Certifiée d&apos;État
+                </span>
+              </PastelCard>
+              {/* Grand texte court (« GAPP ») : « Animatrice GAPP » en
+                  chiffre-cle débordait des cartes étroites (~142 px à 768 px). */}
+              <PastelCard tone="sky" as="div" className="p-4 text-center">
+                <span className="block chiffre-cle mb-1">
+                  GAPP
+                </span>
+                <span className="texte-mention text-stone-600 uppercase tracking-wide">
+                  Animatrice en cours de certification
                 </span>
               </PastelCard>
             </div>
