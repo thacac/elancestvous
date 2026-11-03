@@ -66,3 +66,54 @@ describe("About page — phrase clé dans la bulle (story 4.13)", () => {
     );
   });
 });
+
+describe("About page — 3e carte « GAPP » (animatrice en cours de certification)", () => {
+  // « GAPP » est dans un <abbr> (info-bulle), les autres dans un <span>.
+  const carte = (texte: string) =>
+    screen.getByText(texte, { selector: "span, abbr" }).closest(".rounded-3xl")!;
+
+  it("ajoute la carte GAPP à côté de « 10+ » et « Coach », en alternance ciel / pêche / ciel", () => {
+    render(<About />);
+    const dix = carte("10+");
+    const coach = carte("Coach");
+    const gapp = carte("GAPP");
+
+    const grille = dix.parentElement!;
+    expect(Array.from(grille.children)).toEqual([dix, coach, gapp]);
+    expect(dix.className).toContain("bg-sky");
+    expect(coach.className).toContain("bg-peach");
+    expect(gapp.className).toContain("bg-sky");
+  });
+
+  it("met « GAPP » en chiffre clé et la mention en stone-600, en capitales (texte réel)", () => {
+    render(<About />);
+    const grand = screen.getByText("GAPP", { selector: "abbr" }).closest("span")!;
+    expect(grand.className).toContain("chiffre-cle");
+
+    const mention = screen.getByText("Animatrice en cours de certification");
+    expect(mention.className).toContain("texte-mention");
+    expect(mention.className).toContain("text-stone-600");
+    expect(mention.className).toContain("uppercase");
+    expect(mention.className).toContain("tracking-wide");
+    expect(mention.closest(".rounded-3xl")).toBe(grand.closest(".rounded-3xl"));
+  });
+
+  it("développe le sigle GAPP dans une abréviation (info-bulle)", () => {
+    render(<About />);
+    const sigle = screen.getByText("GAPP", { selector: "abbr" });
+    expect(sigle).toHaveAttribute("title", "Groupe d'analyse des pratiques professionnelles");
+    expect(sigle.closest(".chiffre-cle")).not.toBeNull();
+    // Pas de soulignement pointillé du navigateur sur le chiffre clé.
+    expect(sigle.className).toContain("no-underline");
+  });
+
+  it("aligne les trois cartes sur une ligne dès sm, empilées en dessous, sans césure", () => {
+    render(<About />);
+    const grille = carte("GAPP").parentElement!;
+    const classes = grille.className.split(/\s+/);
+    expect(classes).toEqual(expect.arrayContaining(["grid", "grid-cols-1", "sm:grid-cols-3"]));
+    expect(classes).not.toContain("sm:grid-cols-2");
+    // outerHTML : couvre aussi la grille, dont la césure serait héritée.
+    expect(grille.outerHTML).not.toContain("hyphens-auto");
+  });
+});
