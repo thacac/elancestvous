@@ -8,7 +8,7 @@ export default function manifest(): MetadataRoute.Manifest {
       "Coaching individuel et collectif, formations QVCT/RPS et accompagnement des professionnels de santé.",
     start_url: "/",
     display: "standalone",
-    theme_color: "#015566",
+    theme_color: "#29b5ad",
     background_color: "#ffffff",
     icons: [
       { src: "/favicon.ico", sizes: "any", type: "image/x-icon" },

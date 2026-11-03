@@ -40,10 +40,7 @@ export const Navbar: FC<NavbarProps> = ({ blogEnabled = false }) => {
   ];
 
   return (
-    // Fond pétrole plein (Cédric, 2026-11-03) : Safari iOS 26 teinte sa barre
-    // d'après le haut de la page, plus d'après theme-color. Texte, icône et
-    // focus en blanc (≥ 4.5:1 sur pétrole).
-    <header className="sticky top-0 z-50 bg-petrol">
+    <header className="sticky top-0 z-50 backdrop-blur-sm border-b">
       <nav
         aria-label="Global"
         className="flex items-center justify-between p-6 lg:px-8"
@@ -52,7 +49,7 @@ export const Navbar: FC<NavbarProps> = ({ blogEnabled = false }) => {
           <Link
             href="/"
             aria-label="Élan C’est Vous, accueil"
-            className="font-display italic font-extrabold text-white text-xl rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+            className="font-display italic font-extrabold text-primary text-xl"
           >
             <span>
               <Logo className="inline-block size-8 mr-2 align-middle" />
@@ -66,12 +63,12 @@ export const Navbar: FC<NavbarProps> = ({ blogEnabled = false }) => {
             onClick={() => setMobileMenuOpen(true)}
             aria-expanded={mobileMenuOpen}
             aria-controls="mobile-menu-panel"
-            className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-white touch-manipulation active:bg-white/10 active:scale-95 transition-transform focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+            className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-200 touch-manipulation active:bg-primary/10 active:scale-95 transition-transform"
           >
             <span className="sr-only">Open main menu</span>
             <Bars3BottomRightIcon
               aria-hidden="true"
-              className="size-6 text-white cursor-pointer"
+              className="size-6 text-primary cursor-pointer"
             />
           </button>
         </div>
@@ -80,7 +77,7 @@ export const Navbar: FC<NavbarProps> = ({ blogEnabled = false }) => {
             <Link
               key={item.label}
               href={item.href}
-              className="text-sm/6 font-semibold text-white link-custom rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+              className="text-sm/6 font-semibold text-primary link-custom"
             >
               {item.label}
             </Link>
@@ -90,8 +87,7 @@ export const Navbar: FC<NavbarProps> = ({ blogEnabled = false }) => {
           <Link
             href="/coaching/particuliers"
             className={
-              buttonVariants({ variant: "tintedOnDark", size: "sm" }) +
-              " text-sm focus-visible:ring-white focus-visible:ring-offset-petrol"
+              buttonVariants({ variant: "outline", size: "sm" }) + " text-sm"
             }
           >
             Particuliers
