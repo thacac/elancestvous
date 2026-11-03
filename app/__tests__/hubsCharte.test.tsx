@@ -38,9 +38,8 @@ function h2DeSection() {
     .filter((h) => !h.closest("#formations-cta-final") && !h.closest("[data-hero]"));
 }
 
-async function renderFormations() {
-  const jsx = await FormationsCataloguePage({ searchParams: Promise.resolve({}) });
-  return render(jsx);
+function renderFormations() {
+  return render(<FormationsCataloguePage />);
 }
 
 describe("SEO inchangé (FR7, UX-DR6)", () => {

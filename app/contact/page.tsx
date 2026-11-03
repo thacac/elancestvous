@@ -1,4 +1,4 @@
-import { PastelCard } from "@/components/charte";
+import { BrushUnderline, PastelCard } from "@/components/charte";
 import ContactForm from "@/components/contact-form/ContactForm";
 import type { ContactFormValues } from "@/components/contact-form/validation";
 import GabaritPage from "@/components/GabaritPage";
@@ -43,14 +43,14 @@ export default async function ContactPage({
   return (
     <GabaritPage as="section" id="contact" className="pb-20" filAriane={[{ label: "Contact" }]}>
       <div className="container">
-        <div className="text-center mb-8">
+        <div className="mb-8">
           <h1>
             Parlons de{" "}
-            <span className="text-accent">
+            <BrushUnderline className="text-accent">
               <strong>vos besoins</strong>
-            </span>
+            </BrushUnderline>
           </h1>
-          <h2 className="h3-like">
+          <h2 className="h3-like mx-0!">
             Un premier échange pour comprendre votre situation et définir ensemble
             la réponse la plus adaptée.
           </h2>

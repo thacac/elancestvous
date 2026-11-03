@@ -69,7 +69,7 @@ describe("Story 4.11 — haut de page sur le modèle du catalogue", () => {
     expect(hero).not.toBeNull();
     expect(hero).toHaveClass("pb-20", "container");
     expect(hero?.className).not.toMatch(/\b(?:py|pt)-\d+\b/);
-    // Le H1 reste centré.
-    expect(hero?.querySelector("h1")?.closest(".text-center")).not.toBeNull();
+    // Le H1 est aligné à gauche (harmonisation des titres, 2026-11-03).
+    expect(hero?.querySelector("h1")?.closest(".text-center")).toBeNull();
   });
 });

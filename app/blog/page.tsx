@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { PastelCard } from "@/components/charte";
+import { BrushUnderline, PastelCard } from "@/components/charte";
 import GabaritPage from "@/components/GabaritPage";
 import { getAllPostsMeta } from "@/lib/blog";
 import { isBlogPublic } from "@/lib/featureFlags";
@@ -36,16 +36,18 @@ export default function BlogIndex() {
 
   return (
     <GabaritPage as="section" className="mb-40" filAriane={[{ label: "Blog" }]}>
-      <div className="container text-center mb-16">
-        <h1>Le blog</h1>
-        <h2 className="h3-like">
+      <div className="container mb-16">
+        <h1>
+          Le <BrushUnderline className="text-accent">blog</BrushUnderline>
+        </h1>
+        <h2 className="h3-like mx-0!">
           Ressources et réflexions autour de la santé au travail et de
           l&apos;accompagnement des soignants.
         </h2>
       </div>
 
       {posts.length === 0 ? (
-        <p className="container text-center text-stone-600">
+        <p className="container text-stone-600">
           Les premiers articles arrivent bientôt.
         </p>
       ) : (

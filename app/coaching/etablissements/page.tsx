@@ -101,7 +101,7 @@ export default function CoachingEtablissementsPage() {
       >
         {/* --- 1. Titre */}
         <section id="coaching" data-hero className="pb-20 container">
-          <div className="text-center mb-8">
+          <div className="mb-8">
             <h1>
               Coaching{" "}
               <span className="text-accent">
@@ -124,7 +124,7 @@ export default function CoachingEtablissementsPage() {
               </span>
               , au service d&apos;un objectif clairement défini.
             </h2>
-            <h3>
+            <h3 className="mx-0!">
               Issu de mon expérience du soin et de la pratique du coaching, cet
               accompagnement s&apos;inscrit dans une approche respectueuse du travail
               réel et des contraintes organisationnelles.

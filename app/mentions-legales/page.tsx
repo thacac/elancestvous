@@ -1,3 +1,4 @@
+import { BrushUnderline } from "@/components/charte";
 import GabaritPage from "@/components/GabaritPage";
 import { OG_BANNER_IMAGES } from "@/lib/openGraph";
 
@@ -23,14 +24,14 @@ export default function MentionsLegales() {
       className="mb-20"
       filAriane={[{ label: "Mentions légales" }]}
     >
-      <div className="container text-center">
+      <div className="container">
         <h1>
           Mentions{" "}
-          <span className="text-accent">
+          <BrushUnderline className="text-accent">
             <strong>Légales</strong>
-          </span>
+          </BrushUnderline>
         </h1>
-        <h2 className="h3-like">
+        <h2 className="h3-like mx-0!">
           Conformément à la législation française, retrouvez ici toutes les
           informations légales du site.
         </h2>

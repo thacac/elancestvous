@@ -118,6 +118,11 @@ graph LR
 
 ### AD-5 — Le filtre de catégorie du catalogue vit dans l'URL, pas dans un state client
 
+> **Abandonnée (Cédric, 2026-11-03).** La barre de filtres et la liste des
+> fiches sont retirées du catalogue : `/formations` ne présente plus que les
+> 4 tuiles Famille et ne lit plus `searchParams`. Chaque hub Famille liste ses
+> fiches.
+
 - **Binds:** FR-4
 - **Prevents:** Un filtre qui ne survit pas au rafraîchissement, n'est pas
   partageable, et introduit une gestion d'état client absente du reste du
@@ -162,7 +167,7 @@ graph LR
 ```text
 app/
   formations/
-    page.tsx                                            # catalogue, lit searchParams?famille=
+    page.tsx                                            # catalogue : 4 tuiles Famille (AD-5 abandonnée)
     cadre-legal-etablissements-sante/page.tsx           # hub Famille 1
     prevention-rps-qvct-etablissements-sante/page.tsx   # hub Famille 2, contenu repris de l'actuel formations-rps-qvct
     accompagnement-professionnel-etablissements-sante/page.tsx  # hub Famille 3 (contenu marketing à rédiger, pas de page existante)

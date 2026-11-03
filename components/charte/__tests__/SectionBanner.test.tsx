@@ -76,3 +76,20 @@ describe("SectionBanner — courbe turquoise des slides", () => {
   });
 });
 
+
+// Vague au-dessus du bandeau (validé par Cédric le 2026-11-03), comme la
+// vague du hero au-dessus de « Mes 3 axes » sur l'accueil.
+describe("SectionBanner — vague du haut", () => {
+  it("ouvre le bandeau par une vague décorative, avant l'aplat pétrole", () => {
+    const { container } = render(<SectionBanner title="Mes axes" />);
+    const premier = container.querySelector("header")!.firstElementChild!;
+    expect(premier.tagName.toLowerCase()).toBe("svg");
+    expect(premier).toHaveAttribute("aria-hidden", "true");
+    expect(premier.nextElementSibling).toHaveClass("bg-petrol");
+  });
+
+  it("peut s'en passer quand la section précédente en dessine déjà une", () => {
+    const { container } = render(<SectionBanner title="Mes axes" vagueHaute={false} />);
+    expect(container.querySelector("header")!.firstElementChild).toHaveClass("bg-petrol");
+  });
+});

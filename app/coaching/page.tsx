@@ -30,9 +30,9 @@ export default function CoachingHubPage() {
   return (
     <GabaritPage className="min-h-screen overflow-hidden" filAriane={[{ label: "Coaching" }]}>
       <section data-hero className="pb-20 container">
-        <div className="text-center mb-12">
+        <div className="mb-12">
           <h1>
-            <BrushUnderline>Coaching</BrushUnderline>.
+            <BrushUnderline className="text-accent">Coaching</BrushUnderline>.
           </h1>
           <h2 className="py-5">
             Un accompagnement <span className="text-accent"><strong>individuel</strong></span> ou{" "}
@@ -40,7 +40,7 @@ export default function CoachingHubPage() {
           </h2>
         </div>
 
-        <ul role="list" className="grid list-none gap-8 p-0 md:grid-cols-2 max-w-4xl mx-auto">
+        <ul role="list" className="grid list-none gap-8 p-0 md:grid-cols-2 max-w-4xl">
           <PastelCard as="li" tone="sky" className="p-10 text-center flex flex-col items-center gap-4">
             <Image
               src="/illustrations/soignante-pensive-coaching.jpg"

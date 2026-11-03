@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { Bubble, KeyMessage, PastelCard, SectionBanner } from "@/components/charte";
+import { BrushUnderline, Bubble, KeyMessage, PastelCard, SectionBanner } from "@/components/charte";
 import CtaElan from "@/components/CtaElan";
 import GabaritPage from "@/components/GabaritPage";
 import { IconStethoscope } from "@/components/ui/icons-publics";
@@ -29,14 +29,14 @@ export default function About() {
   return (
     <>
       <GabaritPage as="section" id="apropos" className="mb-12" filAriane={[{ label: "À propos" }]}>
-        <div className="container text-center mb-12">
+        <div className="container mb-12">
           <h1>
             Coralie Mathorel –{" "}
-            <span className="text-accent">
+            <BrushUnderline className="text-accent">
               <strong>Coach certifiée à Toulouse</strong>
-            </span>
+            </BrushUnderline>
           </h1>
-          <h2 className="h3-like">
+          <h2 className="h3-like mx-0!">
             Ancienne soignante, j&apos;accompagne aujourd&apos;hui la santé de ceux qui
             soignent.
           </h2>

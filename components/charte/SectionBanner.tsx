@@ -1,5 +1,7 @@
 import { cn } from "@/lib/utils";
 
+import { Wave } from "./Decor";
+
 import type { ReactNode } from "react";
 
 interface SectionBannerProps {
@@ -13,11 +15,15 @@ interface SectionBannerProps {
   as?: "h2" | "h3";
   /** Id posé sur le titre, pour les ancres internes (#axes-de-travail…). */
   id?: string;
+  /** Vague d'ouverture au-dessus de l'aplat (true par défaut), comme celle du
+   *  hero au-dessus de « Mes 3 axes » sur l'accueil. À désactiver quand la
+   *  section précédente en dessine déjà une. */
+  vagueHaute?: boolean;
   className?: string;
 }
 
-// Bandeau de section des slides de formation : aplat pétrole prolongé d'une
-// vague, icône, barre
+// Bandeau de section des slides de formation : vague d'ouverture, aplat
+// pétrole prolongé d'une vague, icône, barre
 // orange, titre en Nunito et sous-titre manuscrit. Les styles globaux h2/h3
 // de globals.css sont hors @layer et l'emportent sur les utilitaires, d'où
 // les modificateurs `!` sur le titre (h1, lui, est en @layer base).
@@ -27,10 +33,12 @@ export function SectionBanner({
   icon,
   as: Heading = "h2",
   id,
+  vagueHaute = true,
   className,
 }: SectionBannerProps) {
   return (
     <header className={cn("text-white", className)}>
+      {vagueHaute && <Wave />}
       <div className="bg-petrol">
         <div className="container wide flex items-center gap-4 pt-5 pb-3">
           {icon && (
