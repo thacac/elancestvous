@@ -868,3 +868,84 @@ Story dédiée décidée par Cédric (2026-11-02).
 **Given** l'envoi et le pré-remplissage `?type=&sujet=`
 **When** on compare avant et après
 **Then** le schéma de validation, l'action serveur `submit_contact_form` et le pré-remplissage sont inchangés
+
+### Story 4.13: Retouches À propos, Contact et fil d'Ariane
+
+As a visiteur qui découvre Coralie,
+I want retrouver la phrase clé de sa démarche dans la bulle des slides, et savoir où je suis sur chaque page,
+So that le message me parle directement et que je puisse remonter facilement dans le site.
+
+**Contexte (Cédric, 2026-11-02) :** sur `/a-propos`, la phrase « je ne parle
+pas de théorie, je parle de votre réalité. » était un gros italique orange
+collé à « C'est ce qui fait aujourd'hui ma force : », jugé peu réussi ; deux
+maquettes ont été présentées (bulle ciel, manuscrit Kalam) et Cédric a retenu
+**la bulle (A)**. Le fil d'Ariane (`Breadcrumbs`, posé page par page avec son
+JSON-LD `BreadcrumbList`) manquait sur `/a-propos`, `/contact` et
+`/mentions-legales` (mesuré sur `validation` : les 12 autres pages publiques
+l'ont). Il reste posé page par page et non dans le layout, car les libellés et
+le JSON-LD dépendent de chaque page. Un seul haut de page, propre en SEO et
+en code, sur toutes les pages (Cédric, 2026-11-03), celui des hubs depuis la
+story 4.11 : le composant `GabaritPage` pose le blanc `pt-6 sm:pt-20` puis le
+fil d'Ariane, et le H1 suit directement ; le style du H1 (répété sur 17 H1 en
+`text-3xl! sm:text-5xl! lg:text-6xl! break-words`, les `!` contournant une
+règle globale hors `@layer`) est défini une seule fois en `@layer base`. La bulle
+de la bio et la bulle-question du `CtaElan` sont visibles ensemble à 1280 px :
+accepté par Cédric, la règle « une bulle par écran » visant les
+bulles-questions.
+
+**Acceptance Criteria:**
+
+**Given** `/a-propos`
+**When** on lit la biographie
+**Then** « C'est ce qui fait aujourd'hui ma force : » reste en gras sur sa ligne, et la phrase « je ne parle pas de théorie, je parle de votre réalité. » s'affiche dans un `Bubble` (ton ciel, `as="p"`), texte inchangé mot pour mot. Sur smartphone, la bulle tient dans la colonne sans débordement à 320 px
+
+**Given** `/a-propos`, `/contact` et `/mentions-legales`
+**When** la page se charge
+**Then** un fil d'Ariane « Accueil / À propos », « Accueil / Contact » ou « Accueil / Mentions légales » (libellés du menu) précède le contenu, avec la page courante en `aria-current="page"` et son JSON-LD `BreadcrumbList`
+
+**Given** toutes les pages publiques (`app/**/page.tsx`, hors accueil, `api` et `blog-review`)
+**When** les tests tournent
+**Then** un test de garde échoue si l'une d'elles n'utilise pas `GabaritPage` ou importe `Breadcrumbs` en direct
+
+**Given** les 17 H1 du site
+**When** on lit le code
+**Then** leur taille réduite sur smartphone, leur coupure sans césure, leur police et leur graisse viennent de la seule règle `h1` de `app/globals.css`, en `@layer base` ; aucun H1 ne porte de classe de taille ni de `!` (test), et le rendu est identique avant et après (style calculé et position des H1, fil d'Ariane, title, meta, Hn, JSON-LD, `alt`, hauteur des pages, mesurés sur 16 pages à 1280, 390 et 320 px)
+
+**Given** le SEO et la mise en page
+**When** on compare avant et après à 1280, 390 et 320 px
+**Then** title, meta, H1, Hn, textes, `alt` et URL sont inchangés (seuls ajouts : les fils d'Ariane), le fil d'Ariane et le H1 sont aux mêmes positions que sur les hubs Coaching (même modèle de haut de page, vérifié par test), et la page ne défile pas horizontalement à 320 px
+
+**Given** `EXPERIENCE.md`
+**When** on lit la ligne `Bubble`
+**Then** son usage couvre aussi « une phrase de Coralie adressée au visiteur » (au plus une par section), sans plus d'une bulle-question par écran
+
+### Story 4.14: Un seul H1 par page, même si le Markdown en contient un
+
+As a Amandine, qui navigue au lecteur d'écran par les titres,
+I want ne trouver qu'un seul H1 sur chaque article et chaque fiche formation,
+So that je sache tout de suite quel est le sujet de la page.
+
+**Contexte (revue de la story 4.13, 2026-11-03) :** les articles du blog,
+l'aperçu `blog-review` et les fiches formation affichent du Markdown rendu
+par `renderMarkdownToSafeHtml` (`lib/blog.ts`), qui transmet tel quel un
+titre `# …`. Le prompt de génération (`services/blog/generateDraft.ts`)
+interdit le titre `#`, mais rien ne l'impose : un `# …` produirait un
+deuxième H1 (RGAA 9.1). Depuis la story 4.13 (règle `h1` en `@layer base`),
+ce H1 prendrait en plus le style `prose` (environ 36 px fixes, sans coupure),
+avec un risque de débordement à 320 px. Aucun contenu actuel n'en contient
+(vérifié le 2026-11-03). Story dédiée décidée par Cédric (2026-11-03), hors
+de la story 4.13 qui ne touche pas au pipeline du blog.
+
+**Acceptance Criteria:**
+
+**Given** un Markdown (article, brouillon `blog-review` ou fiche formation) qui contient un titre `# …`
+**When** il est rendu par `renderMarkdownToSafeHtml`
+**Then** ce titre sort en `<h2>`, texte inchangé, et la page garde un seul H1 (test unitaire du rendu)
+
+**Given** les titres `##` à `######`
+**When** ils sont rendus
+**Then** ils sont inchangés (pas de décalage de toute la hiérarchie)
+
+**Given** le pipeline de génération et le flux Discord
+**When** on compare avant et après
+**Then** ils sont inchangés (seul le rendu Markdown évolue), et les articles et fiches actuels ont un rendu identique

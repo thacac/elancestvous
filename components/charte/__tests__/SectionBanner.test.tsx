@@ -16,8 +16,14 @@ describe("SectionBanner", () => {
   });
 
   it("permet de choisir le niveau de titre (hiérarchie Hn de la page)", () => {
-    render(<SectionBanner as="h1" title="Formations RPS et QVCT" />);
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Formations RPS et QVCT");
+    render(<SectionBanner as="h3" title="Formations RPS et QVCT" />);
+    expect(screen.getByRole("heading", { level: 3 })).toHaveTextContent("Formations RPS et QVCT");
+  });
+
+  it("n'accepte pas h1 : le H1 de page suit la règle h1 globale (story 4.13)", () => {
+    // Vérifié par `tsc --noEmit` : `as="h1"` est une erreur de type.
+    // @ts-expect-error h1 réservé au titre de page, hors bandeau.
+    render(<SectionBanner as="h1" title="Interdit" />);
   });
 
   it("porte l'id sur le titre pour les ancres internes", () => {

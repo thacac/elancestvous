@@ -1,8 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { KeyMessage, PastelCard, SectionBanner } from "@/components/charte";
+import { Bubble, KeyMessage, PastelCard, SectionBanner } from "@/components/charte";
 import CtaElan from "@/components/CtaElan";
+import GabaritPage from "@/components/GabaritPage";
 import { IconStethoscope } from "@/components/ui/icons-publics";
 import { OG_BANNER_IMAGES } from "@/lib/openGraph";
 
@@ -27,9 +28,9 @@ export const metadata: Metadata = {
 export default function About() {
   return (
     <>
-      <section id="apropos" className="pt-6 sm:pt-20 mb-12">
+      <GabaritPage as="section" id="apropos" className="mb-12" filAriane={[{ label: "À propos" }]}>
         <div className="container text-center mb-12">
-          <h1 className="text-3xl! sm:text-5xl! lg:text-6xl! break-words">
+          <h1>
             Coralie Mathorel –{" "}
             <span className="text-accent">
               <strong>Coach certifiée à Toulouse</strong>
@@ -60,20 +61,23 @@ export default function About() {
             </p>
           </div>
           <div className="w-full md:w-8/12">
-            <div className="prose text-stone-600 mb-8 space-y-4">
+            <div className="prose text-stone-600 mb-5 space-y-4">
               <p>
                 Mon parcours a débuté au cœur du soin. Cette réalité du
                 terrain, je la connais : l&apos;urgence, la charge mentale, la
                 pression du quotidien.
               </p>
               <p>
-                <strong>
-                  C&apos;est ce qui fait aujourd&apos;hui ma force :&nbsp;
-                  <span className="text-accent font-display font-extrabold text-2xl italic">
-                    je ne parle pas de théorie, je parle de votre réalité.
-                  </span>
-                </strong>
+                <strong>C&apos;est ce qui fait aujourd&apos;hui ma force :</strong>
               </p>
+            </div>
+            {/* Story 4.13 : phrase de Coralie adressée au visiteur, dans la
+                bulle des slides (variante A retenue par Cédric), hors des
+                blocs prose. mb-12 : la queue descend de 32 px sous la bulle. */}
+            <Bubble className="mb-12">
+              <strong>je ne parle pas de théorie, je parle de votre réalité.</strong>
+            </Bubble>
+            <div className="prose text-stone-600 mb-8">
               <p>
                 Formée au coaching et forte de mon expérience du soin, j&apos;ai
                 construit à Toulouse une approche qui s&apos;appuie sur l&apos;écoute,
@@ -130,7 +134,7 @@ export default function About() {
             </div>
           </div>
         </div>
-      </section>
+      </GabaritPage>
       <CtaElan />
     </>
   );

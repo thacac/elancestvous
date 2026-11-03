@@ -16,6 +16,8 @@ import DynamiquePage, { metadata as metaDynamique } from "../formations/dynamiqu
 import FormationsCataloguePage from "../formations/page";
 import PreventionPage, { metadata as metaPrevention } from "../formations/prevention-rps-qvct-etablissements-sante/page";
 
+import { expectH1StyleGlobal } from "./outils/h1";
+
 // Story 4.4 : la charte des slides habille le catalogue, les 4 hubs Famille
 // et les fiches formation sans toucher au SEO (FR7, UX-DR6). Contenu réel de
 // content/formations/ : une fiche en Prévention, une en Cadre légal, aucune
@@ -305,21 +307,22 @@ describe.each(HUBS)("Hub Famille $nom", ({ rendu, meta, title, h1, sections, fic
 
   // Mesuré à 320 px : « professionnelles » / « développement » en 48 px
   // débordaient de l'écran.
-  it("laisse son H1 se couper (pas de défilement horizontal à 320 px)", () => {
+  it("ne surcharge pas la coupure de la règle h1 globale (pas de défilement à 320 px)", () => {
     rendu();
     // break-words seul : hyphens-auto coupait à 320 px des mots qui tenaient
     // sur la ligne (« Accompagne-ment »).
-    expect(screen.getByRole("heading", { level: 1 })).toHaveClass("break-words");
-    expect(screen.getByRole("heading", { level: 1 })).not.toHaveClass("hyphens-auto");
+    // Story 4.13 : coupure sans césure portée par la règle h1 globale.
+    expectH1StyleGlobal(screen.getByRole("heading", { level: 1 }));
   });
 
   // À 390 px, en 48 px, le H1 se coupait en « Accompagne-ment et pra-tiques
   // profession-nelles » : taille réduite sur mobile, comme le catalogue.
   // En 36 px, « Accompagnement » ne tenait pas à 320 px (« Accompagnemen/t ») :
   // 30 px sur smartphone, sous lequel tous les mots des 4 titres tiennent.
-  it("réduit son H1 sur smartphone", () => {
+  it("ne surcharge pas la taille de la règle h1 globale", () => {
     rendu();
-    expect(screen.getByRole("heading", { level: 1 })).toHaveClass("text-3xl!", "sm:text-5xl!", "lg:text-6xl!");
+    // Story 4.13 : taille réduite portée par la règle h1 globale.
+    expectH1StyleGlobal(screen.getByRole("heading", { level: 1 }));
   });
 
   // Story 4.10 : chaque « Voir la fiche » du hub nomme sa formation.
@@ -441,13 +444,13 @@ describe("Fiche formation", () => {
 
   // Mesuré à 320 px : « établissements », en 48 px, ne tenait pas dans la
   // colonne (344 px pour 320) et créait un défilement horizontal.
-  it("laisse le H1 se couper et la colonne de lecture rétrécir (pas de défilement à 320 px)", async () => {
+  it("ne surcharge pas la règle h1 globale et laisse la colonne de lecture rétrécir (pas de défilement à 320 px)", async () => {
     await renderFiche("cadre-legal-etablissements-sante", "obligations-legales-des-etablissements");
     const h1 = screen.getByRole("heading", { level: 1 });
     // 30 px sur smartphone comme les hubs : en 36 px, « Accompagnement » ne
     // tient pas à 320 px (revue).
-    expect(h1).toHaveClass("break-words", "text-3xl!", "sm:text-5xl!", "lg:text-6xl!");
-    expect(h1).not.toHaveClass("hyphens-auto");
+    // Story 4.13 : taille et coupure portées par la règle h1 globale.
+    expectH1StyleGlobal(h1);
     expect(h1.parentElement).toHaveClass("min-w-0");
   });
 

@@ -2,8 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import Breadcrumbs from "@/components/Breadcrumbs";
 import { Chip, PastelCard, Steps } from "@/components/charte";
+import GabaritPage from "@/components/GabaritPage";
 import { Button } from "@/components/ui/button";
 import { FORMATION_FAMILLES, getAllFormationsMeta, getFormationBySlug } from "@/lib/formations";
 import { OG_BANNER_IMAGES } from "@/lib/openGraph";
@@ -134,19 +134,21 @@ export default async function FormationPage({
   )!.label;
 
   return (
-    <article className="pt-6 sm:pt-20 mb-40">
-      <Breadcrumbs
-        items={[
-          { label: "Formations", href: "/formations" },
-          { label: familleLabel },
-          { label: formationDetail.titre },
-        ]}
-      />
+    <GabaritPage
+      as="article"
+      className="mb-40"
+      filAriane={[
+        { label: "Formations", href: "/formations" },
+        { label: familleLabel },
+        { label: formationDetail.titre },
+      ]}
+    >
       <div className="container grid gap-x-12 gap-y-10 lg:grid-cols-[1.7fr_1fr]">
-        {/* min-w-0, titre réduit sur smartphone et break-words : un mot long
-            (« établissements » en 48 px) débordait à 320 px de large. */}
+        {/* min-w-0 : un mot long du titre (« établissements ») débordait à
+            320 px de large ; la taille réduite et la coupure du H1 viennent
+            de la règle h1 globale (story 4.13). */}
         <div className="min-w-0 lg:col-start-1">
-          <h1 className="mb-6 text-3xl! sm:text-5xl! lg:text-6xl! break-words">{formationDetail.titre}</h1>
+          <h1 className="mb-6">{formationDetail.titre}</h1>
           <div
             className="prose prose-stone max-w-none"
             dangerouslySetInnerHTML={{ __html: formationDetail.html }}
@@ -260,6 +262,6 @@ export default async function FormationPage({
           &larr; Retour au catalogue des formations
         </Link>
       </div>
-    </article>
+    </GabaritPage>
   );
 }

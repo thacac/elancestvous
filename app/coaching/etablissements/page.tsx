@@ -1,11 +1,11 @@
 import ArticlesBlogLiesBloc from "@/components/ArticlesBlogLiesBloc";
 import ArticulationBloc from "@/components/ArticulationBloc";
 import BadgesBloc from "@/components/BadgesBloc";
-import Breadcrumbs from "@/components/Breadcrumbs";
 import CartesContrastBloc from "@/components/CartesContrastBloc";
 import { BrushUnderline, PastelCard, SectionBanner } from "@/components/charte";
 import Citation from "@/components/Citation";
 import CtaElan from "@/components/CtaElan";
+import GabaritPage from "@/components/GabaritPage";
 import PublicsCiblesBloc from "@/components/PublicsCiblesBloc";
 import {
   IconBuilding,
@@ -92,17 +92,17 @@ function IconChart() {
 export default function CoachingEtablissementsPage() {
   return (
     <>
-      <div className="min-h-screen overflow-hidden pt-6 sm:pt-20">
-        <Breadcrumbs
-          items={[
-            { label: "Coaching", href: "/coaching" },
-            { label: "Établissements" },
-          ]}
-        />
+      <GabaritPage
+        className="min-h-screen overflow-hidden"
+        filAriane={[
+          { label: "Coaching", href: "/coaching" },
+          { label: "Établissements" },
+        ]}
+      >
         {/* --- 1. Titre */}
         <section id="coaching" data-hero className="pb-20 container">
           <div className="text-center mb-8">
-            <h1 className="text-3xl! sm:text-5xl! lg:text-6xl! break-words">
+            <h1>
               Coaching{" "}
               <span className="text-accent">
                 <strong>individuel</strong>
@@ -300,7 +300,7 @@ export default function CoachingEtablissementsPage() {
 
         {/* --- 7. CTA FINAL --- */}
         <CtaElan contactType="institution" contactSujet="Coaching en établissement" />
-      </div>
+      </GabaritPage>
     </>
   );
 }

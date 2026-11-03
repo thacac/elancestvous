@@ -3,6 +3,8 @@ import { describe, expect, it, vi } from "vitest";
 
 import FormationsCataloguePage from "../formations/page";
 
+import { expectH1StyleGlobal } from "./outils/h1";
+
 // Story 4.7 : à 390 px, la première fiche arrivait après 2,7 écrans (4 grandes
 // tuiles Famille puis 4 lignes de filtres). Pistes retenues par Cédric
 // (2026-11-01) : liste avant les tuiles, filtres sur une ligne défilante avec
@@ -90,12 +92,11 @@ describe("/formations — filtres sur une ligne défilante (Story 4.7)", () => {
 });
 
 describe("/formations — H1 réduit sur smartphone (Story 4.7)", () => {
-  it("passe le H1 en text-3xl! sur smartphone, sans toucher au desktop ni au texte", async () => {
+  it("ne surcharge pas la règle h1 globale, texte inchangé", async () => {
     await renderCatalogue();
     const h1 = screen.getByRole("heading", { level: 1 });
     expect(h1).toHaveTextContent("Formations professionnelles");
-    expect(h1).toHaveClass("text-3xl!", "sm:text-5xl!", "lg:text-6xl!", "break-words");
-    expect(h1).not.toHaveClass("text-4xl!", "hyphens-auto");
+    expectH1StyleGlobal(h1);
   });
 });
 

@@ -13,7 +13,7 @@ export default function Hero() {
           <span className="inline-block py-1 px-3 rounded-full bg-petrol text-white text-xs font-bold mb-6 tracking-wide uppercase w-fit mx-auto md:mx-0">
             Santé au travail & Performance Humaine
           </span>
-          <h1 className="text-3xl! sm:text-5xl! lg:text-6xl! break-words font-display font-bold text-primary leading-tight mb-6">
+          <h1 className="mb-6 leading-tight">
             Préserver la santé de&nbsp;
             <BrushUnderline className="text-accent italic">ceux qui soignent</BrushUnderline>
             .

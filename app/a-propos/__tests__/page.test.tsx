@@ -33,3 +33,36 @@ describe("About page — espacement sous la navbar (mobile)", () => {
     expect(section.className).toContain("sm:pt-20");
   });
 });
+
+describe("About page — phrase clé dans la bulle (story 4.13)", () => {
+  const PHRASE = "je ne parle pas de théorie, je parle de votre réalité.";
+
+  it("affiche la phrase, mot pour mot, dans un Bubble ciel en <p>, en <strong>", () => {
+    render(<About />);
+    // L'emphase sémantique d'origine (<strong>) est conservée dans la bulle.
+    const fort = screen.getByText(PHRASE);
+    expect(fort.tagName).toBe("STRONG");
+    const phrase = fort.parentElement!;
+
+    expect(phrase.tagName).toBe("P");
+    expect(phrase.textContent).toBe(PHRASE);
+    expect(phrase.className).toContain("bg-sky");
+    expect(phrase.className).toContain("rounded-full");
+    expect(phrase.className).not.toContain("italic");
+    // Hors bloc prose : ses styles (couleur, graisse, marges) ne s'appliquent
+    // pas à la bulle, sans recourir à not-prose ni à des `!`.
+    expect(phrase.closest(".prose")).toBeNull();
+  });
+
+  it("garde « C'est ce qui fait aujourd'hui ma force : » en gras, seul sur sa ligne", () => {
+    render(<About />);
+    const debut = screen.getByText(/C.est ce qui fait aujourd.hui ma force/);
+
+    expect(debut.tagName).toBe("STRONG");
+    // Le paragraphe entier ne contient que ce début de phrase.
+    expect(debut.parentElement!.tagName).toBe("P");
+    expect(debut.parentElement!.textContent?.trim()).toBe(
+      "C'est ce qui fait aujourd'hui ma force :",
+    );
+  });
+});

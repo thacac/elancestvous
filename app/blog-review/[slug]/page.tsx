@@ -72,7 +72,7 @@ export default async function BlogReviewPage({
             year: "numeric",
           })}
         </p>
-        <h1 className="mb-6 text-3xl! sm:text-5xl! lg:text-6xl! break-words">{frontmatter.title}</h1>
+        <h1 className="mb-6">{frontmatter.title}</h1>
         {coverDataUrl && (
           <div className="relative aspect-[16/9] mb-8 rounded-3xl overflow-hidden">
             <Image

@@ -30,6 +30,8 @@ import BlogPost from "../blog/[slug]/page";
 import BlogIndex, { metadata as metaBlog } from "../blog/page";
 import BlogReviewPage from "../blog-review/[slug]/page";
 
+import { expectH1StyleGlobal } from "./outils/h1";
+
 // Story 4.5 : la charte des slides habille le blog (liste, article, aperçu
 // de relecture Discord) sans toucher au SEO ni au pipeline de génération.
 const root = join(__dirname, "..", "..");
@@ -104,10 +106,10 @@ async function renderRelecture(frontmatter: Record<string, unknown> = {}) {
   return render(jsx);
 }
 
-function h1Reduit() {
+function h1SansSurcharge() {
   const h1 = screen.getByRole("heading", { level: 1 });
-  expect(h1).toHaveClass("text-3xl!", "sm:text-5xl!", "lg:text-6xl!", "break-words");
-  expect(h1).not.toHaveClass("hyphens-auto");
+  // Story 4.13 : taille et coupure portées par la règle h1 globale.
+  expectH1StyleGlobal(h1);
 }
 
 describe("Liste du blog", () => {
@@ -127,9 +129,9 @@ describe("Liste du blog", () => {
     sansSaut(container);
   });
 
-  it("réduit son H1 sur smartphone sans césure", () => {
+  it("ne surcharge pas la règle h1 globale", () => {
     render(<BlogIndex />);
-    h1Reduit();
+    h1SansSurcharge();
   });
 
   it("garde les titres et les URLs des articles", () => {
@@ -167,9 +169,9 @@ describe("Article", () => {
     sansSaut(container);
   });
 
-  it("réduit son H1 sur smartphone sans césure", async () => {
+  it("ne surcharge pas la règle h1 globale", async () => {
     await renderArticle(post());
-    h1Reduit();
+    h1SansSurcharge();
   });
 
   it("lit le corps en Nunito Sans, titres internes en bleu nuit alignés à gauche", async () => {
@@ -237,10 +239,10 @@ describe("Aperçu de relecture (Discord)", () => {
     expect(bandeau).toHaveClass("bg-peach", "text-primary");
   });
 
-  it("garde un seul H1, réduit sur smartphone", async () => {
+  it("garde un seul H1, sans surcharge de la règle h1 globale", async () => {
     const { container } = await renderRelecture();
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Brouillon en relecture");
-    h1Reduit();
+    h1SansSurcharge();
     sansSaut(container);
   });
 

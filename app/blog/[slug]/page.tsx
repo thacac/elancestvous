@@ -3,8 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { ArticleBody } from "@/components/blog/ArticleBody";
-import Breadcrumbs from "@/components/Breadcrumbs";
 import { PastelCard } from "@/components/charte";
+import GabaritPage from "@/components/GabaritPage";
 import PostJsonLd from "@/components/PostJsonLd";
 import ShareButtons from "@/components/ShareButtons";
 import { getAllPostsMeta, getPostBySlug, getPostSlugs } from "@/lib/blog";
@@ -69,18 +69,19 @@ export default async function BlogPost({
   const pillarLabel = pillar?.label;
 
   return (
-    <article className="pt-6 sm:pt-20 mb-40">
+    <GabaritPage
+      as="article"
+      className="mb-40"
+      filAriane={[
+        { label: "Blog", href: "/blog" },
+        // Un article publié avant #73 peut ne pas avoir de pilier connu
+        // (pillar: null, rétrocompatibilité, cf. lib/blog.ts) — dans ce
+        // cas, pas de niveau intermédiaire plutôt qu'un lien absent.
+        ...(pillar ? [{ label: pillar.label, href: pillar.targetPage }] : []),
+        { label: post.title },
+      ]}
+    >
       <PostJsonLd post={post} />
-      <Breadcrumbs
-        items={[
-          { label: "Blog", href: "/blog" },
-          // Un article publié avant #73 peut ne pas avoir de pilier connu
-          // (pillar: null, rétrocompatibilité, cf. lib/blog.ts) — dans ce
-          // cas, pas de niveau intermédiaire plutôt qu'un lien absent.
-          ...(pillar ? [{ label: pillar.label, href: pillar.targetPage }] : []),
-          { label: post.title },
-        ]}
-      />
       <div className="container max-w-3xl">
         <p className="text-xs text-stone-600 uppercase tracking-wide mb-2">
           {new Date(post.publishedAt).toLocaleDateString("fr-FR", {
@@ -91,8 +92,7 @@ export default async function BlogPost({
           {" · "}
           {post.readingTime}
         </p>
-        {/* Réduit sur smartphone (titres longs), coupé sans césure à 320 px. */}
-        <h1 className="mb-6 text-3xl! sm:text-5xl! lg:text-6xl! break-words">{post.title}</h1>
+        <h1 className="mb-6">{post.title}</h1>
         <ShareButtons
           url={`${SITE}/blog/${post.slug}`}
           title={post.title}
@@ -134,6 +134,6 @@ export default async function BlogPost({
           </div>
         )}
       </div>
-    </article>
+    </GabaritPage>
   );
 }
