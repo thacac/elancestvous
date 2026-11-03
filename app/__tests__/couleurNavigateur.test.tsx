@@ -31,18 +31,6 @@ describe("Couleur du navigateur", () => {
   });
 });
 
-// Revue : le menu opaque masquerait un élément qui reçoit le focus en haut de
-// l'écran (WCAG 2.4.11) ou un titre visé par une ancre. Le défilement réserve
-// la hauteur du menu (≈ 80 px sur smartphone, ≈ 92 px sur ordinateur).
-describe("Rien ne se cache sous le menu opaque", () => {
-  it("réserve la hauteur du menu en haut de chaque défilement", () => {
-    const css = readFileSync(join(root, "app/globals.css"), "utf8");
-    const html = css.match(/\nhtml\s*\{([^}]*)\}/)?.[1] ?? "";
-    const valeur = html.match(/scroll-padding-top:\s*([\d.]+)rem/)?.[1];
-    expect(Number(valeur)).toBeGreaterThanOrEqual(6);
-  });
-});
-
 describe("Menu sur fond pétrole plein", () => {
   it("pose un fond pétrole opaque, sans flou transparent", () => {
     const { container } = render(<Navbar />);

@@ -14,12 +14,8 @@
   }
 }
 
-/* Menu sticky opaque (fond pétrole, ≈ 92 px sur ordinateur) : un élément
-   qui reçoit le focus ou le titre visé par une ancre ne doit jamais finir
-   caché dessous (WCAG 2.4.11). */
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 6rem;
 }
 
 body {
