@@ -30,6 +30,7 @@ pillar: C
 localAngle: false
 sourceUrl: >-
   https://www.legisocial.fr/actualites-sociales/8091-burn-out-risques-psychosociaux-obligation-securite-simpose-employeur.html
+keyMessage: "Tracer ne soigne personne : noter des faits, pas des personnes, rend simplement possible une décision."
 ---
 Dans les services où j'interviens, la phrase revient presque mot pour mot : « Ça fait six mois qu'on le dit. » Le dire, oui. L'écrire, rarement. Et c'est souvent là que la prévention s'arrête : au bord du couloir, entre deux transmissions.
 

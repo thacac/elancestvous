@@ -28,6 +28,7 @@ pillar: C
 localAngle: true
 sourceUrl: >-
   https://www.legisocial.fr/actualites-sociales/8091-burn-out-risques-psychosociaux-obligation-securite-simpose-employeur.html
+keyMessage: "Les réflexes du cadre face à la charge psychique ne s'apprennent pas dans une note de service : ils se travaillent en situation."
 ---
 Cette semaine, LégiSocial publiait un article intitulé [« Burn-out et risques psychosociaux : une obligation de sécurité qui s'impose à l'employeur »](https://www.legisocial.fr/actualites-sociales/8091-burn-out-risques-psychosociaux-obligation-securite-simpose-employeur.html). Le message de fond est simple : la responsabilité en matière de santé au travail repose sur l'employeur, pas sur la bonne volonté individuelle des équipes.
 
