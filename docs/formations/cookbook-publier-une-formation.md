@@ -72,14 +72,14 @@ Créez le fichier sous `content/formations/<slug>.md`, avec ce frontmatter YAML 
 Suivez exactement le workflow défini dans `.claude/rules/workflow-git.md` et `.claude/rules/revue-avant-pr.md` :
 
 1. Créez une branche dédiée à cette formation (jamais de commit direct sur `master`).
-2. TDD obligatoire : ajoutez d'abord un test qui échoue (par exemple dans `lib/__tests__/formations.test.ts` ou dans les tests de la page catalogue/fiche concernée), vérifiez qu'il échoue, puis ajoutez le fichier `.md` pour le faire passer.
+2. TDD obligatoire : ajoutez d'abord un test qui échoue (par exemple dans `lib/__tests__/formations.test.ts` ou dans les tests de la fiche ou du hub de sa famille), vérifiez qu'il échoue, puis ajoutez le fichier `.md` pour le faire passer.
 3. Avant de pousser : `yarn test`, `yarn tsc --noEmit` et `yarn lint` doivent tous passer.
 4. Lancez une revue isolée du diff (skill `code-review`, ou un subagent dédié) — l'abonnement Copilot du dépôt a expiré, il n'y a plus de revue automatique sur les PR. Corrigez les findings confirmés, avec tests, puis revérifiez `yarn test` / `yarn tsc --noEmit` / `yarn lint`.
 5. Ouvrez la PR **vers `validation`**, jamais vers `master` — un garde-fou (`guard-master.yml`) refuse toute PR de feature ciblant `master` directement.
 
 ## Étape 4 — Vérifier sur la Val, puis promouvoir vers `master`
 
-1. Une fois la PR fusionnée dans `validation`, la formation est déployée sur la Val : https://val.elancestvous.fr. Vérifiez-y la fiche (affichage, orthographe, lien depuis le catalogue et le hub de sa famille).
+1. Une fois la PR fusionnée dans `validation`, la formation est déployée sur la Val : https://val.elancestvous.fr. Vérifiez-y la fiche (affichage, orthographe, lien depuis le hub de sa famille : le catalogue `/formations` ne présente que les 4 familles).
 2. Si besoin, corrigez sur une nouvelle branche vers `validation`, comme pour tout autre changement.
 3. Quand tout est validé, ouvrez une PR de **promotion `validation` → `master`** — c'est la seule PR que `guard-master.yml` accepte vers `master` (voir `DEPLOYMENT.md`). Une fois fusionnée, la formation est en ligne sur le vrai site.
 
