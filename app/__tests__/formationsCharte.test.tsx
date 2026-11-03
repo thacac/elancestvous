@@ -222,7 +222,7 @@ describe.each(HUBS)("Hub Famille $nom", ({ rendu, meta, title, h1, sections, fic
     if (fiches > 0) {
       const cartes = within(within(section).getByRole("list")).getAllByRole("listitem");
       expect(cartes).toHaveLength(fiches);
-      expect(tons(cartes)).toEqual(cartes.map((_, i) => (i % 2 === 0 ? "sky" : "peach")));
+      expect(tons(cartes)).toEqual(["sky", "peach"]);
       expect(within(cartes[0]).getByRole("link", { name: /^Voir la fiche/ })).toHaveClass("bg-primary/10");
     } else {
       expect(within(section).getByText(/arrivent bientôt/).closest(".bg-sky")).not.toBeNull();
