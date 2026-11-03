@@ -93,6 +93,7 @@ describe("About page — 3e carte « GAPP » (animatrice en cours de certificati
     expect(mention.className).toContain("texte-mention");
     expect(mention.className).toContain("text-stone-600");
     expect(mention.className).toContain("uppercase");
+    expect(mention.className).toContain("tracking-wide");
     expect(mention.closest(".rounded-3xl")).toBe(grand.closest(".rounded-3xl"));
   });
 
@@ -102,6 +103,7 @@ describe("About page — 3e carte « GAPP » (animatrice en cours de certificati
     const classes = grille.className.split(/\s+/);
     expect(classes).toEqual(expect.arrayContaining(["grid", "grid-cols-1", "sm:grid-cols-3"]));
     expect(classes).not.toContain("sm:grid-cols-2");
-    expect(grille.innerHTML).not.toContain("hyphens-auto");
+    // outerHTML : couvre aussi la grille, dont la césure serait héritée.
+    expect(grille.outerHTML).not.toContain("hyphens-auto");
   });
 });
