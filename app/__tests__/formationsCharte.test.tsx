@@ -19,7 +19,7 @@ import { expectH1StyleGlobal } from "./outils/h1";
 
 // Story 4.4 : la charte des slides habille le catalogue, les 4 hubs Famille
 // et les fiches formation sans toucher au SEO (FR7, UX-DR6). Contenu réel de
-// content/formations/ : une fiche en Prévention, une en Cadre légal, aucune
+// content/formations/ : deux fiches en Prévention, une en Cadre légal, aucune
 // dans les deux autres familles (état vide honnête).
 const root = join(__dirname, "..", "..");
 
@@ -105,7 +105,7 @@ const HUBS = [
       "Un cycle structuré & cohérent",
       "À qui s’adressent ces formations ?",
     ],
-    fiches: 1,
+    fiches: 2,
   },
   {
     nom: "Cadre légal",
@@ -222,7 +222,7 @@ describe.each(HUBS)("Hub Famille $nom", ({ rendu, meta, title, h1, sections, fic
     if (fiches > 0) {
       const cartes = within(within(section).getByRole("list")).getAllByRole("listitem");
       expect(cartes).toHaveLength(fiches);
-      expect(tons(cartes)).toEqual(["sky"]);
+      expect(tons(cartes)).toEqual(cartes.map((_, i) => (i % 2 === 0 ? "sky" : "peach")));
       expect(within(cartes[0]).getByRole("link", { name: /^Voir la fiche/ })).toHaveClass("bg-primary/10");
     } else {
       expect(within(section).getByText(/arrivent bientôt/).closest(".bg-sky")).not.toBeNull();
@@ -312,6 +312,22 @@ describe("Fiche formation", () => {
     // Story 4.13 : taille et coupure portées par la règle h1 globale.
     expectH1StyleGlobal(h1);
     expect(h1.parentElement).toHaveClass("min-w-0");
+  });
+
+  it("publie la fiche « Gérer son stress efficacement et pour longtemps » (support de formation de Coralie)", async () => {
+    const { container } = await renderFiche(
+      "prevention-rps-qvct-etablissements-sante",
+      "gerer-son-stress-efficacement-et-pour-longtemps",
+    );
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Gérer son stress efficacement et pour longtemps");
+    sansSaut(container);
+    const section = screen.getByRole("heading", { level: 2, name: "Programme" }).closest("section")!;
+    expect(within(section.querySelector("ol")!).getAllByRole("heading", { level: 3 }).map((h) => h.textContent)).toEqual([
+      "Comprendre le stress",
+      "Repérer ses facteurs et ses signaux d'alerte",
+      "Comprendre et réguler ses émotions",
+      "Développer des stratégies durables",
+    ]);
   });
 
   it("présente le programme en étapes ordonnées, un h3 par module (Steps)", async () => {
