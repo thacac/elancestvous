@@ -8,6 +8,7 @@ import {
   getAllFormationsMeta,
   getFormationBySlug,
   getFormationSlugs,
+  parseFormationContent,
 } from "../formations";
 
 const FIXTURES = path.join(__dirname, "fixtures", "formations");
@@ -85,6 +86,34 @@ describe("getAllFormationsMeta", () => {
       (f) => f.slug === "diagnostic-plan-action-qvct"
     );
     expect(formation?.tarif).toBe("Sur devis");
+  });
+
+  it("exposes titreSeo as null when absent (the page then falls back to titre)", () => {
+    const formations = getAllFormationsMeta(VALID);
+    expect(formations.every((f) => f.titreSeo === null)).toBe(true);
+  });
+
+  it("rejects a titreSeo longer than 60 characters (it would be cut off by Google)", () => {
+    const raw = (titreSeo: string) => `---
+titre: "Titre"
+titreSeo: "${titreSeo}"
+slug: "titre"
+famille: "prevention-rps-qvct-etablissements-sante"
+objectifsPedagogiques: ["Objectif"]
+prerequis: "Aucun"
+publicVise: ["Direction"]
+programme:
+  - titre: "Module"
+    texte: "Texte"
+duree: "1 jour"
+format: "Présentiel"
+delaiAcces: "4 semaines"
+modalitesEvaluation: "Quiz"
+accessibilite: "Accessible"
+---
+Corps`;
+    expect(parseFormationContent(raw("a".repeat(60)), "ok.md").frontmatter.titreSeo).toBe("a".repeat(60));
+    expect(() => parseFormationContent(raw("a".repeat(61)), "long.md")).toThrow(/long\.md.*titreSeo/);
   });
 
   it("exposes programme as a structured list of modules (titre + texte), not a single free-text field", () => {

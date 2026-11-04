@@ -8,7 +8,7 @@ vi.mock("@/lib/relatedArticles", () => ({ getRelatedArticleLinks: vi.fn(() => []
 
 import { getRelatedArticleLinks } from "@/lib/relatedArticles";
 
-import FormationPage from "../formations/[famille]/[slug]/page";
+import FormationPage, { generateMetadata as metaFiche } from "../formations/[famille]/[slug]/page";
 import AccompagnementPage, { metadata as metaAccompagnement } from "../formations/accompagnement-professionnel-etablissements-sante/page";
 import CadreLegalPage, { metadata as metaCadreLegal } from "../formations/cadre-legal-etablissements-sante/page";
 import DynamiquePage, { metadata as metaDynamique } from "../formations/dynamique-equipe-etablissements-sante/page";
@@ -314,12 +314,22 @@ describe("Fiche formation", () => {
     expect(h1.parentElement).toHaveClass("min-w-0");
   });
 
-  it("publie la fiche « Gérer son stress efficacement et pour longtemps » (support de formation de Coralie)", async () => {
+  it("publie la fiche « Prévention de l'usure professionnelle, gestion du stress et des émotions » (support de formation de Coralie)", async () => {
     const { container } = await renderFiche(
       "prevention-rps-qvct-etablissements-sante",
-      "gerer-son-stress-efficacement-et-pour-longtemps",
+      "prevention-usure-professionnelle-stress-emotions",
     );
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Gérer son stress efficacement et pour longtemps");
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
+      "Prévention de l'usure professionnelle, gestion du stress et des émotions",
+    );
+    expect(screen.getByText("Sur devis, selon les besoins de votre établissement")).toBeInTheDocument();
+    expect(
+      screen.getByText("Pour toute demande d'adaptation liée à une situation de handicap, merci de me contacter"),
+    ).toBeInTheDocument();
+    // Lien de contact du référent handicap, pré-rempli avec la fiche.
+    expect(screen.getByRole("link", { name: "Formulaire de contact" })).toHaveAttribute("href", expect.stringMatching(/^\/contact\?/));
+    // Seuls les indicateurs de résultats restent à confirmer.
+    expect(screen.getAllByText("[À confirmer]")).toHaveLength(1);
     sansSaut(container);
     const section = screen.getByRole("heading", { level: 2, name: "Programme" }).closest("section")!;
     expect(within(section.querySelector("ol")!).getAllByRole("heading", { level: 3 }).map((h) => h.textContent)).toEqual([
@@ -328,6 +338,16 @@ describe("Fiche formation", () => {
       "Comprendre et réguler ses émotions",
       "Développer des stratégies durables",
     ]);
+  });
+
+  it("donne à « Prévention de l'usure professionnelle… » un titre SEO court, sans suffixe (≤ 60 caractères)", async () => {
+    const meta = await metaFiche({
+      params: Promise.resolve({
+        famille: "prevention-rps-qvct-etablissements-sante",
+        slug: "prevention-usure-professionnelle-stress-emotions",
+      }),
+    });
+    expect(meta.title).toEqual({ absolute: "Usure professionnelle, gestion du stress et des émotions" });
   });
 
   it("présente le programme en étapes ordonnées, un h3 par module (Steps)", async () => {

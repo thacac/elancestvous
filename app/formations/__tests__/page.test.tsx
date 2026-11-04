@@ -42,6 +42,7 @@ function formationMeta(overrides: Partial<FormationMeta> = {}): FormationMeta {
     tarif: null,
     referentHandicap: null,
     indicateursResultats: null,
+    titreSeo: null,
     ...overrides,
   };
 }

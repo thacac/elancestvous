@@ -13,6 +13,7 @@ Une fois complété, envoyez ce document à la personne qui publie sur le site (
 | Champ | Pour vous aider | Votre réponse |
 | --- | --- | --- |
 | Titre de la formation | Le nom tel qu'il apparaîtra sur le site | \[à remplir\] |
+| Titre court pour Google (facultatif) | 60 caractères maximum, espaces compris. Utile seulement si le titre ci-dessus est plus long : c'est ce que Google affichera dans ses résultats | \[à remplir\] |
 | Famille | Une seule, parmi : Cadre légal, droits et éthique / Prévention des RPS et QVCT / Accompagnement et pratiques professionnelles / Dynamique d'équipe et développement professionnel | \[à remplir\] |
 | Durée | Ex. « 1 journée », « 2 jours » | \[à remplir\] |
 | Format | Ex. « Présentiel, en intra-établissement » | \[à remplir\] |

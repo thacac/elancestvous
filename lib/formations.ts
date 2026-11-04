@@ -49,6 +49,11 @@ export const FORMATION_FAMILLE_IDS = FORMATION_FAMILLES.map((f) => f.id) as [
 
 const frontmatterSchema = z.object({
   titre: z.string().min(1),
+  // SEO first : titre court facultatif pour <title> et og:title, quand le
+  // titre affiché (H1) dépasse ce que Google montre (~60 caractères). Les
+  // fiches n'ont pas de suffixe « | Élan C'est Vous » : 60 caractères au
+  // plus, sinon le build échoue plutôt que de publier un titre tronqué.
+  titreSeo: z.string().min(1).max(60).nullable().default(null),
   slug: z
     .string()
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "le slug doit être en kebab-case"),

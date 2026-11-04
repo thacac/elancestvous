@@ -38,6 +38,7 @@ Le Template reprend exactement les champs attendus par `lib/formations.ts`. Corr
 | Champ du Template | Champ technique (frontmatter) | Remarque |
 | --- | --- | --- |
 | Titre | `titre` |  |
+| Titre court pour Google | `titreSeo` | facultatif, 60 caractères max (sans suffixe « \| Élan C'est Vous » sur les fiches), `null` si non renseigné — sinon `<title>` reprend `titre` |
 | (dérivé du titre) | `slug` | slug d'URL, minuscules et tirets |
 | Famille | `famille` | un des 4 identifiants exacts (voir tableau ci-dessous), jamais le libellé |
 | Objectifs pédagogiques | `objectifsPedagogiques` | liste |

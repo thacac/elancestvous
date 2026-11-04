@@ -49,15 +49,18 @@ export async function generateMetadata({
   )!.label;
   const canonicalPath = `/formations/${formationData.famille}/${formationData.slug}`;
   const description = `Formation « ${formationData.titre} » (${familleLabel}) pour les établissements de santé : ${formationData.objectifsPedagogiques[0]}.`;
+  // SEO first : titre court s'il existe, et `absolute` pour ne pas ajouter
+  // le suffixe « | Élan C'est Vous » du layout (titre coupé par Google).
+  const titreSeo = formationData.titreSeo ?? formationData.titre;
 
   return {
-    title: formationData.titre,
+    title: { absolute: titreSeo },
     description,
     alternates: {
       canonical: canonicalPath,
     },
     openGraph: {
-      title: `${formationData.titre} | Élan C'est Vous`,
+      title: titreSeo,
       description,
       url: `https://elancestvous.fr${canonicalPath}`,
       type: "website",
@@ -69,9 +72,11 @@ export async function generateMetadata({
 function ChampQualiopi({
   label,
   valeur,
+  complement,
 }: {
   label: string;
   valeur: string | null;
+  complement?: ReactNode;
 }) {
   return (
     <div>
@@ -88,6 +93,7 @@ function ChampQualiopi({
           </span>
         )}
       </div>
+      {valeur !== null && complement}
     </div>
   );
 }
@@ -107,6 +113,23 @@ function TitreSection({ children }: { children: ReactNode }) {
 
 // CTA de la fiche, pré-rempli avec la formation (provenance) : un seul
 // rendu pour le haut de la fiche pratique et la répétition de bas de fiche.
+// Référent handicap : la demande d'adaptation passe par le formulaire du
+// site, pré-rempli avec la fiche (même modèle que le CTA devis). Cible d'au
+// moins 24 × 24 px (WCAG 2.2, 2.5.8).
+function LienContactHandicap({ titre }: { titre: string }) {
+  return (
+    <Link
+      href={`/contact?${new URLSearchParams({
+        type: "institution",
+        sujet: `Adaptation handicap – formation « ${titre} »`,
+      }).toString()}`}
+      className="mt-1 inline-flex min-h-6 items-center font-semibold text-primary underline underline-offset-4 hover:decoration-2"
+    >
+      Formulaire de contact
+    </Link>
+  );
+}
+
 function CtaDevis({ titre }: { titre: string }) {
   return (
     <Button asChild variant="accent" size="lg">
@@ -192,6 +215,7 @@ export default async function FormationPage({
             <ChampQualiopi
               label="Référent handicap"
               valeur={formationDetail.referentHandicap}
+              complement={<LienContactHandicap titre={formationDetail.titre} />}
             />
             <ChampQualiopi
               label="Indicateurs de résultats"
