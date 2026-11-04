@@ -41,3 +41,4 @@ next-env.d.ts
 # BMAD Method — réponses d'install personnelles (par développeur, régénérées
 # par `bmad install`), jamais les mêmes que le config.toml partagé de l'équipe
 _bmad/config.user.toml
+/seo-gsc-audit-output/
