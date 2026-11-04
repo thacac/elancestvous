@@ -1,6 +1,6 @@
 import { google } from "googleapis";
 
-import type { GscPageQueryRow } from "./searchConsoleReport";
+import type { GscPageQueryRow, GscPageTotalRow } from "./searchConsoleReport";
 
 type SearchAnalyticsQueryParams = {
   siteUrl: string;
@@ -54,49 +54,66 @@ export function createGoogleSearchConsoleClient(options: {
   const queryImpl = options.queryImpl ?? defaultQueryImpl(options.serviceAccountJson);
   const rowLimit = options.rowLimit ?? DEFAULT_ROW_LIMIT;
 
+  type ApiRow = NonNullable<SearchAnalyticsQueryResult["data"]["rows"]>[number];
+
+  async function queryBlogRows(rangeDays: number, dimensions: string[]): Promise<ApiRow[]> {
+    const endDate = new Date();
+    const startDate = new Date(endDate.getTime() - rangeDays * 24 * 60 * 60 * 1000);
+
+    const allRows: ApiRow[] = [];
+    let startRow = 0;
+    // L'API ne renvoie ni total ni curseur : une page pleine (== rowLimit)
+    // est le seul signal qu'il peut en rester d'autres.
+    for (;;) {
+      const response = await queryImpl({
+        siteUrl: options.siteUrl,
+        requestBody: {
+          startDate: toDateString(startDate),
+          endDate: toDateString(endDate),
+          dimensions,
+          dimensionFilterGroups: [
+            {
+              filters: [{ dimension: "page", operator: "contains", expression: "/blog/" }],
+            },
+          ],
+          rowLimit,
+          startRow,
+        },
+      });
+
+      const rows = response.data.rows ?? [];
+      allRows.push(...rows);
+
+      if (rows.length < rowLimit) break;
+      startRow += rowLimit;
+    }
+
+    return allRows;
+  }
+
   return {
     async fetchBlogPageQueryRows(rangeDays: number): Promise<GscPageQueryRow[]> {
-      const endDate = new Date();
-      const startDate = new Date(endDate.getTime() - rangeDays * 24 * 60 * 60 * 1000);
+      return (await queryBlogRows(rangeDays, ["page", "query"])).map((row) => ({
+        page: row.keys[0],
+        query: row.keys[1],
+        clicks: row.clicks,
+        impressions: row.impressions,
+        ctr: row.ctr,
+        position: row.position,
+      }));
+    },
 
-      const allRows: GscPageQueryRow[] = [];
-      let startRow = 0;
-      // L'API ne renvoie ni total ni curseur : une page pleine (== rowLimit)
-      // est le seul signal qu'il peut en rester d'autres.
-      for (;;) {
-        const response = await queryImpl({
-          siteUrl: options.siteUrl,
-          requestBody: {
-            startDate: toDateString(startDate),
-            endDate: toDateString(endDate),
-            dimensions: ["page", "query"],
-            dimensionFilterGroups: [
-              {
-                filters: [{ dimension: "page", operator: "contains", expression: "/blog/" }],
-              },
-            ],
-            rowLimit,
-            startRow,
-          },
-        });
-
-        const rows = response.data.rows ?? [];
-        allRows.push(
-          ...rows.map((row) => ({
-            page: row.keys[0],
-            query: row.keys[1],
-            clicks: row.clicks,
-            impressions: row.impressions,
-            ctr: row.ctr,
-            position: row.position,
-          }))
-        );
-
-        if (rows.length < rowLimit) break;
-        startRow += rowLimit;
-      }
-
-      return allRows;
+    // Totaux par article : la dimension `query` omet les requêtes
+    // anonymisées, qui représentaient la totalité des impressions du blog
+    // à l'audit du 04/11/2026 (rapports mensuels à 0 partout).
+    async fetchBlogPageTotals(rangeDays: number): Promise<GscPageTotalRow[]> {
+      return (await queryBlogRows(rangeDays, ["page"])).map((row) => ({
+        page: row.keys[0],
+        clicks: row.clicks,
+        impressions: row.impressions,
+        ctr: row.ctr,
+        position: row.position,
+      }));
     },
   };
 }

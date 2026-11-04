@@ -52,8 +52,9 @@ async function main() {
     siteUrl: requireEnv("GSC_SITE_URL"),
   });
 
-  const [rows, previousReport] = await Promise.all([
+  const [rows, pageRows, previousReport] = await Promise.all([
     gscClient.fetchBlogPageQueryRows(rangeDays),
+    gscClient.fetchBlogPageTotals(rangeDays),
     loadPreviousReport(),
   ]);
 
@@ -62,6 +63,7 @@ async function main() {
     rangeDays,
     siteUrl: requireEnv("GSC_SITE_URL"),
     rows,
+    pageRows,
     posts: getAllPostsMeta(),
     previousReport,
   });

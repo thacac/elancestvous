@@ -35,6 +35,54 @@ function row(overrides: Partial<GscPageQueryRow>): GscPageQueryRow {
 }
 
 describe("buildSearchConsoleReport", () => {
+  // Audit Search Console du 04/11/2026 : les 8 articles étaient indexés
+  // avec jusqu'à 16 impressions chacun, mais le rapport mensuel affichait 0
+  // partout. Toutes leurs impressions venaient de requêtes anonymisées, que
+  // Google retire des lignes page+query : les totaux doivent venir de la
+  // requête par page seule.
+  it("takes article totals from page-level rows when provided", () => {
+    const report = buildSearchConsoleReport({
+      generatedAt: "2026-11-04T00:00:00.000Z",
+      rangeDays: 90,
+      siteUrl: "sc-domain:elancestvous.fr",
+      rows: [],
+      pageRows: [
+        { page: "https://elancestvous.fr/blog/mon-article", clicks: 1, impressions: 16, ctr: 0.06, position: 7 },
+      ],
+      posts: [post({ slug: "mon-article" })],
+      previousReport: null,
+    });
+
+    const [article] = report.articles;
+    expect(article.impressions).toBe(16);
+    expect(article.clicks).toBe(1);
+    expect(article.position).toBe(7);
+    expect(article.diagnostics).not.toContain("ZERO_IMPRESSIONS");
+    expect(article.topQueries).toEqual([]);
+  });
+
+  it("sums page-level rows of the same article across hosts (www and apex)", () => {
+    const report = buildSearchConsoleReport({
+      generatedAt: "2026-11-04T00:00:00.000Z",
+      rangeDays: 90,
+      siteUrl: "sc-domain:elancestvous.fr",
+      rows: [row({ query: "qvct", clicks: 0, impressions: 2, position: 9 })],
+      pageRows: [
+        { page: "https://elancestvous.fr/blog/mon-article", clicks: 1, impressions: 10, ctr: 0.1, position: 4 },
+        { page: "https://www.elancestvous.fr/blog/mon-article/", clicks: 0, impressions: 30, ctr: 0, position: 12 },
+      ],
+      posts: [post({ slug: "mon-article" })],
+      previousReport: null,
+    });
+
+    const [article] = report.articles;
+    expect(article.impressions).toBe(40);
+    expect(article.clicks).toBe(1);
+    expect(article.position).toBeCloseTo((4 * 10 + 12 * 30) / 40, 5);
+    // Les principales requêtes restent tirées des lignes page+query.
+    expect(article.topQueries.map((q) => q.query)).toEqual(["qvct"]);
+  });
+
   it("aggregates multiple query rows for the same article by slug", () => {
     const report = buildSearchConsoleReport({
       generatedAt: "2026-09-10T00:00:00.000Z",
