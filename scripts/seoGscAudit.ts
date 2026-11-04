@@ -17,10 +17,14 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { buildGscAuditReport, parseSitemapUrls, renderGscAuditMarkdown } from "../services/seo/gscAudit";
+import {
+  buildGscAuditReport,
+  parseRangeDays,
+  parseSitemapUrls,
+  renderGscAuditMarkdown,
+} from "../services/seo/gscAudit";
 import { createGscAuditClient } from "../services/seo/gscAuditClient";
 
-const DEFAULT_RANGE_DAYS = 90;
 const DEFAULT_SITEMAP_URL = "https://elancestvous.fr/sitemap.xml";
 
 function requireEnv(name: string): string {
@@ -30,7 +34,7 @@ function requireEnv(name: string): string {
 }
 
 async function main() {
-  const rangeDays = Number(process.argv[2]) || DEFAULT_RANGE_DAYS;
+  const rangeDays = parseRangeDays(process.argv[2]);
   const siteUrl = requireEnv("GSC_SITE_URL");
   const sitemapUrl = process.env.SITEMAP_URL || DEFAULT_SITEMAP_URL;
   const outputDir = path.resolve(process.env.OUTPUT_DIR || "seo-gsc-audit-output");
@@ -47,9 +51,23 @@ async function main() {
     siteUrl,
   });
 
-  const [rows, sitemaps, inspections] = await Promise.all([
-    client.fetchAllPageQueryRows(rangeDays),
-    client.listSitemaps(),
+  // Sources indépendantes : l'échec de l'une (403, quota, 5xx) ne doit pas
+  // faire perdre les autres — surtout les inspections, qui consomment du
+  // quota journalier. inspectUrls ne rejette jamais (erreurs par URL).
+  const sourceErrors: string[] = [];
+  async function orEmpty<T>(label: string, promise: Promise<T[]>): Promise<T[]> {
+    try {
+      return await promise;
+    } catch (err) {
+      sourceErrors.push(`${label} : ${(err as Error).message}`);
+      return [];
+    }
+  }
+
+  const [rows, pageRows, sitemaps, inspections] = await Promise.all([
+    orEmpty("searchanalytics (page+query)", client.fetchAllPageQueryRows(rangeDays)),
+    orEmpty("searchanalytics (page)", client.fetchPageTotals(rangeDays)),
+    orEmpty("sitemaps.list", client.listSitemaps()),
     client.inspectUrls(sitemapUrls),
   ]);
 
@@ -60,7 +78,9 @@ async function main() {
     sitemapUrls,
     inspections,
     rows,
+    pageRows,
     sitemaps,
+    sourceErrors,
   });
 
   await mkdir(outputDir, { recursive: true });
@@ -68,6 +88,9 @@ async function main() {
   await writeFile(`${base}.json`, JSON.stringify(report, null, 2));
   await writeFile(`${base}.md`, renderGscAuditMarkdown(report));
   console.log(`Rapport écrit : ${base}.json et ${base}.md`);
+  if (sourceErrors.length > 0) {
+    console.warn(`Données incomplètes :\n- ${sourceErrors.join("\n- ")}`);
+  }
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

@@ -4,6 +4,7 @@ import {
   aggregatePagePerformance,
   buildGscAuditReport,
   normalizePageUrl,
+  parseRangeDays,
   parseSitemapUrls,
   renderGscAuditMarkdown,
   summarizeInspection,
@@ -50,6 +51,14 @@ describe("normalizePageUrl", () => {
   it("treats the root URL with and without trailing slash as the same page", () => {
     expect(normalizePageUrl("https://elancestvous.fr/")).toBe(
       normalizePageUrl("https://elancestvous.fr")
+    );
+  });
+
+  // Search Console renvoie parfois des URLs avec ancre (liens « aller à ») :
+  // ce sont les impressions de la page elle-même.
+  it("drops the #fragment", () => {
+    expect(normalizePageUrl("https://elancestvous.fr/coaching#modalites")).toBe(
+      "https://elancestvous.fr/coaching"
     );
   });
 
@@ -111,6 +120,15 @@ describe("summarizeInspection", () => {
     expect(summary.canonicalMismatch).toBe(true);
   });
 
+  it("compares Google's canonical to the inspected URL when the page declares none", () => {
+    const summary = summarizeInspection("https://elancestvous.fr/formations/x", {
+      inspectionResult: {
+        indexStatusResult: { verdict: "NEUTRAL", googleCanonical: "https://elancestvous.fr/formations" },
+      },
+    });
+    expect(summary.canonicalMismatch).toBe(true);
+  });
+
   it("does not flag a mismatch when Google has not chosen a canonical yet", () => {
     const summary = summarizeInspection("https://elancestvous.fr/formations/x", {
       inspectionResult: {
@@ -128,8 +146,33 @@ describe("summarizeInspection", () => {
 });
 
 describe("aggregatePagePerformance", () => {
-  it("sums clicks/impressions per page and weights position by impressions", () => {
-    const perf = aggregatePagePerformance([
+  // Les totaux viennent de la requête par page seule : la requête
+  // page+query omet les requêtes anonymisées (rares), qui sous-estimeraient
+  // les impressions — voire mettraient à 0 une page peu visitée.
+  it("takes totals from page-level rows, not from the sum of query rows", () => {
+    const [perf] = aggregatePagePerformance(
+      [{ page: "https://elancestvous.fr/coaching", clicks: 2, impressions: 50, ctr: 0, position: 7 }],
+      [row({ page: "https://elancestvous.fr/coaching", query: "a", clicks: 1, impressions: 10, position: 4 })]
+    );
+    expect(perf).toMatchObject({ clicks: 2, impressions: 50, position: 7 });
+    expect(perf.topQueries).toEqual([{ query: "a", clicks: 1, impressions: 10, position: 4 }]);
+  });
+
+  it("merges page-level rows that normalize to the same URL (fragment, trailing slash)", () => {
+    const perf = aggregatePagePerformance(
+      [
+        { page: "https://elancestvous.fr/coaching", clicks: 1, impressions: 10, ctr: 0, position: 4 },
+        { page: "https://elancestvous.fr/coaching#modalites", clicks: 0, impressions: 30, ctr: 0, position: 12 },
+      ],
+      []
+    );
+    expect(perf).toEqual([
+      { page: "https://elancestvous.fr/coaching", clicks: 1, impressions: 40, position: 10, topQueries: [] },
+    ]);
+  });
+
+  it("falls back to query rows for a page missing from page-level rows", () => {
+    const perf = aggregatePagePerformance([], [
       row({ page: "https://elancestvous.fr/coaching", query: "a", clicks: 1, impressions: 10, position: 4 }),
       row({ page: "https://elancestvous.fr/coaching", query: "b", clicks: 0, impressions: 30, position: 12 }),
       row({ page: "https://elancestvous.fr/", query: "c", clicks: 2, impressions: 5, position: 1 }),
@@ -160,7 +203,7 @@ describe("aggregatePagePerformance", () => {
     const rows = Array.from({ length: 7 }, (_, i) =>
       row({ query: `q${i}`, impressions: i + 1, position: 5 })
     );
-    const [perf] = aggregatePagePerformance(rows);
+    const [perf] = aggregatePagePerformance([], rows);
     expect(perf.topQueries.map((q) => q.query)).toEqual(["q6", "q5", "q4", "q3", "q2"]);
   });
 });
@@ -279,5 +322,56 @@ describe("renderGscAuditMarkdown", () => {
     expect(md).toContain("2026-10-20");
     expect(md).toContain("https://elancestvous.fr/sitemap.xml");
     expect(md).toMatch(/Indexées\s*:\s*0\s*\/\s*1/);
+  });
+});
+
+describe("buildGscAuditReport — sources en échec", () => {
+  it("keeps the report and lists the data sources that failed", () => {
+    const report = buildGscAuditReport({
+      generatedAt: "2026-11-04T10:00:00.000Z",
+      siteUrl: "sc-domain:elancestvous.fr",
+      rangeDays: 90,
+      sitemapUrls: [],
+      inspections: [],
+      rows: [],
+      sitemaps: [],
+      sourceErrors: ["sitemaps.list : 403 Forbidden"],
+    });
+    expect(report.sourceErrors).toEqual(["sitemaps.list : 403 Forbidden"]);
+    expect(renderGscAuditMarkdown(report)).toContain("sitemaps.list : 403 Forbidden");
+  });
+});
+
+describe("renderGscAuditMarkdown — cellules", () => {
+  it("keeps a multi-line error message on a single table row", () => {
+    const report = buildGscAuditReport({
+      generatedAt: "2026-11-04T10:00:00.000Z",
+      siteUrl: "sc-domain:elancestvous.fr",
+      rangeDays: 90,
+      sitemapUrls: ["https://elancestvous.fr/a"],
+      inspections: [{ ...summarizeInspection("https://elancestvous.fr/a", {}), error: "ligne 1\nligne 2" }],
+      rows: [],
+      sitemaps: [],
+    });
+    const md = renderGscAuditMarkdown(report);
+    expect(md).toContain("ERREUR : ligne 1 ligne 2");
+  });
+});
+
+describe("parseRangeDays", () => {
+  it("defaults to 90 when no value is given", () => {
+    expect(parseRangeDays(undefined)).toBe(90);
+    expect(parseRangeDays("")).toBe(90);
+  });
+
+  it("accepts an integer between 1 and 480", () => {
+    expect(parseRangeDays("28")).toBe(28);
+    expect(parseRangeDays("480")).toBe(480);
+  });
+
+  // L'API Search Analytics n'a que 16 mois d'historique ; une date de début
+  // après la date de fin (valeur négative) la fait répondre 400.
+  it.each(["-30", "0", "12.5", "abc", "481"])("rejects %s with a clear message", (value) => {
+    expect(() => parseRangeDays(value)).toThrow(/entre 1 et 480/);
   });
 });

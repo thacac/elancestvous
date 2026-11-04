@@ -46,6 +46,21 @@ describe("createGscAuditClient.fetchAllPageQueryRows", () => {
   });
 });
 
+describe("createGscAuditClient.fetchPageTotals", () => {
+  it("queries the page dimension only, so anonymized queries are counted", async () => {
+    const queryImpl = vi.fn().mockResolvedValue({
+      data: { rows: [{ keys: ["https://elancestvous.fr/"], clicks: 2, impressions: 40, ctr: 0.05, position: 6 }] },
+    });
+
+    const rows = await client({ queryImpl }).fetchPageTotals(90);
+
+    expect(rows).toEqual([
+      { page: "https://elancestvous.fr/", clicks: 2, impressions: 40, ctr: 0.05, position: 6 },
+    ]);
+    expect(queryImpl.mock.calls[0][0].requestBody.dimensions).toEqual(["page"]);
+  });
+});
+
 describe("createGscAuditClient.inspectUrls", () => {
   it("inspects each URL sequentially against the property and summarizes it", async () => {
     const inspectImpl = vi.fn().mockResolvedValue({

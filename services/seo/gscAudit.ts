@@ -70,6 +70,15 @@ export type PagePerformance = {
   topQueries: QueryPerformance[];
 };
 
+// Ligne Search Analytics agrégée par page seule (dimensions: ["page"]).
+export type GscPageRow = {
+  page: string;
+  clicks: number;
+  impressions: number;
+  ctr: number;
+  position: number;
+};
+
 export type GscAuditReport = {
   generatedAt: string;
   siteUrl: string;
@@ -85,11 +94,28 @@ export type GscAuditReport = {
     pagesOutsideSitemap: string[];
   };
   sitemaps: SitemapStatus[];
+  // Sources de données en échec (Search Analytics, sitemaps.list) : le
+  // rapport est produit quand même avec ce qui a pu être récupéré.
+  sourceErrors: string[];
   pages: Array<InspectionSummary & { performance: PagePerformance | null }>;
   pagesOutsideSitemap: PagePerformance[];
 };
 
 const TOP_QUERIES_PER_PAGE = 5;
+const DEFAULT_RANGE_DAYS = 90;
+// Search Console conserve 16 mois d'historique : 480 jours reste en deçà.
+const MAX_RANGE_DAYS = 480;
+
+export function parseRangeDays(value: string | undefined): number {
+  if (value === undefined || value.trim() === "") return DEFAULT_RANGE_DAYS;
+  const days = Number(value);
+  if (!Number.isInteger(days) || days < 1 || days > MAX_RANGE_DAYS) {
+    throw new Error(
+      `Période invalide (« ${value} ») : un nombre entier de jours entre 1 et ${MAX_RANGE_DAYS} est attendu.`
+    );
+  }
+  return days;
+}
 
 function decodeXmlEntities(value: string): string {
   return value
@@ -105,15 +131,18 @@ export function parseSitemapUrls(xml: string): string[] {
 }
 
 // Le sitemap déclare l'accueil sans slash final (`https://elancestvous.fr`),
-// Search Console le renvoie avec (`https://elancestvous.fr/`).
+// Search Console le renvoie avec (`https://elancestvous.fr/`), et parfois
+// avec une ancre (liens « aller à ») qui désigne la même page.
 export function normalizePageUrl(url: string): string {
-  return url.replace(/\/+$/, "");
+  return url.replace(/#.*$/, "").replace(/\/+$/, "");
 }
 
 export function summarizeInspection(url: string, response: UrlInspectionResponse): InspectionSummary {
   const status = response.inspectionResult?.indexStatusResult ?? {};
   const googleCanonical = status.googleCanonical ?? null;
   const userCanonical = status.userCanonical ?? null;
+  // Sans canonical déclaré, la page est sa propre référence.
+  const expectedCanonical = userCanonical ?? url;
 
   return {
     url,
@@ -129,40 +158,58 @@ export function summarizeInspection(url: string, response: UrlInspectionResponse
     // Pas de canonical Google = page jamais indexée, pas un désaccord.
     canonicalMismatch:
       googleCanonical !== null &&
-      userCanonical !== null &&
-      normalizePageUrl(googleCanonical) !== normalizePageUrl(userCanonical),
+      normalizePageUrl(googleCanonical) !== normalizePageUrl(expectedCanonical),
     inSitemap: (status.sitemap ?? []).length > 0,
     referringUrls: status.referringUrls ?? [],
     error: null,
   };
 }
 
-export function aggregatePagePerformance(rows: GscPageQueryRow[]): PagePerformance[] {
-  const byPage = new Map<string, GscPageQueryRow[]>();
+function totals(rows: Array<{ clicks: number; impressions: number; position: number }>) {
+  const clicks = rows.reduce((sum, r) => sum + r.clicks, 0);
+  const impressions = rows.reduce((sum, r) => sum + r.impressions, 0);
+  const weightedPosition = rows.reduce((sum, r) => sum + r.position * r.impressions, 0);
+  return {
+    clicks,
+    impressions,
+    position: impressions > 0 ? Math.round((weightedPosition / impressions) * 10) / 10 : 0,
+  };
+}
+
+function groupByPage<T extends { page: string }>(rows: T[]): Map<string, T[]> {
+  const byPage = new Map<string, T[]>();
   for (const row of rows) {
     const page = normalizePageUrl(row.page);
     byPage.set(page, [...(byPage.get(page) ?? []), row]);
   }
+  return byPage;
+}
 
-  return [...byPage.entries()]
-    .map(([page, pageRows]) => {
-      const clicks = pageRows.reduce((sum, r) => sum + r.clicks, 0);
-      const impressions = pageRows.reduce((sum, r) => sum + r.impressions, 0);
-      const weightedPosition = pageRows.reduce((sum, r) => sum + r.position * r.impressions, 0);
+/**
+ * Totaux par page tirés de `pageRows` (requête `dimensions: ["page"]`) : la
+ * requête page+query omet les requêtes anonymisées, et sous-estimerait les
+ * impressions, voire mettrait à 0 une page peu visitée. `queryRows` ne sert
+ * qu'aux principales requêtes, et aux totaux d'une page absente de
+ * `pageRows` (repli).
+ */
+export function aggregatePagePerformance(
+  pageRows: GscPageRow[],
+  queryRows: GscPageQueryRow[]
+): PagePerformance[] {
+  const totalsByPage = groupByPage(pageRows);
+  const queriesByPage = groupByPage(queryRows);
+  const pages = new Set([...totalsByPage.keys(), ...queriesByPage.keys()]);
+
+  return [...pages]
+    .map((page) => {
+      const queries = queriesByPage.get(page) ?? [];
       return {
         page,
-        clicks,
-        impressions,
-        position: impressions > 0 ? Math.round((weightedPosition / impressions) * 10) / 10 : 0,
-        topQueries: [...pageRows]
+        ...totals(totalsByPage.get(page) ?? queries),
+        topQueries: [...queries]
           .sort((a, b) => b.impressions - a.impressions)
           .slice(0, TOP_QUERIES_PER_PAGE)
-          .map(({ query, clicks: c, impressions: i, position }) => ({
-            query,
-            clicks: c,
-            impressions: i,
-            position,
-          })),
+          .map(({ query, clicks, impressions, position }) => ({ query, clicks, impressions, position })),
       };
     })
     .sort((a, b) => b.impressions - a.impressions);
@@ -175,9 +222,11 @@ export function buildGscAuditReport(input: {
   sitemapUrls: string[];
   inspections: InspectionSummary[];
   rows: GscPageQueryRow[];
+  pageRows?: GscPageRow[];
   sitemaps: SitemapStatus[];
+  sourceErrors?: string[];
 }): GscAuditReport {
-  const performance = aggregatePagePerformance(input.rows);
+  const performance = aggregatePagePerformance(input.pageRows ?? [], input.rows);
   const perfByPage = new Map(performance.map((p) => [p.page, p]));
   const sitemapSet = new Set(input.sitemapUrls.map(normalizePageUrl));
 
@@ -203,6 +252,7 @@ export function buildGscAuditReport(input: {
       pagesOutsideSitemap: outside.map((p) => p.page),
     },
     sitemaps: input.sitemaps,
+    sourceErrors: input.sourceErrors ?? [],
     pages,
     pagesOutsideSitemap: outside,
   };
@@ -218,7 +268,7 @@ function path(url: string): string {
 
 function cell(value: string | number | null | undefined): string {
   if (value === null || value === undefined || value === "") return "—";
-  return String(value).replace(/\|/g, "\\|");
+  return String(value).replace(/\r?\n/g, " ").replace(/\|/g, "\\|");
 }
 
 export function renderGscAuditMarkdown(report: GscAuditReport): string {
@@ -238,6 +288,14 @@ export function renderGscAuditMarkdown(report: GscAuditReport): string {
     `- Pages avec impressions hors sitemap : ${summary.pagesOutsideSitemap.length}`,
     `- Inspections en échec : ${summary.inspectionErrors.length}`,
     "",
+    ...(report.sourceErrors.length > 0
+      ? [
+          "## ⚠️ Données incomplètes",
+          "",
+          ...report.sourceErrors.map((e) => `- ${e.replace(/\r?\n/g, " ")}`),
+          "",
+        ]
+      : []),
     "## Sitemaps soumis",
     "",
   ];

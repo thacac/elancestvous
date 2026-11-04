@@ -4,7 +4,7 @@ import { parseServiceAccountJson } from "@/services/blog/googleSearchConsoleClie
 
 import { summarizeInspection } from "./gscAudit";
 
-import type { InspectionSummary, SitemapStatus, UrlInspectionResponse } from "./gscAudit";
+import type { GscPageRow, InspectionSummary, SitemapStatus, UrlInspectionResponse } from "./gscAudit";
 import type { GscPageQueryRow } from "@/services/blog/searchConsoleReport";
 
 type SearchAnalyticsQueryParams = {
@@ -70,38 +70,56 @@ export function createGscAuditClient(options: {
   const sitemapsListImpl = options.sitemapsListImpl ?? defaults!.sitemapsListImpl;
   const rowLimit = options.rowLimit ?? DEFAULT_ROW_LIMIT;
 
+  type ApiRow = NonNullable<Awaited<ReturnType<SearchAnalyticsQueryFn>>["data"]["rows"]>[number];
+
+  // Pagination par startRow : l'API ne renvoie ni total ni curseur, une page
+  // pleine (== rowLimit) est le seul signal qu'il en reste.
+  async function queryAll(rangeDays: number, dimensions: string[]): Promise<ApiRow[]> {
+    const endDate = new Date();
+    const startDate = new Date(endDate.getTime() - rangeDays * 24 * 60 * 60 * 1000);
+    const allRows: ApiRow[] = [];
+    let startRow = 0;
+    for (;;) {
+      const response = await queryImpl({
+        siteUrl: options.siteUrl,
+        requestBody: {
+          startDate: toDateString(startDate),
+          endDate: toDateString(endDate),
+          dimensions,
+          rowLimit,
+          startRow,
+        },
+      });
+      const rows = response.data.rows ?? [];
+      allRows.push(...rows);
+      if (rows.length < rowLimit) break;
+      startRow += rowLimit;
+    }
+    return allRows;
+  }
+
   return {
     async fetchAllPageQueryRows(rangeDays: number): Promise<GscPageQueryRow[]> {
-      const endDate = new Date();
-      const startDate = new Date(endDate.getTime() - rangeDays * 24 * 60 * 60 * 1000);
-      const allRows: GscPageQueryRow[] = [];
-      let startRow = 0;
-      for (;;) {
-        const response = await queryImpl({
-          siteUrl: options.siteUrl,
-          requestBody: {
-            startDate: toDateString(startDate),
-            endDate: toDateString(endDate),
-            dimensions: ["page", "query"],
-            rowLimit,
-            startRow,
-          },
-        });
-        const rows = response.data.rows ?? [];
-        allRows.push(
-          ...rows.map((row) => ({
-            page: row.keys[0],
-            query: row.keys[1],
-            clicks: row.clicks,
-            impressions: row.impressions,
-            ctr: row.ctr,
-            position: row.position,
-          }))
-        );
-        if (rows.length < rowLimit) break;
-        startRow += rowLimit;
-      }
-      return allRows;
+      return (await queryAll(rangeDays, ["page", "query"])).map((row) => ({
+        page: row.keys[0],
+        query: row.keys[1],
+        clicks: row.clicks,
+        impressions: row.impressions,
+        ctr: row.ctr,
+        position: row.position,
+      }));
+    },
+
+    // Totaux par page : la dimension `query` omettrait les requêtes
+    // anonymisées (rares) et sous-estimerait les impressions.
+    async fetchPageTotals(rangeDays: number): Promise<GscPageRow[]> {
+      return (await queryAll(rangeDays, ["page"])).map((row) => ({
+        page: row.keys[0],
+        clicks: row.clicks,
+        impressions: row.impressions,
+        ctr: row.ctr,
+        position: row.position,
+      }));
     },
 
     // Séquentiel volontairement : quota URL Inspection de 600 requêtes/min,
