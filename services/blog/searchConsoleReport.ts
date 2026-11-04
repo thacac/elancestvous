@@ -10,6 +10,11 @@ export type GscPageQueryRow = {
   position: number;
 };
 
+// Ligne Search Analytics agrégée par page seule (dimensions: ["page"]) :
+// contrairement aux lignes page+query, elle inclut les impressions venant
+// de requêtes anonymisées.
+export type GscPageTotalRow = Omit<GscPageQueryRow, "query">;
+
 export type ArticleQueryStat = {
   query: string;
   clicks: number;
@@ -94,17 +99,26 @@ export function buildSearchConsoleReport(args: {
   rangeDays: number;
   siteUrl: string;
   rows: GscPageQueryRow[];
+  // Totaux par page (recommandé) : sans eux, les totaux sont reconstitués à
+  // partir des lignes page+query, qui omettent les requêtes anonymisées —
+  // cause des « 0 impression » des rapports de septembre à novembre 2026.
+  pageRows?: GscPageTotalRow[];
   posts: PostMeta[];
   previousReport: SearchConsoleReport | null;
 }): SearchConsoleReport {
-  const rowsBySlug = new Map<string, GscPageQueryRow[]>();
-  for (const row of args.rows) {
-    const slug = slugFromPageUrl(row.page);
-    if (!slug) continue;
-    const existing = rowsBySlug.get(slug) ?? [];
-    existing.push(row);
-    rowsBySlug.set(slug, existing);
+  // Groupé par slug (chemin seul) : les variantes d'hôte (www/apex) et de
+  // slash final d'un même article sont additionnées.
+  function groupBySlug<T extends { page: string }>(rows: T[]): Map<string, T[]> {
+    const bySlug = new Map<string, T[]>();
+    for (const row of rows) {
+      const slug = slugFromPageUrl(row.page);
+      if (!slug) continue;
+      bySlug.set(slug, [...(bySlug.get(slug) ?? []), row]);
+    }
+    return bySlug;
   }
+  const rowsBySlug = groupBySlug(args.rows);
+  const pageRowsBySlug = args.pageRows ? groupBySlug(args.pageRows) : null;
 
   const previousBySlug = new Map(
     (args.previousReport?.articles ?? []).map((a) => [a.slug, a] as const)
@@ -112,9 +126,10 @@ export function buildSearchConsoleReport(args: {
 
   const articles: ArticleReportEntry[] = args.posts.map((post) => {
     const rows = rowsBySlug.get(post.slug) ?? [];
-    const clicks = rows.reduce((sum, r) => sum + r.clicks, 0);
-    const impressions = rows.reduce((sum, r) => sum + r.impressions, 0);
-    const position = weightedAveragePosition(rows);
+    const totalRows = pageRowsBySlug ? (pageRowsBySlug.get(post.slug) ?? []) : rows;
+    const clicks = totalRows.reduce((sum, r) => sum + r.clicks, 0);
+    const impressions = totalRows.reduce((sum, r) => sum + r.impressions, 0);
+    const position = weightedAveragePosition(totalRows);
     const ctr = impressions > 0 ? clicks / impressions : 0;
 
     const topQueries: ArticleQueryStat[] = [...rows]

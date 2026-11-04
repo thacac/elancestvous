@@ -129,4 +129,30 @@ describe("createGoogleSearchConsoleClient", () => {
     const diffDays = Math.round((end.getTime() - start.getTime()) / (24 * 60 * 60 * 1000));
     expect(diffDays).toBe(30);
   });
+
+  it("fetchBlogPageTotals queries the page dimension only, filtered to /blog/", async () => {
+    const queryImpl = vi.fn().mockResolvedValue({
+      data: {
+        rows: [
+          { keys: ["https://elancestvous.fr/blog/mon-article"], clicks: 1, impressions: 16, ctr: 0.06, position: 7 },
+        ],
+      },
+    });
+    const client = createGoogleSearchConsoleClient({
+      serviceAccountJson: "{}",
+      siteUrl: "sc-domain:elancestvous.fr",
+      queryImpl,
+    });
+
+    const rows = await client.fetchBlogPageTotals(90);
+
+    expect(rows).toEqual([
+      { page: "https://elancestvous.fr/blog/mon-article", clicks: 1, impressions: 16, ctr: 0.06, position: 7 },
+    ]);
+    const [callArgs] = queryImpl.mock.calls[0];
+    expect(callArgs.requestBody.dimensions).toEqual(["page"]);
+    expect(callArgs.requestBody.dimensionFilterGroups).toEqual([
+      { filters: [{ dimension: "page", operator: "contains", expression: "/blog/" }] },
+    ]);
+  });
 });
