@@ -29,6 +29,7 @@ import FormationPage, { generateMetadata, generateStaticParams } from "../page";
 function formation(overrides: Partial<Formation> = {}): Formation {
   return {
     titre: "Obligations légales des établissements",
+    titreSeo: null,
     slug: "obligations-legales-des-etablissements",
     famille: "cadre-legal-etablissements-sante",
     objectifsPedagogiques: [
@@ -163,6 +164,35 @@ describe("FormationPage — fiche pratique Qualiopi", () => {
     render(jsx);
 
     expect(screen.getByText("Sur devis")).toBeInTheDocument();
+  });
+
+  it("relie le référent handicap renseigné au formulaire de contact, pré-rempli avec cette formation", async () => {
+    vi.mocked(getFormationBySlug).mockResolvedValue(
+      formation({ referentHandicap: "Pour toute demande d'adaptation, merci de me contacter" })
+    );
+
+    const jsx = await FormationPage({ params: PARAMS });
+    render(jsx);
+
+    expect(screen.getByText("Pour toute demande d'adaptation, merci de me contacter")).toBeInTheDocument();
+    const lien = screen.getByRole("link", { name: "Formulaire de contact" });
+    const url = new URL(lien.getAttribute("href")!, "https://elancestvous.fr");
+    expect(url.pathname).toBe("/contact");
+    expect(url.searchParams.get("type")).toBe("institution");
+    expect(url.searchParams.get("sujet")).toBe(
+      "Adaptation handicap – formation « Obligations légales des établissements »"
+    );
+    // WCAG 2.2 (2.5.8) : cible d'au moins 24 × 24 px.
+    expect(lien.className).toContain("min-h-6");
+  });
+
+  it("n'affiche aucun lien de contact handicap tant que le référent n'est pas renseigné", async () => {
+    vi.mocked(getFormationBySlug).mockResolvedValue(formation({ referentHandicap: null }));
+
+    const jsx = await FormationPage({ params: PARAMS });
+    render(jsx);
+
+    expect(screen.queryByRole("link", { name: "Formulaire de contact" })).not.toBeInTheDocument();
   });
 
   it("place la fiche pratique dans un conteneur sticky sur desktop (reste visible pendant le défilement)", async () => {
@@ -313,11 +343,35 @@ describe("generateMetadata — audit SEO, finding #1 (canonical faux, hérité d
 
     const meta = await generateMetadata({ params: PARAMS });
 
-    expect(meta.title).toBe("Obligations légales des établissements");
+    // SEO first : pas de suffixe « | Élan C'est Vous » sur les fiches, le
+    // titre seul doit tenir dans les ~60 caractères affichés par Google.
+    expect(meta.title).toEqual({ absolute: "Obligations légales des établissements" });
+    expect(meta.openGraph?.title).toBe("Obligations légales des établissements");
     expect(meta.description).toBeTruthy();
     expect(meta.description).not.toBe(
       "Coaching individuel et collectif, formations QVCT/RPS et groupes d'analyse des pratiques professionnelles pour établissements et soignants à Toulouse et en Occitanie."
     );
+  });
+
+  it("préfère le titre SEO court (titreSeo) au titre affiché pour <title> et og:title, sans suffixe", async () => {
+    vi.mocked(getFormationBySlug).mockResolvedValue(
+      formation({ titreSeo: "Obligations légales en santé au travail" })
+    );
+
+    const meta = await generateMetadata({ params: PARAMS });
+
+    expect(meta.title).toEqual({ absolute: "Obligations légales en santé au travail" });
+    expect(meta.openGraph?.title).toBe("Obligations légales en santé au travail");
+  });
+
+  it("garde le titre complet en H1 même quand un titre SEO court est défini", async () => {
+    vi.mocked(getFormationBySlug).mockResolvedValue(
+      formation({ titreSeo: "Obligations légales en santé au travail" })
+    );
+
+    render(await FormationPage({ params: PARAMS }));
+
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Obligations légales des établissements");
   });
 
   it("déclare un openGraph dédié avec une URL self-référente, jamais celle de l'accueil", async () => {

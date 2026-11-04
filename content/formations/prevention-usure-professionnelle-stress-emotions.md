@@ -1,5 +1,6 @@
 ---
 titre: "Prévention de l'usure professionnelle, gestion du stress et des émotions"
+titreSeo: "Usure professionnelle, gestion du stress et des émotions"
 slug: "prevention-usure-professionnelle-stress-emotions"
 famille: "prevention-rps-qvct-etablissements-sante"
 objectifsPedagogiques:
