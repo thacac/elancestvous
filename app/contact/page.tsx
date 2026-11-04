@@ -1,10 +1,28 @@
-import { BrushUnderline, PastelCard } from "@/components/charte";
+import { BrushUnderline, PastelCard, Sparkle, Steps } from "@/components/charte";
 import ContactForm from "@/components/contact-form/ContactForm";
 import type { ContactFormValues } from "@/components/contact-form/validation";
 import GabaritPage from "@/components/GabaritPage";
 import { OG_BANNER_IMAGES } from "@/lib/openGraph";
 
 import type { Metadata } from "next";
+
+// Section ajoutée (validée par Cédric le 2026-11-04) : rassure sur la suite
+// sans promettre de délai. Placée après le formulaire pour garder l'action
+// en premier sur smartphone (DESIGN.md).
+const ETAPES_PREMIER_ECHANGE = [
+  {
+    title: "Vous m'écrivez",
+    description: "Quelques lignes suffisent pour décrire votre situation.",
+  },
+  {
+    title: "Je vous recontacte",
+    description: "Personnellement, pour convenir d'un premier échange.",
+  },
+  {
+    title: "On construit ensemble",
+    description: "Une réponse adaptée à votre contexte.",
+  },
+];
 
 const VALID_PROJECT_TYPES: ContactFormValues["projectType"][] = [
   "institution",
@@ -69,12 +87,24 @@ export default async function ContactPage({
 
         {/* Story 4.9 : carte ciel de la charte, sans ombre (profondeur par
             les aplats, DESIGN.md). */}
-        <PastelCard tone="sky" as="div" className="p-5 sm:p-8 md:p-12">
-          <ContactForm
-            defaultProjectType={parseProjectType(type)}
-            defaultMessage={sujet}
-          />
-        </PastelCard>
+        <div className="relative">
+          {/* Décor seulement à partir de lg : rien ne repousse le formulaire
+              sur smartphone. */}
+          <Sparkle className="absolute -top-4 -right-3 hidden size-10 lg:block" />
+          <PastelCard tone="sky" as="div" className="p-5 sm:p-8 md:p-12">
+            <ContactForm
+              defaultProjectType={parseProjectType(type)}
+              defaultMessage={sujet}
+            />
+          </PastelCard>
+        </div>
+
+        <section aria-labelledby="premier-echange" className="mt-16">
+          <h2 id="premier-echange">
+            Comment se passe le premier échange&nbsp;?
+          </h2>
+          <Steps steps={ETAPES_PREMIER_ECHANGE} />
+        </section>
       </div>
     </GabaritPage>
   );
