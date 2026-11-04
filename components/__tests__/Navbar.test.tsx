@@ -5,15 +5,9 @@ import Navbar from "../Navbar";
 
 const NAV_ITEMS: [string, string][] = [
   ["Accueil", "/"],
-  [
-    "Formations",
-    "/professionnels-etablissements-de-soins/formations-rps-qvct",
-  ],
-  ["Coaching", "/professionnels-etablissements-de-soins/coaching"],
-  [
-    "GAPP",
-    "/professionnels-etablissements-de-soins/gapp-groupe-analyse-pratiques-professionnelles",
-  ],
+  ["Formations", "/formations"],
+  ["Coaching", "/coaching"],
+  ["GAPP", "/gapp-analyse-pratiques-professionnelles"],
   ["À propos", "/a-propos"],
   ["Contact", "/contact"],
 ];
@@ -36,12 +30,35 @@ describe("Navbar on a non-home page (audit: crawlable navigation everywhere)", (
     ).toHaveAttribute("href", "/");
   });
 
+  it("uses the vector logo (orange dot, no sparkles), decorative next to the name", () => {
+    const { container } = render(<Navbar />);
+    const link = screen.getByRole("link", { name: /élan c.est vous/i });
+    // Nom lisible (le texte visible « ÉlanC’estVous » est collé), sans
+    // « logo » en doublon.
+    expect(link).toHaveAccessibleName("Élan C’est Vous, accueil");
+    const svg = link.querySelector("svg");
+    expect(svg).toHaveAttribute("aria-hidden", "true");
+    expect(svg?.querySelector("[data-logo-dot]")).not.toBeNull();
+    expect(container.querySelector("img[src*='logo_elancestvous']")).toBeNull();
+  });
+
   it("renders the Particuliers CTA as a real link", () => {
     render(<Navbar />);
     const ctas = screen.getAllByRole("link", { name: /particuliers/i });
     expect(ctas.length).toBeGreaterThan(0);
     ctas.forEach((cta) =>
-      expect(cta).toHaveAttribute("href", "/particuliers/coaching-individuel"),
+      expect(cta).toHaveAttribute("href", "/coaching/particuliers"),
+    );
+  });
+
+  it("exposes no top-level 'Obligations légales' entry, and GAPP stays a direct link, never nested under Formations (Story 2.6)", () => {
+    render(<Navbar />);
+    expect(
+      screen.queryByRole("link", { name: /obligations légales/i }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "GAPP" })).toHaveAttribute(
+      "href",
+      "/gapp-analyse-pratiques-professionnelles",
     );
   });
 
@@ -114,5 +131,16 @@ describe("Navbar mobile drawer (bug: rien ne se passe au clic/tap sur mobile)", 
     const closeButton = screen.getByRole("button", { name: /close menu/i });
     expect(closeButton.className).toMatch(/touch-manipulation/);
     expect(closeButton.className).toMatch(/active:/);
+  });
+});
+
+// Story 4.6 : le menu mobile quitte l'ancien pastel pour le ciel de la charte.
+describe("Navbar — menu mobile aux couleurs de la charte (Story 4.6)", () => {
+  it("pose le panneau sur le ciel, plus sur le pastel", () => {
+    render(<Navbar />);
+    fireEvent.click(screen.getByRole("button", { name: /open main menu/i }));
+    const panneau = document.getElementById("mobile-menu-panel")!;
+    expect(panneau).toHaveClass("bg-sky");
+    expect(panneau.className).not.toMatch(/\bbg-pastel\b/);
   });
 });

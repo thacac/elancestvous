@@ -34,3 +34,12 @@ describe("ArticulationBloc", () => {
     );
   });
 });
+
+// Story 4.3 : `text-muted` (#93999b) faisait 2.9:1 sur blanc, sous le seuil
+// de 4.5:1 exigé pour le texte courant.
+describe("ArticulationBloc — contraste (Story 4.3)", () => {
+  it("n'utilise plus l'ancien gris muted", () => {
+    const { container } = render(<ArticulationBloc />);
+    expect(container.innerHTML).not.toMatch(/muted/);
+  });
+});

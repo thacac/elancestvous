@@ -1,0 +1,209 @@
+import Image from "next/image";
+
+import ArticulationBloc from "@/components/ArticulationBloc";
+import BadgesBloc from "@/components/BadgesBloc";
+import CartesContrastBloc from "@/components/CartesContrastBloc";
+import { BrushUnderline } from "@/components/charte";
+import Citation from "@/components/Citation";
+import CtaElan from "@/components/CtaElan";
+import FormationsEtArticlesLiesBloc from "@/components/FormationsEtArticlesLiesBloc";
+import GabaritPage from "@/components/GabaritPage";
+import PublicsCiblesBloc from "@/components/PublicsCiblesBloc";
+import {
+  IconBuilding,
+  IconHand,
+  IconManager,
+  IconStethoscope,
+} from "@/components/ui/icons-publics";
+import { OG_BANNER_IMAGES } from "@/lib/openGraph";
+
+const TARGET_PAGE = "/formations/cadre-legal-etablissements-sante";
+
+export const metadata = {
+  title: "Formations cadre légal, droits et éthique en établissements de santé",
+  description:
+    "Formations pour sécuriser les obligations légales des établissements de santé : DUERP, obligation de sécurité, responsabilités de l'encadrement et éthique professionnelle.",
+  keywords: [
+    "formations professionnelles",
+    "cadre légal",
+    "obligation de sécurité",
+    "DUERP",
+    "responsabilité",
+    "éthique professionnelle",
+    "établissements de santé",
+    "droits",
+  ],
+  alternates: {
+    canonical: "/formations/cadre-legal-etablissements-sante",
+  },
+  openGraph: {
+    title:
+      "Formations cadre légal, droits et éthique en établissements de santé | Élan C'est Vous",
+    description:
+      "Sécuriser les obligations légales des établissements de santé et outiller l'encadrement sur ses responsabilités.",
+    url: "https://elancestvous.fr/formations/cadre-legal-etablissements-sante",
+    type: "website",
+    images: OG_BANNER_IMAGES,
+  },
+};
+
+export default function CadreLegalPage() {
+  return (
+    <>
+      {/* Story 4.4 : le layout fournit déjà <main> (un seul repère principal).
+          overflow-x-clip plutôt qu'overflow-hidden, qui neutralisait le
+          sticky de la colonne « Pour aller plus loin ». */}
+      <GabaritPage
+        className="min-h-screen overflow-x-clip"
+        filAriane={[
+          { label: "Formations", href: "/formations" },
+          { label: "Cadre légal, droits et éthique" },
+        ]}
+      >
+        {/* --- 1. Titre */}
+        <section id="formations-cadre-legal" data-hero className="pb-20 container">
+          <div className="mb-8 flex flex-col gap-6 sm:flex-row-reverse sm:items-start sm:justify-between">
+            {/* Story 4.4 : même médaillon que la tuile de la famille sur
+                /formations (décoratif, le titre porte l'information). Titre
+                aligné à gauche (2026-11-03) : médaillon au-dessus sur
+                smartphone, à droite du titre à partir de `sm`. */}
+            <Image
+              src="/illustrations/presse-papiers-coche.jpg"
+              alt=""
+              width={128}
+              height={128}
+              sizes="(min-width: 640px) 128px, 96px"
+              className="size-24 shrink-0 rounded-full border-4 border-sky object-cover sm:size-32"
+            />
+            <div className="min-w-0">
+              <h1>
+                Cadre légal,{" "}
+                <span className="text-accent">
+                  <strong>droits</strong>
+                </span>{" "}
+                et{" "}
+                <BrushUnderline className="text-accent">
+                  <strong>éthique</strong>
+                </BrushUnderline>
+                .
+              </h1>
+              <p className="mt-5 text-primary/80">
+                Sécuriser les{" "}
+                <span className="text-accent">
+                  <strong>obligations légales</strong>
+                </span>{" "}
+                de l&apos;établissement et outiller l&apos;encadrement sur ses{" "}
+                <span className="text-accent">
+                  <strong>responsabilités</strong>
+                </span>
+                .
+              </p>
+              <p className="mt-3 text-primary/80">
+                Un cadre juridique clarifié, pour agir avant que le risque ne
+                devienne un contentieux.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* --- 1b. Formations disponibles (Story 2.2 : avant tout contenu de
+            réassurance) + colonne latérale sticky des articles liés (Story
+            3.2), quand au moins un article cible le pilier F. Mise en page
+            partagée par les 4 hubs Famille (FormationsEtArticlesLiesBloc). --- */}
+        <FormationsEtArticlesLiesBloc
+          famille="cadre-legal-etablissements-sante"
+          targetPage={TARGET_PAGE}
+        />
+
+        {/* --- 2. ARGUMENTAIRE : CARTES CONTRASTÉES --- */}
+        <CartesContrastBloc
+          titre="Un cadre légal exigeant, rarement outillé au quotidien"
+          sousTitre="Des obligations connues sur le papier, plus difficiles à tenir sur le terrain."
+          cartes={[
+            {
+              numero: "01",
+              titre: "Obligation de sécurité",
+              texte:
+                "L'employeur doit protéger la santé physique et mentale de ses salariés — une obligation de résultat, pas seulement de moyens.",
+            },
+            {
+              numero: "02",
+              titre: "DUERP à jour",
+              texte:
+                "Un document unique d'évaluation des risques trop souvent formel, difficile à transformer en plan d'action réel.",
+            },
+            {
+              numero: "03",
+              titre: "Responsabilités engagées",
+              texte:
+                "Direction, encadrement et CSE : des rôles et des responsabilités à distinguer clairement en cas de signalement.",
+            },
+          ]}
+        />
+
+        {/* --- 3. APPROCHE : BADGES --- */}
+        <BadgesBloc
+          titre="Une approche juridique rendue opérationnelle"
+          badges={[
+            "Cadre légal expliqué simplement",
+            "Méthode DUERP applicable",
+            "Repères pour l'encadrement",
+            "Signaux d'alerte à tracer",
+          ]}
+          citation={
+            <Citation
+              text="Connaître le cadre légal ne suffit pas : encore faut-il savoir le traduire en pratiques quotidiennes, compréhensibles par toute la ligne managériale."
+              imageSrc="/coralie.png"
+              imageAlt="Coach Coralie"
+            />
+          }
+        />
+
+        {/* --- 4. PUBLIC CIBLE --- */}
+        <PublicsCiblesBloc
+          titre="À qui s'adressent ces formations ?"
+          sousTitre="Ces formations s'adressent notamment :"
+          cartes={[
+            {
+              icon: <IconBuilding className="w-6 h-6 text-accent" />,
+              titre: "À la direction, responsable de l'obligation de sécurité",
+            },
+            {
+              icon: <IconManager className="w-6 h-6 text-accent" />,
+              titre: "À l'encadrement, en première ligne face aux signaux d'alerte",
+            },
+            {
+              icon: <IconStethoscope className="w-6 h-6 text-accent" />,
+              titre: "Aux référents qualité et juridique de l'établissement",
+            },
+            {
+              icon: <IconHand className="w-6 h-6 text-accent" />,
+              titre: "Aux membres du CSE, associés à la démarche de prévention",
+            },
+          ]}
+        />
+
+        {/* --- 5. Lien avec les autres accompagnements --- */}
+        <ArticulationBloc
+          textePrincipal="Selon les situations et les objectifs, la formation peut être proposée seule, ou s'inscrire dans une démarche plus globale incluant du coaching ou des groupes d'analyse de la pratique."
+          liens={[
+            {
+              href: "/coaching/etablissements",
+              label: "Coaching en établissement",
+            },
+            {
+              href: "/gapp-analyse-pratiques-professionnelles",
+              label: "GAPP",
+            },
+          ]}
+        />
+
+        {/* --- 6. CTA FINAL --- */}
+        <CtaElan
+          contactType="institution"
+          contactSujet="Formations « Cadre légal, droits et éthique »"
+        />
+      </GabaritPage>
+    </>
+  );
+}

@@ -26,6 +26,7 @@ tags:
   - cadres de santé
 pillar: D
 localAngle: true
+keyMessage: "Ni réunion de service, ni débriefing : au GAPP, c'est l'intelligence du groupe qui éclaire les situations vécues."
 ---
 « On nous a annoncé de l'analyse de pratiques. Personne n'a compris si c'était une réunion de service, une thérapie de groupe ou un contrôle déguisé. » Cette phrase, je l'ai entendue presque mot pour mot dans un EHPAD du nord de Toulouse, puis dans un service d'un établissement de l'Ariège. Le GAPP souffre d'un vrai problème de clarté. Alors posons les choses simplement.
 

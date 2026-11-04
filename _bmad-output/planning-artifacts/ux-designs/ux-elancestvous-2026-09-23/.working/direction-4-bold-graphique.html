@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Direction 4 — Bold / Graphique</title>
+<!--
+RATIONALE : registre bold et graphique, pour une marque qui affirme son autorité
+sur le sujet plutôt que de se faire discrète. Aplats de couleur saturés au
+contact les uns des autres (pas de gouttière), typo Inter en graisse forte et
+majuscules pour les libellés, tuiles piliers colorées individuellement avec les
+4 tokens de marque. Le survol inverse franchement fond/texte et fait
+scale-up la tuile : un mouvement affirmé, presque un bouton géant, cohérent
+avec le registre "poster" plutôt que discret.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@500;700;800;900&display=swap" rel="stylesheet">
+<style>
+/*
+  PALETTE (tokens réels, respectés — utilisés en aplats francs) :
+  --primary  #112e40  bleu-nuit profond   -> fond hero, tuile Coaching
+  --accent   #ff5a3d  corail chaud        -> fond hero (bloc), tuile GAPP, CTA
+  --pastel   #d1faf9  menthe très pâle    -> texte sur fond primary, liseré
+  --teal     #29b5ad  logo/teal           -> tuile Formation
+  --secondary #898c91 gris                -> tuile Obligations (fond neutre foncé mixé)
+  Aucune couleur hors palette de marque n'est utilisée dans cette direction.
+*/
+:root{
+  --primary:#112e40; --accent:#ff5a3d; --pastel:#d1faf9; --teal:#29b5ad; --secondary:#898c91;
+}
+*{box-sizing:border-box;}
+body{margin:0;background:#1c1c1c;font-family:'Inter',sans-serif;color:#fff;padding:40px 0;}
+.frame-label{max-width:1440px;margin:0 auto 12px;padding:0 24px;font:700 12px/1 'Inter',sans-serif;color:#aaa;text-transform:uppercase;letter-spacing:.12em;}
+.browser{max-width:1440px;margin:0 auto 64px;background:#fff;overflow:hidden;box-shadow:0 30px 60px -20px rgba(0,0,0,.6);}
+.chrome{display:flex;align-items:center;gap:8px;padding:12px 18px;background:#111;border-bottom:2px solid var(--accent);}
+.dot{width:10px;height:10px;background:#444;}
+
+/* HERO */
+.hero{background:var(--primary);padding:90px 90px 100px;position:relative;overflow:hidden;}
+.hero-shape{position:absolute;right:-120px;top:-120px;width:480px;height:480px;background:var(--accent);border-radius:50%;opacity:.9;}
+.hero-shape2{position:absolute;right:60px;bottom:-160px;width:260px;height:260px;background:var(--teal);opacity:.85;transform:rotate(20deg);}
+.hero-content{position:relative;z-index:2;}
+.eyebrow{display:inline-block;font:800 13px/1 'Inter',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--primary);background:#fff;padding:10px 18px;}
+h1.hero-title{font-family:'Inter',sans-serif;font-weight:900;font-size:60px;line-height:1.02;margin:28px 0 24px;max-width:760px;color:#fff;text-transform:uppercase;letter-spacing:-.01em;}
+.hero-sub{font-weight:500;font-size:18px;line-height:1.6;max-width:560px;color:var(--pastel);margin:0 0 40px;}
+.cta-row{display:flex;align-items:center;gap:30px;flex-wrap:wrap;}
+.btn-primary{background:var(--accent);color:#fff;font:800 15px/1 'Inter',sans-serif;text-transform:uppercase;letter-spacing:.04em;padding:20px 36px;text-decoration:none;display:inline-block;transition:transform .2s ease, background .2s ease;border:3px solid var(--accent);}
+.btn-primary:hover{background:var(--primary);border-color:#fff;transform:scale(1.04);}
+.callout{font:600 13.5px/1.5 'Inter',sans-serif;color:var(--pastel);max-width:280px;border-left:3px solid var(--accent);padding-left:14px;}
+.callout a{color:#fff;text-decoration:underline;}
+
+/* PILLARS */
+.pillars-head{background:#fff;padding:26px 90px;border-bottom:3px solid var(--primary);}
+.pillars-head span{font:900 13px/1 'Inter';letter-spacing:.1em;text-transform:uppercase;color:var(--primary);}
+.grid-main{display:grid;grid-template-columns:1fr 1fr;}
+.card{padding:56px 50px;transition:transform .25s ease, background .25s ease, color .25s ease;position:relative;}
+.card.formation{background:var(--teal);color:#08302d;}
+.card.coaching{background:var(--primary);color:#fff;}
+.card h3{font-family:'Inter',sans-serif;font-weight:900;font-size:32px;text-transform:uppercase;margin:0 0 18px;letter-spacing:-.01em;}
+.card p{font-weight:500;font-size:15.5px;line-height:1.65;margin:0 0 30px;max-width:440px;}
+.card-link{font:800 14px/1 'Inter',sans-serif;text-transform:uppercase;letter-spacing:.04em;text-decoration:none;color:inherit;display:inline-flex;align-items:center;gap:10px;border-bottom:3px solid currentColor;padding-bottom:6px;}
+.card:hover, .card.hover-state{transform:scale(1.015);}
+.card.formation:hover, .card.formation.hover-state{background:#08302d;color:var(--teal);}
+.card.coaching:hover{background:var(--accent);color:#fff;}
+.grid-sub{display:grid;grid-template-columns:1fr 1fr;}
+.card-sm{padding:40px 44px;transition:transform .25s ease, background .25s ease, color .25s ease;}
+.card-sm.gapp{background:var(--accent);color:#fff;}
+.card-sm.obligations{background:#3a3d42;color:#fff;}
+.card-sm h4{font-family:'Inter',sans-serif;font-weight:900;font-size:22px;text-transform:uppercase;margin:0 0 12px;}
+.card-sm p{font-weight:500;font-size:14px;line-height:1.6;margin:0 0 20px;max-width:400px;}
+.draft-tag{display:inline-block;font:800 10px/1 'Inter';letter-spacing:.08em;background:#fff;color:var(--primary);padding:5px 10px;margin-bottom:14px;}
+.card-sm.gapp:hover{background:#c9421f;}
+.card-sm.obligations:hover{background:#111;}
+.card-sm .card-link{font-size:12.5px;}
+
+/* MOBILE */
+.mobile-wrap{max-width:390px;margin:0 auto;}
+.mchrome{background:#111;padding:10px 16px;border-bottom:2px solid var(--accent);text-align:center;font:700 11px 'Inter';color:#aaa;}
+.mhero{background:var(--primary);padding:44px 22px 46px;position:relative;overflow:hidden;}
+.mhero .hero-shape{width:220px;height:220px;right:-80px;top:-80px;}
+.mhero h1{font-family:'Inter',sans-serif;font-weight:900;font-size:34px;line-height:1.05;margin:20px 0 16px;text-transform:uppercase;color:#fff;position:relative;z-index:2;}
+.mhero p{font-weight:500;font-size:15px;line-height:1.6;color:var(--pastel);margin:0 0 24px;position:relative;z-index:2;}
+.mbtn{display:block;text-align:center;background:var(--accent);color:#fff;font:800 14px 'Inter';text-transform:uppercase;padding:17px;text-decoration:none;margin-bottom:20px;position:relative;z-index:2;border:3px solid var(--accent);}
+.mcallout{font:600 13px/1.5 'Inter';color:var(--pastel);border-left:3px solid var(--accent);padding-left:14px;position:relative;z-index:2;}
+.mcard{padding:30px 24px;}
+.mcard.formation{background:var(--teal);color:#08302d;}
+.mcard.coaching{background:var(--primary);color:#fff;}
+.mcard h3{font-family:'Inter',sans-serif;font-weight:900;font-size:24px;text-transform:uppercase;margin:0 0 12px;}
+.mcard p{font-weight:500;font-size:14px;line-height:1.6;margin:0 0 18px;}
+.mcard-sm{padding:26px 24px;}
+.mcard-sm.gapp{background:var(--accent);color:#fff;}
+.mcard-sm.obligations{background:#3a3d42;color:#fff;}
+.mcard-sm h4{font-family:'Inter',sans-serif;font-weight:900;font-size:19px;text-transform:uppercase;margin:0 0 10px;}
+.mcard-sm p{font-weight:500;font-size:13px;line-height:1.55;margin:0 0 16px;}
+</style>
+</head>
+<body>
+
+<div class="frame-label">Desktop — 1440px</div>
+<div class="browser">
+  <div class="chrome"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+  <section class="hero">
+    <div class="hero-shape"></div>
+    <div class="hero-shape2"></div>
+    <div class="hero-content">
+      <span class="eyebrow">Santé au travail &amp; Performance Humaine</span>
+      <h1 class="hero-title">Préserver la santé de ceux qui soignent.</h1>
+      <p class="hero-sub">Ancienne soignante basée à Toulouse, j'accompagne les établissements et les professionnels de santé à prévenir l'épuisement, réguler la charge émotionnelle et soutenir des pratiques de travail durables.</p>
+      <div class="cta-row">
+        <a class="btn-primary" href="#">Solutions pour les établissements</a>
+        <p class="callout">Vous êtes un particulier ? Pour débloquer une situation ou travailler un objectif, découvrez l'<a href="#">accompagnement individuel</a>.</p>
+      </div>
+    </div>
+  </section>
+  <div class="pillars-head"><span>Ce que je propose</span></div>
+  <div class="grid-main">
+    <div class="card formation hover-state">
+      <h3>Formation</h3>
+      <p>Formations professionnelles QVCT, RPS, gestion du stress et des émotions. Des formations sur-mesure pour prévenir l'épuisement professionnel, mieux comprendre le stress et la charge émotionnelle, et renforcer les ressources individuelles et collectives.</p>
+      <a class="card-link" href="#">Découvrir les formations →</a>
+    </div>
+    <div class="card coaching">
+      <h3>Coaching</h3>
+      <p>Coaching d'équipe ou individuel. Des accompagnements de coaching, individuels ou collectifs, lorsqu'un objectif précis est identifié : évolution des pratiques, ajustement des fonctionnements, réorganisation ou période de transition.</p>
+      <a class="card-link" href="#">Découvrir le coaching →</a>
+    </div>
+  </div>
+  <div class="grid-sub">
+    <div class="card-sm gapp">
+      <h4>GAPP</h4>
+      <p>Groupe d'analyse des pratiques professionnelles. Des espaces réguliers de réflexion collective pour prendre du recul sur les situations vécues, réguler la charge émotionnelle et soutenir les pratiques dans la durée.</p>
+      <a class="card-link" href="#">Découvrir les GAPP →</a>
+    </div>
+    <div class="card-sm obligations">
+      <span class="draft-tag">[DRAFT]</span>
+      <h4>Obligations légales</h4>
+      <p>Obligation de sécurité de l'employeur, prévention des RPS, DUERP : comprendre ce qui est exigé et comment agir avant le contentieux.</p>
+      <a class="card-link" href="#">Comprendre vos obligations →</a>
+    </div>
+  </div>
+</div>
+
+<div class="frame-label">Mobile — 390px</div>
+<div class="mobile-wrap">
+  <div class="mchrome">elancestvous.fr</div>
+  <div class="mhero">
+    <div class="hero-shape"></div>
+    <span class="eyebrow" style="font-size:11px;">Santé au travail &amp; Performance Humaine</span>
+    <h1>Préserver la santé de ceux qui soignent.</h1>
+    <p>Ancienne soignante basée à Toulouse, j'accompagne les établissements et les professionnels de santé à prévenir l'épuisement, réguler la charge émotionnelle et soutenir des pratiques de travail durables.</p>
+    <a class="mbtn" href="#">Solutions pour les établissements</a>
+    <p class="mcallout">Vous êtes un particulier ? Pour débloquer une situation ou travailler un objectif, découvrez l'accompagnement individuel.</p>
+  </div>
+  <div class="mcard formation">
+    <h3>Formation</h3>
+    <p>Formations QVCT, RPS, gestion du stress et des émotions, sur-mesure pour prévenir l'épuisement.</p>
+    <a class="card-link" href="#" style="font-size:12.5px;">Découvrir les formations →</a>
+  </div>
+  <div class="mcard coaching">
+    <h3>Coaching</h3>
+    <p>Coaching d'équipe ou individuel lorsqu'un objectif précis est identifié.</p>
+    <a class="card-link" href="#" style="font-size:12.5px;">Découvrir le coaching →</a>
+  </div>
+  <div class="mcard-sm gapp">
+    <h4>GAPP</h4>
+    <p>Espaces réguliers de réflexion collective pour réguler la charge émotionnelle.</p>
+    <a class="card-link" href="#" style="font-size:12px;">Découvrir les GAPP →</a>
+  </div>
+  <div class="mcard-sm obligations">
+    <span class="draft-tag">[DRAFT]</span>
+    <h4>Obligations légales</h4>
+    <p>Obligation de sécurité, RPS, DUERP : agir avant le contentieux.</p>
+    <a class="card-link" href="#" style="font-size:12px;">Comprendre vos obligations →</a>
+  </div>
+</div>
+
+</body>
+</html>

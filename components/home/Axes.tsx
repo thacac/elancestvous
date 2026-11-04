@@ -1,127 +1,121 @@
+import Image from "next/image";
 import Link from "next/link";
 import { FC } from "react";
 
-import { buttonVariants } from "../ui";
+import { SectionBanner } from "@/components/charte";
+import { buttonVariants } from "@/components/ui/button";
+
+// Icône au trait du bandeau (cible), comme sur les slides de formation.
+function IconTarget() {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="22" cy="26" r="16" />
+      <circle cx="22" cy="26" r="9" />
+      <circle cx="22" cy="26" r="2.5" />
+      <path d="M22 26 40 8M34 8h6v6" />
+    </svg>
+  );
+}
 
 const Axes: FC = () => {
   return (
-    <section
-      id="axes-de-travail"
-      className="pt-0 pb-15 bg-white container wide"
-    >
-      <div className="text-center">
-        <h2>Mes 3 Axes d&apos;Intervention</h2>
-        <h3>
-          Une approche globale, avec des modalités d&apos;intervention adaptables aux
-          besoins des équipes.
-        </h3>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12 mt-18">
-        <div className="group bg-stone-50 p-8 rounded-2xl border border-stone-100 hover:shadow-xl transition duration-300 relative overflow-hidden">
-          <div className="absolute top-0 right-0 bg-accent text-white text-xs px-2 py-1 rounded-bl-lg font-bold">
-            Populaire
-          </div>{" "}
-          <div className="w-14 h-14 bg-teal-100 rounded-full flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-white transition">
-            <svg
-              className="w-8 h-8"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-              ></path>
-            </svg>
+    <section id="axes-de-travail" className="scroll-mt-20 pb-15 bg-white">
+      {/* La vague du hero, juste au-dessus, ouvre déjà ce bandeau. */}
+      <SectionBanner
+        vagueHaute={false}
+        title="Mes 3 Axes d'Intervention"
+        subtitle="Une approche globale, avec des modalités d'intervention adaptables aux besoins des équipes."
+        icon={<IconTarget />}
+      />
+      <div className="container wide grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12 mt-8">
+        <Link
+          href="/formations"
+          aria-label="Découvrir les formations"
+          className="bg-white border-2 border-stone-100 rounded-3xl overflow-hidden flex flex-col hover:border-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring transition-colors"
+        >
+          <div className="flex items-center justify-center py-6">
+            <Image
+              src="/illustrations/soignantes-atelier-formation.jpg"
+              alt="Illustration : une équipe de soignants en atelier de formation autour d'une table"
+              width={160}
+              height={160}
+              sizes="160px"
+              className="size-40 rounded-full object-cover"
+            />
           </div>
-          <h3 className="text-xl font-bold text-dark mb-3">Formations</h3>
-          <p className="text-stone-600 mb-4 text-sm leading-relaxed">
-            Des formations sur-mesure pour prévenir l&apos;épuisement professionnel,
-            mieux comprendre le stress et la charge émotionnelle, et renforcer
-            les ressources individuelles et collectives.
-          </p>
-          <Link
-            href="/professionnels-etablissements-de-soins/formations-rps-qvct"
-            className={`${buttonVariants({
-              variant: "ghost",
-            })} mt-4 bg-primary text-white px-6 py-2 rounded-full!`}
-          >
-           Découvrir les formations
-          </Link>
-        </div>
+          <div className="bg-sky p-6 flex flex-col gap-2.5 flex-1">
+            <h3 className="m-0">Formations</h3>
+            <p className="leading-relaxed text-primary/90">
+              Des formations sur-mesure pour prévenir l&apos;épuisement professionnel,
+              mieux comprendre le stress et la charge émotionnelle, et renforcer
+              les ressources individuelles et collectives.
+            </p>
+            <span className={`${buttonVariants({ variant: "tinted" })} mt-auto w-fit`}>
+              Découvrir les formations <span aria-hidden="true" className="text-accent">→</span>
+            </span>
+          </div>
+        </Link>
 
-        <div className="group bg-stone-50 p-8 rounded-2xl border border-stone-100 hover:shadow-xl transition duration-300 relative overflow-hidden">
-          <div className="w-14 h-14 bg-teal-100 rounded-full flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-white transition">
-            <svg
-              className="w-8 h-8"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <circle cx="8" cy="10" r="3" strokeWidth="2" />
-              <circle cx="16" cy="10" r="3" strokeWidth="2" />
-              <path
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M2 20c0-2.5 3-4.5 6-4.5s6 2 6 4.5M10 20c0-2.5 3-4.5 6-4.5s6 2 6 4.5"
-              />
-            </svg>
+        <Link
+          href="/coaching"
+          aria-label="Découvrir le coaching"
+          className="bg-white border-2 border-stone-100 rounded-3xl overflow-hidden flex flex-col hover:border-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring transition-colors"
+        >
+          <div className="flex items-center justify-center py-6">
+            <Image
+              src="/illustrations/soignante-pensive-coaching.jpg"
+              alt="Illustration : une soignante pensive, le menton dans les mains"
+              width={160}
+              height={160}
+              sizes="160px"
+              className="size-40 rounded-full object-cover"
+            />
           </div>
-          <h3 className="text-xl font-bold text-dark mb-3">
-            Coaching d&apos;équipe ou individuel
-          </h3>
-          <p className="text-stone-600 mb-4 text-sm leading-relaxed">
-            Des accompagnements de coaching, individuels ou collectifs,
-            lorsqu’un objectif précis est identifié : évolution des pratiques,
-            ajustement des fonctionnements, réorganisation ou période de
-            transition.
-          </p>
-          <Link
-            href="/professionnels-etablissements-de-soins/coaching"
-            className={`${buttonVariants({
-              variant: "ghost",
-            })} mt-4 bg-primary text-white px-6 py-2 rounded-full!`}
-          >
-           Découvrir le coaching
-          </Link>
-        </div>
+          <div className="bg-peach p-6 flex flex-col gap-2.5 flex-1">
+            <h3 className="m-0">
+              Coaching d&apos;équipe ou individuel
+            </h3>
+            <p className="leading-relaxed text-primary/90">
+              Des accompagnements de coaching, individuels ou collectifs,
+              lorsqu&rsquo;un objectif précis est identifié : évolution des pratiques,
+              ajustement des fonctionnements, réorganisation ou période de
+              transition.
+            </p>
+            <span className={`${buttonVariants({ variant: "tinted" })} mt-auto w-fit`}>
+              Découvrir le coaching <span aria-hidden="true" className="text-accent">→</span>
+            </span>
+          </div>
+        </Link>
 
-        <div className="group bg-stone-50 p-8 rounded-2xl border border-stone-100 hover:shadow-xl transition duration-300">
-          <div className="w-14 h-14 bg-teal-100 rounded-full flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-white transition">
-            <svg
-              className="w-8 h-8"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-              ></path>
-            </svg>
+        <Link
+          href="/gapp-analyse-pratiques-professionnelles"
+          aria-label="Découvrir les GAPP"
+          className="bg-white border-2 border-stone-100 rounded-3xl overflow-hidden flex flex-col hover:border-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring transition-colors"
+        >
+          <div className="flex items-center justify-center py-6">
+            <Image
+              src="/illustrations/groupe-analyse-pratiques-cercle.jpg"
+              alt="Illustration : un groupe de professionnels assis en cercle, en discussion"
+              width={160}
+              height={160}
+              sizes="160px"
+              className="size-40 rounded-full object-cover"
+            />
           </div>
-          <h3 className="text-xl font-bold text-dark mb-3">
-            GAPP (Groupe d&apos;analyse des pratiques professionnelles)
-          </h3>
-          <p className="text-stone-600 mb-4 text-sm leading-relaxed">
-            Des espaces réguliers de réflexion collective pour prendre du recul
-            sur les situations vécues, réguler la charge émotionnelle et
-            soutenir les pratiques dans la durée.
-          </p>
-          <Link
-            href="/professionnels-etablissements-de-soins/gapp-groupe-analyse-pratiques-professionnelles"
-            className={`${buttonVariants({
-              variant: "ghost",
-            })} mt-4 bg-primary text-white px-6 py-2 rounded-full!`}
-          >
-           Découvrir les GAPP
-          </Link>
-        </div>
+          <div className="bg-sky p-6 flex flex-col gap-2.5 flex-1">
+            <h3 className="m-0">
+              GAPP (Groupe d&apos;analyse des pratiques professionnelles)
+            </h3>
+            <p className="leading-relaxed text-primary/90">
+              Des espaces réguliers de réflexion collective pour prendre du recul
+              sur les situations vécues, réguler la charge émotionnelle et
+              soutenir les pratiques dans la durée.
+            </p>
+            <span className={`${buttonVariants({ variant: "tinted" })} mt-auto w-fit`}>
+              Découvrir les GAPP <span aria-hidden="true" className="text-accent">→</span>
+            </span>
+          </div>
+        </Link>
       </div>
     </section>
   );

@@ -1,7 +1,5 @@
-import fs from "node:fs";
 import path from "node:path";
 
-import matter from "gray-matter";
 import DOMPurify from "isomorphic-dompurify";
 import readingTime from "reading-time";
 import rehypeSanitize from "rehype-sanitize";
@@ -12,6 +10,7 @@ import remarkRehype from "remark-rehype";
 import { unified } from "unified";
 import { z } from "zod";
 
+import { loadMarkdownCollection, parseFrontmatter } from "@/lib/markdownCollection";
 import { PILLAR_IDS } from "@/services/blog/pillars";
 
 export const BLOG_CONTENT_DIR = path.join(process.cwd(), "content", "blog");
@@ -35,6 +34,15 @@ const frontmatterSchema = z.object({
   // jamais bloquant, cf. getRelatedPosts et lib/relatedArticles.ts qui
   // l'ignorent simplement (pas de pilier déclaré ⇒ pas de maillage).
   pillar: z.enum(PILLAR_IDS).nullable().default(null),
+  // Story 4.5 : phrase à retenir, affichée en KeyMessage à la fin de
+  // l'article. Facultative et jamais écrite par le générateur (pipeline et
+  // flux Discord inchangés) : elle n'apparaît que si quelqu'un l'ajoute,
+  // après la dernière retouche (voir docs/blog-architecture.md). Laissée vide
+  // en YAML (null), elle est traitée comme absente plutôt que de casser le build.
+  keyMessage: z.preprocess(
+    (value) => (value === null ? undefined : value),
+    z.string().min(1).optional(),
+  ),
 });
 
 export type PostMeta = z.infer<typeof frontmatterSchema> & {
@@ -62,71 +70,26 @@ const draftFrontmatterSchema = frontmatterSchema
     path: ["coverImage"],
   });
 
-function listMarkdownFiles(dir: string): string[] {
-  if (!fs.existsSync(dir)) return [];
-  return fs
-    .readdirSync(dir)
-    .filter((file) => file.endsWith(".md"))
-    .map((file) => path.join(dir, file));
-}
-
 export function parsePostContent(
   raw: string,
   sourceLabel: string
 ): { frontmatter: z.infer<typeof frontmatterSchema>; content: string } {
-  const { data, content } = matter(raw);
-  const result = frontmatterSchema.safeParse(data);
-  if (!result.success) {
-    const issues = result.error.issues
-      .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
-      .join("; ");
-    throw new Error(`Frontmatter invalide dans ${sourceLabel} — ${issues}`);
-  }
-  return { frontmatter: result.data, content };
+  return parseFrontmatter(frontmatterSchema, raw, sourceLabel);
 }
 
 export function parseDraftContent(
   raw: string,
   sourceLabel: string
 ): { frontmatter: z.infer<typeof draftFrontmatterSchema>; content: string } {
-  const { data, content } = matter(raw);
-  const result = draftFrontmatterSchema.safeParse(data);
-  if (!result.success) {
-    const issues = result.error.issues
-      .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
-      .join("; ");
-    throw new Error(`Frontmatter invalide dans ${sourceLabel} — ${issues}`);
-  }
-  return { frontmatter: result.data, content };
-}
-
-function readAndValidate(filePath: string): {
-  frontmatter: z.infer<typeof frontmatterSchema>;
-  content: string;
-} {
-  const raw = fs.readFileSync(filePath, "utf8");
-  return parsePostContent(raw, path.basename(filePath));
+  return parseFrontmatter(draftFrontmatterSchema, raw, sourceLabel);
 }
 
 function loadAllMeta(dir: string): Array<PostMeta & { content: string }> {
-  const files = listMarkdownFiles(dir);
-  const seenSlugs = new Map<string, string>();
-  const posts = files.map((filePath) => {
-    const { frontmatter, content } = readAndValidate(filePath);
-    const existing = seenSlugs.get(frontmatter.slug);
-    if (existing) {
-      throw new Error(
-        `Slug dupliqué "${frontmatter.slug}" dans ${existing} et ${path.basename(
-          filePath
-        )}`
-      );
-    }
-    seenSlugs.set(frontmatter.slug, path.basename(filePath));
-    const stats = readingTime(content);
+  const posts = loadMarkdownCollection(dir, frontmatterSchema).map((post) => {
+    const stats = readingTime(post.content);
     return {
-      ...frontmatter,
+      ...post,
       readingTime: `${Math.max(1, Math.ceil(stats.minutes))} min de lecture`,
-      content,
     };
   });
   return posts.sort(
@@ -134,10 +97,27 @@ function loadAllMeta(dir: string): Array<PostMeta & { content: string }> {
   );
 }
 
+// Nœud minimal de l'arbre Markdown (mdast) : seuls les titres et les enfants
+// sont lus, ce qui évite une dépendance directe à @types/mdast.
+type NoeudMarkdown = { type: string; depth?: number; children?: NoeudMarkdown[] };
+
+// Story 4.14 : la page (article, aperçu blog-review, fiche formation) porte
+// déjà son H1. Un titre de niveau 1 du Markdown (`# …` ou souligné par `===`),
+// même dans une citation ou une liste, sort en h2 pour garder un seul H1
+// (RGAA 9.1) ; les niveaux 2 à 6 ne bougent pas.
+function titresNiveau1EnNiveau2() {
+  const parcourir = (noeud: NoeudMarkdown): void => {
+    if (noeud.type === "heading" && noeud.depth === 1) noeud.depth = 2;
+    noeud.children?.forEach(parcourir);
+  };
+  return parcourir;
+}
+
 export async function renderMarkdownToSafeHtml(markdown: string): Promise<string> {
   const file = await unified()
     .use(remarkParse)
     .use(remarkGfm)
+    .use(titresNiveau1EnNiveau2)
     .use(remarkRehype)
     .use(rehypeSanitize)
     .use(rehypeStringify)

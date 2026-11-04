@@ -282,3 +282,18 @@ service (`targetPage`, utilisé jusqu'ici uniquement pour le lien
 article → service demandé au modèle). Publier un article suffit à le faire
 apparaître, au prochain build, sur la page de service correspondante — sans
 nouvelle association à maintenir en parallèle du frontmatter existant.
+
+## Composants livrés (Story 4.5 — blog dans la charte)
+
+| Fichier | Rôle |
+|---|---|
+| `components/blog/ArticleBody.tsx` | Corps d'article (Nunito Sans, message clé, étiquettes) partagé par `/blog/[slug]` et `/blog-review/[slug]` : l'aperçu Discord montre exactement le rendu publié |
+| `lib/blog.ts` (`keyMessage`) | Champ facultatif de l'en-tête, rendu en `KeyMessage` (« À retenir ») en fin d'article ; vide (`null`) = absent |
+
+Le générateur n'écrit jamais `keyMessage` (pipeline et flux Discord
+inchangés) : le champ s'ajoute **à la main**. Attention, un clic
+« Retoucher » reconstruit tout le frontmatter du brouillon à partir de la
+sortie de Claude (`services/blog/reviseDraft.ts`) et **efface** un
+`keyMessage` ajouté sur la branche `blog-draft/<slug>`. L'ajouter donc
+après la dernière retouche, ou directement sur l'article publié
+(`content/blog/<slug>.md`).

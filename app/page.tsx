@@ -1,3 +1,5 @@
+import Accompagnement from "@/components/home/Accompagnement";
+import AppelContact from "@/components/home/AppelContact";
 import Axes from "@/components/home/Axes";
 import Hero from "@/components/home/Hero";
 import { OG_BANNER_IMAGES, TWITTER_BANNER_IMAGES } from "@/lib/openGraph";
@@ -31,6 +33,8 @@ export default function Home() {
     <>
       <Hero />
       <Axes />
+      <Accompagnement />
+      <AppelContact />
     </>
   );
 }

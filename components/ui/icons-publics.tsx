@@ -145,3 +145,14 @@ export function IconHand(props: React.SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+
+// Escalier au trait en format carré, pour l'icône des bandeaux de section
+// (IconStairs, très large, devient illisible à 40 px).
+export function IconEscalier(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth={2.6} strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M6 42h9v-9h9v-9h9v-9h9" />
+      <path d="M30 6h12v12M42 6 28 20" />
+    </svg>
+  );
+}

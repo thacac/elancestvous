@@ -2,8 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import Breadcrumbs from "@/components/Breadcrumbs";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui";
+import { BrushUnderline, PastelCard, SectionBanner } from "@/components/charte";
+import GabaritPage from "@/components/GabaritPage";
 import { getAllPostsMeta } from "@/lib/blog";
 import { isBlogPublic } from "@/lib/featureFlags";
 import { OG_BANNER_IMAGES } from "@/lib/openGraph";
@@ -35,25 +35,39 @@ export default function BlogIndex() {
   const posts = getAllPostsMeta();
 
   return (
-    <section className="pt-20 mb-40">
-      <Breadcrumbs items={[{ label: "Blog" }]} />
-      <div className="container text-center mb-16">
-        <h1>Le blog</h1>
-        <h2 className="h3-like">
+    <GabaritPage as="section" className="mb-40" filAriane={[{ label: "Blog" }]}>
+      <div className="container mb-16">
+        <h1>
+          Le <BrushUnderline className="text-accent">blog</BrushUnderline>
+        </h1>
+        <p className="mt-5 text-primary/80">
           Ressources et réflexions autour de la santé au travail et de
           l&apos;accompagnement des soignants.
-        </h2>
+        </p>
       </div>
 
       {posts.length === 0 ? (
-        <p className="container text-center text-stone-500">
+        <p className="container text-stone-600">
           Les premiers articles arrivent bientôt.
         </p>
       ) : (
-        <div className="container wide grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {posts.map((post) => (
-            <Link key={post.slug} href={`/blog/${post.slug}`}>
-              <Card className="h-full overflow-hidden transition-shadow hover:shadow-md">
+        // Bandeau h2 ajouté (Cédric, 2026-11-03 : h1 h2 h3 sans saut) : les
+        // titres d'article des cartes passent en h3 sous lui.
+        <section aria-labelledby="tous-les-articles">
+          <SectionBanner id="tous-les-articles" title="Tous les articles" className="mb-8" />
+          <div className="container wide grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {posts.map((post, i) => (
+            <Link
+              key={post.slug}
+              href={`/blog/${post.slug}`}
+              className="group block rounded-3xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+            >
+              {/* Cartes pastel alternées ciel / pêche (UX-DR2), sans ombre. */}
+              <PastelCard
+                as="div"
+                tone={i % 2 === 0 ? "sky" : "peach"}
+                className="h-full overflow-hidden p-0"
+              >
                 <div className="relative aspect-[16/9]">
                   <Image
                     src={post.coverImage}
@@ -62,26 +76,25 @@ export default function BlogIndex() {
                     className="object-cover"
                   />
                 </div>
-                <CardHeader>
-                  <CardTitle className="text-primary font-serif text-xl">
-                    {post.title}
-                  </CardTitle>
-                  <CardDescription>{post.excerpt}</CardDescription>
-                </CardHeader>
-                <CardContent className="text-xs text-stone-500">
-                  {new Date(post.publishedAt).toLocaleDateString("fr-FR", {
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                  })}
-                  {" · "}
-                  {post.readingTime}
-                </CardContent>
-              </Card>
+                <div className="p-6">
+                  <h3 className="m-0 break-words group-hover:underline">{post.title}</h3>
+                  <p className="mt-2 text-primary">{post.excerpt}</p>
+                  <p className="mt-4 texte-mention text-stone-600">
+                    {new Date(post.publishedAt).toLocaleDateString("fr-FR", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })}
+                    {" · "}
+                    {post.readingTime}
+                  </p>
+                </div>
+              </PastelCard>
             </Link>
           ))}
-        </div>
+          </div>
+        </section>
       )}
-    </section>
+    </GabaritPage>
   );
 }

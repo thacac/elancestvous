@@ -42,7 +42,7 @@ de santé en Occitanie.
    candide (de dos, de profil, en action) plutôt que portrait posé, pour qu'aucun
    visage ne soit identifiable sans exclure les personnes de l'image. Pas de texte
    dans l'image, cohérente avec la palette turquoise/marine de la marque
-   (`#29B5AD` / `#112E40`, voir `README.md`).
+   (`#29B5AD` / `#0A0C44`, voir `README.md`).
 
 ## Ce que la validation humaine doit vérifier (Phase 3)
 

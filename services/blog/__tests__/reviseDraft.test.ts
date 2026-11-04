@@ -124,7 +124,7 @@ describe("reviseDraft", () => {
           parsed_output: {
             ...revisedDraft,
             bodyMarkdown:
-              "## Section\n\nDécouvrez notre [accompagnement individuel](/particuliers/coaching-individuel).",
+              "## Section\n\nDécouvrez notre [accompagnement individuel](/coaching/particuliers).",
           },
         }),
       },

@@ -14,32 +14,14 @@
   }
 }
 
-:root {
-  /* --header: var(--color-brand-pastel);
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent-foreground: #f1f5f9;
-  --destructive: oklch(0.577 0.245 27.325); */
-  /* --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0); */
-  /* Personnal vars */
-}
 html {
   scroll-behavior: smooth;
 }
 
+/* Texte courant à 18 px (Cédric, 2026-11-03), défini ici seulement : tous
+   les paragraphes en héritent ; les blocs `prose` s'alignent via prose-lg. */
 body {
-  @apply bg-white font-sans antialiased;
+  @apply bg-white font-sans antialiased text-lg;
 }
 
 .container {
@@ -54,17 +36,51 @@ body {
   @apply transition-transform duration-150 hover:scale-120 active:scale-120;
 }
 
-h1 {
-  @apply font-serif text-primary text-5xl font-extrabold tracking-tight lg:text-6xl;
+/* Story 4.13 : seule définition du style du H1, en @layer base pour que les
+   utilitaires (marges) s'appliquent sans `!`. Réduit sur smartphone, coupé
+   sans césure (story 4.11 : hyphens-auto coupait des mots qui tenaient). */
+@layer base {
+  h1 {
+    @apply font-display text-primary text-3xl font-extrabold tracking-tight break-words sm:text-5xl lg:text-6xl;
+  }
 }
 
+/* Échelle typographique unique (Cédric, 2026-11-03 : « h1 h2 h3 p et
+   basta ») : une taille par niveau, définie ici seulement. h2 = titre de
+   section, h3 = titre de carte ou de sous-partie, tout le reste du contenu
+   en paragraphe à la taille du texte courant (16 px). Hors @layer : ces
+   règles l'emportent sur les utilitaires et sur `prose`. Jamais de taille
+   au cas par cas dans le contenu (app/__tests__/typographie.test.tsx). */
 h2 {
-  @apply font-serif text-primary text-2xl font-extrabold tracking-tight lg:text-3xl mb-4;
+  @apply font-display text-primary text-2xl font-extrabold tracking-tight lg:text-3xl mb-4;
 }
 
-h3,
-.h3-like {
-  @apply font-sans text-base font-normal  text-stone-600 mx-auto max-w-2xl mt-5;
+h3 {
+  @apply font-display text-primary text-xl font-extrabold leading-snug;
+}
+
+/* Les deux seules exceptions nommées : la mention (petite info : source,
+   date, étiquette) et le chiffre clé (repères chiffrés, numéros). */
+@utility texte-mention {
+  @apply text-sm;
+}
+
+@utility chiffre-cle {
+  @apply font-display text-4xl font-black leading-none text-accent;
+}
+
+/* Trait de pinceau orange sous un mot clé (charte slides). Fond CSS plutôt
+   qu'un SVG positionné : le texte se coupe normalement et chaque ligne garde
+   son trait (box-decoration-break). Couleur = token --color-orange (#f28a1e),
+   en dur car une data-URI ne lit pas les variables CSS. */
+@utility brush-underline {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 12' preserveAspectRatio='none'%3E%3Cpath d='M3 8 C 50 3, 120 2, 197 6' fill='none' stroke='%23f28a1e' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: left bottom;
+  background-size: 100% 0.3em;
+  padding-bottom: 0.15em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
 }
 
 .form-label {
@@ -72,23 +88,50 @@ h3,
 }
 
 @theme {
-  --font-sans: "Inter", sans-serif;
-  --font-serif: "Playfair Display", serif;
+  /* Polices chargées par app/fonts.ts (next/font) — charte inspirée des
+     slides de formation. */
+  --font-sans: var(--font-nunito-sans), "Segoe UI", system-ui, sans-serif;
+  --font-display: var(--font-nunito), "Trebuchet MS", system-ui, sans-serif;
+  --font-hand: var(--font-kalam), "Comic Sans MS", cursive;
   --foreground: oklch(0.145 0 0);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
   /* Personnal vars */
-  --color-primary: #112e40;
+  --color-primary: #0a0c44;
   --color-primary-foreground: oklch(0.985 0 0);
-  --color-secondary: #898c91;
-  --color-secondary-foreground: oklch(0.205 0 0);
-  --color-accent: #ff5a3d;
+  /* Palette de la charte : 8 couleurs, un rôle chacune (DESIGN.md).
+     Deux oranges seulement : accent = orange foncé pour le texte et les
+     fonds de boutons (blanc dessus ≈ 5.7:1, ≈ 5:1 sur les pastels) ;
+     orange = décor uniquement (pinceau, étincelles, flèches), jamais sous
+     ou en guise de texte. */
+  --color-accent: #a64d08;
+  --color-orange: #f28a1e;
   --color-accent-foreground: #f1f5f9;
-  --color-muted: #93999b;
-  --color-muted-foreground: oklch(0.556 0 0);
-  --color-pastel: #d1faf9;
   --color-logo: #29b5ad;
+  /* Bandeaux de section, pied de page et pastilles. */
+  --color-petrol: #015566;
+  /* Turquoise vif des slides : courbes et vagues uniquement (décor). */
+  --color-cyan: #01a4b8;
+  /* Fonds pastel des cartes, en alternance ciel / pêche. Le ciel sert
+     aussi de texte clair sur pétrole (≈ 7.5:1). */
+  --color-sky: #dff7fa;
+  --color-peach: #fdefe2;
+  /* Scintillement des étincelles du logo (Hero), décalé par étincelle :
+     deux fois au chargement puis immobile (WCAG 2.2.2 : < 5 s). */
+  --animate-elan-sparkle: elan-sparkle 2.2s ease-in-out 2;
+  @keyframes elan-sparkle {
+    0%,
+    60%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    75% {
+      opacity: 0.25;
+      transform: scale(0.55);
+    }
+  }
 }
 
 .dark {
@@ -100,10 +143,6 @@ h3,
   --popover-foreground: oklch(0.985 0 0);
   --primary: oklch(0.922 0 0);
   --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
   --accent: oklch(0.269 0 0);
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);

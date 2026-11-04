@@ -1,12 +1,27 @@
 import { describe, expect, it } from "vitest";
 
-import { PILLARS, pickNextPillar, shouldInjectLocalAngle, type PillarId } from "../pillars";
+import { PILLARS, PILLAR_IDS, pickNextPillar, shouldInjectLocalAngle, type PillarId } from "../pillars";
 
 describe("PILLARS", () => {
   it("declares a non-empty image scene hint for every pillar (used to vary blog cover illustrations)", () => {
     for (const pillar of PILLARS) {
       expect(pillar.imageScene.length).toBeGreaterThan(0);
     }
+  });
+});
+
+describe("pillar F — Cadre légal (Story 3.1)", () => {
+  it("targets the Cadre légal hub with the right label and weight", () => {
+    const pillarF = PILLARS.find((p) => p.id === "F");
+    expect(pillarF).toMatchObject({
+      label: "Cadre légal, droits et éthique",
+      targetPage: "/formations/cadre-legal-etablissements-sante",
+      weight: 4,
+    });
+  });
+
+  it("is a valid pillar id alongside the others", () => {
+    expect(PILLAR_IDS).toContain("F");
   });
 });
 

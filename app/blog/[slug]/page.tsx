@@ -2,7 +2,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import Breadcrumbs from "@/components/Breadcrumbs";
+import { ArticleBody } from "@/components/blog/ArticleBody";
+import { PastelCard } from "@/components/charte";
+import GabaritPage from "@/components/GabaritPage";
 import PostJsonLd from "@/components/PostJsonLd";
 import ShareButtons from "@/components/ShareButtons";
 import { getAllPostsMeta, getPostBySlug, getPostSlugs } from "@/lib/blog";
@@ -67,20 +69,21 @@ export default async function BlogPost({
   const pillarLabel = pillar?.label;
 
   return (
-    <article className="pt-20 mb-40">
+    <GabaritPage
+      as="article"
+      className="mb-40"
+      filAriane={[
+        { label: "Blog", href: "/blog" },
+        // Un article publié avant #73 peut ne pas avoir de pilier connu
+        // (pillar: null, rétrocompatibilité, cf. lib/blog.ts) — dans ce
+        // cas, pas de niveau intermédiaire plutôt qu'un lien absent.
+        ...(pillar ? [{ label: pillar.label, href: pillar.targetPage }] : []),
+        { label: post.title },
+      ]}
+    >
       <PostJsonLd post={post} />
-      <Breadcrumbs
-        items={[
-          { label: "Blog", href: "/blog" },
-          // Un article publié avant #73 peut ne pas avoir de pilier connu
-          // (pillar: null, rétrocompatibilité, cf. lib/blog.ts) — dans ce
-          // cas, pas de niveau intermédiaire plutôt qu'un lien absent.
-          ...(pillar ? [{ label: pillar.label, href: pillar.targetPage }] : []),
-          { label: post.title },
-        ]}
-      />
       <div className="container max-w-3xl">
-        <p className="text-xs text-stone-500 uppercase tracking-wide mb-2">
+        <p className="texte-mention text-stone-600 uppercase tracking-wide mb-2">
           {new Date(post.publishedAt).toLocaleDateString("fr-FR", {
             day: "numeric",
             month: "long",
@@ -95,7 +98,7 @@ export default async function BlogPost({
           title={post.title}
           className="mb-8"
         />
-        <div className="relative aspect-[16/9] mb-8 rounded-xl overflow-hidden">
+        <div className="relative aspect-[16/9] mb-8 rounded-3xl overflow-hidden">
           <Image
             src={post.coverImage}
             alt={post.coverImageAlt}
@@ -104,42 +107,33 @@ export default async function BlogPost({
             priority
           />
         </div>
-        <div
-          className="prose prose-stone max-w-none"
-          dangerouslySetInnerHTML={{ __html: post.html }}
-        />
-        {post.tags.length > 0 && (
-          <ul className="flex flex-wrap gap-2 mt-10">
-            {post.tags.map((tag) => (
-              <li
-                key={tag}
-                className="text-xs bg-pastel text-primary rounded-full px-3 py-1"
-              >
-                {tag}
-              </li>
-            ))}
-          </ul>
-        )}
+        <ArticleBody html={post.html} keyMessage={post.keyMessage} tags={post.tags} />
         {post.relatedPosts.length > 0 && (
           <div className="mt-12 border-t border-stone-200 pt-8">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-stone-500 mb-4">
+            <h2>
               À lire aussi{pillarLabel ? ` — ${pillarLabel}` : ""}
             </h2>
-            <ul className="space-y-2">
-              {post.relatedPosts.map((relatedPost) => (
-                <li key={relatedPost.slug}>
+            {/* Cartes pastel alternées (UX-DR2) ; seul le lien est interactif. */}
+            <ul role="list" className="grid gap-4 sm:grid-cols-2">
+              {post.relatedPosts.map((relatedPost, i) => (
+                <PastelCard
+                  key={relatedPost.slug}
+                  as="li"
+                  tone={i % 2 === 0 ? "sky" : "peach"}
+                  className="p-5"
+                >
                   <Link
                     href={`/blog/${relatedPost.slug}`}
-                    className="text-primary underline underline-offset-2"
+                    className="font-display font-bold text-primary underline underline-offset-2 break-words"
                   >
                     {relatedPost.title}
                   </Link>
-                </li>
+                </PastelCard>
               ))}
             </ul>
           </div>
         )}
       </div>
-    </article>
+    </GabaritPage>
   );
 }

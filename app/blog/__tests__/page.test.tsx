@@ -20,3 +20,13 @@ describe("BlogIndex — fil d'Ariane", () => {
     expect(screen.getByText("Blog", { selector: "span" })).toBeInTheDocument();
   });
 });
+
+describe("BlogIndex — espacement sous la navbar (mobile)", () => {
+  it("réduit le padding-top mobile plutôt que le padding desktop fixe (pt-20)", () => {
+    const { container } = render(<BlogIndex />);
+    const section = container.querySelector("section")!;
+
+    expect(section.className).toContain("pt-6");
+    expect(section.className).toContain("sm:pt-20");
+  });
+});

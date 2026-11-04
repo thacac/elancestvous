@@ -1,5 +1,4 @@
 import "./globals.css";
-import { Inter } from "next/font/google";
 import { Toaster } from "sonner";
 
 import Footer from "@/components/Footer";
@@ -8,9 +7,9 @@ import Navbar from "@/components/Navbar";
 import { isBlogPublic, siteRobotsMetadata } from "@/lib/featureFlags";
 import { OG_BANNER_IMAGES, TWITTER_BANNER_IMAGES } from "@/lib/openGraph";
 
-import type { Metadata, Viewport } from "next";
+import { fontVariables } from "./fonts";
 
-const inter = Inter({ subsets: ["latin"] });
+import type { Metadata, Viewport } from "next";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://elancestvous.fr"),
@@ -67,8 +66,8 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr" data-theme="elancestvous">
-      <body className={inter.className + " bg-white text-brand-dark"}>
+    <html lang="fr" data-theme="elancestvous" className={fontVariables}>
+      <body className="bg-white text-brand-dark">
         <JsonLd />
         <Navbar blogEnabled={isBlogPublic()} />
         <main className="min-h-[70vh]">{children}</main>

@@ -12,6 +12,30 @@ const nextConfig: NextConfig = {
     },
     resolveExtensions: ['.mdx', '.tsx', '.ts', '.jsx', '.js', '.mjs', '.json'],
   },
+  async redirects() {
+    return [
+      {
+        source: '/particuliers/coaching-individuel',
+        destination: '/coaching/particuliers',
+        permanent: true,
+      },
+      {
+        source: '/professionnels-etablissements-de-soins/coaching',
+        destination: '/coaching/etablissements',
+        permanent: true,
+      },
+      {
+        source: '/professionnels-etablissements-de-soins/formations-rps-qvct',
+        destination: '/formations/prevention-rps-qvct-etablissements-sante',
+        permanent: true,
+      },
+      {
+        source: '/professionnels-etablissements-de-soins/gapp-groupe-analyse-pratiques-professionnelles',
+        destination: '/gapp-analyse-pratiques-professionnelles',
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {

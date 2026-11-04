@@ -1,0 +1,170 @@
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("../action", () => ({
+  submit_contact_form: vi.fn(),
+}));
+
+import { submit_contact_form } from "../action";
+import ContactForm from "../ContactForm";
+
+describe("ContactForm — valeurs par défaut (provenance de la demande)", () => {
+  it("présélectionne « Établissement / DRH » par défaut (comportement historique inchangé)", () => {
+    render(<ContactForm />);
+
+    expect(
+      screen.getByRole("radio", { name: /établissement.*drh/i })
+    ).toBeChecked();
+  });
+
+  it("présélectionne « Particulier » quand defaultProjectType vaut particulier", () => {
+    render(<ContactForm defaultProjectType="particulier" />);
+
+    expect(screen.getByRole("radio", { name: /particulier/i })).toBeChecked();
+    expect(
+      screen.getByRole("radio", { name: /établissement.*drh/i })
+    ).not.toBeChecked();
+  });
+
+  it("pré-remplit le message quand defaultMessage est fourni", () => {
+    render(
+      <ContactForm defaultMessage="Je souhaite un devis pour la formation « Obligations légales des établissements »." />
+    );
+
+    expect(
+      screen.getByLabelText(/exprimez votre besoin/i)
+    ).toHaveValue(
+      "Je souhaite un devis pour la formation « Obligations légales des établissements »."
+    );
+  });
+
+  it("laisse le message vide sans defaultMessage (comportement historique inchangé)", () => {
+    render(<ContactForm />);
+
+    expect(screen.getByLabelText(/exprimez votre besoin/i)).toHaveValue("");
+  });
+});
+
+describe("ContactForm — UX : carte de type de projet mise en évidence à la sélection", () => {
+  // Retour de Cédric (2026-11-02) : la carte sélectionnée reste blanche, le
+  // point orange du radio et la bordure bleu nuit suffisent à marquer le choix.
+  it("chaque carte réagit à la sélection de son radio (bordure bleu nuit, fond blanc)", () => {
+    render(<ContactForm />);
+
+    const carteEtablissement = screen.getByRole("radio", {
+      name: /établissement.*drh/i,
+    }).closest('[role="group"]')!;
+    const carteParticulier = screen.getByRole("radio", {
+      name: /particulier/i,
+    }).closest('[role="group"]')!;
+
+    expect(carteEtablissement.className).toContain("has-[[data-state=checked]]:border-primary");
+    expect(carteEtablissement.className).toContain("bg-white");
+    expect(carteEtablissement.className).not.toMatch(/has-\[\[data-state=checked\]\]:bg-/);
+    expect(carteParticulier.className).toContain("has-[[data-state=checked]]:border-primary");
+    expect(carteParticulier.className).toContain("bg-white");
+    expect(carteParticulier.className).not.toMatch(/has-\[\[data-state=checked\]\]:bg-/);
+  });
+
+  it("chaque carte a une transition douce au survol/à la sélection", () => {
+    render(<ContactForm />);
+
+    const carte = screen
+      .getByRole("radio", { name: /particulier/i })
+      .closest('[role="group"]')!;
+
+    expect(carte.className).toContain("transition-colors");
+  });
+});
+
+describe("ContactForm — UX : confirmation visuelle après envoi", () => {
+  it("affiche une icône de succès à côté du texte de confirmation", async () => {
+    vi.mocked(submit_contact_form).mockResolvedValue(undefined);
+    render(<ContactForm />);
+
+    fireEvent.change(screen.getByLabelText(/prénom/i), { target: { value: "Jean" } });
+    fireEvent.change(screen.getByLabelText(/^nom$/i), { target: { value: "Dupont" } });
+    fireEvent.change(screen.getByLabelText(/votre adresse email/i), {
+      target: { value: "jean@example.com" },
+    });
+    fireEvent.change(screen.getByLabelText(/exprimez votre besoin/i), {
+      target: { value: "Bonjour, je souhaite échanger." },
+    });
+
+    const bouton = await waitFor(() =>
+      screen.getByRole("button", { name: /envoyer ma demande/i })
+    );
+    fireEvent.click(bouton);
+
+    const boutonSucces = await screen.findByRole("button", {
+      name: /message envoyé/i,
+    });
+    const icone = boutonSucces.querySelector("svg")!;
+    expect(icone).not.toBeNull();
+    expect(icone.getAttribute("class")).toContain("size-4");
+  });
+
+  it("efface la confirmation dès que l'utilisateur ressaisit le formulaire pour un nouveau message", async () => {
+    vi.mocked(submit_contact_form).mockResolvedValue(undefined);
+    render(<ContactForm />);
+
+    fireEvent.change(screen.getByLabelText(/prénom/i), { target: { value: "Jean" } });
+    fireEvent.change(screen.getByLabelText(/^nom$/i), { target: { value: "Dupont" } });
+    fireEvent.change(screen.getByLabelText(/votre adresse email/i), {
+      target: { value: "jean@example.com" },
+    });
+    fireEvent.change(screen.getByLabelText(/exprimez votre besoin/i), {
+      target: { value: "Bonjour, je souhaite échanger." },
+    });
+
+    const bouton = await waitFor(() =>
+      screen.getByRole("button", { name: /envoyer ma demande/i })
+    );
+    fireEvent.click(bouton);
+    await screen.findByRole("button", { name: /message envoyé/i });
+
+    // L'utilisateur ressaisit un nouveau message : la confirmation du
+    // précédent envoi ne doit plus s'afficher, sous peine de laisser croire
+    // que ce second message est déjà parti.
+    fireEvent.change(screen.getByLabelText(/exprimez votre besoin/i), {
+      target: { value: "Un second message, différent." },
+    });
+
+    await waitFor(() => {
+      expect(
+        screen.queryByRole("button", { name: /message envoyé/i })
+      ).not.toBeInTheDocument();
+    });
+  });
+});
+
+describe("ContactForm — bouton d'envoi lisible au survol", () => {
+  // Story 4.9 : le bouton est orange foncé (variante accent) et passe au
+  // bleu nuit au survol, comme tous les boutons accent (blanc dessus 14:1).
+  it("reste lisible au survol (bleu nuit, texte blanc ≥ 4.5:1)", () => {
+    render(<ContactForm />);
+    const classes = screen.getByRole("button", { name: /envoyer/i }).className.split(/\s+/);
+    expect(classes).toContain("bg-accent");
+    expect(classes).toContain("hover:bg-primary/90");
+    expect(classes).not.toContain("hover:bg-orange");
+  });
+});
+
+
+// Story 4.6 : à 320 px, /contact défilait horizontalement (WCAG 1.4.10) : le
+// bouton d'envoi, en whitespace-nowrap avec px-8, imposait 306 px à la grille
+// du formulaire (alors « Remplissez le formulaire pour envoyer », libellé
+// remplacé par « Envoyer ma demande » en story 4.12).
+describe("ContactForm — sans débordement à 320 px (Story 4.6)", () => {
+  it("laisse le libellé du bouton d'envoi passer à la ligne, sans hauteur fixe", () => {
+    render(<ContactForm />);
+    const bouton = screen.getByRole("button", { name: "Envoyer ma demande" });
+    const classes = bouton.className.split(/\s+/);
+    expect(classes).toContain("whitespace-normal");
+    expect(classes).not.toContain("whitespace-nowrap");
+    expect(classes).toContain("h-auto");
+    expect(classes).not.toContain("h-10");
+    // Garde la hauteur d'origine (56 px) quand le libellé tient sur une ligne.
+    expect(classes).toContain("min-h-14");
+  });
+});

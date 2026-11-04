@@ -1,0 +1,62 @@
+name: SEO — audit Search Console (manuel)
+
+# Audit ponctuel d'indexation (API URL Inspection) + performances de toutes
+# les pages + état des sitemaps — voir scripts/seoGscAudit.ts. Lancement
+# uniquement à la main (onglet Actions → « Run workflow ») : pas de cron,
+# le quota URL Inspection (2 000/jour) n'a pas à être consommé en continu.
+#
+# Lecture seule : rien n'est committé. Le rapport est publié dans le résumé
+# du run, imprimé dans les logs et joint en artefact (JSON + Markdown).
+on:
+  workflow_dispatch:
+    inputs:
+      range_days:
+        description: "Période des performances de recherche (jours)"
+        required: false
+        default: "90"
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Lancer l'audit
+        # Mêmes secrets que blog-seo-report-trigger.yml. Testés en shell dans
+        # `run:`, jamais dans `if:` (cf. ce workflow pour la raison).
+        env:
+          GSC_SERVICE_ACCOUNT_JSON: ${{ secrets.GSC_SERVICE_ACCOUNT_JSON }}
+          GSC_SITE_URL: ${{ secrets.GSC_SITE_URL }}
+          OUTPUT_DIR: seo-gsc-audit-output
+          RANGE_DAYS: ${{ inputs.range_days }}
+        run: |
+          if [ -z "$GSC_SERVICE_ACCOUNT_JSON" ] || [ -z "$GSC_SITE_URL" ]; then
+            echo "::error::GSC_SERVICE_ACCOUNT_JSON/GSC_SITE_URL non configurés."
+            exit 1
+          fi
+          yarn seo:gsc-audit "$RANGE_DAYS"
+
+      - name: Publier le rapport
+        run: |
+          cat seo-gsc-audit-output/*.md >> "$GITHUB_STEP_SUMMARY"
+          cat seo-gsc-audit-output/*.md
+
+      - name: Joindre le rapport en artefact
+        uses: actions/upload-artifact@v4
+        with:
+          name: seo-gsc-audit
+          path: seo-gsc-audit-output/
+          retention-days: 30

@@ -2,21 +2,18 @@
 import { Dialog, DialogPanel } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { Bars3BottomRightIcon } from "@heroicons/react/24/solid";
-import Image from "next/image";
 import Link from "next/link";
 import { FC, useState } from "react";
 
+import { Logo } from "./charte";
 import Socials from "./Socials";
 import { buttonVariants } from "./ui";
 
 const baseLinks = [
   { href: "/", label: "Accueil" },
-  { href: "/professionnels-etablissements-de-soins/formations-rps-qvct", label: "Formations" },
-  { href: "/professionnels-etablissements-de-soins/coaching", label: "Coaching" },
-  {
-    href: "/professionnels-etablissements-de-soins/gapp-groupe-analyse-pratiques-professionnelles",
-    label: "GAPP",
-  },
+  { href: "/formations", label: "Formations" },
+  { href: "/coaching", label: "Coaching" },
+  { href: "/gapp-analyse-pratiques-professionnelles", label: "GAPP" },
 ];
 
 const trailingLinks = [
@@ -51,16 +48,11 @@ export const Navbar: FC<NavbarProps> = ({ blogEnabled = false }) => {
         <div className="flex lg:flex-1">
           <Link
             href="/"
-            className="font-serif italic font-extrabold text-primary text-xl"
+            aria-label="Élan C’est Vous, accueil"
+            className="font-display italic font-extrabold text-primary text-xl"
           >
             <span>
-              <Image
-                src="/logo_elancestvous_small.png"
-                alt="Élan C’est Vous logo"
-                width={32}
-                height={32}
-                className="inline-block mr-2 align-middle"
-              />
+              <Logo className="inline-block size-8 mr-2 align-middle" />
               ÉlanC’estVous
             </span>
           </Link>
@@ -93,7 +85,7 @@ export const Navbar: FC<NavbarProps> = ({ blogEnabled = false }) => {
         </div>
         <div className="hidden lg:flex lg:flex-1 lg:justify-end align-baseline">
           <Link
-            href="/particuliers/coaching-individuel"
+            href="/coaching/particuliers"
             className={
               buttonVariants({ variant: "outline", size: "sm" }) + " text-sm"
             }
@@ -110,17 +102,10 @@ export const Navbar: FC<NavbarProps> = ({ blogEnabled = false }) => {
         <div className="fixed inset-0 z-50" />
         <DialogPanel
           id="mobile-menu-panel"
-          className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-pastel p-6 sm:max-w-sm sm:ring-1 sm:ring-gray-100/10"
+          className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-sky p-6 sm:max-w-sm sm:ring-1 sm:ring-gray-100/10"
         >
           <div className="flex items-center justify-between">
-            <Image
-              alt="logo Élan C’est Vous"
-              src="/logo_elancestvous_small.png"
-              width={80}
-              height={80}
-              className="w-auto"
-              priority
-            />
+            <Logo title="Élan C’est Vous" className="size-14" />
             <button
               type="button"
               onClick={() => setMobileMenuOpen(false)}
@@ -149,7 +134,7 @@ export const Navbar: FC<NavbarProps> = ({ blogEnabled = false }) => {
               </div>
               <div>
                 <Link
-                  href="/particuliers/coaching-individuel"
+                  href="/coaching/particuliers"
                   onClick={() => setMobileMenuOpen(false)}
                   className={
                     buttonVariants({ variant: "outline", size: "sm" }) +

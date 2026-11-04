@@ -1,4 +1,4 @@
-export type PillarId = "A" | "B" | "C" | "D";
+export type PillarId = "A" | "B" | "C" | "D" | "F";
 
 export type Pillar = {
   id: PillarId;
@@ -16,15 +16,17 @@ export type Pillar = {
   imageScene: string;
 };
 
-// Poids repris du ratio du plan éditorial initial (docs/blog-plan-editorial.md
-// §3 : "GAPP ×3, coaching établissements ×2, coaching individuel ×2,
-// formations QVCT/RPS ×4") — préserve la priorité métier du calendrier
-// abandonné plutôt qu'un tourniquet équitable entre les 4 piliers.
+// Poids des piliers A à D repris du ratio du plan éditorial initial
+// (docs/blog-plan-editorial.md §3 : "GAPP ×3, coaching établissements ×2,
+// coaching individuel ×2, formations QVCT/RPS ×4") — préserve la priorité
+// métier du calendrier abandonné plutôt qu'un tourniquet équitable. Le
+// pilier F (Cadre légal, Story 3.1) n'existait pas dans ce plan initial ;
+// son poids 4 reprend celui de C plutôt qu'une valeur arbitraire.
 export const PILLARS: Pillar[] = [
   {
     id: "A",
     label: "Coaching individuel (particuliers)",
-    targetPage: "/particuliers/coaching-individuel",
+    targetPage: "/coaching/particuliers",
     theme:
       "Stress personnel, charge émotionnelle, transitions de vie/carrière, fonctionnement concret d'un accompagnement individuel.",
     weight: 2,
@@ -34,7 +36,7 @@ export const PILLARS: Pillar[] = [
   {
     id: "B",
     label: "Coaching en établissement",
-    targetPage: "/professionnels-etablissements-de-soins/coaching",
+    targetPage: "/coaching/etablissements",
     theme:
       "Coaching individuel et collectif pour cadres de santé, managers et équipes ; dynamiques d'équipe, posture managériale.",
     weight: 2,
@@ -44,7 +46,7 @@ export const PILLARS: Pillar[] = [
   {
     id: "C",
     label: "Formations QVCT / RPS",
-    targetPage: "/professionnels-etablissements-de-soins/formations-rps-qvct",
+    targetPage: "/formations/prevention-rps-qvct-etablissements-sante",
     theme:
       "Prévention des RPS, QVCT, gestion du stress/des émotions, usure professionnelle.",
     weight: 4,
@@ -54,13 +56,22 @@ export const PILLARS: Pillar[] = [
   {
     id: "D",
     label: "GAPP",
-    targetPage:
-      "/professionnels-etablissements-de-soins/gapp-groupe-analyse-pratiques-professionnelles",
+    targetPage: "/gapp-analyse-pratiques-professionnelles",
     theme:
       "Définition et fonctionnement du GAPP, différenciation avec des dispositifs voisins (supervision), bénéfices dans la durée.",
     weight: 3,
     imageScene:
       "Scène suggérée pour l'illustration : un groupe GAPP assis en cercle, chaises occupées, en train d'échanger — jamais des chaises vides.",
+  },
+  {
+    id: "F",
+    label: "Cadre légal, droits et éthique",
+    targetPage: "/formations/cadre-legal-etablissements-sante",
+    theme:
+      "Obligation de sécurité de l'employeur, DUERP, responsabilités de l'encadrement et du CSE, éthique professionnelle en établissement de santé.",
+    weight: 4,
+    imageScene:
+      "Scène suggérée pour l'illustration : un cadre ou un responsable qualité consultant un document réglementaire ou un DUERP, en réunion ou à son bureau, cadrage documentaire.",
   },
 ];
 

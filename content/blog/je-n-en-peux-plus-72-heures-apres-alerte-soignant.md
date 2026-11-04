@@ -27,6 +27,7 @@ pillar: C
 localAngle: false
 sourceUrl: >-
   https://www.legisocial.fr/actualites-sociales/8091-burn-out-risques-psychosociaux-obligation-securite-simpose-employeur.html
+keyMessage: "Une alerte entendue est une alerte à traiter : accuser réception, écouter le travail, puis faire remonter et tracer."
 ---
 Ça arrive rarement en réunion. Ça arrive dans un couloir, devant le chariot, à 21h10, quand une infirmière dit à sa collègue ou à son responsable : « là, honnêtement, je n'en peux plus ». Parfois c'est dit en riant. Parfois c'est dit une seule fois.
 

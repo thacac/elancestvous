@@ -164,7 +164,7 @@ describe("generateDraft", () => {
           parsed_output: {
             ...validDraft,
             bodyMarkdown:
-              "## Section\n\nDécouvrez nos [formations QVCT/RPS](/professionnels-etablissements-de-soins/formations-rps-qvct).",
+              "## Section\n\nDécouvrez nos [formations QVCT/RPS](/formations/prevention-rps-qvct-etablissements-sante).",
           },
         }),
       },

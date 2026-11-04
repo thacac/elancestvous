@@ -5,7 +5,7 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
@@ -15,12 +15,19 @@ const buttonVariants = cva(
           "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 transition-colors",
         outline:
           "border border-input border-2 border-primary bg-background shadow-sm hover:bg-primary/90 hover:text-accent-foreground transition-colors",
-        secondary:
-          "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80 transition-colors",
         accent:
           "bg-accent text-white shadow-sm hover:bg-primary/90 transition-colors",
         ghost: "hover:bg-accent hover:text-accent-foreground transition-colors",
         link: "text-primary underline-offset-4 hover:underline transition-colors",
+        // CTA secondaire "Découvrir" / "Voir la fiche" (FR12) : contour +
+        // fond teinté, jamais un lien texte nu. `tinted` pour les surfaces
+        // claires (blanc/pastel), `tintedOnDark` pour les surfaces navy (ex.
+        // tuile Coaching) — même registre visuel, deux jeux de couleurs pour
+        // rester au-dessus de 4.5:1 dans les deux contextes (NFR2).
+        tinted:
+          "border-2 border-primary bg-primary/10 text-primary shadow-sm hover:bg-primary/20 transition-colors",
+        tintedOnDark:
+          "border-2 border-white bg-white/10 text-white shadow-sm hover:bg-white/20 transition-colors",
       },
       size: {
         default: "h-9 px-2 py-4 cursor-pointer",

@@ -91,7 +91,7 @@ describe("BlogPost — fil d'Ariane (cocon sémantique, #73)", () => {
     expect(screen.getByRole("link", { name: "Blog" })).toHaveAttribute("href", "/blog");
     expect(screen.getByRole("link", { name: "Formations QVCT / RPS" })).toHaveAttribute(
       "href",
-      "/professionnels-etablissements-de-soins/formations-rps-qvct"
+      "/formations/prevention-rps-qvct-etablissements-sante"
     );
     // Le titre de l'article est la page courante : jamais un lien.
     expect(screen.queryByRole("link", { name: "Article courant" })).toBeNull();
@@ -124,5 +124,18 @@ describe("BlogPost — boutons de partage", () => {
       "href",
       `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(canonicalUrl)}`
     );
+  });
+});
+
+describe("BlogPost — espacement sous la navbar (mobile)", () => {
+  it("réduit le padding-top mobile plutôt que le padding desktop fixe (pt-20)", async () => {
+    vi.mocked(getPostBySlug).mockResolvedValue(post({}));
+
+    const jsx = await BlogPost({ params: Promise.resolve({ slug: "article-courant" }) });
+    const { container } = render(jsx);
+    const article = container.querySelector("article")!;
+
+    expect(article.className).toContain("pt-6");
+    expect(article.className).toContain("sm:pt-20");
   });
 });

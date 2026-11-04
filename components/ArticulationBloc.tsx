@@ -22,12 +22,12 @@ export default function ArticulationBloc({
 }: ArticulationProps) {
   return (
     <section className={`container mb-14 ${className}`}>
-      <div className="max-w-3xl mx-auto text-justify">
-        <p className="text-muted text-sm md:text-md leading-relaxed">
+      <div className="max-w-3xl">
+        <p className="text-primary/80 leading-relaxed">
           <span className="text-primary font-bold mr-2">{titre}</span>
           {textePrincipal}
           <br />
-          <span className="text-stone-500 text-sm">{texteSecondaire}</span>
+          <span className="text-stone-500">{texteSecondaire}</span>
         </p>
         {liens && liens.length > 0 && (
           <ul className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
@@ -35,7 +35,7 @@ export default function ArticulationBloc({
               <li key={lien.href}>
                 <Link
                   href={lien.href}
-                  className="text-accent font-semibold text-sm underline underline-offset-2 hover:text-primary"
+                  className="text-accent font-semibold underline underline-offset-2 hover:text-primary"
                 >
                   {lien.label}
                 </Link>
