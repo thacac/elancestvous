@@ -10,9 +10,11 @@ import ContactPage from "../page";
 describe("Page contact", () => {
   it("présente les étapes du premier échange à côté du formulaire", () => {
     render(<ContactPage />);
+    expect(screen.getByText(/un premier pas/i)).toBeInTheDocument();
+    // Accroche décorative : ne doit pas polluer le plan de titres.
     expect(
-      screen.getByRole("heading", { name: /un premier pas/i }),
-    ).toBeInTheDocument();
+      screen.queryByRole("heading", { name: /un premier pas/i }),
+    ).not.toBeInTheDocument();
     const steps = screen.getAllByRole("listitem");
     expect(steps).toHaveLength(3);
     expect(steps[0]).toHaveTextContent("Vous m'écrivez");

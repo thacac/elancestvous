@@ -2,7 +2,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 
 import {
   Form,
@@ -44,8 +43,9 @@ const messageClassName = "text-xs font-medium text-rose-600";
 export default function ContactForm() {
   const form = useForm<ContactFormValues>({
     resolver: zodResolver(contactFormSchema),
-    // Valide un champ dès qu'il est quitté : le bouton reste désactivé tant
-    // que le formulaire est invalide, l'utilisateur doit donc voir pourquoi.
+    // Valide un champ dès qu'il est quitté ; un clic sur "Envoyer" valide
+    // tout le formulaire et affiche chaque erreur (bouton jamais désactivé
+    // sans explication visible).
     mode: "onTouched",
     defaultValues: {
       firstName: "",
@@ -59,7 +59,8 @@ export default function ContactForm() {
   const {
     handleSubmit,
     setError,
-    formState: { errors, isValid, isSubmitting, isSubmitSuccessful },
+    clearErrors,
+    formState: { errors, isSubmitting, isSubmitSuccessful },
     reset,
   } = form;
 
@@ -67,12 +68,9 @@ export default function ContactForm() {
     const result = await submit_contact_form(data);
 
     if (result && "error" in result) {
-      toast.error(result.error);
       setError("root.serverError", { type: "custom", message: result.error });
       return;
     }
-
-    toast.success("Message envoyé.");
   };
 
   if (isSubmitSuccessful && !errors.root?.serverError) {
@@ -110,7 +108,16 @@ export default function ContactForm() {
 
   return (
     <Form {...form}>
-      <form onSubmit={handleSubmit(submitHandler)} className="grid gap-6" noValidate>
+      <form
+        onSubmit={handleSubmit(submitHandler)}
+        // Une erreur serveur n'a plus lieu d'être affichée dès que
+        // l'utilisateur corrige sa saisie.
+        onChange={() => {
+          if (errors.root?.serverError) clearErrors("root.serverError");
+        }}
+        className="grid gap-6"
+        noValidate
+      >
         <FormField
           control={form.control}
           name="projectType"
@@ -134,7 +141,7 @@ export default function ContactForm() {
                     <label
                       key={value}
                       htmlFor={id}
-                      className="group relative flex items-start gap-4 cursor-pointer rounded-2xl border-2 border-stone-200 bg-white p-4 pr-10 transition hover:-translate-y-0.5 hover:border-accent/40 has-data-[state=checked]:border-accent has-data-[state=checked]:bg-accent/5 has-data-[state=checked]:shadow-lg has-data-[state=checked]:shadow-accent/15 has-focus-visible:ring-4 has-focus-visible:ring-accent/20"
+                      className="group relative flex items-start gap-4 cursor-pointer rounded-2xl border-2 border-stone-200 bg-white p-4 pr-10 transition hover:border-accent/40 hover:shadow-md has-data-[state=checked]:border-accent has-data-[state=checked]:bg-accent/5 has-data-[state=checked]:shadow-lg has-data-[state=checked]:shadow-accent/15 has-focus-visible:ring-4 has-focus-visible:ring-accent/20"
                     >
                       <span className="grid place-items-center shrink-0 w-11 h-11 rounded-xl bg-pastel text-primary transition group-has-data-[state=checked]:bg-accent group-has-data-[state=checked]:text-white">
                         <Icon className="w-5 h-5" aria-hidden="true" />
@@ -251,8 +258,8 @@ export default function ContactForm() {
 
         <button
           type="submit"
-          disabled={!isValid || isSubmitting}
-          className="group flex items-center justify-center gap-3 w-full rounded-full bg-accent px-8 py-5 text-base font-black uppercase tracking-tight text-white shadow-xl shadow-accent/30 transition cursor-pointer hover:bg-primary hover:shadow-primary/30 hover:scale-[1.02] active:scale-95 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100 disabled:hover:bg-accent"
+          disabled={isSubmitting}
+          className="group flex items-center justify-center gap-3 w-full rounded-full bg-accent px-8 py-5 text-base font-black uppercase tracking-tight text-white shadow-xl shadow-accent/30 transition cursor-pointer hover:bg-primary hover:shadow-primary/30 hover:scale-[1.02] active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent/40 focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-60 disabled:hover:scale-100 disabled:hover:bg-accent"
         >
           {isSubmitting ? (
             "Envoi…"

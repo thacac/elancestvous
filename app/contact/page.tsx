@@ -57,11 +57,11 @@ export default function ContactPage() {
       <div className="grid md:grid-cols-[5fr_8fr] rounded-3xl overflow-hidden border border-stone-200 shadow-2xl shadow-primary/25">
         <aside className="relative overflow-hidden bg-primary text-white px-8 py-10">
           <div className="relative z-10">
-            <h2 className="text-white! text-3xl! leading-tight mb-8!">
+            <p className="font-serif text-3xl font-extrabold tracking-tight leading-tight mb-8">
               Un premier pas,
               <br />
               <em className="text-accent">sans engagement.</em>
-            </h2>
+            </p>
             <ol className="grid gap-6 mb-10">
               {STEPS.map(({ title, text }, i) => (
                 <li key={title} className="flex items-start gap-4">

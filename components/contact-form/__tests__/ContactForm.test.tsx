@@ -4,7 +4,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const { submitMock } = vi.hoisted(() => ({ submitMock: vi.fn() }));
 
 vi.mock("../action", () => ({ submit_contact_form: submitMock }));
-vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
+const { toastMock } = vi.hoisted(() => ({
+  toastMock: { success: vi.fn(), error: vi.fn() },
+}));
+vi.mock("sonner", () => ({ toast: toastMock }));
 
 import ContactForm from "../ContactForm";
 
@@ -32,14 +35,27 @@ function fillValidForm() {
 
 async function submitValidForm() {
   fillValidForm();
-  const button = screen.getByRole("button", { name: /envoyer ma demande/i });
-  await waitFor(() => expect(button).toBeEnabled());
-  fireEvent.click(button);
+  fireEvent.click(screen.getByRole("button", { name: /envoyer ma demande/i }));
 }
 
 describe("ContactForm", () => {
   beforeEach(() => {
     submitMock.mockReset();
+    toastMock.success.mockReset();
+    toastMock.error.mockReset();
+  });
+
+  it("laisse le bouton cliquable et affiche toutes les erreurs si on envoie un formulaire incomplet", async () => {
+    render(<ContactForm />);
+    const button = screen.getByRole("button", { name: /envoyer ma demande/i });
+    expect(button).toBeEnabled();
+    fireEvent.click(button);
+
+    expect(await screen.findByText("Le prénom est requis")).toBeInTheDocument();
+    expect(screen.getByText("Le nom est requis")).toBeInTheDocument();
+    expect(screen.getByText("L'email est requis")).toBeInTheDocument();
+    expect(screen.getByText("Le message est requis")).toBeInTheDocument();
+    expect(submitMock).not.toHaveBeenCalled();
   });
 
   it("affiche l'erreur propre au champ e-mail (et non celle du nom) quand l'adresse est invalide", async () => {
@@ -98,6 +114,8 @@ describe("ContactForm", () => {
       }),
     ).toBeInTheDocument();
     expect(screen.queryByLabelText("Prénom")).not.toBeInTheDocument();
+    // L'écran de confirmation suffit : pas de toast en doublon.
+    expect(toastMock.success).not.toHaveBeenCalled();
   });
 
   it("permet d'écrire un nouveau message depuis l'écran de confirmation", async () => {
@@ -123,5 +141,21 @@ describe("ContactForm", () => {
     expect(
       screen.queryByRole("heading", { name: /merci/i }),
     ).not.toBeInTheDocument();
+    // L'alerte dans le formulaire suffit : pas de toast en doublon.
+    expect(toastMock.error).not.toHaveBeenCalled();
+  });
+
+  it("efface l'erreur serveur dès que l'utilisateur modifie le formulaire", async () => {
+    submitMock.mockResolvedValue({ error: "Envoi impossible." });
+    render(<ContactForm />);
+    await submitValidForm();
+    await screen.findByRole("alert");
+
+    fireEvent.change(screen.getByLabelText("Exprimez votre besoin"), {
+      target: { value: "Bonjour, autre formulation." },
+    });
+    await waitFor(() =>
+      expect(screen.queryByRole("alert")).not.toBeInTheDocument(),
+    );
   });
 });
