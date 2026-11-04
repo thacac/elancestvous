@@ -7,6 +7,17 @@ article publié, agrégés par pilier, avec des diagnostics numériques objectif
 (`ZERO_IMPRESSIONS`, `LOW_CTR_TOP10`, `POOR_POSITION`) et le delta par rapport
 au run précédent.
 
+> ⚠️ **Rapports antérieurs au correctif de novembre 2026 (`2026-09-10`,
+> `2026-10-01`, `2026-11-01`) : impressions et clics sous-évalués.** Les
+> totaux étaient reconstitués à partir des lignes page+query, dont Google
+> retire les requêtes anonymisées. Or, sur ce blog encore jeune, c'était la
+> totalité des impressions : d'où les `ZERO_IMPRESSIONS` partout. L'audit
+> Search Console du 04/11/2026 (`yarn seo:gsc-audit`) montrait en réalité
+> les 8 articles indexés, avec 0 à 16 impressions chacun. Depuis, les totaux
+> viennent d'une requête par page seule (`fetchBlogPageTotals`). Le delta du
+> premier rapport corrigé reflète donc ce changement de mesure, pas une
+> progression réelle.
+
 Volontairement committé (pas gitignore) : c'est l'historique qui permettra,
 après 2-3 mois de publication, la décision de #57 (déprioriser un pilier sans
 impression dans le tourniquet pondéré de #52). Un run isolé ne suffit pas à
