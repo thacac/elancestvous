@@ -11,6 +11,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
+import { BADGE_TONES } from "@/components/charte";
 import {
   Button,
   Form,
@@ -29,40 +30,61 @@ import {
   FieldSet,
 } from "@/components/ui/field";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { cn } from "@/lib/utils";
 
 import { submit_contact_form } from "./action";
 import { contactFormSchema, ContactFormValues } from "./validation";
 
-// Pastilles des étapes du formulaire, mêmes couleurs tournantes que Steps
-// (charte : orange foncé, pétrole, bleu nuit ; blanc dessus ≥ 5.7:1).
-// Paragraphes et non titres : le plan Hn de la page reste inchangé.
+// Légende d'étape du formulaire : pastille numérotée aux couleurs tournantes
+// de Steps (charte), dans un fieldset pour que le lecteur d'écran annonce
+// l'étape en entrant dans ses champs (RGAA 11.5 / 11.6). Légende et non
+// titre : le plan Hn de la page reste inchangé.
 function EtapeFormulaire({
   numero,
-  fond,
   children,
 }: {
   numero: number;
-  fond: "bg-accent" | "bg-petrol" | "bg-primary";
   children: ReactNode;
 }) {
   return (
-    <p className="flex items-center gap-3 font-display text-lg font-extrabold text-primary">
+    <legend className="mb-4 flex items-center gap-3 font-display text-lg font-extrabold text-primary">
       <span
         aria-hidden="true"
-        className={`flex size-8 shrink-0 items-center justify-center rounded-full font-black text-white ${fond}`}
+        className={cn(
+          "flex size-8 shrink-0 items-center justify-center rounded-full font-black text-white",
+          BADGE_TONES[(numero - 1) % BADGE_TONES.length],
+        )}
       >
         {numero}
       </span>
       {children}
-    </p>
+    </legend>
   );
 }
 
-// Carte blanche une fois sélectionnée (story 4.12) : seule la bordure bleu
-// nuit, doublée de la pastille du bouton radio, signale le choix. Pas
-// d'ombre (DESIGN.md : profondeur par les aplats).
+// Carte blanche une fois sélectionnée (story 4.12). Bord stone-600 visible
+// sur le ciel (≥ 3:1) ; la sélection ajoute un anneau bleu nuit, nettement
+// plus marqué que le survol. Pas d'ombre (DESIGN.md : profondeur par les
+// aplats).
 const CARTE_PROJET =
-  "relative flex cursor-pointer items-center gap-4 rounded-2xl border-2 border-white bg-white p-5 transition-colors focus:outline-none hover:border-stone-600 has-[[data-state=checked]]:border-primary";
+  "relative flex cursor-pointer items-center gap-4 rounded-2xl border border-stone-600 bg-white p-5 transition-colors focus:outline-none hover:border-primary has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:ring-2 has-[[data-state=checked]]:ring-primary";
+
+const TYPES_PROJET = [
+  {
+    value: "institution",
+    titre: "Établissement / DRH",
+    aide: "Formation, Coaching d'équipe ou individuel, GAPP",
+    Icone: BuildingOffice2Icon,
+    teinte: "bg-sky text-petrol",
+  },
+  {
+    value: "particulier",
+    titre: "Particulier",
+    aide: "Equilibre vie pro/perso, Confiance en soi, Stress",
+    Icone: UserIcon,
+    teinte: "bg-peach text-accent",
+  },
+] as const;
 
 const CHAMP = "input input-bordered rounded-md w-full h-12 px-4 text-base";
 
@@ -141,9 +163,7 @@ export default function ContactForm({
           name="projectType"
           render={({ field }) => (
             <FieldSet>
-              <EtapeFormulaire numero={1} fond="bg-accent">
-                Votre projet
-              </EtapeFormulaire>
+              <EtapeFormulaire numero={1}>Votre projet</EtapeFormulaire>
               <FieldLabel className="form-label">
                 Vous me contactez pour :
               </FieldLabel>
@@ -156,62 +176,40 @@ export default function ContactForm({
                 onValueChange={field.onChange}
                 className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2"
               >
-                <Field
-                  orientation="horizontal"
-                  className={CARTE_PROJET}
-                >
-                  <span
-                    aria-hidden="true"
-                    className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-sky text-petrol"
+                {TYPES_PROJET.map(({ value, titre, aide, Icone, teinte }) => (
+                  <Field
+                    key={value}
+                    orientation="horizontal"
+                    className={CARTE_PROJET}
                   >
-                    <BuildingOffice2Icon aria-hidden="true" className="size-6" />
-                  </span>
-                  <RadioGroupItem
-                    value="institution"
-                    id="project-type-institution"
-                  />
-                  <FieldLabel
-                    htmlFor="project-type-institution"
-                    className="font-display text-base font-extrabold text-primary flex-col items-start gap-1"
-                  >
-                    Établissement / DRH
-                    <span className="block text-xs text-stone-600 font-normal">
-                      Formation, Coaching d&apos;équipe ou individuel, GAPP
+                    <span
+                      aria-hidden="true"
+                      className={cn(
+                        "flex size-11 shrink-0 items-center justify-center rounded-xl",
+                        teinte,
+                      )}
+                    >
+                      <Icone aria-hidden="true" className="size-6" />
                     </span>
-                  </FieldLabel>
-                </Field>
-                <Field
-                  orientation="horizontal"
-                  className={CARTE_PROJET}
-                >
-                  <span
-                    aria-hidden="true"
-                    className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-peach text-accent"
-                  >
-                    <UserIcon aria-hidden="true" className="size-6" />
-                  </span>
-                  <RadioGroupItem
-                    value="particulier"
-                    id="project-type-particulier"
-                  />
-                  <FieldLabel
-                    htmlFor="project-type-particulier"
-                    className="font-display text-base font-extrabold text-primary flex-col items-start gap-1"
-                  >
-                    Particulier
-                    <span className="block text-xs text-stone-600 font-normal">
-                      Equilibre vie pro/perso, Confiance en soi, Stress
-                    </span>
-                  </FieldLabel>
-                </Field>
+                    <RadioGroupItem value={value} id={`project-type-${value}`} />
+                    <FieldLabel
+                      htmlFor={`project-type-${value}`}
+                      className="font-display text-base font-extrabold text-primary flex-col items-start gap-1"
+                    >
+                      {titre}
+                      <span className="block text-xs text-stone-600 font-normal">
+                        {aide}
+                      </span>
+                    </FieldLabel>
+                  </Field>
+                ))}
               </RadioGroup>
             </FieldSet>
           )}
         />
-        <EtapeFormulaire numero={2} fond="bg-petrol">
-          Vos coordonnées
-        </EtapeFormulaire>
-        <div className="grid sm:grid-cols-2 gap-4">
+        <fieldset className="grid gap-4">
+          <EtapeFormulaire numero={2}>Vos coordonnées</EtapeFormulaire>
+          <div className="grid sm:grid-cols-2 gap-4">
           <FormField
             control={form.control}
             name="firstName"
@@ -244,8 +242,7 @@ export default function ContactForm({
               </FormItem>
             )}
           />
-        </div>
-        <div>
+          </div>
           <FormField
             control={form.control}
             name="email"
@@ -265,12 +262,10 @@ export default function ContactForm({
               </FormItem>
             )}
           />
-        </div>
+        </fieldset>
 
-        <EtapeFormulaire numero={3} fond="bg-primary">
-          Votre message
-        </EtapeFormulaire>
-        <div>
+        <fieldset>
+          <EtapeFormulaire numero={3}>Votre message</EtapeFormulaire>
           <FormField
             control={form.control}
             name="message"
@@ -291,7 +286,7 @@ export default function ContactForm({
               </FormItem>
             )}
           />
-        </div>
+        </fieldset>
 
         <Button
           type="submit"
@@ -315,7 +310,7 @@ export default function ContactForm({
               Envoyer ma demande
               <ArrowRightIcon
                 aria-hidden="true"
-                className="size-5 transition-transform motion-safe:group-hover:translate-x-1"
+                className="size-4 transition-transform motion-safe:group-hover:translate-x-1"
               />
             </>
           )}

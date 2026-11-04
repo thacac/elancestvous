@@ -32,7 +32,7 @@ const LAYOUTS = {
 
 // Couleurs qui tournent comme dans les slides (1 orange foncé, 2 pétrole,
 // 3 bleu nuit) ; blanc dessus ≥ 5.7:1.
-const BADGE_TONES = ["bg-accent", "bg-petrol", "bg-primary"];
+export const BADGE_TONES = ["bg-accent", "bg-petrol", "bg-primary"];
 const CARD_TONES = ["bg-sky", "bg-peach"];
 
 // Étapes numérotées reliées par des flèches, à réserver aux vraies démarches.
