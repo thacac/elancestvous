@@ -1,6 +1,6 @@
 ---
-titre: "Gérer son stress efficacement et pour longtemps"
-slug: "gerer-son-stress-efficacement-et-pour-longtemps"
+titre: "Prévention de l'usure professionnelle, gestion du stress et des émotions"
+slug: "prevention-usure-professionnelle-stress-emotions"
 famille: "prevention-rps-qvct-etablissements-sante"
 objectifsPedagogiques:
   - "Comprendre les mécanismes et les effets du stress"
@@ -24,6 +24,8 @@ format: "Présentiel, en intra-établissement"
 delaiAcces: "4 à 6 semaines après accord"
 modalitesEvaluation: "Apports théoriques, travaux en sous-groupes, analyse de situations professionnelles, exercices pratiques (cohérence cardiaque, pleine conscience, réveil musculaire). Évaluation initiale des connaissances, questionnaire d'autoévaluation et bilan des apprentissages."
 accessibilite: "Formation accessible aux personnes en situation de handicap."
+tarif: "Sur devis, selon les besoins de votre établissement"
+referentHandicap: "Pour toute demande d'adaptation liée à une situation de handicap, merci de me contacter"
 ---
 
 Comprendre ce qui se joue dans le stress au travail, repérer ses propres

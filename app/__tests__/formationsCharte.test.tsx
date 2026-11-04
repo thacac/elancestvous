@@ -314,12 +314,20 @@ describe("Fiche formation", () => {
     expect(h1.parentElement).toHaveClass("min-w-0");
   });
 
-  it("publie la fiche « Gérer son stress efficacement et pour longtemps » (support de formation de Coralie)", async () => {
+  it("publie la fiche « Prévention de l'usure professionnelle, gestion du stress et des émotions » (support de formation de Coralie)", async () => {
     const { container } = await renderFiche(
       "prevention-rps-qvct-etablissements-sante",
-      "gerer-son-stress-efficacement-et-pour-longtemps",
+      "prevention-usure-professionnelle-stress-emotions",
     );
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Gérer son stress efficacement et pour longtemps");
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
+      "Prévention de l'usure professionnelle, gestion du stress et des émotions",
+    );
+    expect(screen.getByText("Sur devis, selon les besoins de votre établissement")).toBeInTheDocument();
+    expect(
+      screen.getByText("Pour toute demande d'adaptation liée à une situation de handicap, merci de me contacter"),
+    ).toBeInTheDocument();
+    // Seuls les indicateurs de résultats restent à confirmer.
+    expect(screen.getAllByText("[À confirmer]")).toHaveLength(1);
     sansSaut(container);
     const section = screen.getByRole("heading", { level: 2, name: "Programme" }).closest("section")!;
     expect(within(section.querySelector("ol")!).getAllByRole("heading", { level: 3 }).map((h) => h.textContent)).toEqual([
