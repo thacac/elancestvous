@@ -11,7 +11,7 @@ de plus dans l'étape "Create .env file from GitHub Secrets" de `deploy.yml` suf
 | Variable | Rôle | Où l'obtenir |
 |---|---|---|
 | `ANTHROPIC_API_KEY` | Génération du texte de l'article (`services/blog/anthropicDraftGenerator.ts`) | console.anthropic.com |
-| `IMAGE_GEN_API_KEY` | Génération de l'illustration de couverture via `gpt-image-1` (`services/blog/openaiImageGenerator.ts`) | platform.openai.com — **clé API**, distincte de l'abonnement ChatGPT (facturation séparée, voir note ci-dessous) |
+| `IMAGE_GEN_API_KEY` | Génération de l'illustration de couverture (`services/blog/openaiImageGenerator.ts`, modèle `IMAGE_GEN_MODEL`, voir plus bas) | platform.openai.com — **clé API**, distincte de l'abonnement ChatGPT (facturation séparée, voir note ci-dessous) |
 | `GH_PAT_TOKEN` | Commit des brouillons sur `blog-draft/<slug>` (`services/blog/githubBlogRepo.ts`) | PAT *fine-grained*, limité au dépôt `elancestvous`, permission `Contents` en lecture/écriture uniquement (principe du moindre privilège — le code actuel lit/écrit du contenu et crée des branches, sans jamais toucher aux pull requests), avec expiration |
 | `GITHUB_REPO` | Dépôt cible au format `owner/repo` (ex. `thacac/elancestvous`) | fixe |
 | `BLOG_CRON_SECRET` | Authentifie les appels `POST /api/blog/generate` (cron hebdomadaire) et `POST /api/blog/veille` (cron quotidien, `.github/workflows/blog-veille-trigger.yml`) envoyés par GitHub Actions — un seul secret pour les deux | à générer soi-même (chaîne aléatoire longue) |
@@ -21,7 +21,7 @@ de plus dans l'étape "Create .env file from GitHub Secrets" de `deploy.yml` suf
 L'abonnement ChatGPT (grand public) et l'accès à l'API OpenAI sont facturés
 séparément, même si c'est le même compte de connexion. Il faut générer une clé API
 sur `platform.openai.com` et y ajouter un petit crédit prépayé (quelques dollars
-suffisent pour un rythme hebdomadaire) — l'appel `gpt-image-1` n'est pas inclus
+suffisent pour un rythme hebdomadaire) — l'appel à l'API image n'est pas inclus
 automatiquement dans un abonnement ChatGPT Plus.
 
 ### Note sur `GH_PAT_TOKEN`
@@ -70,12 +70,13 @@ réutilise `GH_PAT_TOKEN`, la réponse à la modale réutilise `DISCORD_PUBLIC_K
 (décision assumée, cf. issue #67) — `SYSTEM_PROMPT` reste la seule protection
 en aval contre une tentative d'injection de prompt via le champ "sujet"/"notes".
 
-## Optionnel — réglage coût/modèle (`services/blog/anthropicDraftGenerator.ts`)
+## Optionnel — réglage coût/modèle (`services/blog/anthropicDraftGenerator.ts`, `services/blog/openaiImageGenerator.ts`)
 
 | Variable | Rôle | Défaut si absente |
 |---|---|---|
 | `ANTHROPIC_BLOG_MODEL` | Modèle Claude utilisé pour `parseDraft`/`reviseDraft` | `claude-opus-5` |
 | `ANTHROPIC_BLOG_EFFORT` | `output_config.effort` (`low`/`medium`/`high`/`xhigh`/`max`) | non défini — effort adaptatif par défaut du SDK |
+| `IMAGE_GEN_MODEL` | Modèle OpenAI de l'illustration de couverture (`services/blog/openaiImageGenerator.ts`) — à renseigner quand OpenAI renomme ou retire un modèle (`gpt-image-1` arrêté le 23/10/2026), sans changer le code. Liste à jour : developers.openai.com/api/docs/deprecations | `gpt-image-2.6-sunburst` |
 
 Chaque appel logue déjà (`console.log`, préfixe `[blog/anthropic]`) les tokens
 consommés et un coût estimé en dollars, à partir d'une petite table de tarifs
