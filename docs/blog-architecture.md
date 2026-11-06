@@ -53,7 +53,7 @@ lancement" qui empêcherait l'indexation une fois le blog réellement public).
                      ┌────────────────────────┼────────────────────────┐
                      ▼                        ▼                        ▼
           ┌─────────────────┐     ┌─────────────────────┐   ┌─────────────────────┐
-          │ Claude           │     │ OpenAI gpt-image-1    │   │ GitHub Contents API   │
+          │ Claude           │     │ OpenAI gpt-image-2.6  │   │ GitHub Contents API   │
           │ (texte structuré,│     │ (illustration de       │   │ (liste des titres déjà│
           │  zod-validé)     │     │  couverture)           │   │  publiés, anti-doublon)│
           └────────┬─────────┘     └──────────┬──────────┘   └─────────────────────┘
@@ -104,7 +104,7 @@ lancement" qui empêcherait l'indexation une fois le blog réellement public).
 | `services/blog/draftSchema.ts` | Schéma zod partagé du brouillon structuré (titre, slug, description, extrait, tags, corps Markdown, prompts d'image) |
 | `services/blog/generateDraft.ts` | Orchestrateur (injection de dépendances, testable sans réseau) |
 | `services/blog/anthropicDraftGenerator.ts` | Appel Claude (`client.messages.parse` + sortie structurée zod) |
-| `services/blog/openaiImageGenerator.ts` | Appel OpenAI `gpt-image-1` pour l'illustration |
+| `services/blog/openaiImageGenerator.ts` | Appel OpenAI (modèle `IMAGE_GEN_MODEL`, défaut `gpt-image-2.6-sunburst`) pour l'illustration |
 | `services/blog/githubBlogRepo.ts` | Liste des titres publiés + commit du brouillon via l'API Contents GitHub (Git Data API réservée à la création de la branche) |
 | `services/blog/createBlogDraftDeps.ts` | Construit les dépendances réelles à partir des variables d'environnement |
 | `app/api/blog/generate/route.ts` | Point d'entrée protégé par `BLOG_CRON_SECRET` |
@@ -170,7 +170,7 @@ pipeline où le caching a un effet réel.
   conséquence pour une branche jetable.
 - **Images compressées en JPEG à la source** : les illustrations sont committées dans
   le dépôt git et y restent pour toujours, même remplacées plus tard — l'historique
-  git ne s'allège jamais tout seul. `gpt-image-1` est donc appelé avec
+  git ne s'allège jamais tout seul. Le modèle image est donc appelé avec
   `output_format: "jpeg"` + compression, ce qui borne chaque image à ~100-150 Ko au
   lieu des plusieurs Mo d'un PNG par défaut. À ce rythme (un article/semaine), la
   croissance du dépôt reste de l'ordre de quelques Mo par an. Si le blog devait un

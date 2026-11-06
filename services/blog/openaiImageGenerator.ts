@@ -1,13 +1,16 @@
 import OpenAI from "openai";
 
-const DEFAULT_MODEL = "gpt-image-1";
+// gpt-image-1 a été arrêté par OpenAI le 23/10/2026. Surchargeable via
+// IMAGE_GEN_MODEL pour suivre un prochain renommage sans toucher au code
+// (liste à jour : https://developers.openai.com/api/docs/deprecations).
+const DEFAULT_MODEL = "gpt-image-2.6-sunburst";
 
 export function createOpenAiImageGenerator(options?: {
   apiKey?: string;
   model?: string;
 }) {
   const client = new OpenAI({ apiKey: options?.apiKey });
-  const model = options?.model ?? DEFAULT_MODEL;
+  const model = options?.model ?? (process.env.IMAGE_GEN_MODEL || undefined) ?? DEFAULT_MODEL;
 
   return {
     async generateCoverImage(prompt: string): Promise<Buffer> {
