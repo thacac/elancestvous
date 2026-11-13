@@ -14,9 +14,10 @@ directement dans ce fichier.
 
 Toujours chargées :
 
+- `deroule-tache.md` — déroulé obligatoire de toute tâche : interroger →
+  planifier (plan validé avant tout code) → implémenter → revoir ;
 - `workflow-git.md` — une branche par tâche, une session neuve par story, PR
-  vers `validation` jamais `master`, TDD, demander validation avant
-  d'écrire du code, tests à lancer avant de pousser ;
+  vers `validation` jamais `master`, TDD, tests à lancer avant de pousser ;
 - `revue-avant-pr.md` — revue du diff dans un contexte isolé avant toute PR ;
 - `secrets.md` — noms de secrets, jamais de valeur de secret dans une
   conversation ;
