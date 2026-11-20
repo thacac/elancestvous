@@ -75,5 +75,13 @@
     "pillarId": "B",
     "submittedAt": "2026-11-20T10:33:45.900Z",
     "status": "a_publier"
+  },
+  {
+    "id": "3b89d7047340",
+    "type": "discord_topic",
+    "topic": "Analyse de pratiques professionnelles",
+    "notes": "Je veux que tu développes plus le pilier gapp sur le blog. \nExplication de ce qu’est un gapp\nÀ quoi ça sert ?",
+    "submittedAt": "2026-11-20T10:35:30.426Z",
+    "status": "a_publier"
   }
 ]
